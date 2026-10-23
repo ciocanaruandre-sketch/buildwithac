@@ -100,3 +100,19 @@ test.describe("abonare", () => {
     await expect(page.locator(".mail").getByRole("link", { name: "Confidențialitate" })).toHaveAttribute("href", "/confidentialitate");
   });
 });
+
+test.describe("servicii și contact", () => {
+  test("serviciile au cele trei carduri", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("#servicii .scard")).toHaveCount(3);
+  });
+
+  test("contactul are Instagram și e-mail", async ({ page }) => {
+    const { SITE } = await import("../../lib/config");
+    await page.goto("/");
+    const contact = page.locator("#contact");
+    await expect(contact.getByRole("link", { name: /Mesaj pe Instagram/ })).toHaveAttribute("href", SITE.instagram.url);
+    await expect(contact.getByRole("link", { name: /E-mail/ })).toHaveAttribute("href", `mailto:${SITE.emailContact}`);
+    await expect(contact).toContainText(SITE.emailContact);
+  });
+});
