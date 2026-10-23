@@ -32,7 +32,7 @@ export function PereteClipuri() {
           <div className="wcol" key={c}>
             {col.map((clip, k) => (
               <a key={k} className="clip" href={clip.url} target="_blank" rel="noopener" tabIndex={-1} aria-hidden>
-                <Image src={clip.coperta} alt="" fill sizes="260px" />
+                <Image src={clip.coperta} alt="" fill sizes="(max-width: 700px) 170px, 260px" />
                 <span><Titlu text={clip.titlu} /></span>
               </a>
             ))}
