@@ -20,10 +20,12 @@ export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
   async function trimite(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     // citim din câmp, nu din stare: pe un telefon lent omul poate scrie înainte ca pagina să fie gata
-    const email = String(new FormData(e.currentTarget).get("email") ?? "");
+    const date = new FormData(e.currentTarget);
+    const email = String(date.get("email") ?? "");
+    const website = String(date.get("website") ?? "");
     setStare("trimite");
     try {
-      const r = await fetch("/api/abonare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      const r = await fetch("/api/abonare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, website }) });
       const { stare } = (await r.json()) as { stare: StareAbonare };
       setStare(MESAJE[stare] ? stare : "indisponibil");
     } catch {
@@ -42,6 +44,8 @@ export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
           placeholder="adresa ta de e-mail"
           aria-label="Adresa ta de e-mail"
         />
+        {/* câmp-capcană pentru roboți: ascuns pentru oameni și pentru cititoarele de ecran */}
+        <input className="capcana" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
         <button type="submit" disabled={!hidratat || stare === "trimite"}>Mă abonez</button>
       </form>
       <p className={`mesaj${stare === "ok" ? " ok" : ""}`} role="status" aria-live="polite">

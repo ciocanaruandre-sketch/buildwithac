@@ -7,3 +7,4 @@
 .abonare .mesaj.ok { color: #1f6f3a; }
 .abonare .acord { margin-top: 6px; font-size: 12px; color: #6b5a4d; line-height: 1.5; }
 .abonare .acord a { color: inherit; text-decoration: underline; }
+.abonare .capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
