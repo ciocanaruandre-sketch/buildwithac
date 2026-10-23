@@ -207,6 +207,57 @@
   @keyframes rays{0%{opacity:.7}100%{opacity:1}}
   .secbg .duo{position:absolute;inset:0;background:linear-gradient(135deg,#7a0e0e,#f26a21 60%,#ffb52e);mix-blend-mode:color;opacity:.85}
   .secbg .glow{position:absolute;width:60vw;height:60vw;max-width:800px;max-height:800px;border-radius:50%;background:radial-gradient(circle,rgba(242,106,33,.22),transparent 65%)}
+
+  /* PORTOFOLIU (3 variante) */
+  .port{position:relative;padding:140px clamp(20px,6vw,90px);background:#0b0908;overflow:hidden}
+  .port h2{font-family:Unbounded;font-weight:800;font-size:clamp(30px,4.4vw,64px);letter-spacing:-.04em;line-height:1.05;max-width:900px}
+  .port .intro{color:var(--muted);margin-top:14px;font-size:15px;max-width:560px}
+  .ctag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:4px 9px;border-radius:999px}
+  .ctag.c{background:var(--grad);color:#fff}.ctag.p{background:#0b0908;color:var(--gold)}.ctag.a{background:#2a120c;color:#ff9a5c}
+  /* A · colaj */
+  .pa{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:42px 30px;margin-top:60px}
+  .pa .it{position:relative;background:var(--cream);color:#1b0f0a;padding:12px 12px 18px;box-shadow:0 30px 60px rgba(0,0,0,.55);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .pa .it:nth-child(odd){transform:rotate(-1.6deg)}.pa .it:nth-child(even){transform:rotate(1.4deg) translateY(18px)}
+  .pa .it:hover{transform:rotate(0) translateY(-10px)}
+  .pa .it.big{grid-column:1/-1}
+  .pa .tp{position:absolute;top:-12px;left:50%;width:90px;height:24px;margin-left:-45px;background:rgba(255,226,170,.85);transform:rotate(-3deg)}
+  .pa .im{height:200px;background-size:cover;background-position:center;position:relative}
+  .pa .it.big .im{height:clamp(220px,34vw,420px)}
+  .pa .im .ctag{position:absolute;left:10px;top:10px}
+  .pa h3{font-family:Unbounded;font-weight:600;font-size:18px;margin:14px 4px 6px;letter-spacing:-.02em}
+  .pa p{font-size:13px;color:#6b5a4d;margin:0 4px}
+  .pa .soon .im{filter:grayscale(1) contrast(.9) brightness(.9)}
+  .pa .soon .im::after{content:"în curând";position:absolute;right:10px;bottom:10px;font-family:Caveat;font-size:24px;color:#fff;background:#c2410c;padding:0 10px;transform:rotate(-4deg)}
+  /* B · bento întunecat */
+  .pb{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:220px;gap:18px;margin-top:60px}
+  .pb .it{position:relative;border-radius:26px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:22px;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate}
+  .pb .it .bg{position:absolute;inset:0;background-size:cover;background-position:center;z-index:-2;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+  .pb .it::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,9,8,.05),rgba(11,9,8,.9))}
+  .pb .it:hover .bg{transform:scale(1.05)}
+  .pb .it>.ctag{align-self:flex-start}
+  .pb .w2{grid-column:span 2}.pb .h2{grid-row:span 2}
+  .pb h3{font-family:Unbounded;font-weight:800;font-size:22px;letter-spacing:-.03em;margin-top:10px}
+  .pb p{color:#cfc4ba;font-size:13px;margin-top:6px}
+  .pb .soon{border:2px dashed rgba(246,239,227,.25);background:transparent}
+  .pb .soon::before{display:none}
+  .pb .soon .nm{font-family:Caveat;font-size:26px;color:var(--gold)}
+  .pb .flow{position:absolute;top:22px;left:22px;right:22px;display:flex;align-items:center;gap:6px}
+  .pb .flow i{flex:0 0 34px;height:34px;border-radius:10px;background:rgba(242,106,33,.18);border:1px solid rgba(242,106,33,.5)}
+  .pb .flow b{flex:1;height:2px;background:linear-gradient(90deg,#f26a21,#e53222)}
+  @media(max-width:860px){.pb{grid-template-columns:1fr 1fr;grid-auto-rows:190px}.pb .w2{grid-column:1/-1}}
+  @media(max-width:520px){.pb{grid-template-columns:1fr}.pb .h2{grid-row:span 1}}
+  /* C · listă cinematică */
+  .pc{margin-top:60px;border-top:1px solid rgba(255,255,255,.12)}
+  .pc .row{position:relative;display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:20px;padding:30px 0;border-bottom:1px solid rgba(255,255,255,.12);text-decoration:none;color:var(--cream)}
+  .pc .n{font-family:Unbounded;font-size:13px;color:#ff8a3d}
+  .pc h3{font-family:Unbounded;font-weight:800;font-size:clamp(24px,4vw,56px);letter-spacing:-.04em;line-height:1;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+  .pc .row:hover h3{transform:translateX(16px)}
+  .pc .row p{color:var(--muted);font-size:14px;margin-top:8px}
+  .pc .soon h3{color:transparent;-webkit-text-stroke:1.2px rgba(246,239,227,.45)}
+  .pc .pv{position:fixed;left:0;top:0;width:340px;height:230px;border-radius:18px;background-size:cover;background-position:center;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.85) rotate(-4deg);transition:opacity .3s,transform .3s;z-index:60;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+  .pc.on .pv{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-4deg)}
+  .pc .th{display:none;height:150px;border-radius:14px;background-size:cover;background-position:center;margin-top:14px}
+  @media(hover:none),(max-width:700px){.pc .row{grid-template-columns:44px 1fr;align-items:start}.pc .n{padding-top:8px}.pc .row .ctag{justify-self:start}.pc .row .ctag{grid-column:2}.pc .th{display:block}.pc .pv{display:none}}
 </style>
 </head>
 <body>
@@ -216,7 +267,7 @@
   <div class="links"><a href="#ghiduri">Ghiduri</a><a href="#cine">Pentru cine</a>
     <div class="dd" id="dd"><button type="button" onclick="this.parentElement.classList.toggle('on')">Social media <i>▾</i></button>
       <div class="ddm"><a href="#" target="_blank" rel="noopener"><span class="ic">IG</span>Instagram</a><a href="#" target="_blank" rel="noopener"><span class="ic">TT</span>TikTok</a></div></div>
-    <a href="#servicii">Servicii</a><a href="#contact">Contact</a></div>
+    <a href="#portofoliu">Portofoliu</a><a href="#servicii">Servicii</a><a href="#contact">Contact</a></div>
 </nav>
 
 <div class="sw" id="sw">
@@ -242,6 +293,7 @@
   <label class="grp"><b>Titlu</b><select data-k="titlu"><option value="modern">Modern</option><option value="retro">Retro (ca logo-ul)</option></select></label>
   <label class="grp"><b>Formă titlu</b><select data-k="forma"><option value="drept">Drept (actual)</option><option value="creasta">NOU · Pe creasta muntelui</option><option value="iese">NOU · Iese din spatele muntelui</option><option value="umple">NOU · Literele sunt muntele</option></select></label>
   <label class="grp"><b>După hero</b><select data-k="dupa"><option value="cortina">Cortină + manifest</option><option value="scena">Încă o scenă</option></select></label>
+  <label class="grp"><b>Portofoliu</b><select data-k="port"><option value="a">A · Colaj (foi cu bandă)</option><option value="b">B · Bento întunecat</option><option value="c">C · Listă cinematică</option></select></label>
   <label class="grp"><b>Fundal secțiuni</b><select data-k="fundal">
     <optgroup label="Lumini + granulație"><option value="lumini">Pete de lumină (prima variantă)</option><option value="aurora">NOU · Aurora (panglici de lumină)</option><option value="mesh">NOU · Gradient fluid (mesh)</option><option value="spot">NOU · Lumina urmărește mouse-ul</option><option value="raze">NOU · Raze de lumină</option></optgroup>
     <optgroup label="Imagini + lumini + granulație"><option value="foto-lumini">NOU · Foto + pete de lumină</option><option value="duoton">NOU · Foto bicolor (în culorile logo-ului)</option><option value="foto-raze">NOU · Foto + raze de lumină</option></optgroup>
@@ -299,6 +351,13 @@
     </div>
   </section>
 
+  <section class="port" id="portofoliu">
+    <div class="eb">Portofoliu</div>
+    <h2>Ce am construit <span class="serif gtxt">cu AI.</span></h2>
+    <p class="intro">Proiecte reale și concepte pentru firme mici. Conceptele sunt marcate clar.</p>
+    <div id="portbox"></div>
+  </section>
+
   <section class="serv" id="servicii">
     <span class="lbl">secțiune · carduri care se stivuiesc (exemplu, serviciile le gândim ulterior)</span>
     <div class="eb">Servicii</div>
@@ -349,7 +408,7 @@
 
 <script>
 const Q=new URLSearchParams(location.search);
-const S={scena:Q.get('scena')||'munte-cod',titlu:Q.get('titlu')||'modern',forma:Q.get('forma')||'drept',dupa:Q.get('dupa')||'cortina',fundal:Q.get('fundal')||'aurora'};
+const S={scena:Q.get('scena')||'munte-cod',titlu:Q.get('titlu')||'modern',forma:Q.get('forma')||'drept',dupa:Q.get('dupa')||'cortina',fundal:Q.get('fundal')||'aurora',port:Q.get('port')||'a'};
 document.querySelectorAll('.sw select').forEach(s=>{
   s.value=S[s.dataset.k];
   s.onchange=()=>{const n=new URLSearchParams(location.search);n.set(s.dataset.k,s.value);location.search=n.toString();};
@@ -526,6 +585,29 @@ const CL=[['Am făcut o aplicație <em>fără să știu</em> să programez','150
 const tilt=document.getElementById('tilt');
 tilt.innerHTML=[0,1,2,3,4].map(c=>`<div class="wcol">${[0,1,2,3].map(k=>{const x=CL[(c*2+k)%CL.length];return `<div class="clip" style="background-image:url('${U(x[1]).replace('w=1600','w=500')}')"><span>${x[0]}</span></div>`}).join('')}</div>`).join('');
 
+
+/* ---------- portofoliu ---------- */
+const PF=[
+ {t:'ImobSearch',k:'p',kt:'Proiect',d:'Agregator imobiliar: anunțurile de pe mai multe site-uri, într-un singur loc, cu alerte.',img:'1560518883-ce09059eeffa',big:1},
+ {t:'Răspunsuri automate la clienți',k:'a',kt:'Automatizare n8n',d:'E-mailurile primite sunt sortate și primesc un răspuns-ciornă în 30 de secunde.',img:'1551288049-bebda4e38f71'},
+ {t:'Facturi din e-mail în tabel',k:'a',kt:'Automatizare n8n',d:'Facturile din atașamente ajung singure într-un tabel, cu sumă și dată.',img:'1554224155-6726b3ff858f'},
+ {t:'Clinică stomatologică',k:'c',kt:'Concept',d:'Site cu programări online și prețuri clare.',img:'1588776814546-1ffcf47267a5',soon:1},
+ {t:'Salon',k:'c',kt:'Concept',d:'Galerie de lucrări, servicii și programare rapidă.',img:'1560066984-138dadb4c035',soon:1},
+ {t:'Service auto / Salon de tatuaje',k:'c',kt:'Concept',d:'Al treilea concept, încă nedecis.',img:'1487754180451-c456f719a1fc',soon:1}];
+const PU=(id,w)=>`https://images.unsplash.com/photo-${id}?w=${w}&q=70`;
+const pbox=document.getElementById('portbox');
+if(S.port==='b'){
+  const cls=['w2 h2','','','w2','',''];
+  pbox.innerHTML=`<div class="pb">${PF.map((x,i)=>x.soon?`<div class="it soon ${cls[i]}"><span class="ctag c">${x.kt}</span><h3>${x.t}</h3><div class="nm">în curând</div></div>`:`<div class="it ${cls[i]}"><div class="bg" style="background-image:url('${PU(x.img,1000)}')"></div>${x.k==='a'?'<div class="flow"><i></i><b></b><i></i><b></b><i></i></div>':''}<span class="ctag ${x.k}" style="align-self:flex-start">${x.kt}</span><h3>${x.t}</h3><p>${x.d}</p></div>`).join('')}</div>`;
+}else if(S.port==='c'){
+  pbox.innerHTML=`<div class="pc"><div class="pv"></div>${PF.map((x,i)=>`<a class="row${x.soon?' soon':''}" href="#" data-img="${PU(x.img,700)}"><span class="n">${String(i+1).padStart(2,'0')}</span><div><h3>${x.t}</h3><p>${x.d}${x.soon?' · în curând':''}</p><div class="th" style="background-image:url('${PU(x.img,700)}')"></div></div><span class="ctag ${x.k}">${x.kt}</span></a>`).join('')}</div>`;
+  const pc=pbox.querySelector('.pc'),pv=pc.querySelector('.pv');
+  pc.querySelectorAll('.row').forEach(r=>{r.onmouseenter=()=>{pv.style.backgroundImage=`url('${r.dataset.img}')`;pc.classList.add('on')};r.onmouseleave=()=>pc.classList.remove('on')});
+  addEventListener('mousemove',e=>{pv.style.left=e.clientX+'px';pv.style.top=e.clientY+'px'});
+}else{
+  pbox.innerHTML=`<div class="pa">${PF.map(x=>`<div class="it${x.big?' big':''}${x.soon?' soon':''} rv"><div class="tp"></div><div class="im" style="background-image:url('${PU(x.img,x.big?1600:700)}')"><span class="ctag ${x.k}">${x.kt}</span></div><h3>${x.t}</h3><p>${x.d}</p></div>`).join('')}</div>`;
+}
+
 /* ---------- fundaluri secțiuni ---------- */
 function topo(seed,cx,cy){const r=rnd(seed);let out='';const a=[r()*6,r()*6,r()*6];
   for(let k=1;k<=16;k++){let d='';const R=k*46;
@@ -533,7 +615,7 @@ function topo(seed,cx,cy){const r=rnd(seed);let out='';const a=[r()*6,r()*6,r()*
       d+=(t?'L':'M')+(cx+rr*Math.cos(th)).toFixed(1)+' '+(cy+rr*.72*Math.sin(th)).toFixed(1)}
     out+=`<path d="${d}Z" fill="none" stroke="rgba(242,106,33,${(.05+.16*(1-k/16)).toFixed(2)})" stroke-width="1.2"/>`}
   return out}
-const BGP={curtain:'1506905925346-21bda4d32df4',guides:'1477959858617-67f85cf4f1df',who2:'1519501025264-65ba15a82390',serv:'1480714378408-67cf0d13bc1b',contact:'1496442226666-8d4d0e62e6e9',foot:'1507525428034-b723cf961d3e'};
+const BGP={port:'1480714378408-67cf0d13bc1b',curtain:'1506905925346-21bda4d32df4',guides:'1477959858617-67f85cf4f1df',who2:'1519501025264-65ba15a82390',serv:'1480714378408-67cf0d13bc1b',contact:'1496442226666-8d4d0e62e6e9',foot:'1507525428034-b723cf961d3e'};
 const BLOBS=[['#f26a21','#e53222'],['#ffb52e','#7a0e0e'],['#e53222','#ffb52e']];
 Object.keys(BGP).forEach((cls,i)=>{
   const sec=document.querySelector('.'+cls);if(!sec||S.fundal==='simplu')return;
