@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>buildwithac · prototip pagină de ghid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;800&family=Instrument+Serif:ital@0;1&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0b0908;--ink2:#15100d;--cream:#f6efe3;--muted:#a99d92;--gold:#ffb52e;--orange:#f26a21;--red:#e53222;--wine:#7a0e0e;
+        --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--ink);scroll-behavior:smooth}
+  body{background:transparent;color:var(--cream);font-family:Inter,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  img{display:block;max-width:100%}
+  a{color:inherit}
+  .gtxt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+  .hand{font-family:Caveat,cursive;color:var(--gold)}
+  .eb{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#ff8a3d}
+  .lbl{display:inline-block;font-size:10px;letter-spacing:.15em;text-transform:uppercase;background:rgba(242,106,33,.15);color:#ff8a3d;padding:4px 10px;border-radius:999px;border:1px dashed rgba(242,106,33,.5)}
+
+  /* aurora (fundalul ales) */
+  .aur{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .aur .rib{position:absolute;left:-20%;width:140%;height:26%;border-radius:50%;filter:blur(60px);opacity:.22;mix-blend-mode:screen;animation:rib 18s ease-in-out infinite alternate}
+  @keyframes rib{0%{transform:translateX(-8%) rotate(var(--r)) scaleY(.8)}100%{transform:translateX(8%) rotate(calc(var(--r) * -1)) scaleY(1.2)}}
+  .aur .grain{position:absolute;inset:0;opacity:.1;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,4vw,40px);transition:background .3s}
+  .nav.solid{background:rgba(11,9,8,.75);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav .l{display:flex;align-items:center;gap:12px}
+  .nav img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+  .nav .back{font-size:13px;font-weight:500;text-decoration:none;opacity:.85;background:rgba(11,9,8,.35);backdrop-filter:blur(12px);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12)}
+  .nav .soc{display:flex;gap:8px}
+  .nav .soc a{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;text-decoration:none;background:rgba(11,9,8,.35);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12)}
+  .prog{position:fixed;top:0;left:0;height:3px;width:100%;z-index:70;background:var(--grad);transform-origin:0 50%;transform:scaleX(0)}
+
+  /* elemente comune */
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chips span{font-size:12px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.08);color:#e6dcd2;backdrop-filter:blur(8px)}
+  .chips span.free{background:rgba(242,106,33,.2);color:#ffa66b}
+  .author{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+  .author img{width:40px;height:40px;border-radius:50%}
+  .author b{color:var(--cream);font-weight:600;display:block;font-size:14px}
+  .body p{font-size:17px;line-height:1.75;color:#ddd3c9;margin:0 0 18px}
+  .body p strong{color:var(--cream)}
+  .body ul.dots{list-style:none;margin:0 0 20px}
+  .body ul.dots li{position:relative;padding:6px 0 6px 26px;font-size:16px;line-height:1.6;color:#ddd3c9}
+  .body ul.dots li::before{content:"";position:absolute;left:4px;top:15px;width:8px;height:8px;border-radius:50%;background:var(--grad)}
+  .prompt{position:relative;margin:26px 0 30px;border-radius:18px;background:#120d0b;border:1px solid rgba(242,106,33,.35)}
+  .prompt .ph{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#ff8a3d}
+  .prompt button{font:600 12px Inter;letter-spacing:0;text-transform:none;color:var(--ink);background:var(--grad);border:0;border-radius:999px;padding:7px 14px;cursor:pointer}
+  .prompt pre{padding:16px 18px 18px;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.65;white-space:pre-wrap;color:#f3e6d8}
+  .prompt:has(.note){margin-bottom:52px}
+  .prompt .note{position:absolute;right:14px;bottom:-30px;font-size:22px;transform:rotate(-4deg)}
+  .mistake{position:relative;margin:34px 0 30px;padding:22px 22px 20px;background:var(--cream);color:#1b0f0a;transform:rotate(-.8deg);box-shadow:0 20px 40px rgba(0,0,0,.4)}
+  .mistake .tape{position:absolute;top:-11px;left:24px;width:78px;height:22px;background:rgba(255,226,170,.9);transform:rotate(-4deg)}
+  .mistake .k{font-family:Caveat;font-size:26px;color:#c2410c;line-height:1;margin-bottom:6px}
+  .mistake p{color:#3d2f26!important;font-size:16px!important;margin:0!important}
+  .shot{position:relative;margin:30px 0 34px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 60px rgba(0,0,0,.5)}
+  .shot .bar{display:flex;gap:6px;align-items:center;padding:10px 12px;background:#1d1613}
+  .shot .bar i{width:10px;height:10px;border-radius:50%;background:#3a2c25}
+  .shot .bar span{margin-left:10px;font-size:11px;color:var(--muted);background:#120d0b;padding:4px 10px;border-radius:6px;flex:1;max-width:260px}
+  .shot .scr{aspect-ratio:16/9;background-size:cover;background-position:center;position:relative}
+  .shot .scr::after{content:attr(data-c);position:absolute;left:14px;bottom:12px;font-size:12px;background:rgba(11,9,8,.8);padding:5px 10px;border-radius:8px;color:#e6dcd2}
+  .shot .tp{position:absolute;top:-10px;right:30px;width:70px;height:22px;background:rgba(255,226,170,.85);transform:rotate(5deg);z-index:2}
+  .shotwrap{position:relative}
+  .need{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 10px}
+  .need span{font-size:14px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+  .need span::before{content:"✓ ";color:var(--orange);font-weight:700}
+
+  /* final comun */
+  .end{max-width:980px;margin:0 auto;padding:90px clamp(18px,5vw,40px) 120px}
+  .end h2{font-family:Unbounded;font-weight:800;font-size:clamp(30px,5vw,56px);letter-spacing:-.04em;line-height:1.05;text-align:center}
+  .end .sub{text-align:center;color:var(--muted);margin-top:12px;font-size:16px}
+  .endgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:44px}
+  .ecard{position:relative;border-radius:24px;padding:26px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);text-decoration:none;display:block;backdrop-filter:blur(8px)}
+  .ecard h3{font-family:Unbounded;font-weight:600;font-size:19px;letter-spacing:-.02em;margin:14px 0 8px}
+  .ecard p{color:#cfc4ba;font-size:14px;line-height:1.5}
+  .ecard .btns{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .ecard .btns a,.ecard button{font:600 13px Inter;padding:11px 16px;border-radius:999px;text-decoration:none;border:0;cursor:pointer}
+  .ecard .btns a{background:var(--cream);color:var(--ink)}
+  .ecard .btns a.g{background:var(--grad);color:#fff}
+  .ecard input{width:100%;margin-top:14px;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:var(--cream);font:15px Inter}
+  .ecard button{margin-top:10px;width:100%;background:var(--grad);color:#fff}
+  .ecard.next{padding:0;overflow:hidden}
+  .ecard.next .im{height:130px;background-size:cover;background-position:center}
+  .ecard.next .in{padding:20px 24px 24px}
+  .ecard .ic{width:40px;height:40px;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff}
+
+  /* ===== V1 ARTICOL ===== */
+  .a-cover{position:relative;isolation:isolate;min-height:88svh;display:flex;align-items:flex-end;padding:120px clamp(18px,6vw,90px) 56px;overflow:hidden}
+  .a-cover .im{position:absolute;inset:-6% 0 0;background-size:cover;background-position:center;z-index:-2;transform:scale(1.05)}
+  .a-cover::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,9,8,.35) 0%,rgba(11,9,8,.2) 30%,rgba(11,9,8,.85) 72%,var(--ink) 100%)}
+  .a-cover .in{max-width:880px}
+  .a-cover h1{font-family:Unbounded;font-weight:800;font-size:clamp(36px,6.4vw,84px);letter-spacing:-.045em;line-height:1;margin:18px 0 18px}
+  .a-cover h1 .serif{font-size:1.12em;letter-spacing:-.01em}
+  .a-cover .lead{font-size:clamp(17px,1.6vw,21px);line-height:1.5;color:#e6dcd2;max-width:640px;margin-bottom:26px}
+  .a-cover .row{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .a-wrap{display:grid;grid-template-columns:260px minmax(0,680px);gap:70px;justify-content:center;padding:40px clamp(18px,5vw,40px) 0}
+  .a-toc{position:sticky;top:96px;align-self:start}
+  .a-toc .eb{margin-bottom:16px}
+  .a-toc a{display:flex;gap:12px;padding:9px 0;font-size:14px;color:var(--muted);text-decoration:none;border-left:2px solid rgba(255,255,255,.08);padding-left:14px;transition:color .2s,border-color .2s}
+  .a-toc a b{font-family:Unbounded;font-size:11px;font-weight:600;color:#6b5a4d;min-width:18px;padding-top:2px}
+  .a-toc a.on{color:var(--cream);border-color:var(--orange)}
+  .a-toc a.on b{color:var(--orange)}
+  .a-sec{padding-top:30px;scroll-margin-top:90px}
+  .a-sec h2{font-family:Unbounded;font-weight:800;font-size:clamp(24px,3vw,34px);letter-spacing:-.03em;line-height:1.15;margin:30px 0 20px}
+  .a-sec h2 small{display:block;font-family:Inter;font-weight:600;font-size:12px;letter-spacing:.25em;color:#ff8a3d;margin-bottom:12px}
+  .pill{display:none}
+  @media(max-width:900px){
+    .a-wrap{grid-template-columns:1fr;gap:0}
+    .a-toc{display:none}
+    .pill{display:flex;position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:55;gap:10px;align-items:center;padding:11px 18px;border-radius:999px;background:rgba(20,15,12,.9);backdrop-filter:blur(14px);border:1px solid rgba(242,106,33,.45);font-size:13px;font-weight:600;cursor:pointer;color:var(--cream);white-space:nowrap}
+  }
+  .sheet{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s}
+  .sheet .p{position:absolute;left:0;right:0;bottom:0;background:#15100d;border-radius:26px 26px 0 0;padding:22px 22px 34px;transform:translateY(100%);transition:transform .4s cubic-bezier(.2,.8,.2,1);border-top:1px solid rgba(255,255,255,.1)}
+  .sheet.on{opacity:1;pointer-events:auto}.sheet.on .p{transform:none}
+  .sheet .p::before{content:"";display:block;width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.2);margin:0 auto 18px}
+  .sheet a{display:flex;gap:12px;padding:13px 4px;border-bottom:1px solid rgba(255,255,255,.07);text-decoration:none;font-size:15px}
+  .sheet a b{font-family:Unbounded;font-size:12px;color:var(--orange);min-width:22px;padding-top:2px}
+
+  /* ===== V2 CLIP ===== */
+  .c-top{min-height:100svh;display:grid;grid-template-columns:minmax(0,340px) minmax(0,560px);gap:clamp(30px,6vw,90px);justify-content:center;align-items:center;padding:110px clamp(18px,5vw,40px) 60px}
+  .phone{position:relative;aspect-ratio:9/16;border-radius:30px;overflow:hidden;background-size:cover;background-position:center;box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 8px #1d1613;transform:rotate(-3deg)}
+  .phone::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.85))}
+  .phone .cap{position:absolute;left:16px;right:16px;bottom:56px;z-index:2;font-weight:800;font-size:20px;line-height:1.2}
+  .phone .cap em{font-style:italic;color:#ff8a3d}
+  .phone .h{position:absolute;left:16px;bottom:22px;z-index:2;font-size:12px;color:#e6dcd2}
+  .phone .play{position:absolute;left:50%;top:42%;z-index:2;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid rgba(255,255,255,.35)}
+  .c-phonewrap{position:relative;width:100%}
+  .c-phonewrap .hand{position:absolute;right:-30px;top:-34px;font-size:26px;transform:rotate(6deg);white-space:nowrap}
+  .c-top h1{font-family:Unbounded;font-weight:800;font-size:clamp(30px,4.4vw,58px);letter-spacing:-.04em;line-height:1.05;margin:14px 0 16px}
+  .c-top .lead{color:#d8cdc2;font-size:17px;line-height:1.55;margin-bottom:22px}
+  .tldr{position:relative;border-radius:22px;padding:22px 22px 18px;background:rgba(242,106,33,.08);border:1px solid rgba(242,106,33,.35);margin:24px 0}
+  .tldr .eb{margin-bottom:12px}
+  .tldr ol{list-style:none;counter-reset:t}
+  .tldr li{counter-increment:t;display:flex;gap:12px;padding:7px 0;font-size:15px;line-height:1.5;color:#efe5da}
+  .tldr li::before{content:counter(t);flex:0 0 24px;height:24px;border-radius:50%;background:var(--grad);color:#fff;font:700 12px Inter;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .c-btns{display:flex;gap:10px;flex-wrap:wrap}
+  .c-btns a{padding:14px 22px;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none}
+  .c-btns a.p1{background:var(--grad);color:#fff}
+  .c-btns a.p2{border:1px solid rgba(255,255,255,.25)}
+  .c-body{max-width:720px;margin:0 auto;padding:30px clamp(18px,5vw,40px) 0}
+  .c-step{display:grid;grid-template-columns:64px minmax(0,1fr);gap:18px;padding-top:40px;scroll-margin-top:80px}
+  .c-step .n{font-family:Unbounded;font-weight:800;font-size:40px;line-height:1;letter-spacing:-.05em;padding-top:4px}
+  .c-step h2{font-family:Unbounded;font-weight:800;font-size:clamp(22px,2.6vw,30px);letter-spacing:-.03em;line-height:1.15;margin-bottom:18px}
+  @media(max-width:820px){.c-top{grid-template-columns:1fr;padding-top:96px}.c-phonewrap{max-width:190px;margin:10px auto 0}.c-phonewrap .hand{right:auto;left:calc(100% + 6px);top:30%;font-size:22px;white-space:normal;width:110px}.c-step{grid-template-columns:1fr;gap:6px}.c-step .n{font-size:30px}}
+
+  /* ===== V3 PAȘI ===== */
+  .p-head{max-width:760px;margin:0 auto;padding:120px clamp(18px,5vw,40px) 30px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:30px;align-items:center}
+  .p-head h1{font-family:Unbounded;font-weight:800;font-size:clamp(30px,4.6vw,54px);letter-spacing:-.04em;line-height:1.05;margin:14px 0}
+  .p-head .lead{color:#d8cdc2;font-size:16px;line-height:1.55;margin-bottom:18px}
+  .ring{position:relative;width:132px;height:132px}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring .t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .ring .t b{font-family:Unbounded;font-size:30px;letter-spacing:-.04em}
+  .ring .t span{font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+  .p-list{max-width:760px;margin:0 auto;padding:10px clamp(18px,5vw,40px) 0;position:relative}
+  .p-step{position:relative;margin-bottom:14px;border-radius:24px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);transition:border-color .3s,background .3s}
+  .p-step.open{background:rgba(255,255,255,.055);border-color:rgba(242,106,33,.45)}
+  .p-step.done{border-color:rgba(255,181,46,.25)}
+  .p-step .hd{display:flex;align-items:center;gap:16px;padding:20px 22px;cursor:pointer}
+  .p-step .ck{flex:0 0 38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:Unbounded;font-size:13px;font-weight:600;color:var(--muted);transition:all .3s}
+  .p-step.done .ck{background:var(--grad);border-color:transparent;color:#fff;font-size:16px}
+  .p-step .hd h2{font-family:Unbounded;font-weight:600;font-size:clamp(16px,2vw,20px);letter-spacing:-.02em;line-height:1.25;flex:1}
+  .p-step.done .hd h2{color:var(--muted)}
+  .p-step .hd i{font-style:normal;color:var(--muted);transition:transform .3s}
+  .p-step.open .hd i{transform:rotate(180deg)}
+  .p-step .bd{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1)}
+  .p-step.open .bd{grid-template-rows:1fr}
+  .p-step .bd>div{overflow:hidden}
+  .p-step .bd .body{padding:0 22px 24px 76px}
+  .doneb{display:inline-flex;gap:8px;align-items:center;margin-top:6px;padding:13px 20px;border-radius:999px;border:0;background:var(--grad);color:#fff;font:700 14px Inter;cursor:pointer}
+  @media(max-width:640px){.p-head{grid-template-columns:1fr}.ring{width:104px;height:104px;order:-1}.p-step .bd .body{padding:0 18px 22px}}
+  .yay{max-width:760px;margin:30px auto 0;padding:0 clamp(18px,5vw,40px);display:none;text-align:center}
+  .yay.on{display:block}
+  .yay div{padding:34px 20px;border-radius:24px;background:linear-gradient(135deg,rgba(255,181,46,.16),rgba(229,50,34,.16));border:1px solid rgba(242,106,33,.4)}
+  .yay b{font-family:Unbounded;font-size:clamp(22px,3vw,30px);letter-spacing:-.03em;display:block;margin-bottom:6px}
+
+  /* bară de progres lipită sus (3a, 3b) */
+  .sbar{position:fixed;top:70px;left:50%;z-index:58;display:flex;align-items:center;gap:12px;padding:9px 14px 9px 16px;border-radius:999px;background:rgba(20,15,12,.9);backdrop-filter:blur(14px);border:1px solid rgba(242,106,33,.4);font-size:13px;font-weight:600;transform:translate(-50%,-20px);opacity:0;pointer-events:none;transition:all .35s;white-space:nowrap}
+  .sbar.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+  .sbar .segs{display:flex;gap:4px}
+  .sbar .segs i{width:22px;height:6px;border-radius:6px;background:rgba(255,255,255,.15);cursor:pointer;transition:background .3s}
+  .sbar .segs i.d{background:var(--grad)}
+  .sbar .segs i.c{box-shadow:0 0 0 2px rgba(242,106,33,.6)}
+  .inprog{display:inline-flex;align-items:center;gap:10px;margin-top:20px;padding:10px 16px;border-radius:999px;background:rgba(11,9,8,.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);font-size:13px;font-weight:600}
+  .inprog .segs{display:flex;gap:4px}.inprog .segs i{width:18px;height:6px;border-radius:6px;background:rgba(255,255,255,.18)}.inprog .segs i.d{background:var(--grad)}
+
+  /* 3c · linie */
+  .l-list{position:relative;max-width:760px;margin:0 auto;padding:20px clamp(18px,5vw,40px) 0 clamp(70px,10vw,100px)}
+  .l-line{position:absolute;left:calc(clamp(70px,10vw,100px) - 37px);top:40px;bottom:60px;width:3px;border-radius:3px;background:rgba(255,255,255,.1)}
+  .l-line i{display:block;width:100%;height:0;border-radius:3px;background:linear-gradient(180deg,#ffb52e,#f26a21,#e53222);transition:height .7s cubic-bezier(.2,.8,.2,1)}
+  .l-step{position:relative;padding:20px 0 40px;scroll-margin-top:90px}
+  .l-dot{position:absolute;left:-58px;top:20px;width:44px;height:44px;border-radius:50%;background:#15100d;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:Unbounded;font-weight:600;font-size:14px;color:var(--muted);transition:all .35s;z-index:2}
+  .l-step.done .l-dot{background:var(--grad);border-color:transparent;color:#fff;font-size:18px;box-shadow:0 0 0 6px rgba(242,106,33,.15)}
+  .l-step h2{font-family:Unbounded;font-weight:800;font-size:clamp(22px,2.6vw,30px);letter-spacing:-.03em;line-height:1.15;margin:6px 0 18px}
+  .l-step h2 small{display:block;font-family:Inter;font-weight:600;font-size:11px;letter-spacing:.25em;color:#ff8a3d;margin-bottom:10px}
+  .l-step.done h2{opacity:.55}
+  .l-step .doneb.on{background:rgba(255,255,255,.08);color:var(--cream)}
+  @media(max-width:640px){.l-list{padding-left:62px}.l-line{left:30px}.l-dot{left:-48px;width:38px;height:38px;font-size:13px}}
+
+  /* 3d · un pas pe ecran */
+  .f-wrap{max-width:760px;margin:0 auto;padding:104px clamp(18px,5vw,40px) 0}
+  .f-wrap h1{font-family:Unbounded;font-weight:800;font-size:clamp(24px,3.4vw,38px);letter-spacing:-.04em;line-height:1.1;margin:12px 0 22px}
+  .f-map{display:flex;align-items:center;margin:0 0 26px}
+  .f-map button{flex:0 0 40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:#15100d;color:var(--muted);font:600 13px Unbounded;cursor:pointer;transition:all .3s;position:relative;z-index:1}
+  .f-map button.d{background:var(--grad);border-color:transparent;color:#fff}
+  .f-map button.c{border-color:var(--orange);color:var(--cream);box-shadow:0 0 0 5px rgba(242,106,33,.18)}
+  .f-map i{flex:1;height:3px;background:rgba(255,255,255,.12);margin:0 -2px}
+  .f-map i.d{background:var(--grad)}
+  .f-card{border-radius:28px;padding:30px clamp(20px,4vw,40px) 30px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(8px);min-height:420px}
+  .f-card .n{font-family:Unbounded;font-weight:800;font-size:13px;letter-spacing:.2em;color:#ff8a3d}
+  .f-card h2{font-family:Unbounded;font-weight:800;font-size:clamp(24px,3vw,34px);letter-spacing:-.03em;line-height:1.15;margin:10px 0 20px}
+  .f-btns{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .f-btns button{padding:14px 22px;border-radius:999px;font:700 14px Inter;cursor:pointer;border:1px solid rgba(255,255,255,.22);background:none;color:var(--cream)}
+  .f-btns button.p1{background:var(--grad);border:0;color:#fff;flex:1;max-width:340px;margin-left:auto}
+  .f-anim{animation:fin .5s cubic-bezier(.2,.8,.2,1)}
+  @keyframes fin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+
+  /* 3e · caiet */
+  .k-head{max-width:760px;margin:0 auto;padding:120px clamp(18px,5vw,40px) 20px;position:relative}
+  .k-head h1{font-family:Unbounded;font-weight:800;font-size:clamp(30px,4.6vw,54px);letter-spacing:-.04em;line-height:1.05;margin:14px 0}
+  .k-head .lead{color:#d8cdc2;font-size:16px;line-height:1.55;margin-bottom:18px;max-width:600px}
+  .k-count{position:absolute;right:clamp(18px,5vw,40px);top:130px;font-family:Caveat;font-size:34px;color:var(--gold);transform:rotate(6deg);text-align:center;line-height:1}
+  .k-count b{display:block;font-size:56px}
+  .k-list{max-width:760px;margin:0 auto;padding:20px clamp(18px,5vw,40px) 0}
+  .k-sheet{position:relative;background:var(--cream);color:#1b0f0a;padding:34px clamp(20px,4vw,40px) 30px;margin:0 0 46px;border-radius:24px;box-shadow:0 30px 60px rgba(0,0,0,.5);scroll-margin-top:90px;transition:transform .4s}
+  .k-sheet:nth-child(odd){transform:rotate(-.9deg)}.k-sheet:nth-child(even){transform:rotate(.7deg)}
+  .k-sheet::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:repeating-linear-gradient(transparent 0 31px,rgba(27,15,10,.06) 31px 32px)}
+  .k-sheet .tape{position:absolute;top:-12px;left:50%;width:96px;height:26px;margin-left:-48px;background:rgba(255,226,170,.9);transform:rotate(-3deg);z-index:2}
+  .k-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
+  .k-box{flex:0 0 46px;height:46px;cursor:pointer;position:relative}
+  .k-box svg{width:100%;height:100%;overflow:visible}
+  .k-box .ck{stroke-dasharray:60;stroke-dashoffset:60;transition:stroke-dashoffset .5s cubic-bezier(.6,0,.2,1)}
+  .k-sheet.done .k-box .ck{stroke-dashoffset:0}
+  .k-sheet .num{font-family:Caveat;font-size:24px;color:#c2410c;line-height:1}
+  .k-sheet h2{font-family:Unbounded;font-weight:800;font-size:clamp(20px,2.6vw,28px);letter-spacing:-.03em;line-height:1.15}
+  .k-sheet.done h2{text-decoration:line-through;text-decoration-color:rgba(194,65,12,.7);text-decoration-thickness:3px}
+  .k-sheet .body p{color:#3d2f26}
+  .k-sheet .body p strong{color:#1b0f0a}
+  .k-sheet .body ul.dots li{color:#3d2f26}
+  .k-sheet .mistake{background:#ffe28a;border-radius:14px}
+
+  /* PDF: casetă sus + card mare la final + fereastra pentru Instagram */
+  .pdf-top{display:inline-flex;align-items:center;gap:10px;margin-top:16px;padding:12px 18px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(242,106,33,.45);font-weight:600;font-size:14px;text-decoration:none;cursor:pointer;color:var(--cream)}
+  .pdf-top i{font-style:normal;width:26px;height:26px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px}
+  .pdf{max-width:760px;margin:40px auto 0;padding:0 clamp(18px,5vw,40px);scroll-margin-top:100px}
+  .pdf .in{position:relative;display:grid;grid-template-columns:150px minmax(0,1fr);gap:28px;align-items:center;padding:30px;border-radius:28px;background:linear-gradient(135deg,rgba(255,181,46,.1),rgba(229,50,34,.12));border:1px solid rgba(242,106,33,.4)}
+  .doc{position:relative;aspect-ratio:3/4;border-radius:12px;background:var(--cream);color:#1b0f0a;padding:14px 12px;box-shadow:0 20px 40px rgba(0,0,0,.5),8px 8px 0 -2px rgba(246,239,227,.35);transform:rotate(-4deg)}
+  .doc b{display:block;font:800 12px/1.15 Unbounded;letter-spacing:-.02em;margin-top:8px}
+  .doc span{display:block;height:4px;border-radius:4px;background:rgba(27,15,10,.12);margin-top:6px}
+  .doc em{position:absolute;left:12px;bottom:12px;font:600 10px Inter;font-style:normal;color:#c2410c}
+  .doc .tp{position:absolute;top:-9px;left:50%;width:56px;height:18px;margin-left:-28px;background:rgba(255,226,170,.9);transform:rotate(3deg)}
+  .pdf h3{font-family:Unbounded;font-weight:800;font-size:clamp(20px,2.6vw,28px);letter-spacing:-.03em;line-height:1.15;margin:8px 0 8px}
+  .pdf p{color:#d8cdc2;font-size:15px;line-height:1.55}
+  .pdf .opts{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .pdf .opts button,.pdf .opts a{padding:14px 20px;border-radius:999px;font:700 14px Inter;cursor:pointer;border:0;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+  .pdf .b1{background:var(--grad);color:#fff}
+  .pdf .b2{background:var(--cream);color:var(--ink)}
+  .pdf .b3{background:none;color:var(--cream);border:1px solid rgba(255,255,255,.25)!important}
+  .pdf form{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .pdf input{flex:1;min-width:190px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:var(--cream);font:15px Inter}
+  .pdf .tabs{display:inline-flex;padding:4px;border-radius:999px;background:rgba(0,0,0,.35);margin-top:16px}
+  .pdf .tabs button{padding:9px 16px;border-radius:999px;border:0;background:none;color:var(--muted);font:600 13px Inter;cursor:pointer}
+  .pdf .tabs button.on{background:var(--cream);color:var(--ink)}
+  .pdf .small{font-size:12px;color:var(--muted);margin-top:10px}
+  .pdf .note{position:absolute;right:20px;top:-26px;font-size:24px;transform:rotate(-5deg)}
+  @media(max-width:600px){.pdf .in{grid-template-columns:1fr;padding:26px 22px}.doc{width:120px;margin:0 auto}}
+  .mdl{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+  .mdl.on{opacity:1;pointer-events:auto}
+  .mbox{position:relative;width:min(480px,100%);background:#15100d;border:1px solid rgba(255,255,255,.1);border-radius:28px 28px 0 0;padding:30px 24px 34px;transform:translateY(40px);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+  .mdl.on .mbox{transform:none}
+  @media(min-width:600px){.mdl{align-items:center}.mbox{border-radius:28px}}
+  .mbox .x{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:none;color:var(--cream);cursor:pointer;font-size:15px}
+  .mbox h3{font-family:Unbounded;font-weight:800;font-size:23px;letter-spacing:-.03em;line-height:1.15;margin:10px 0 20px;padding-right:30px}
+  .msteps{list-style:none;counter-reset:m;margin-bottom:22px}
+  .msteps li{counter-increment:m;display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:15px;line-height:1.45;flex-wrap:wrap}
+  .msteps li::before{content:counter(m);flex:0 0 30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;font:700 13px Inter;display:flex;align-items:center;justify-content:center}
+  .kw{font-family:'JetBrains Mono',monospace;font-weight:500;background:rgba(242,106,33,.18);color:#ffb37a;padding:3px 10px;border-radius:8px;border:1px dashed rgba(242,106,33,.6)}
+  .msteps button{margin-left:auto;padding:7px 12px;border-radius:999px;border:0;background:rgba(255,255,255,.1);color:var(--cream);font:600 12px Inter;cursor:pointer}
+  .mbox .ig{display:flex;justify-content:center;padding:16px;border-radius:999px;background:var(--grad);color:#fff;font-weight:700;text-decoration:none}
+  .mbox .small{text-align:center;font-size:12px;color:var(--muted);margin-top:10px}
+  .k-sheet .prompt{transform:rotate(.6deg)}
+  .k-sheet .doneb{position:relative;z-index:1}
+  .k-sheet .hand.mark{position:absolute;right:14px;top:-34px;font-size:28px;color:#c2410c;transform:rotate(-8deg);opacity:0;transition:opacity .3s}
+  .k-sheet.done .hand.mark{opacity:1}
+  @media(max-width:640px){.k-count{position:static;transform:rotate(-3deg);text-align:left;margin-top:10px}.k-count b{display:inline;font-size:40px}}
+
+  /* ===== V4 STORY ===== */
+  .s-stage{position:relative;height:100svh;display:flex;align-items:center;justify-content:center;padding:70px 0 20px}
+  .s-box{position:relative;width:min(440px,100%);height:min(100%,800px);border-radius:28px;overflow:hidden;background:#15100d;box-shadow:0 40px 100px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.08)}
+  .s-bars{position:absolute;top:12px;left:14px;right:14px;z-index:5;display:flex;gap:4px}
+  .s-bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
+  .s-bars i::after{content:"";display:block;height:100%;width:100%;background:var(--cream);transform:scaleX(var(--f,0));transform-origin:0 50%;transition:transform .3s}
+  .s-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .s-track::-webkit-scrollbar{display:none}
+  .s-card{flex:0 0 100%;height:100%;scroll-snap-align:start;overflow-y:auto;padding:52px 24px 90px;position:relative}
+  .s-card.cover{display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:110px;background-size:cover;background-position:center}
+  .s-card.cover::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,9,8,.2),rgba(11,9,8,.55) 45%,rgba(11,9,8,.95))}
+  .s-card.cover>*{position:relative}
+  .s-card.cover h1{font-family:Unbounded;font-weight:800;font-size:34px;letter-spacing:-.04em;line-height:1.05;margin:12px 0}
+  .s-card .n{font-family:Unbounded;font-weight:800;font-size:64px;letter-spacing:-.06em;line-height:1}
+  .s-card h2{font-family:Unbounded;font-weight:800;font-size:24px;letter-spacing:-.03em;line-height:1.15;margin:10px 0 18px}
+  .s-card .body p{font-size:16px;line-height:1.65}
+  .s-card .shot .scr{aspect-ratio:4/3}
+  .s-nav{position:absolute;left:0;right:0;bottom:16px;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:0 16px;pointer-events:none}
+  .s-nav button{pointer-events:auto;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(11,9,8,.7);backdrop-filter:blur(10px);color:var(--cream);font-size:18px;cursor:pointer}
+  .s-nav span{font-size:12px;color:var(--muted);background:rgba(11,9,8,.7);padding:6px 12px;border-radius:999px}
+  .s-hint{position:absolute;right:-150px;top:40%;font-size:24px;transform:rotate(-5deg);width:130px}
+  @media(max-width:700px){.s-stage{padding:0}.s-box{width:100%;height:100svh;border-radius:0;border:0}.s-hint{display:none}.s-nav{bottom:72px}.s-card{padding-bottom:140px}}
+  .s-after{text-align:center;padding:30px 20px 0;color:var(--muted);font-size:14px}
+
+  /* comutator */
+  .sw{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:100;display:flex;gap:10px;align-items:center;background:rgba(20,15,12,.88);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.14);padding:8px 12px;border-radius:16px;font-size:12px;max-width:calc(100% - 24px)}
+  .sw b{color:var(--muted);font-weight:500;white-space:nowrap}
+  .sw select{background:#241a15;border:1px solid rgba(242,106,33,.5);color:var(--cream);padding:6px 8px;border-radius:10px;font-size:12px;font-family:Inter;max-width:230px}
+  .sw a{color:var(--muted);text-decoration:none;white-space:nowrap}
+  .toast{position:fixed;left:50%;top:80px;transform:translate(-50%,-20px);z-index:120;background:var(--cream);color:var(--ink);font-weight:600;font-size:14px;padding:10px 18px;border-radius:999px;opacity:0;transition:all .3s;pointer-events:none}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="aur"><div class="rib" style="--r:-10deg;top:6%;background:linear-gradient(90deg,transparent,#ffb52e,#f26a21,transparent)"></div><div class="rib" style="--r:7deg;top:44%;background:linear-gradient(90deg,transparent,#e53222,#f26a21,transparent);animation-delay:-6s"></div><div class="rib" style="--r:-4deg;top:76%;background:linear-gradient(90deg,transparent,#7a0e0e,#e53222,transparent);animation-delay:-11s;opacity:.18"></div><div class="grain"></div></div>
+<div class="prog" id="prog"></div>
+<nav class="nav" id="nav">
+  <div class="l"><a href="index.html"><img src="logo.png" alt="buildwithac"></a><a class="back" href="ghiduri.html">← Toate ghidurile</a></div>
+  <div class="soc"><a href="#" title="Instagram">IG</a><a href="#" title="TikTok">TT</a></div>
+</nav>
+
+<main id="main"></main>
+
+<div class="sw">
+  <b>Pagina de ghid</b>
+  <select id="vsel">
+    <optgroup label="Variantele de bază">
+    <option value="articol">1 · Articol cinematic</option>
+    <option value="clip">2 · Pornește din clip</option>
+    <option value="pasi">3 · Pași de bifat</option>
+    <option value="story">4 · Ca un story</option></optgroup>
+    <optgroup label="Pe baza variantei 3">
+    <option value="pasi-clip">NOU 3a · Pași + clip</option>
+    <option value="pasi-cover">NOU 3b · Pași + cover cinematic</option>
+    <option value="pasi-linie">NOU 3c · Pași pe o linie</option>
+    <option value="pasi-focus">NOU 3d · Un pas pe ecran</option>
+    <option value="pasi-caiet">NOU 3e · Pași în caiet</option></optgroup>
+  </select>
+  <b>PDF</b>
+  <select id="psel">
+    <option value="instagram">Doar prin Instagram (ales)</option>
+    <option value="ambele">Instagram sau e-mail (alegi)</option>
+    <option value="email">Doar pe e-mail</option>
+    <option value="direct">Descărcare directă</option>
+  </select>
+  <a href="index.html">← homepage</a>
+</div>
+<div class="toast" id="toast">Copiat ✓</div>
+
+<script>
+const QS=new URLSearchParams(location.search);
+const V=QS.get('v')||'pasi-caiet',PDF=QS.get('pdf')||'instagram';
+const vsel=document.getElementById('vsel'),psel=document.getElementById('psel');vsel.value=V;psel.value=PDF;
+vsel.onchange=()=>{location.search=`v=${vsel.value}&pdf=${psel.value}`};psel.onchange=vsel.onchange;
+const U=(id,w=1600)=>`https://images.unsplash.com/photo-${id}?w=${w}&q=70`;
+
+/* conținut de exemplu: aceleași texte în toate variantele, ca să compari doar forma */
+const G={
+  title:'Site-uri care se mișcă, <span class="serif gtxt">cu Claude</span>',
+  plain:'Site-uri care se mișcă, cu Claude',
+  lead:'Cum îi dai lui Claude skill-urile care fac un site să arate „de agenție”, nu generat de AI. Pas cu pas, cu prompturile exacte pe care le folosesc eu.',
+  min:12,lvl:'Începător',upd:'21 oct 2026',img:'1477959858617-67f85cf4f1df',
+  clip:'Site-urile mele arătau <em>prea AI</em>',clipImg:'1496442226666-8d4d0e62e6e9',
+  tldr:['Fără indicații, Claude face mereu același site „sigur”.','Skill-urile de design îi dau gust: fonturi, culori, animații.','Ceri 3 direcții vizuale, alegi una, abia apoi scrie cod.'],
+  need:['Cont Claude Pro','Claude Code instalat','30 de minute'],
+  steps:[
+    {t:'De ce site-urile făcute cu AI arată la fel',
+     b:[`p:Dacă îi ceri lui Claude „fă-mi un site”, primești aproape mereu același lucru: gradient mov, carduri rotunjite, fonturi sigure. Nu e vina lui. <strong>Fără indicații, alege varianta cea mai sigură.</strong>`,
+        `p:Vestea bună: îi poți da gust. Nu prin prompturi mai lungi, ci prin skill-uri, adică instrucțiuni gata scrise pe care le citește înainte să lucreze.`,
+        `m:Primele mele site-uri le-am publicat exact așa. Toată lumea le recunoștea din prima ca „făcute cu AI”.`]},
+    {t:'Instalezi skill-urile de design',
+     b:[`p:Două skill-uri fac cea mai mare diferență:`,
+        `l:<strong>UI UX Pro Max</strong>: îi dă reguli de design, palete și fonturi care merg împreună.|<strong>Motion</strong>: animații la scroll care nu arată ieftin.`,
+        `c:Instalează skill-ul UI UX Pro Max și confirmă-mi când e gata. Apoi spune-mi pe scurt ce reguli de design conține.`]},
+    {t:'Alegi o direcție vizuală',
+     b:[`p:Aici e trucul. <strong>Nu-l lăsa să scrie cod din prima.</strong> Cere-i întâi variante, ca un designer care îți arată schițe.`,
+        `c:Vreau un site pentru o cafenea din Cluj. Propune-mi 3 direcții vizuale diferite, fiecare cu paleta de culori, fonturile și cum ar arăta prima secțiune. Nu scrie cod încă.`,
+        `s:1519501025264-65ba15a82390|Cele 3 direcții primite de la Claude`]},
+    {t:'Animații la scroll, fără să scrii cod',
+     b:[`p:Odată aleasă direcția, îi ceri mișcare. Descrie efectul în cuvinte simple, cum l-ai povesti unui prieten.`,
+        `c:Adaugă animații la scroll cu GSAP: titlurile apar cuvânt cu cuvânt, imaginile au un parallax ușor. Păstrează-le subtile.`,
+        `m:Am pus animații peste tot. Pe telefon site-ul se mișca greu și arăta obositor. Două-trei efecte bine alese bat zece.`]},
+    {t:'Verifici pe telefon',
+     b:[`p:Majoritatea vizitatorilor vin de pe telefon. Deschide site-ul pe al tău și treci prin el ca un client: se citește? merg butoanele? se mișcă fluid?`,
+        `s:1507525428034-b723cf961d3e|Varianta de telefon, înainte și după`]},
+    {t:'Îl publici gratuit',
+     b:[`p:Ultimul pas: îl pui online. Pentru un site de prezentare, Vercel e gratuit și durează două minute.`,
+        `c:Publică site-ul pe Vercel și dă-mi link-ul. Explică-mi pas cu pas ce trebuie să apăs eu.`,
+        `p:Gata. Ai un site care nu mai arată „făcut cu AI”.`]}
+  ]
+};
+
+/* piese comune */
+let pid=0;
+function block(x){
+  const k=x.slice(0,2),v=x.slice(2);
+  if(k==='p:')return `<p>${v}</p>`;
+  if(k==='l:')return `<ul class="dots">${v.split('|').map(i=>`<li>${i}</li>`).join('')}</ul>`;
+  if(k==='m:')return `<div class="mistake"><div class="tape"></div><div class="k">greșeala mea ↓</div><p>${v}</p></div>`;
+  if(k==='c:'){pid++;return `<div class="prompt"><div class="ph"><span>Prompt</span><button onclick="cp(this)">Copiază</button></div><pre>${v}</pre>${pid===1?'<div class="note hand">copiază-l exact ↑</div>':''}</div>`}
+  if(k==='s:'){const [id,c]=v.split('|');return `<div class="shotwrap"><div class="tp"></div><div class="shot"><div class="bar"><i></i><i></i><i></i><span>localhost:3000</span></div><div class="scr" data-c="${c}" style="background-image:url('${U(id,1000)}')"></div></div></div>`}
+  return '';
+}
+const body=s=>`<div class="body">${s.b.map(block).join('')}</div>`;
+const chips=`<div class="chips"><span class="free">Gratuit</span><span>${G.min} min</span><span>${G.lvl}</span><span>${G.steps.length} pași</span></div>`;
+const author=`<div class="author"><img src="logo.png" alt=""><div><b>Andrei · Build with AC</b>actualizat ${G.upd}</div></div>`;
+const need=`<div class="need">${G.need.map(n=>`<span>${n}</span>`).join('')}</div>`;
+const END=`<section class="end">
+  <span class="lbl">final comun · la fel în toate variantele</span>
+  <h2>Ți-a fost util? <span class="serif gtxt">Hai mai departe.</span></h2>
+  <p class="sub">Pe TikTok îți arăt ideea în 60 de secunde. Aici găsești restul.</p>
+  <div class="endgrid">
+    <div class="ecard"><div class="ic">TT</div><h3>Urmărește-mă</h3><p>Un clip nou cu AI aproape în fiecare zi.</p><div class="btns"><a class="g" href="#">TikTok</a><a href="#">Instagram</a></div></div>
+    <div class="ecard"><div class="ic">@</div><h3>Află primul de ghidul nou</h3><p>Îți scriu când apare un ghid nou sau o noutate AI care contează. Fără spam.</p><input placeholder="adresa ta de e-mail"><button>Mă abonez</button></div>
+    <a class="ecard next" href="#"><div class="im" style="background-image:url('${U('1519501025264-65ba15a82390',800)}')"></div><div class="in"><div class="eb">Ghidul următor →</div><h3>Animații video cu Claude</h3><p>Descrii mișcarea în cuvinte, Claude o transformă în clip.</p></div></a>
+  </div></section>`;
+function cp(b){const t=b.closest('.prompt').querySelector('pre').innerText;try{navigator.clipboard.writeText(t)}catch(e){}
+  const o=document.getElementById('toast');o.classList.add('on');setTimeout(()=>o.classList.remove('on'),1400)}
+const main=document.getElementById('main');
+
+/* ===== 1 · ARTICOL ===== */
+if(V==='articol'){
+  main.innerHTML=`<header class="a-cover"><div class="im" id="cim" style="background-image:url('${U(G.img,2000)}')"></div>
+    <div class="in"><span class="lbl">varianta 1 · articol cinematic</span><div style="height:14px"></div>${chips}<h1>${G.title}</h1><p class="lead">${G.lead}</p><div class="row">${author}</div></div></header>
+    <div class="a-wrap"><aside class="a-toc"><div class="eb">Cuprins</div>${G.steps.map((s,i)=>`<a href="#s${i}"><b>${String(i+1).padStart(2,'0')}</b>${s.t}</a>`).join('')}</aside>
+    <article><div class="eb" style="margin-bottom:14px">De ce ai nevoie</div>${need}
+    ${G.steps.map((s,i)=>`<section class="a-sec" id="s${i}"><h2><small>PASUL ${String(i+1).padStart(2,'0')}</small>${s.t}</h2>${body(s)}</section>`).join('')}</article></div>
+    ${END}
+    <button class="pill" id="pill">☰ Cuprins · <span id="pn">1</span>/${G.steps.length}</button>
+    <div class="sheet" id="sheet"><div class="p"><div class="eb" style="margin-bottom:8px">Cuprins</div>${G.steps.map((s,i)=>`<a href="#s${i}"><b>${String(i+1).padStart(2,'0')}</b>${s.t}</a>`).join('')}</div></div>`;
+  const sh=document.getElementById('sheet');
+  document.getElementById('pill').onclick=()=>sh.classList.add('on');
+  sh.onclick=()=>sh.classList.remove('on');
+  const tl=[...document.querySelectorAll('.a-toc a')];
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const i=+e.target.id.slice(1);tl.forEach((a,k)=>a.classList.toggle('on',k===i));document.getElementById('pn').textContent=i+1}}),{rootMargin:'-30% 0px -60% 0px'});
+  document.querySelectorAll('.a-sec').forEach(s=>io.observe(s));
+  addEventListener('scroll',()=>{document.getElementById('cim').style.transform=`scale(1.05) translateY(${scrollY*.25}px)`},{passive:true});
+}
+
+/* ===== 2 · CLIP ===== */
+if(V==='clip'){
+  main.innerHTML=`<header class="c-top">
+    <div class="c-phonewrap"><div class="phone" style="background-image:url('${U(G.clipImg,700)}')"><div class="play">▶</div><div class="cap">${G.clip}</div><div class="h">@buildwithac.ai · 0:58</div></div><div class="hand">clipul de unde ai venit</div></div>
+    <div><span class="lbl">varianta 2 · pornește din clip</span><div style="height:14px"></div>${chips}
+      <h1>${G.title}</h1><p class="lead">Ai văzut clipul. Aici e tot ce n-a încăput în 60 de secunde.</p>
+      <div class="tldr"><div class="eb">Pe scurt · 30 de secunde</div><ol>${G.tldr.map(t=>`<li>${t}</li>`).join('')}</ol></div>
+      <div class="c-btns"><a class="p1" href="#pas0">Începe ghidul ↓</a><a class="p2" href="#" onclick="document.querySelector('.prompt').scrollIntoView({behavior:'smooth',block:'center'});return false">Sari la prompturi</a></div></div>
+  </header>
+  <div class="c-body"><div class="eb" style="margin-bottom:14px">De ce ai nevoie</div>${need}
+    ${G.steps.map((s,i)=>`<section class="c-step" id="pas${i}"><div class="n gtxt">${String(i+1).padStart(2,'0')}</div><div><h2>${s.t}</h2>${body(s)}</div></section>`).join('')}
+    <div style="margin-top:20px">${author}</div></div>
+  ${END}`;
+}
+
+/* ===== 3 · PAȘI (și combinațiile 3a–3e) ===== */
+const N_ST=G.steps.length;
+// progresul se ține separat pentru fiecare variantă, în browser
+let done=[];const KEY='bwac-ghid-'+V;try{done=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}};
+const nextOpen=after=>{for(let k=after+1;k<N_ST;k++)if(!done.includes(k))return k;for(let k=0;k<N_ST;k++)if(!done.includes(k))return k;return -1};
+const RC=2*Math.PI*58;
+const RING=`<div class="ring"><svg viewBox="0 0 132 132"><defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#ffb52e"/><stop offset=".5" stop-color="#f26a21"/><stop offset="1" stop-color="#e53222"/></linearGradient></defs><circle cx="66" cy="66" r="58" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="8"/><circle id="rc" cx="66" cy="66" r="58" fill="none" stroke="url(#rg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${RC}" stroke-dashoffset="${RC}" style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"/></svg><div class="t"><b id="rn">0/${N_ST}</b><span>pași</span></div></div>`;
+const YAY=`<div class="yay" id="yay"><div><b>Gata, ai terminat ghidul! 🎉</b><span style="color:#e6dcd2">Trimite-mi pe Instagram ce ai construit, îl pot arăta într-un clip.</span></div></div>`;
+const SBAR=`<div class="sbar" id="sbar"><span id="sbt">0 din ${N_ST} pași</span><div class="segs">${G.steps.map((s,i)=>`<i data-go="${i}"></i>`).join('')}</div></div>`;
+const INPROG=`<div class="inprog"><span id="ipt">0 din ${N_ST} pași bifați</span><div class="segs">${G.steps.map(()=>'<i></i>').join('')}</div></div>`;
+// actualizează tot ce arată progresul (cerc, bară lipită, contor, mesaj final)
+function paintProgress(cur){
+  const n=done.length,$=id=>document.getElementById(id);
+  if($('rn')){$('rn').textContent=n+'/'+N_ST;$('rc').style.strokeDashoffset=RC*(1-n/N_ST)}
+  if($('sbt'))$('sbt').textContent=n===N_ST?'Ghid terminat ✓':`${n} din ${N_ST} pași`;
+  document.querySelectorAll('.sbar .segs i').forEach((x,i)=>{x.classList.toggle('d',done.includes(i));x.classList.toggle('c',i===cur)});
+  if($('ipt'))$('ipt').textContent=`${n} din ${N_ST} pași bifați`;
+  document.querySelectorAll('.inprog .segs i').forEach((x,i)=>x.classList.toggle('d',done.includes(i)));
+  if($('kn'))$('kn').textContent=n;
+  if($('yay'))$('yay').classList.toggle('on',n===N_ST);
+  save();
+}
+// bara lipită apare după primul ecran
+function wireSbar(stepSel){
+  const sb=document.getElementById('sbar');if(!sb)return;
+  addEventListener('scroll',()=>sb.classList.toggle('on',scrollY>innerHeight*.7),{passive:true});
+  sb.querySelectorAll('i').forEach(x=>x.onclick=()=>document.querySelectorAll(stepSel)[+x.dataset.go].scrollIntoView({behavior:'smooth',block:'start'}));
+}
+// lista-acordeon din varianta 3, refolosită în 3a și 3b
+const ACC=()=>`<div class="p-list">${G.steps.map((s,i)=>`<div class="p-step" data-i="${i}" style="scroll-margin-top:130px"><div class="hd"><div class="ck">${i+1}</div><h2>${s.t}</h2><i>▾</i></div><div class="bd"><div>${body(s)}<div class="body" style="padding-top:0;margin-top:-6px"><button class="doneb">Am făcut pasul ✓</button></div></div></div></div>`).join('')}</div>`;
+function wireAcc(){
+  const steps=[...document.querySelectorAll('.p-step')];let cur=-1;
+  const paint=()=>{steps.forEach((el,i)=>{const d=done.includes(i);el.classList.toggle('done',d);el.querySelector('.ck').textContent=d?'✓':i+1;el.querySelector('.doneb').textContent=d?'Marchează ca nefăcut':'Am făcut pasul ✓'});paintProgress(cur)};
+  const open=i=>{cur=i;steps.forEach((el,k)=>el.classList.toggle('open',k===i));paint()};
+  steps.forEach((el,i)=>{el.querySelector('.hd').onclick=()=>open(el.classList.contains('open')?-1:i);
+    el.querySelector('.doneb').onclick=()=>{if(done.includes(i)){done=done.filter(x=>x!==i);paint();return}
+      done.push(i);const nx=nextOpen(i);open(nx);
+      if(nx>=0)setTimeout(()=>steps[nx].scrollIntoView({behavior:'smooth',block:'start'}),350)}});
+  open(nextOpen(-1));wireSbar('.p-step');
+}
+
+if(V==='pasi'){
+  main.innerHTML=`<header class="p-head"><div><span class="lbl">varianta 3 · pași de bifat</span><div style="height:14px"></div>${chips}<h1>${G.title}</h1><p class="lead">${G.lead}</p>${need}</div>${RING}</header>${ACC()}${YAY}${END}`;
+  wireAcc();
+}
+
+/* 3a · clipul sus, apoi pașii */
+if(V==='pasi-clip'){
+  main.innerHTML=`<header class="c-top">
+    <div class="c-phonewrap"><div class="phone" style="background-image:url('${U(G.clipImg,700)}')"><div class="play">▶</div><div class="cap">${G.clip}</div><div class="h">@buildwithac.ai · 0:58</div></div><div class="hand">clipul de unde ai venit</div></div>
+    <div><span class="lbl">varianta 3a · pași + clip</span><div style="height:14px"></div>${chips}
+      <h1>${G.title}</h1><p class="lead">Ai văzut clipul. Aici e tot ce n-a încăput în 60 de secunde, în ${N_ST} pași pe care îi bifezi pe rând.</p>
+      <div class="tldr"><div class="eb">Pe scurt · 30 de secunde</div><ol>${G.tldr.map(t=>`<li>${t}</li>`).join('')}</ol></div>
+      <div class="c-btns"><a class="p1" href="#" onclick="document.querySelector('.p-list').scrollIntoView({behavior:'smooth'});return false">Începe pasul 1 ↓</a></div></div>
+  </header>
+  <div style="max-width:760px;margin:0 auto;padding:0 clamp(18px,5vw,40px) 10px"><div class="eb" style="margin-bottom:14px">De ce ai nevoie</div>${need}</div>
+  ${ACC()}${YAY}${SBAR}${END}`;
+  wireAcc();
+}
+
+/* 3b · cover cinematic, apoi pașii */
+if(V==='pasi-cover'){
+  main.innerHTML=`<header class="a-cover"><div class="im" id="cim" style="background-image:url('${U(G.img,2000)}')"></div>
+    <div class="in"><span class="lbl">varianta 3b · pași + cover cinematic</span><div style="height:14px"></div>${chips}<h1>${G.title}</h1><p class="lead">${G.lead}</p><div class="row">${author}</div>${INPROG}</div></header>
+  <div style="max-width:760px;margin:0 auto;padding:36px clamp(18px,5vw,40px) 10px"><div class="eb" style="margin-bottom:14px">De ce ai nevoie</div>${need}</div>
+  ${ACC()}${YAY}${SBAR}${END}`;
+  wireAcc();
+  addEventListener('scroll',()=>{document.getElementById('cim').style.transform=`scale(1.05) translateY(${scrollY*.25}px)`},{passive:true});
+}
+
+/* 3c · toți pașii deschiși, pe o linie care se umple */
+if(V==='pasi-linie'){
+  main.innerHTML=`<header class="p-head"><div><span class="lbl">varianta 3c · pași pe o linie</span><div style="height:14px"></div>${chips}<h1>${G.title}</h1><p class="lead">${G.lead}</p>${need}</div>${RING}</header>
+  <div class="l-list"><div class="l-line"><i id="lfill"></i></div>${G.steps.map((s,i)=>`<section class="l-step" data-i="${i}"><div class="l-dot">${i+1}</div><h2><small>PASUL ${String(i+1).padStart(2,'0')}</small>${s.t}</h2>${body(s)}<button class="doneb">Am făcut pasul ✓</button></section>`).join('')}</div>
+  ${YAY}${SBAR}${END}`;
+  const steps=[...document.querySelectorAll('.l-step')],fill=document.getElementById('lfill'),list=document.querySelector('.l-list');
+  const paint=()=>{steps.forEach((el,i)=>{const d=done.includes(i);el.classList.toggle('done',d);el.querySelector('.l-dot').textContent=d?'✓':i+1;const b=el.querySelector('.doneb');b.textContent=d?'Bifat ✓ · anulează':'Am făcut pasul ✓';b.classList.toggle('on',d)});
+    // linia se umple până la ultimul pas bifat la rând
+    let k=-1;while(done.includes(k+1))k++;
+    const line=document.querySelector('.l-line').getBoundingClientRect();
+    fill.style.height=k<0?'0px':(steps[k].querySelector('.l-dot').getBoundingClientRect().top-line.top+22)+'px';
+    paintProgress(-1)};
+  steps.forEach((el,i)=>el.querySelector('.doneb').onclick=()=>{
+    if(done.includes(i))done=done.filter(x=>x!==i);else{done.push(i);const nx=nextOpen(i);if(nx>i)setTimeout(()=>steps[nx].scrollIntoView({behavior:'smooth',block:'start'}),300)}
+    paint()});
+  paint();wireSbar('.l-step');addEventListener('resize',paint);
+}
+
+/* 3d · un singur pas pe ecran */
+if(V==='pasi-focus'){
+  main.innerHTML=`<div class="f-wrap"><span class="lbl">varianta 3d · un pas pe ecran</span><div style="height:12px"></div>${chips}<h1>${G.plain}</h1>
+    <div class="f-map" id="fmap">${G.steps.map((s,i)=>`${i?'<i></i>':''}<button data-i="${i}">${i+1}</button>`).join('')}</div>
+    <div class="f-card" id="fcard"></div></div>${YAY}${END}`;
+  const map=document.getElementById('fmap'),card=document.getElementById('fcard');
+  let cur=nextOpen(-1);if(cur<0)cur=0;
+  const show=i=>{cur=i;const s=G.steps[i],d=done.includes(i);
+    card.innerHTML=`<div class="f-anim"><div class="n">PASUL ${i+1} DIN ${N_ST}</div><h2>${s.t}</h2>${body(s)}
+      <div class="f-btns">${i?'<button id="fb">← Înapoi</button>':''}<button class="p1" id="fn">${d?(i<N_ST-1?'Pasul următor →':'Gata ✓'):(i<N_ST-1?'Am făcut pasul ✓ → următorul':'Am făcut ultimul pas ✓')}</button></div></div>`;
+    map.querySelectorAll('button').forEach((b,k)=>{b.classList.toggle('d',done.includes(k));b.classList.toggle('c',k===i);b.textContent=done.includes(k)&&k!==i?'✓':k+1});
+    map.querySelectorAll('i').forEach((x,k)=>x.classList.toggle('d',done.includes(k)));
+    const fb=document.getElementById('fb');if(fb)fb.onclick=()=>show(i-1);
+    document.getElementById('fn').onclick=()=>{if(!done.includes(i))done.push(i);paintProgress(-1);
+      if(i<N_ST-1){show(i+1);document.querySelector('.f-wrap').scrollIntoView({behavior:'smooth'})}else{show(i);document.getElementById('yay').scrollIntoView({behavior:'smooth',block:'center'})}};
+    paintProgress(-1)};
+  map.querySelectorAll('button').forEach(b=>b.onclick=()=>show(+b.dataset.i));
+  show(cur);
+}
+
+/* PDF-ul ghidului: 4 moduri de a-l primi (comutatorul „PDF”) */
+const KW='SITE'; // cuvântul-cheie al ghidului, pe care omul îl trimite în privat pe Instagram
+const PDF_TOP=`<a class="pdf-top" href="#pdf"><i>⬇</i>${PDF==='direct'?'Descarcă ghidul în PDF':'Primește ghidul complet în PDF'}</a>`;
+const igBtn=`<button class="b1" onclick="openMdl()">Primește-l pe Instagram</button>`;
+const mailForm=`<form onsubmit="this.innerHTML='<p style=&quot;color:#ffb37a;font-weight:600&quot;>Gata! Verifică-ți inbox-ul în câteva minute. ✓</p>';return false"><input type="email" placeholder="adresa ta de e-mail" required><button class="b1">Trimite-mi PDF-ul</button></form>`;
+const PDF_OPTS={
+  direct:{t:'Ia ghidul cu tine',p:'Toți pașii, prompturile și capturile într-un PDF pe care îl poți citi și fără internet.',h:`<div class="opts"><a class="b1" href="#" onclick="return false">⬇ Descarcă PDF-ul</a></div><div class="small">Gratuit, fără cont, fără e-mail.</div>`},
+  instagram:{t:'Ghidul complet, în PDF',p:`Urmărește-mă pe Instagram și scrie-mi <span class="kw">${KW}</span> în privat. Primești PDF-ul în câteva secunde.`,h:`<div class="opts">${igBtn}</div><div class="small">Durează 30 de secunde. Răspunde un robot, dar ghidul e scris de mine.</div>`},
+  email:{t:'Ghidul complet, în PDF',p:'Lasă-mi adresa și ți-l trimit acum, plus ghidul nou din fiecare săptămână.',h:`${mailForm}<div class="small">Te poți dezabona oricând, dintr-un click.</div>`},
+  ambele:{t:'Ghidul complet, în PDF',p:'Toți pașii, prompturile și capturile, de citit oricând. Alege unde vrei să-l primești:',h:`<div class="tabs"><button class="on" data-t="ig">Pe Instagram</button><button data-t="mail">Pe e-mail</button></div>
+    <div data-p="ig"><p style="margin-top:14px">Urmărește-mă și scrie-mi <span class="kw">${KW}</span> în privat.</p><div class="opts">${igBtn}</div></div>
+    <div data-p="mail" hidden>${mailForm}</div>`}
+};
+const PDF_BIG=()=>{const o=PDF_OPTS[PDF];return `<section class="pdf" id="pdf"><span class="lbl" style="margin-bottom:14px">PDF · varianta „${psel.options[psel.selectedIndex].text}”</span><div class="in"><div class="hand note">bonus ↓</div>
+  <div class="doc"><div class="tp"></div><div class="eb" style="font-size:7px;letter-spacing:.2em">ghid · buildwithac</div><b>${G.plain}</b>${'<span></span>'.repeat(7)}<em>24 de pagini</em></div>
+  <div><div class="eb">${PDF==='direct'?'Descarcă':'Gratuit'}</div><h3>${o.t}</h3><p>${o.p}</p>${o.h}</div></div></section>`};
+const MDL=`<div class="mdl" id="mdl" onclick="if(event.target===this)closeMdl()"><div class="mbox"><button class="x" onclick="closeMdl()">✕</button>
+  <div class="eb">Ghidul complet în PDF</div><h3>Îl primești pe Instagram în 30 de secunde</h3>
+  <ol class="msteps"><li><span><b>Urmărește</b> @buildwithac.ai</span></li><li><span>Trimite-mi în privat <span class="kw">${KW}</span></span><button onclick="navigator.clipboard&&navigator.clipboard.writeText('${KW}');this.textContent='Copiat ✓'">Copiază</button></li><li><span>Îți răspund automat cu link-ul la PDF</span></li></ol>
+  <a class="ig" href="#" onclick="return false">Deschide Instagram ↗</a><div class="small">Pe telefon se deschide direct aplicația, în conversația cu mine.</div></div></div>`;
+function openMdl(){document.getElementById('mdl').classList.add('on')}
+function closeMdl(){document.getElementById('mdl').classList.remove('on')}
+function wirePdf(){document.querySelectorAll('.pdf .tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.pdf .tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.pdf [data-p]').forEach(p=>p.hidden=p.dataset.p!==(b.dataset.t))})}
+
+/* 3e · fiecare pas e o foaie de caiet */
+if(V==='pasi-caiet'){
+  main.innerHTML=`<header class="k-head"><span class="lbl">varianta 3e · pași în caiet</span><div style="height:14px"></div>${chips}<h1>${G.title}</h1><p class="lead">${G.lead}</p>${need}${PDF_TOP}
+    <div class="k-count"><b><span id="kn">0</span>/${N_ST}</b>pași bifați</div></header>
+  <div class="k-list">${G.steps.map((s,i)=>`<section class="k-sheet" data-i="${i}"><div class="tape"></div><div class="hand mark">făcut!</div>
+    <div class="k-top"><div class="k-box" title="Bifează"><svg viewBox="0 0 46 46"><path d="M5 7 C 14 5, 30 4, 41 6 C 42 16, 41 30, 40 40 C 28 41, 16 41, 6 40 C 5 29, 4 17, 5 7 Z" fill="none" stroke="#1b0f0a" stroke-width="2.4" stroke-linecap="round"/><path class="ck" d="M11 23 L 20 33 L 40 4" fill="none" stroke="#e53222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div><div class="num">pasul ${i+1}${i===0?' · <span style="color:#7a5a45">bifează pătratul când termini ←</span>':''}</div><h2>${s.t}</h2></div></div>${body(s)}<button class="doneb">Am făcut pasul ✓</button></section>`).join('')}</div>
+  ${YAY}${PDF_BIG()}${SBAR}${END}${MDL}`;
+  wirePdf();
+  const sheets=[...document.querySelectorAll('.k-sheet')];
+  const paint=()=>{sheets.forEach((el,i)=>{const d=done.includes(i);el.classList.toggle('done',d);el.querySelector('.doneb').textContent=d?'Bifat ✓ · anulează':'Am făcut pasul ✓'});paintProgress(-1)};
+  sheets.forEach((el,i)=>{const tog=()=>{
+    if(done.includes(i))done=done.filter(x=>x!==i);else{done.push(i);const nx=nextOpen(i);if(nx>i)setTimeout(()=>sheets[nx].scrollIntoView({behavior:'smooth',block:'start'}),650)}
+    paint()};el.querySelector('.k-box').onclick=tog;el.querySelector('.doneb').onclick=tog});
+  paint();wireSbar('.k-sheet');
+}
+
+/* ===== 4 · STORY ===== */
+if(V==='story'){
+  const N=G.steps.length+2;
+  main.innerHTML=`<div class="s-stage"><div class="s-box">
+    <div class="s-bars">${Array.from({length:N},()=>'<i></i>').join('')}</div>
+    <div class="s-track" id="trk">
+      <div class="s-card cover" style="background-image:url('${U(G.img,900)}')"><span class="lbl" style="align-self:flex-start">varianta 4 · ca un story</span><div style="height:12px"></div>${chips}<h1>${G.title}</h1><p style="color:#e6dcd2;font-size:15px;line-height:1.5;margin-bottom:16px">${G.lead}</p>${author}<p class="hand" style="font-size:24px;margin-top:20px">dă cu degetul →</p></div>
+      ${G.steps.map((s,i)=>`<div class="s-card"><div class="n gtxt">${String(i+1).padStart(2,'0')}</div><h2>${s.t}</h2>${body(s)}</div>`).join('')}
+      <div class="s-card" style="display:flex;flex-direction:column;justify-content:center"><div class="n gtxt">✓</div><h2>Gata! Ți-a fost util?</h2><div class="body"><p>Urmărește-mă pentru clipul următor sau primește ghidul nou pe e-mail.</p></div>
+        <div class="c-btns"><a class="p1" href="#">TikTok</a><a class="p2" href="#">Instagram</a></div>
+        <input placeholder="adresa ta de e-mail" style="margin-top:22px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:var(--cream);font:15px Inter"><button style="margin-top:10px;padding:14px;border-radius:999px;border:0;background:var(--grad);color:#fff;font:700 14px Inter">Vreau ghidurile</button></div>
+    </div>
+    <div class="s-nav"><button id="sp">←</button><span id="sc">1 / ${N}</span><button id="sn">→</button></div>
+    <div class="s-hint hand">pe telefon ocupă tot ecranul</div>
+  </div></div>`;
+  const trk=document.getElementById('trk'),bars=[...document.querySelectorAll('.s-bars i')];
+  const cur=()=>Math.round(trk.scrollLeft/trk.clientWidth);
+  // „at” ține cardul-țintă, ca apăsările rapide pe săgeți să nu se piardă în timpul animației
+  let at=0;
+  const go=i=>{at=Math.max(0,Math.min(N-1,i));trk.scrollTo({left:at*trk.clientWidth,behavior:'smooth'})};
+  trk.addEventListener('scrollend',()=>{at=cur()});
+  document.getElementById('sp').onclick=()=>go(at-1);document.getElementById('sn').onclick=()=>go(at+1);
+  addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(at+1);if(e.key==='ArrowLeft')go(at-1)});
+  const upd=()=>{const c=cur();bars.forEach((b,i)=>b.style.setProperty('--f',i<=c?1:0));document.getElementById('sc').textContent=(c+1)+' / '+N};
+  trk.addEventListener('scroll',upd,{passive:true});upd();
+  document.getElementById('nav').style.display=innerWidth<700?'none':'';
+}
+
+/* bară de progres a citirii + nav opac după cover */
+addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-innerHeight;document.getElementById('prog').style.transform=`scaleX(${h>0?scrollY/h:0})`;
+  document.getElementById('nav').classList.toggle('solid',scrollY>innerHeight*.5)},{passive:true});
+</script>
+</body>
+</html>

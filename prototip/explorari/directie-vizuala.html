@@ -1,0 +1,126 @@
+<!doctype html><html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Explorare</title><style>body{background:#1a1a1a;color:#eee;font-family:system-ui,sans-serif;padding:24px;max-width:1300px;margin:0 auto}.subtitle{color:#aaa}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}.card{background:#242424;border:1px solid #333;border-radius:12px;overflow:hidden}.card-body{padding:1rem}.card-body p{color:#aaa;font-size:.85rem}.card.selected{outline:2px solid #f26a21}</style><script>function toggleSelect(e){e.classList.toggle("selected")}</script></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@500;700&family=Anton&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  .mk{position:relative;height:460px;overflow:hidden;border-radius:10px;font-family:Inter,sans-serif}
+  .mk *{box-sizing:border-box}
+  .mk .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;font-size:12px;position:relative;z-index:3}
+  .mk .nav img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+  .mk .nav .links{display:flex;gap:16px;opacity:.85}
+  .mk .btn{display:inline-block;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600}
+
+  /* A — Cinematic */
+  .dA{background:#0b0908;color:#f4ede6}
+  .dA .bg{position:absolute;inset:0;background:#120c0a url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=70') center/cover;filter:saturate(.8) brightness(.55)}
+  .dA .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,9,8,.2) 0%,rgba(11,9,8,.55) 45%,#0b0908 92%)}
+  .dA .hero{position:relative;z-index:2;padding:34px 26px 0}
+  .dA .eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#ff8a3d}
+  .dA h1{font-family:'Space Grotesk',sans-serif;font-size:38px;line-height:1.05;margin:10px 0 12px;font-weight:700}
+  .dA h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;background:linear-gradient(90deg,#ffb52e,#f26a21,#e53222);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:42px}
+  .dA p{font-size:13px;color:#cfc4ba;max-width:330px;line-height:1.5}
+  .dA .btn{background:linear-gradient(90deg,#f26a21,#e53222);color:#fff;margin-top:14px}
+  .dA .card{position:absolute;right:20px;bottom:20px;width:240px;z-index:3;background:rgba(255,255,255,.07);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:14px}
+  .dA .card .t{font-size:9px;letter-spacing:.2em;color:#ffb52e;text-transform:uppercase}
+  .dA .card h4{margin:6px 0;font-size:14px;font-family:'Space Grotesk'}
+  .dA .card .m{font-size:10px;color:#a99d92}
+
+  /* B — Warm light (hivey) */
+  .dB{background:linear-gradient(170deg,#ffe9d9 0%,#fbeee8 45%,#f3eefa 100%);color:#1f1a24}
+  .dB .orb{position:absolute;right:-30px;top:60px;width:230px;height:230px;border-radius:50%;
+     background:radial-gradient(circle at 32% 28%,#fff3c4 0%,#ffb52e 22%,#f26a21 55%,#b8241a 85%);
+     box-shadow:inset -18px -24px 40px rgba(90,10,10,.35),inset 14px 14px 30px rgba(255,255,255,.45),0 30px 60px rgba(242,106,33,.35)}
+  .dB .orb2{position:absolute;right:170px;top:250px;width:60px;height:60px;border-radius:50%;
+     background:radial-gradient(circle at 32% 28%,#fff6d6,#ffb52e 40%,#f26a21 90%);box-shadow:0 14px 30px rgba(242,106,33,.3)}
+  .dB .hero{position:relative;z-index:2;padding:34px 26px 0}
+  .dB .eyebrow{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#7b7088}
+  .dB h1{font-family:Inter;font-weight:500;letter-spacing:-.03em;font-size:40px;line-height:1.02;margin:12px 0}
+  .dB h1 em{font-family:'Instrument Serif';font-style:italic;font-weight:400;color:#e2571c;font-size:44px}
+  .dB p{font-size:13px;color:#6d6475;max-width:300px;line-height:1.5}
+  .dB .btn{background:#1f1a24;color:#fff;margin-top:14px}
+  .dB .card{position:absolute;left:26px;bottom:20px;right:26px;z-index:3;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border-radius:22px;padding:14px 18px;box-shadow:0 20px 50px rgba(80,50,90,.12);display:flex;gap:14px;align-items:center}
+  .dB .card .ic{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#ffb52e,#f26a21)}
+  .dB .card h4{margin:0 0 3px;font-size:14px}
+  .dB .card .m{font-size:11px;color:#8a8194}
+  .dB .pill{margin-left:auto;font-size:10px;font-weight:600;color:#a4400f;background:#ffe2cf;padding:5px 10px;border-radius:999px}
+
+  /* C — Collage editorial */
+  .dC{background:#f2591c;color:#1b0f0a;
+     background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:22px 22px}
+  .dC .paper{position:absolute;left:24px;top:70px;width:300px;padding:22px 20px 24px;background:#f6efe3;transform:rotate(-2.5deg);box-shadow:0 18px 40px rgba(60,10,0,.35)}
+  .dC .paper::before{content:"";position:absolute;top:-12px;left:40%;width:70px;height:22px;background:rgba(255,230,180,.75);transform:rotate(3deg)}
+  .dC h1{font-family:Anton,sans-serif;font-size:50px;line-height:.95;margin:0;letter-spacing:.01em;text-transform:uppercase}
+  .dC h1 span{background:#f2591c;color:#f6efe3;padding:0 6px}
+  .dC p{font-size:12px;line-height:1.45;margin:12px 0 0;color:#4a3a30}
+  .dC .scrib{font-family:Caveat;font-size:24px;color:#c72a14;position:absolute;right:-60px;bottom:-26px;transform:rotate(-6deg)}
+  .dC .sticker{position:absolute;right:26px;top:90px;width:120px;height:120px;border-radius:50%;background:#1b0f0a;color:#ffb52e;display:flex;align-items:center;justify-content:center;text-align:center;font-family:Anton;font-size:18px;line-height:1;transform:rotate(10deg)}
+  .dC .card{position:absolute;right:24px;bottom:24px;width:220px;background:#1b0f0a;color:#f6efe3;padding:14px;transform:rotate(2deg)}
+  .dC .card .t{font-family:Anton;font-size:11px;letter-spacing:.1em;color:#ffb52e}
+  .dC .card h4{margin:6px 0;font-size:14px}
+  .dC .card .m{font-size:10px;color:#bfae9e}
+  .dC .nav{color:#1b0f0a;font-weight:600}
+</style>
+
+<h2>În ce direcție vizuală mergem?</h2>
+<p class="subtitle">Trei variante de homepage, toate pornite de la logo-ul tău (auriu → portocaliu → roșu → vișiniu). Nu e designul final, doar senzația. Poți alege una sau să-mi spui ce iei din fiecare.</p>
+
+<div class="cards">
+  <div class="card" data-choice="cinematic" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mk dA">
+        <div class="bg"></div>
+        <div class="nav"><img src="logo.png" alt=""><div class="links"><span>Ghiduri</span><span>Noutăți</span><span>Servicii</span></div></div>
+        <div class="hero">
+          <div class="eyebrow">AI în română</div>
+          <h1>AI pe înțelesul tău,<br><em>pas cu pas.</em></h1>
+          <p>Tutorialele de pe TikTok, explicate complet. Ghiduri gratuite pe care le poți urma azi.</p>
+          <span class="btn">Vezi ghidurile →</span>
+        </div>
+        <div class="card"><div class="t">Ghid gratuit · 12 min</div><h4>Site-uri care se mișcă, cu Claude și Motion</h4><div class="m">8 pași · prompturi incluse</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Cinematic (ca TikTok-ul tău)</h3>
+      <p>Întunecat, fotografii de atmosferă, cuvinte-cheie în italic cu gradientul din logo, carduri de sticlă. Cine vine din TikTok simte imediat că e același cont.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="warm" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mk dB">
+        <div class="orb"></div><div class="orb2"></div>
+        <div class="nav"><img src="logo.png" alt=""><div class="links"><span>Ghiduri</span><span>Noutăți</span><span>Servicii</span></div></div>
+        <div class="hero">
+          <div class="eyebrow">Build with AC</div>
+          <h1>AI pe înțelesul tău,<br><em>pas cu pas.</em></h1>
+          <p>Ghiduri gratuite pentru cei care învață AI și pentru firmele care vor să-l folosească.</p>
+          <span class="btn">Vezi ghidurile</span>
+        </div>
+        <div class="card"><div class="ic"></div><div><h4>Site-uri care se mișcă, cu Claude</h4><div class="m">12 min · 8 pași</div></div><span class="pill">Gratuit</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Cald și luminos (spre hivey)</h3>
+      <p>Fundal deschis piersică→lavandă, obiecte 3D lucioase în culorile logo-ului, carduri rotunjite. Prietenos și „premium”, mai liniștitor pentru un antreprenor.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="colaj" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mk dC">
+        <div class="nav"><img src="logo.png" alt=""><div class="links"><span>Ghiduri</span><span>Noutăți</span><span>Servicii</span></div></div>
+        <div class="paper">
+          <h1>AI pe <span>înțelesul</span> tău.</h1>
+          <p>Tutorialele de pe TikTok, explicate pas cu pas. Ghiduri gratuite, în română.</p>
+          <div class="scrib">începe de aici ↓</div>
+        </div>
+        <div class="sticker">25+<br>GHIDURI<br>GRATUITE</div>
+        <div class="card"><div class="t">GHID · 12 MIN</div><h4>Site-uri care se mișcă, cu Claude și Motion</h4><div class="m">8 pași · prompturi incluse</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Colaj editorial (ca postarea „5 tool-uri”)</h3>
+      <p>Portocaliu plin, hârtie, bandă adezivă, scris de mână, litere condensate mari. Cel mai memorabil și „cu personalitate”, dar și cel mai zgomotos.</p>
+    </div>
+  </div>
+</div>
+</body></html>

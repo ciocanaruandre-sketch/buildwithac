@@ -1,0 +1,21 @@
+# dependențe și build
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+# test
+site/test-results/
+site/playwright-report/
+# mediu
+.env
+.env.local
+.env*.local
+.vercel
+# material mare de lucru
+continut/clipuri/
+continut/inspiratie/
+# venv montaj
+prototip/montaj/rb/
+# unelte
+.superpowers/

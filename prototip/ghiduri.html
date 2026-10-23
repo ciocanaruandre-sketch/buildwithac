@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>buildwithac · prototip toate ghidurile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@600;800&family=Instrument+Serif:ital@0;1&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0b0908;--ink2:#15100d;--cream:#f6efe3;--muted:#a99d92;--gold:#ffb52e;--orange:#f26a21;--red:#e53222;--wine:#7a0e0e;
+        --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222);--pad:clamp(16px,5vw,72px)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--ink);scroll-behavior:smooth;overflow-x:clip}
+  body{background:transparent;color:var(--cream);font-family:Inter,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:90px}
+  a{color:inherit;text-decoration:none}
+  .gtxt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+  .hand{font-family:Caveat,cursive;color:var(--gold)}
+  .eb{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#ff8a3d}
+  .kw{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:12px;background:rgba(242,106,33,.16);color:#ffb37a;padding:3px 9px;border-radius:7px;border:1px dashed rgba(242,106,33,.6);white-space:nowrap}
+
+  /* aurora (fundalul ales) */
+  .aur{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .aur .rib{position:absolute;left:-20%;width:140%;height:26%;border-radius:50%;filter:blur(60px);opacity:.22;mix-blend-mode:screen;animation:rib 18s ease-in-out infinite alternate}
+  @keyframes rib{0%{transform:translateX(-8%) rotate(var(--r)) scaleY(.8)}100%{transform:translateX(8%) rotate(calc(var(--r) * -1)) scaleY(1.2)}}
+  .aur .grain{position:absolute;inset:0;opacity:.1;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:14px var(--pad);transition:background .3s}
+  .nav.solid{background:rgba(11,9,8,.75);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav .l{display:flex;align-items:center;gap:12px}
+  .nav img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+  .nav .back{font-size:13px;font-weight:500;opacity:.85;background:rgba(11,9,8,.35);backdrop-filter:blur(12px);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12)}
+  .nav .soc{display:flex;gap:8px}
+  .nav .soc a{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:rgba(11,9,8,.35);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12)}
+
+  /* CAP + LUPĂ (comune tuturor variantelor) */
+  .top{padding:120px var(--pad) 0;max-width:1240px;margin:0 auto}
+  .top h1{font-family:Unbounded;font-weight:800;font-size:clamp(34px,6vw,76px);letter-spacing:-.045em;line-height:1.02;margin:14px 0 14px}
+  .top h1 .serif{font-size:1.15em;letter-spacing:-.01em}
+  .top .sub{color:var(--muted);font-size:clamp(15px,1.6vw,17px);line-height:1.6;max-width:560px}
+  .search{position:relative;margin:28px 0 12px;max-width:640px}
+  .search input{width:100%;height:58px;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(21,16,13,.75);backdrop-filter:blur(14px);color:var(--cream);font:500 16px Inter;padding:0 52px 0 52px;outline:none;transition:border-color .2s,box-shadow .2s}
+  .search input::placeholder{color:#7d7066}
+  .search input:focus{border-color:rgba(242,106,33,.75);box-shadow:0 0 0 4px rgba(242,106,33,.15)}
+  .search svg{position:absolute;z-index:2;left:18px;top:50%;transform:translateY(-50%);width:20px;height:20px;stroke:#ff8a3d}
+  .search .clr{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:var(--cream);font-size:15px;cursor:pointer;display:none}
+  .search.has .clr{display:block}
+  .quick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+  .quick button{cursor:pointer}
+  .quick .hint{font-size:22px;margin-right:4px;transform:rotate(-3deg)}
+  .count{margin:34px 0 18px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .count b{color:var(--cream);font-weight:600}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 var(--pad)}
+  .empty{display:none;text-align:center;padding:50px 20px;border:2px dashed rgba(246,239,227,.18);border-radius:24px}
+  .empty.on{display:block}
+  .empty h3{font-family:Unbounded;font-weight:800;font-size:clamp(20px,3vw,28px);letter-spacing:-.03em;margin:8px 0 10px}
+  .empty p{color:var(--muted);line-height:1.6;max-width:440px;margin:0 auto 20px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#1b0f0a;font-weight:700;font-size:14px;padding:12px 20px;border-radius:999px}
+  .found{position:absolute;z-index:5;font-size:26px;line-height:1;transform:rotate(-6deg);pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .ex{position:absolute;z-index:4;font-size:9px;letter-spacing:.14em;text-transform:uppercase;background:rgba(11,9,8,.8);color:var(--muted);padding:3px 7px;border-radius:5px}
+
+  /* intrare cu stagger */
+  .card{opacity:0;transform:translateY(24px);animation:in .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i) * 60ms)}
+  @keyframes in{to{opacity:1;transform:none}}
+  .card.hide{display:none!important}
+
+  /* ===== A · RAFT CINEMATIC ===== */
+  .A .feat{grid-column:1/-1;position:relative;display:block;border-radius:28px;overflow:hidden;min-height:clamp(420px,58vh,560px);margin-bottom:22px;border:1px solid rgba(255,255,255,.08)}
+  .A .feat .bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+  .A .feat:hover .bg{transform:scale(1.04)}
+  .A .feat::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,9,8,.1) 20%,rgba(11,9,8,.92) 85%),linear-gradient(90deg,rgba(11,9,8,.6),transparent 70%)}
+  .A .feat .in{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:clamp(22px,4vw,48px);max-width:760px}
+  .A .new{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.2em;background:var(--grad);color:#1b0f0a;padding:5px 11px;border-radius:999px}
+  .A .feat h2{font-family:Unbounded;font-weight:800;font-size:clamp(26px,4.2vw,54px);letter-spacing:-.04em;line-height:1.04;margin:16px 0 12px}
+  .A .feat p{color:#ddd3c9;font-size:clamp(15px,1.5vw,17px);line-height:1.6;margin-bottom:18px;max-width:560px}
+  .A .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .A .row span:not(.kw){font-size:12px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);backdrop-filter:blur(8px)}
+  .A .feat .btn{margin-top:22px}
+  .A .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px}
+  .A .gc{position:relative;display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:rgba(21,16,13,.78);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s}
+  .A .gc:hover{transform:translateY(-6px);border-color:rgba(242,106,33,.45)}
+  .A .gc .ph{aspect-ratio:16/10;background-size:cover;background-position:center}
+  .A .gc .b{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .A .gc h3{font-family:Unbounded;font-weight:600;font-size:18px;letter-spacing:-.02em;line-height:1.25}
+  .A .gc p{font-size:14px;color:var(--muted);line-height:1.55;flex:1}
+  .A .gc .row span:not(.kw){font-size:11px;padding:4px 10px}
+  .A .found{right:18px;top:14px}.A .ex{left:12px;top:12px}
+
+  /* ===== B · COLAJ PE PLUTĂ ===== */
+  .B .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:46px 34px;padding-top:16px}
+  .B .gc{position:relative;display:block;background:var(--cream);color:#1b0f0a;padding:12px 12px 18px;box-shadow:0 26px 50px rgba(0,0,0,.5);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .B .gc:nth-child(3n+1){--rot:-2deg}.B .gc:nth-child(3n+2){--rot:1.6deg}.B .gc:nth-child(3n){--rot:-.8deg}
+  .B .gc.card{animation-name:inB}
+  @keyframes inB{to{opacity:1;transform:rotate(var(--rot))}}
+  .B .gc:hover{transform:rotate(0) translateY(-10px) scale(1.02)!important}
+  .B .tape{position:absolute;top:-12px;left:50%;width:84px;height:24px;margin-left:-42px;background:rgba(255,226,170,.85);transform:rotate(-3deg);z-index:3}
+  .B .ph{aspect-ratio:4/3;background-size:cover;background-position:center;position:relative}
+  .B .ph b{position:absolute;left:10px;top:10px;font-size:10px;letter-spacing:.12em;background:#0b0908;color:var(--gold);padding:4px 8px}
+  .B h3{font-family:Unbounded;font-weight:600;font-size:17px;line-height:1.22;margin:14px 4px 6px;letter-spacing:-.02em}
+  .B p{font-size:13px;color:#6b5a4d;margin:0 4px;line-height:1.5}
+  .B .meta{display:flex;justify-content:space-between;align-items:center;margin:14px 4px 0;font-size:11px;color:#8a6a55;font-weight:600;gap:8px}
+  .B .kw{background:#fde3cf;color:#b2400f;border-color:#e98a50}
+  .B .feat{grid-column:1/-1;display:grid;grid-template-columns:1.25fr 1fr;gap:26px;padding:16px 16px 16px;--rot:-1deg}
+  .B .feat .ph{aspect-ratio:auto;min-height:320px}
+  .B .feat .txt{padding:10px 8px 6px;display:flex;flex-direction:column;justify-content:center}
+  .B .feat h3{font-family:Unbounded;font-weight:800;font-size:clamp(24px,3.2vw,40px);letter-spacing:-.04em;line-height:1.06;margin:6px 0 12px}
+  .B .feat p{font-size:15px}
+  .B .feat .go{margin-top:18px;font-family:Unbounded;font-weight:600;font-size:15px;color:#c2410c}
+  .B .sticker{position:absolute;right:-14px;top:-22px;z-index:4;width:92px;height:92px;border-radius:50%;background:var(--grad);color:#1b0f0a;display:flex;align-items:center;justify-content:center;text-align:center;font-family:Caveat;font-size:30px;line-height:.85;transform:rotate(12deg);box-shadow:0 10px 24px rgba(0,0,0,.35)}
+  .B .found{left:10px;bottom:-30px;color:var(--gold)}.B .ex{right:10px;top:10px;left:auto}
+  @media(max-width:760px){.B .feat{grid-template-columns:1fr}.B .feat .ph{min-height:220px}.B .sticker{right:-6px;width:78px;height:78px;font-size:26px}}
+
+  /* ===== C · INDEX (listă) ===== */
+  .C .list{border-top:1px solid rgba(255,255,255,.12)}
+  .C .gc{position:relative;display:grid;grid-template-columns:56px 1fr auto;gap:22px;align-items:center;padding:24px 8px;border-bottom:1px solid rgba(255,255,255,.12);transition:background .3s,padding .3s}
+  .C .gc:hover{background:rgba(242,106,33,.07);padding-left:18px}
+  .C .n{font-family:Unbounded;font-weight:800;font-size:15px;color:#6b5a4d}
+  .C .gc:hover .n{color:var(--orange)}
+  .C h3{font-family:Unbounded;font-weight:600;font-size:clamp(17px,2.2vw,26px);letter-spacing:-.03em;line-height:1.2}
+  .C p{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.5;max-width:620px}
+  .C .tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .C .tools span{font-size:11px;color:#cdbfb2;padding:3px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.14)}
+  .C .side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;font-size:12px;color:var(--muted);white-space:nowrap}
+  .C .side i{font-style:normal;font-size:22px;color:var(--cream);transition:transform .3s}
+  .C .gc:hover .side i{transform:translateX(6px);color:var(--orange)}
+  .C .thumb{display:none}
+  .C .feat{grid-template-columns:1fr;padding:0 0 28px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .C .feat:hover{padding-left:0;background:none}
+  .C .feat .fimg{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:21/8;background-size:cover;background-position:center}
+  .C .feat .fimg::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(11,9,8,.7))}
+  .C .feat .fimg span{position:absolute;left:18px;bottom:16px;z-index:2;font-size:11px;font-weight:700;letter-spacing:.2em;background:var(--grad);color:#1b0f0a;padding:5px 11px;border-radius:999px}
+  .C .feat .ft{display:grid;grid-template-columns:56px 1fr auto;gap:22px;align-items:center;margin-top:22px;padding:0 8px}
+  .C .feat h3{font-size:clamp(22px,3.2vw,38px);font-weight:800}
+  .C .peek{position:fixed;z-index:50;width:280px;aspect-ratio:4/3;border-radius:16px;background-size:cover;background-position:center;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.85) rotate(-3deg);transition:opacity .25s,transform .25s;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+  .C .peek.on{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-3deg)}
+  .C .found{right:8px;top:-4px}.C .ex{position:static;display:inline-block;margin-left:8px;vertical-align:middle}
+  @media(max-width:760px){.C .gc{grid-template-columns:72px 1fr;gap:14px;align-items:start}.C .n,.C .side{display:none}.C .thumb{display:block;width:72px;height:72px;border-radius:14px;background-size:cover;background-position:center}
+    .C .feat{grid-template-columns:1fr}.C .feat .ft{grid-template-columns:1fr;gap:6px;padding:0}.C .feat .fimg{aspect-ratio:16/10}.C .peek{display:none}.C .mob{display:flex!important}}
+  .C .mob{display:none;gap:10px;align-items:center;margin-top:10px;font-size:12px;color:var(--muted)}
+
+  /* ===== D · CA PE TIKTOK (coperți 9:16) ===== */
+  .D .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .D .gc{position:relative;display:block}
+  .D .cov{position:relative;aspect-ratio:9/16;border-radius:18px;overflow:hidden;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,.08);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .D .gc:hover .cov{transform:translateY(-6px)}
+  .D .cov::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(11,9,8,.15),rgba(11,9,8,.25) 40%,rgba(11,9,8,.85))}
+  .D .hook{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:2;padding:0 14px;text-align:center}
+  .D .hook span{display:inline;font-weight:800;font-size:clamp(14px,1.45vw,19px);line-height:1.55;color:#1b0f0a;background:var(--cream);padding:4px 8px;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:6px}
+  .D .handle{position:absolute;left:12px;bottom:12px;z-index:2;font-size:11px;font-weight:600;opacity:.85}
+  .D .slides{position:absolute;right:12px;top:12px;z-index:2;font-size:10px;font-weight:700;background:rgba(11,9,8,.6);padding:4px 8px;border-radius:999px}
+  .D .under{padding:12px 4px 0}
+  .D h3{font-family:Unbounded;font-weight:600;font-size:14px;letter-spacing:-.02em;line-height:1.3}
+  .D .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--muted)}
+  .D .feat{grid-column:span 2;grid-row:span 2}
+  .D .feat .cov{aspect-ratio:auto;height:calc(100% - 92px);min-height:420px}
+  .D .feat .hook span{font-size:clamp(18px,2.4vw,30px)}
+  .D .feat h3{font-size:clamp(17px,1.8vw,22px)}
+  .D .new{position:absolute;left:12px;top:12px;z-index:3;font-size:11px;font-weight:700;letter-spacing:.2em;background:var(--grad);color:#1b0f0a;padding:5px 11px;border-radius:999px}
+  .D .found{right:-4px;bottom:70px;left:auto;transform:rotate(-8deg)}.D .ex{left:12px;top:44px}
+  .D .feat .ex{top:48px}
+  @media(max-width:980px){.D .grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:700px){.D .grid{grid-template-columns:1fr 1fr;gap:12px}.D .feat{grid-row:auto}.D .feat .cov{height:auto;aspect-ratio:4/5;min-height:0}}
+
+  .hl{outline:2px solid var(--orange);outline-offset:6px;border-radius:22px}
+  .B .hl,.B .gc.hl{outline-offset:8px;border-radius:2px}
+
+  /* comutator */
+  .sw{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:100;display:flex;gap:10px;align-items:center;background:rgba(20,15,12,.9);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.14);padding:8px 12px;border-radius:16px;font-size:12px;max-width:calc(100% - 24px);overflow-x:auto}
+  .sw b{color:var(--muted);font-weight:500;white-space:nowrap}
+  .sw select{background:#241a15;border:1px solid rgba(242,106,33,.5);color:var(--cream);padding:6px 8px;border-radius:10px;font-size:12px;font-family:Inter;max-width:200px}
+  .sw a{color:var(--muted);white-space:nowrap}
+  @media(max-width:600px){.sw b.opt{display:none}}
+</style>
+</head>
+<body>
+<div class="aur"><div class="rib" style="--r:-10deg;top:6%;background:linear-gradient(90deg,transparent,#ffb52e,#f26a21,transparent)"></div><div class="rib" style="--r:7deg;top:44%;background:linear-gradient(90deg,transparent,#e53222,#f26a21,transparent);animation-delay:-6s"></div><div class="rib" style="--r:-4deg;top:76%;background:linear-gradient(90deg,transparent,#7a0e0e,#e53222,transparent);animation-delay:-11s;opacity:.18"></div><div class="grain"></div></div>
+
+<nav class="nav" id="nav">
+  <div class="l"><a href="index.html"><img src="logo.png" alt="buildwithac"></a><a class="back" href="index.html">← Homepage</a></div>
+  <div class="soc"><a href="#" title="Instagram">IG</a><a href="#" title="TikTok">TT</a></div>
+</nav>
+
+<header class="top">
+  <div class="eb">Biblioteca de ghiduri</div>
+  <h1>Toate ghidurile, <span class="serif gtxt">pas cu pas.</span></h1>
+  <p class="sub">Gratuite, complete și testate de mine. Ai văzut un ghid pe TikTok? Caută cuvântul de pe ultima slide.</p>
+  <div class="search" id="sbox">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" autocomplete="off" placeholder="Caută un ghid (ex: SITE)">
+    <button class="clr" id="clr" aria-label="Șterge">✕</button>
+  </div>
+  <div class="quick" id="quick"></div>
+</header>
+
+<main class="wrap">
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+  <div class="empty" id="empty">
+    <div class="hand" style="font-size:30px">hmm…</div>
+    <h3>N-am încă un ghid pentru „<span id="eq"></span>”.</h3>
+    <p>Scrie-mi pe Instagram ce ghid cauți. Dacă îl cer mai mulți, e următorul pe listă.</p>
+    <a class="btn" href="#">Scrie-mi pe Instagram →</a>
+  </div>
+</main>
+
+<div class="sw">
+  <b>Toate ghidurile</b>
+  <select id="vsel">
+    <option value="A">A · Raft cinematic</option>
+    <option value="B">B · Colaj (hârtie + bandă) · ales</option>
+    <option value="C">C · Index (listă)</option>
+    <option value="D">D · Ca pe TikTok (coperți)</option>
+  </select>
+  <b class="opt">Câte</b>
+  <select id="nsel">
+    <option value="3">3 ghiduri (lansarea)</option>
+    <option value="15">15 ghiduri (peste un an)</option>
+  </select>
+  <a href="index.html">← homepage</a>
+</div>
+
+<script>
+const QS=new URLSearchParams(location.search);
+const V=QS.get('v')||'B',N=+(QS.get('n')||3);
+const vsel=document.getElementById('vsel'),nsel=document.getElementById('nsel');vsel.value=V;nsel.value=N;
+vsel.onchange=nsel.onchange=()=>{location.search=`v=${vsel.value}&n=${nsel.value}`};
+const U=(id,w=1200)=>`https://images.unsplash.com/photo-${id}?w=${w}&q=70`;
+
+/* cele 3 ghiduri de la lansare (durata, nivelul și numărul de pași sunt provizorii) */
+const LAUNCH=[
+ {t:'Site-uri care nu arată „făcute cu AI”',hook:'Site-urile mele făcute cu Claude arătau ok… dar se vedea că-s făcute cu AI.',
+  d:'Trei unelte pe care i le dai lui Claude: Motion pentru animații, UI UX Pro Max pentru culori și fonturi, 21st.dev pentru componente.',
+  img:'1477959858617-67f85cf4f1df',min:20,lvl:'Începător',pasi:7,kw:'SITE',tools:['Claude Code','Motion','UI UX Pro Max','21st.dev'],slides:4,nou:1},
+ {t:'Animații video cu Claude Opus 5.5',hook:'Claude Opus 5.5 poate face animații video. Am testat.',
+  d:'Claude scrie animația cu GSAP, iar HyperFrames o transformă în MP4. Pentru intro-uri, logo-uri și grafice.',
+  img:'1519501025264-65ba15a82390',min:25,lvl:'Mediu',pasi:8,kw:'ANIMATIE',tools:['Claude Code','GSAP','HyperFrames'],slides:5},
+ {t:'Claude conectat la TradingView',hook:'L-am conectat pe Claude la TradingView. Uite ce poate să facă.',
+  d:'Legi Claude de graficele tale prin MCP și îl întrebi direct despre ele. Nu e sfat financiar.',
+  img:'1480714378408-67cf0d13bc1b',min:20,lvl:'Mediu',pasi:6,kw:'TRADING',tools:['Claude Desktop','MCP','TradingView'],slides:5}
+];
+/* ghiduri inventate, doar ca să vezi pagina plină */
+const IM=['1496442226666-8d4d0e62e6e9','1507525428034-b723cf961d3e','1506905925346-21bda4d32df4','1519501025264-65ba15a82390','1477959858617-67f85cf4f1df','1480714378408-67cf0d13bc1b'];
+const MORE=[
+ ['Răspunsuri automate la e-mail cu n8n','Am lăsat un robot să-mi răspundă la e-mailuri. O lună.','Un flux n8n care citește e-mailurile, scrie ciornele și ți le lasă doar de aprobat.','N8N',['n8n','Gmail','Claude']],
+ ['Chatbot pe site, fără cod','Clienții mei vorbesc cu un robot și nici nu-și dau seama.','Un asistent care răspunde singur clienților, pus pe site în mai puțin de o oră.','CHATBOT',['Chatbase','Claude']],
+ ['CLAUDE.md: Claude face ce-i spui','Un singur fișier și Claude a început să mă asculte.','Fișierul de reguli care-l ține pe Claude pe drumul bun în orice proiect.','REGULI',['Claude Code']],
+ ['Aplicație fără să știi să programezi','Am făcut o aplicație întreagă fără să scriu cod.','Cum am construit ImobSearch cu Claude, pas cu pas, și unde m-am împotmolit.','APLICATIE',['Claude Code','Supabase','Vercel']],
+ ['Facturi citite automat cu AI','Nu mai copiez facturi de mână.','AI-ul citește facturile din e-mail și le pune într-un tabel, fără să le atingi.','FACTURI',['n8n','Claude','Google Sheets']],
+ ['Programări automate pentru salon','Salonul ăsta nu mai răspunde la telefon pentru programări.','Clienții își fac singuri programarea, iar tu primești doar confirmarea.','PROGRAMARI',['n8n','Google Calendar']],
+ ['Prompturi care chiar merg','Prompturile tale sunt prea scurte. Uite de ce.','Cum scrii un prompt bun, cu exemple înainte și după.','PROMPT',['Claude','ChatGPT']],
+ ['Răspuns automat pe Instagram','Cum dau ghiduri pe Instagram fără să răspund manual.','Cuvânt-cheie în privat, răspuns automat cu link-ul. Exact sistemul pe care-l folosesc.','DM',['ManyChat','Instagram']],
+ ['Claude în Google Sheets','Tabelul ăsta se completează singur.','Îl pui pe Claude să curețe, să sorteze și să rezume date direct în tabel.','SHEETS',['Claude','Google Sheets']],
+ ['Logo animat în 10 minute','Logo-ul meu se mișcă. Mi-a luat 10 minute.','Varianta scurtă a ghidului de animații: doar logo-ul, gata de pus pe clipuri.','LOGO',['Claude Code','GSAP']],
+ ['Skill-uri Claude: faci unul al tău','Am făcut un skill care scrie ca mine.','Ce e un skill, cum îl scrii și cum îl testezi, pornind de la zero.','SKILL',['Claude Code']],
+ ['4 modele AI noi într-o lună','4 modele AI noi. Pe care îl folosesc eu.','Pe care merită să-l folosești, pentru ce și cât costă fiecare.','MODELE',['Claude','ChatGPT','Gemini']]
+].map((m,i)=>({t:m[0],hook:m[1],d:m[2],kw:m[3],tools:m[4],img:IM[i%IM.length],min:[12,9,10,30,15,14,8,11,10,10,16,7][i],lvl:i%3?'Începător':'Mediu',pasi:4+i%5,slides:4+i%3,ex:1}));
+// la 15 ghiduri, cel mai nou e tot primul; cele inventate stau între ghidurile de lansare, ca într-un an real
+const GS=N===15?[LAUNCH[0],...MORE.slice(0,5),LAUNCH[1],...MORE.slice(5,9),LAUNCH[2],...MORE.slice(9,12)].slice(0,15):LAUNCH;
+
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const ex=g=>g.ex?'<span class="ex">exemplu</span>':'';
+const chipsA=g=>`<span>${g.min} min</span><span>${g.lvl}</span><span>${g.pasi} pași</span><span class="kw">${g.kw}</span>`;
+
+const R={
+ A:(g,i)=>i===0?`<a class="card gc feat" href="ghid.html" style="--i:${i}"><div class="bg" style="background-image:url('${U(g.img,1800)}')"></div>${ex(g)}<div class="in"><span class="new">NOU</span><h2>${g.t}</h2><p>${g.d}</p><div class="row">${chipsA(g)}</div><span class="btn">Citește ghidul →</span></div></a>`
+   :`<a class="card gc" href="ghid.html" style="--i:${i}">${ex(g)}<div class="ph" style="background-image:url('${U(g.img,800)}')"></div><div class="b"><h3>${g.t}</h3><p>${g.d}</p><div class="row">${chipsA(g)}</div></div></a>`,
+ B:(g,i)=>i===0?`<a class="card gc feat" href="ghid.html" style="--i:${i}"><div class="tape"></div><div class="sticker">ghid<br>nou!</div>${ex(g)}<div class="ph" style="background-image:url('${U(g.img,1400)}')"><b>GHID · ${g.min} MIN</b></div><div class="txt"><span class="kw" style="align-self:flex-start">caută: ${g.kw}</span><h3>${g.t}</h3><p>${g.d}</p><div class="meta"><span>${g.lvl} · ${g.pasi} pași</span><span style="color:#c2410c">Gratuit</span></div><div class="go">Citește ghidul →</div></div></a>`
+   :`<a class="card gc" href="ghid.html" style="--i:${i}"><div class="tape"></div>${ex(g)}<div class="ph" style="background-image:url('${U(g.img,700)}')"><b>GHID · ${g.min} MIN</b></div><h3>${g.t}</h3><p>${g.d}</p><div class="meta"><span>${g.lvl} · ${g.pasi} pași</span><span class="kw">${g.kw}</span></div></a>`,
+ C:(g,i)=>{const n=String(GS.length-i).padStart(2,'0'),tools=`<div class="tools">${g.tools.map(t=>`<span>${t}</span>`).join('')}</div>`,side=`<div class="side"><span class="kw">${g.kw}</span><span>${g.min} min · ${g.lvl}</span><i>→</i></div>`;
+   return i===0?`<a class="card gc feat" href="ghid.html" style="--i:${i}" data-img="${g.img}"><div class="fimg" style="background-image:url('${U(g.img,1800)}')"><span>NOU</span></div><div class="ft"><div class="n">${n}</div><div><h3>${g.t}${ex(g)}</h3><p>${g.d}</p>${tools}<div class="mob"><span class="kw">${g.kw}</span>${g.min} min · ${g.lvl}</div></div>${side}</div></a>`
+   :`<a class="card gc" href="ghid.html" style="--i:${i}" data-img="${g.img}"><div class="n">${n}</div><div class="thumb" style="background-image:url('${U(g.img,300)}')"></div><div><h3>${g.t}${ex(g)}</h3><p>${g.d}</p>${tools}<div class="mob"><span class="kw">${g.kw}</span>${g.min} min</div></div>${side}</a>`},
+ D:(g,i)=>`<a class="card gc${i===0?' feat':''}" href="ghid.html" style="--i:${i}"><div class="cov" style="background-image:url('${U(g.img,i===0?1200:600)}')">${i===0?'<span class="new">NOU</span>':''}${ex(g)}<span class="slides">1/${g.slides}</span><div class="hook"><span>${g.hook}</span></div><span class="handle">@buildwithac.ai</span></div><div class="under"><h3>${g.t}</h3><div class="meta"><span class="kw">${g.kw}</span><span>${g.min} min · ${g.lvl}</span></div></div></a>`
+};
+
+document.body.classList.add(V);
+const list=document.getElementById('list');
+list.className=V==='C'?'list':'grid';
+list.innerHTML=GS.map(R[V]).join('');
+const cards=[...list.children];
+if(V==='C'){ // pe desktop, imaginea ghidului apare lângă cursor
+  const pk=document.createElement('div');pk.className='peek';document.body.append(pk);
+  cards.slice(1).forEach(c=>{c.onmouseenter=()=>{pk.style.backgroundImage=`url('${U(c.dataset.img,600)}')`;pk.classList.add('on')};c.onmouseleave=()=>pk.classList.remove('on')});
+  addEventListener('mousemove',e=>{pk.style.left=e.clientX+170+'px';pk.style.top=e.clientY+'px'});
+}
+
+/* cuvintele din clipuri: scurtături sub lupă (ultimele 4) */
+const quick=document.getElementById('quick');
+quick.innerHTML=`<span class="hand hint">din clipuri:</span>`+GS.slice(0,4).map(g=>`<button class="kw" data-k="${g.kw}">${g.kw}</button>`).join('');
+const q=document.getElementById('q'),sbox=document.getElementById('sbox');
+quick.querySelectorAll('button').forEach(b=>b.onclick=()=>{q.value=b.dataset.k;run()});
+document.getElementById('clr').onclick=()=>{q.value='';run();q.focus()};
+
+function run(){
+  const s=norm(q.value.trim());sbox.classList.toggle('has',!!s);
+  document.querySelectorAll('.found').forEach(f=>f.remove());
+  let shown=0,exact=null;
+  GS.forEach((g,i)=>{const c=cards[i];c.classList.remove('hl');
+    const hit=!s||norm([g.t,g.d,g.kw,g.tools.join(' ')].join(' ')).includes(s);
+    c.classList.toggle('hide',!hit);
+    if(hit){shown++;c.style.setProperty('--i',shown-1);c.style.animation='none';c.offsetWidth;c.style.animation=''}
+    if(s&&norm(g.kw)===s)exact=c;
+  });
+  // cuvântul exact din clip: ghidul urcă primul și e marcat
+  if(exact){list.prepend(exact);exact.classList.add('hl');exact.insertAdjacentHTML('beforeend','<span class="found hand">ăsta e ghidul din clip ✓</span>')}
+  else cards.forEach(c=>list.append(c));
+  document.getElementById('count').innerHTML=s?`<span><b>${shown}</b> ${shown===1?'ghid găsit':'ghiduri găsite'} pentru „${q.value.trim()}”</span>`:`<span><b>${GS.length}</b> ghiduri gratuite</span><span>cel mai nou primul</span>`;
+  document.getElementById('empty').classList.toggle('on',shown===0);
+  document.getElementById('eq').textContent=q.value.trim();
+}
+q.addEventListener('input',run);run();
+
+addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>40),{passive:true});
+</script>
+</body>
+</html>

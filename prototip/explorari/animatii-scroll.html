@@ -1,0 +1,256 @@
+<!doctype html><html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Explorare</title><style>body{background:#1a1a1a;color:#eee;font-family:system-ui,sans-serif;padding:24px;max-width:1300px;margin:0 auto}.subtitle{color:#aaa}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}.card{background:#242424;border:1px solid #333;border-radius:12px;overflow:hidden}.card-body{padding:1rem}.card-body p{color:#aaa;font-size:.85rem}.card.selected{outline:2px solid #f26a21}</style><script>function toggleSelect(e){e.classList.toggle("selected")}</script></head><body>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@500;700&family=Anton&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  .g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:18px}
+  .g2 .card .card-image{aspect-ratio:auto;display:block;background:#000}
+  .sc{height:520px;overflow-y:auto;position:relative;background:#0b0908;color:#f4ede6;font-family:Inter,sans-serif;scrollbar-width:thin;scrollbar-color:#f26a21 #1a1412}
+  .sc *{box-sizing:border-box}
+  .track{position:relative}
+  .stage{position:sticky;top:0;height:520px;overflow:hidden}
+  .hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#cfc4ba;z-index:20;opacity:.8;transition:opacity .3s}
+  .gtxt{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;background:linear-gradient(90deg,#ffb52e,#f26a21,#e53222);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:4px}
+  .h{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.02;margin:0}
+  .eb{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#ff8a3d}
+  .navl{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;z-index:30;font-size:11px}
+  .navl img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+  .navl .l{display:flex;gap:14px;opacity:.85}
+  .hand{font-family:Caveat,cursive;color:#ffb52e;font-size:24px}
+  .tape{position:absolute;width:64px;height:20px;background:rgba(255,226,170,.8);top:-10px;left:50%;margin-left:-32px;transform:rotate(-4deg)}
+
+  /* V1 cadre */
+  .v1 .img{position:absolute;inset:0;background-size:cover;background-position:center;background-color:#1a1210;will-change:clip-path,transform}
+  .v1 .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.15) 40%,rgba(11,9,8,.85))}
+  .v1 .txt{position:absolute;left:24px;right:24px;bottom:58px;z-index:10}
+  .v1 .slide{position:absolute;left:0;right:0;bottom:0;opacity:0;transform:translateY(24px);transition:opacity .5s,transform .5s}
+  .v1 .slide.on{opacity:1;transform:none}
+  .v1 .h{font-size:34px}
+  .v1 .h .gtxt{font-size:38px}
+  .v1 .slide p{font-size:12px;color:#d8cdc2;margin:8px 0 0;max-width:330px}
+  .v1 .dots{position:absolute;top:60px;left:24px;right:24px;display:flex;gap:6px;z-index:12}
+  .v1 .dots i{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden;position:relative}
+  .v1 .dots i b{position:absolute;inset:0;background:linear-gradient(90deg,#ffb52e,#e53222);transform-origin:left;transform:scaleX(0)}
+
+  /* V2 rotire */
+  .v2 .stage{background:radial-gradient(ellipse at 50% 60%,#2a130b 0%,#0b0908 65%);perspective:1100px}
+  .v2 .flip{position:absolute;left:50%;top:50%;width:190px;height:300px;margin:-150px 0 0 -95px;transform-style:preserve-3d;will-change:transform}
+  .v2 .face{position:absolute;inset:0;border-radius:18px;background-size:cover;background-position:center;backface-visibility:hidden;box-shadow:0 30px 80px rgba(242,106,33,.25);border:1px solid rgba(255,255,255,.12);overflow:hidden}
+  .v2 .face.back{transform:rotateY(180deg)}
+  .v2 .face span{position:absolute;left:12px;bottom:12px;right:12px;font-family:'Space Grotesk';font-weight:700;font-size:14px;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+  .v2 .side{position:absolute;top:50%;transform:translateY(-50%);width:150px;z-index:5;transition:opacity .4s}
+  .v2 .side.l{left:18px}.v2 .side.r{right:18px;text-align:right}
+  .v2 .h{font-size:26px}
+  .v2 .h .gtxt{font-size:29px}
+  .v2 .side p{font-size:11px;color:#bfb3a8;margin:8px 0 0}
+  .v2 .note{position:absolute;right:30px;bottom:56px;transform:rotate(-5deg);z-index:6}
+  .v2 .ring{position:absolute;left:50%;top:50%;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;border:1px dashed rgba(255,181,46,.25)}
+
+  /* V3 colaj */
+  .v3 .bg{position:absolute;inset:-20px;background:#120c0a url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&q=60') center/cover;filter:blur(3px) brightness(.35) saturate(.8);will-change:transform}
+  .v3 .head{position:absolute;left:22px;top:62px;z-index:10;max-width:250px}
+  .v3 .h{font-size:30px}
+  .v3 .h .gtxt{font-size:34px}
+  .v3 .head p{font-size:11px;color:#cfc4ba;margin:8px 0 0}
+  .v3 .pc{position:absolute;width:150px;background:#f6efe3;color:#1b0f0a;padding:8px 8px 12px;box-shadow:0 18px 40px rgba(0,0,0,.5);will-change:transform;z-index:8}
+  .v3 .pc .ph{height:110px;background-size:cover;background-position:center;background-color:#3a2a20}
+  .v3 .pc h5{margin:8px 2px 2px;font-size:11.5px;line-height:1.25;font-family:'Space Grotesk'}
+  .v3 .pc small{font-size:9px;color:#8a6a55;margin-left:2px}
+  .v3 .stk{position:absolute;left:30px;bottom:44px;width:96px;height:96px;border-radius:50%;background:#f2591c;color:#1b0f0a;display:flex;align-items:center;justify-content:center;text-align:center;font-family:Anton;font-size:15px;line-height:1;z-index:12;will-change:transform}
+
+  /* V4 fereastra */
+  .v4 .win{position:absolute;inset:0;background:#1a1210 url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1200&q=70') center/cover;will-change:clip-path}
+  .v4 .win2{position:absolute;inset:0;background:#1a1210 url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=70') center/cover;opacity:0}
+  .v4 .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(11,9,8,.8));opacity:0}
+  .v4 .big{position:absolute;left:0;right:0;text-align:center;z-index:5;will-change:transform,opacity}
+  .v4 .big.top{top:70px}.v4 .big.bot{bottom:60px}
+  .v4 .big .h{font-size:46px;letter-spacing:-.02em}
+  .v4 .big .h .gtxt{font-size:52px}
+  .v4 .over{position:absolute;left:24px;right:24px;bottom:60px;z-index:6;opacity:0}
+  .v4 .over .h{font-size:30px}.v4 .over .h .gtxt{font-size:34px}
+  .v4 .over p{font-size:12px;color:#ddd2c7;max-width:330px}
+  .v4 .over .hand{position:absolute;right:0;top:-34px;transform:rotate(-6deg)}
+</style>
+
+<h2>A + un pic de C, cu animații la scroll</h2>
+<p class="subtitle"><b>Dă scroll în interiorul fiecărei casete</b> ca să vezi animația. Baza e A (cinematic, întunecat). Din C am luat scrisul de mână, hârtia și banda adezivă, doar ca accente.</p>
+
+<div class="g2">
+
+  <!-- V1 -->
+  <div class="card" data-choice="cadre" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="sc v1" id="s1">
+        <div class="track" style="height:2400px">
+          <div class="stage">
+            <div class="navl"><img src="logo.png" alt=""><div class="l"><span>Ghiduri</span><span>Noutăți</span><span>Servicii</span></div></div>
+            <div class="dots"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+            <div class="img" style="background-image:url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=70')"></div>
+            <div class="img" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=70')"></div>
+            <div class="img" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=70')"></div>
+            <div class="img" style="background-image:url('https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1200&q=70')"></div>
+            <div class="txt">
+              <div class="slide on"><div class="eb">AI în română</div><h1 class="h">AI pe înțelesul tău,<br><span class="gtxt">pas cu pas.</span></h1><p>Tutorialele de pe TikTok, explicate complet.</p></div>
+              <div class="slide"><div class="eb">Pentru cei care învață</div><h1 class="h">Unelte noi,<br><span class="gtxt">explicate simplu.</span></h1><p>Ghiduri gratuite pe care le urmezi azi.</p></div>
+              <div class="slide"><div class="eb">Pentru firme</div><h1 class="h">AI care îți<br><span class="gtxt">scurtează ziua.</span></h1><p>Automatizări concrete pentru afacerea ta.</p></div>
+              <div class="slide"><div class="eb">Începe acum</div><h1 class="h">Alege primul <span class="gtxt">ghid.</span></h1><p>Fără cont, fără plată.</p></div>
+            </div>
+            <div class="hint">↓ scroll</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>1 · Cadre care se schimbă</h3><p>Hero-ul rămâne fix, iar la scroll fiecare imagine o „șterge” pe cea dinainte, de jos în sus, cu un zoom lent. Textul se schimbă odată cu ea. Bara de sus imită punctele de la caruselul TikTok.</p></div>
+  </div>
+
+  <!-- V2 -->
+  <div class="card" data-choice="rotire" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="sc v2" id="s2">
+        <div class="track" style="height:2400px">
+          <div class="stage">
+            <div class="navl"><img src="logo.png" alt=""><div class="l"><span>Ghiduri</span><span>Noutăți</span><span>Servicii</span></div></div>
+            <div class="ring"></div>
+            <div class="side l"><div class="eb">AI în română</div><h1 class="h">Fiecare clip,<br><span class="gtxt">un ghid.</span></h1><p>Pe TikTok vezi pe scurt. Aici găsești pașii compleți.</p></div>
+            <div class="side r"><div class="eb">Gratuit</div><h1 class="h">Urmezi<br><span class="gtxt">pas cu pas.</span></h1><p>Prompturi, capturi, greșeli de evitat.</p></div>
+            <div class="flip"><div class="face front"><span>Site-uri care se mișcă</span></div><div class="face back"><span>Chatbot pe site, gratis</span></div></div>
+            <div class="note hand">dă-l peste cap ↻</div>
+            <div class="hint">↓ scroll</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>2 · Imaginea care se rotește</h3><p>În centru stă un cadru vertical, ca un clip TikTok, care se rotește 3D la scroll. Când se întoarce, pe spate apare alt ghid. Titlurile din stânga și din dreapta se schimbă pe rând.</p></div>
+  </div>
+
+  <!-- V3 -->
+  <div class="card" data-choice="colaj" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="sc v3" id="s3">
+        <div class="track" style="height:2200px">
+          <div class="stage">
+            <div class="bg"></div>
+            <div class="navl"><img src="logo.png" alt=""><div class="l"><span>Ghiduri</span><span>Noutăți</span><span>Servicii</span></div></div>
+            <div class="head"><div class="eb">Biblioteca de ghiduri</div><h1 class="h">Tot ce ai văzut<br>pe TikTok, <span class="gtxt">aici.</span></h1><p>Dă scroll și ghidurile se adună pe masă.</p></div>
+            <div class="pc"><div class="tape"></div><div class="ph" style="background-image:url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60')"></div><h5>Site-uri care se mișcă, cu Claude</h5><small>12 min · gratuit</small></div>
+            <div class="pc"><div class="tape"></div><div class="ph" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=60')"></div><h5>Chatbot pe site, fără cod</h5><small>9 min · gratuit</small></div>
+            <div class="pc"><div class="tape"></div><div class="ph" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60')"></div><h5>Automatizări pentru firma ta</h5><small>15 min · gratuit</small></div>
+            <div class="pc"><div class="tape"></div><div class="ph" style="background-image:url('https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&q=60')"></div><h5>Animații video cu Claude</h5><small>10 min · gratuit</small></div>
+            <div class="stk">GHIDURI<br>GRATUITE</div>
+            <div class="hint">↓ scroll</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>3 · Colajul care se adună</h3><p>Pe un fundal cinematic estompat, ghidurile intră ca poze de hârtie lipite cu bandă și se așază în evantai. Abordarea „A cu un pic de C” e aici cea mai vizibilă.</p></div>
+  </div>
+
+  <!-- V4 -->
+  <div class="card" data-choice="fereastra" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="sc v4" id="s4">
+        <div class="track" style="height:2400px">
+          <div class="stage">
+            <div class="win"></div><div class="win2"></div><div class="shade"></div>
+            <div class="navl"><img src="logo.png" alt=""><div class="l"><span>Ghiduri</span><span>Noutăți</span><span>Servicii</span></div></div>
+            <div class="big top"><h1 class="h">AI pe</h1></div>
+            <div class="big bot"><h1 class="h"><span class="gtxt">înțelesul tău.</span></h1></div>
+            <div class="over"><span class="hand">pe bune, în română</span><div class="eb">Build with AC</div><h1 class="h">Tutorialele de pe TikTok, <span class="gtxt">complete.</span></h1><p>Ghiduri gratuite, pas cu pas, pentru cei care învață AI și pentru firmele care vor să-l folosească.</p></div>
+            <div class="hint">↓ scroll</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>4 · Fereastra care se deschide</h3><p>La început vezi un titlu mare și o imagine mică între cuvinte. La scroll, fereastra crește până umple tot ecranul, iar titlul se desparte. La final, imaginea trece în alta.</p></div>
+  </div>
+
+</div>
+
+<style>
+  .x21{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:14px}
+  .x21 .card img{width:100%;height:170px;object-fit:cover;display:block;background:#111}
+  .x21 .card-body a{font-size:12px;color:#f26a21;text-decoration:none}
+  .x21 .tagm{display:inline-block;font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(242,106,33,.15);color:#f26a21;margin-bottom:6px}
+</style>
+
+<h2 style="margin-top:48px">Exemple reale de pe 21st.dev</h2>
+<p class="subtitle">Pe 21st.dev sunt peste 200 de componente de scroll. Am ales 8 care se potrivesc cu A + C. Pozele sunt statice, așa că deschide link-ul ca să vezi animația live. Poți bifa mai multe.</p>
+
+<div class="x21" data-multiselect>
+  <div class="card" data-choice="21-parallax" onclick="toggleSelect(this)"><img src="x21-parallax-scrolling.jpg" alt=""><div class="card-body"><span class="tagm">hero · cinematic</span><h3>Parallax Scrolling</h3><p>Peisaj pe straturi: titlul mare stă între munte și om, iar straturile se mișcă cu viteze diferite. Cel mai „film” dintre toate.</p><a href="https://21st.dev/@osmosupply/components/parallax-scrolling" target="_blank">vezi live ↗</a></div></div>
+  <div class="card" data-choice="21-morph" onclick="toggleSelect(this)"><img src="x21-scroll-morph.jpg" alt=""><div class="card-body"><span class="tagm">rotire · imagini</span><h3>Scroll Morph Hero</h3><p>Un cerc de imagini care se rotește și se transformă la scroll, cu titlul în mijloc. Exact „imaginea care se învârte”, doar că sunt mai multe.</p><a href="https://21st.dev/@prashantsom75/components/scroll-morph-hero" target="_blank">vezi live ↗</a></div></div>
+  <div class="card" data-choice="21-story" onclick="toggleSelect(this)"><img src="x21-story-scroll.jpg" alt=""><div class="card-body"><span class="tagm">A + C pe bune</span><h3>Story Scroll</h3><p>Secțiuni ca niște coli mari, portocaliu și negru, care se suprapun înclinat la scroll. Bun pentru „Cine sunt” și „Ce găsești aici”.</p><a href="https://21st.dev/@boudjadjasamira/components/story-scroll" target="_blank">vezi live ↗</a></div></div>
+  <div class="card" data-choice="21-subway" onclick="toggleSelect(this)"><img src="x21-video-hero.jpg" alt=""><div class="card-body"><span class="tagm">hero · video</span><h3>Scroll-Locked Video Hero</h3><p>Ușile de metrou se deschid la scroll și intri în scenă. Un video cinematic care avansează odată cu scroll-ul.</p><a href="https://21st.dev/@gughigug/components/scroll-locked-video-hero" target="_blank">vezi live ↗</a></div></div>
+  <div class="card" data-choice="21-expansion" onclick="toggleSelect(this)"><img src="x21-expansion-hero.jpg" alt=""><div class="card-body"><span class="tagm">= varianta 4</span><h3>Scroll Expansion Hero</h3><p>Fereastra din mijloc crește până umple ecranul, iar textul se desparte. E versiunea profesională a variantei 4 de mai sus.</p><a href="https://21st.dev/@arunachalam/components/scroll-expansion-hero" target="_blank">vezi live ↗</a></div></div>
+  <div class="card" data-choice="21-domino" onclick="toggleSelect(this)"><img src="x21-domino-gallery.jpg" alt=""><div class="card-body"><span class="tagm">galerie ghiduri</span><h3>Domino Gallery</h3><p>Cardurile stau în picioare și cad ca piesele de domino la scroll. Ar merge pentru „ultimele ghiduri”.</p><a href="https://21st.dev/@dhxwhy/components/domino-gallery" target="_blank">vezi live ↗</a></div></div>
+  <div class="card" data-choice="21-unfurl" onclick="toggleSelect(this)"><img src="x21-unfurling-gallery.jpg" alt=""><div class="card-body"><span class="tagm">galerie 3D</span><h3>3D Parallax Unfurling Gallery</h3><p>Un perete de imagini înclinat în 3D care se desfășoară la scroll. Ar putea arăta coperțile clipurilor tale de TikTok.</p><a href="https://21st.dev/@piyushxdev/components/3d-parallax-unfurling-gallery" target="_blank">vezi live ↗</a></div></div>
+  <div class="card" data-choice="21-stack" onclick="toggleSelect(this)"><img src="x21-stacking-card.jpg" alt=""><div class="card-body"><span class="tagm">carduri</span><h3>Stacking Cards</h3><p>Cardurile se stivuiesc unul peste altul la scroll. E clasic, dar curat, și merge pentru pașii „cum funcționează” sau pentru servicii.</p><a href="https://21st.dev/@uilayout.contact/components/stacking-card" target="_blank">vezi live ↗</a></div></div>
+</div>
+
+<script>
+(function(){
+  const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  function bind(id,fn){const el=document.getElementById(id);if(!el)return;const run=()=>{const p=el.scrollTop/(el.scrollHeight-el.clientHeight||1);fn(el,cl(p));const h=el.querySelector('.hint');if(h)h.style.opacity=p>.02?0:.8};el.addEventListener('scroll',run,{passive:true});el.addEventListener('click',e=>e.stopPropagation(),false);run();}
+
+  // V1
+  bind('s1',(el,p)=>{
+    const imgs=el.querySelectorAll('.img'),n=imgs.length,sl=el.querySelectorAll('.slide'),dots=el.querySelectorAll('.dots b');
+    const f=p*(n-1);
+    imgs.forEach((im,i)=>{
+      if(i===0){im.style.transform=`scale(${1.12-0.12*cl(f)})`;return;}
+      const t=ease(cl(f-(i-1)));
+      im.style.clipPath=`inset(${(1-t)*100}% 0 0 0)`;
+      im.style.transform=`scale(${1.25-0.25*t})`;
+    });
+    const a=Math.round(f);sl.forEach((s,i)=>s.classList.toggle('on',i===a));
+    dots.forEach((d,i)=>d.style.transform=`scaleX(${cl(f-i+1)})`);
+  });
+
+  // V2
+  const imgs2=['1477959858617-67f85cf4f1df','1507525428034-b723cf961d3e','1506905925346-21bda4d32df4','1496442226666-8d4d0e62e6e9'];
+  const t2=['Site-uri care se mișcă','Chatbot pe site, gratis','Automatizări pentru firme','Animații video cu Claude'];
+  const u=id=>`url('https://images.unsplash.com/photo-${id}?w=500&q=65')`;
+  bind('s2',(el,p)=>{
+    const fl=el.querySelector('.flip'),fr=el.querySelector('.front'),bk=el.querySelector('.back');
+    const ang=p*540, half=Math.floor((ang+90)/180);
+    const sc=0.85+0.35*Math.sin(p*Math.PI);
+    fl.style.transform=`scale(${sc}) rotateY(${ang}deg) rotateZ(${Math.sin(p*Math.PI*2)*6}deg)`;
+    // fata vizibilă: par = front, impar = back; cea ascunsă primește următorul ghid
+    const idx=Math.min(half,3);
+    if(half%2===0){fr.style.backgroundImage=u(imgs2[idx]);fr.querySelector('span').textContent=t2[idx];const nx=Math.min(idx+1,3);bk.style.backgroundImage=u(imgs2[nx]);bk.querySelector('span').textContent=t2[nx];}
+    else{bk.style.backgroundImage=u(imgs2[idx]);bk.querySelector('span').textContent=t2[idx];const nx=Math.min(idx+1,3);fr.style.backgroundImage=u(imgs2[nx]);fr.querySelector('span').textContent=t2[nx];}
+    el.querySelector('.side.l').style.opacity=p<.5?1-cl((p-.35)/.15)*1:cl((p-.7)/.15);
+    el.querySelector('.side.r').style.opacity=cl((p-.3)/.15)*(1-cl((p-.75)/.1))+0;
+    el.querySelector('.ring').style.transform=`rotate(${p*180}deg) scale(${0.9+p*.3})`;
+  });
+
+  // V3
+  bind('s3',(el,p)=>{
+    const W=el.clientWidth,cards=el.querySelectorAll('.pc');
+    const dest=[[W*.48,205,-8],[W*.48+80,190,5],[W*.48+25,290,-3],[W*.48+105,300,9]];
+    const from=[[W+80,-200,40],[-220,520,-50],[W+60,600,-35],[W*.5,760,60]];
+    cards.forEach((c,i)=>{
+      const t=ease(cl(p*1.35-i*0.22));
+      const x=from[i][0]+(dest[i][0]-from[i][0])*t, y=from[i][1]+(dest[i][1]-from[i][1])*t, r=from[i][2]+(dest[i][2]-from[i][2])*t;
+      c.style.transform=`translate(${x-75}px,${y}px) rotate(${r}deg)`;
+      c.style.left='0';c.style.top='0';
+    });
+    const s=el.querySelector('.stk'),ts=ease(cl((p-.75)/.2));
+    s.style.transform=`scale(${ts}) rotate(${-30+ts*42}deg)`;
+    el.querySelector('.bg').style.transform=`scale(${1.05+p*.12}) translateY(${-p*20}px)`;
+  });
+
+  // V4
+  bind('s4',(el,p)=>{
+    const t=ease(cl(p/.6));
+    const ix=36*(1-t), iy=38*(1-t), r=24*(1-t);
+    el.querySelector('.win').style.clipPath=`inset(${iy}% ${ix}% ${iy}% ${ix}% round ${r}px)`;
+    el.querySelector('.big.top').style.transform=`translateY(${-t*140}px)`;
+    el.querySelector('.big.bot').style.transform=`translateY(${t*140}px)`;
+    el.querySelectorAll('.big').forEach(b=>b.style.opacity=1-cl((p-.3)/.25));
+    el.querySelector('.shade').style.opacity=cl((p-.45)/.2);
+    const o=el.querySelector('.over'),to=cl((p-.55)/.15);o.style.opacity=to;o.style.transform=`translateY(${(1-to)*30}px)`;
+    el.querySelector('.win2').style.opacity=cl((p-.8)/.18);
+  });
+})();
+</script>
+</body></html>
