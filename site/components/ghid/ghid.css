@@ -1,5 +1,5 @@
 /* portat din prototip/ghid.html: varianta 3e „pași în caiet” + PDF „doar Instagram” + finalul comun */
-.ghid { position: relative; isolation: isolate; padding-bottom: 20px; }
+.ghid { position: relative; isolation: isolate; padding-bottom: 20px; overflow-x: clip; }
 .ghid > .secbg { position: fixed; }
 
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }

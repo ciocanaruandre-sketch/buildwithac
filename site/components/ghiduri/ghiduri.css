@@ -1,0 +1,55 @@
+/* portat din prototip/ghiduri.html: aranjarea B „Colaj” + lupa */
+.toate-ghid { --pad: clamp(16px, 5vw, 72px); position: relative; isolation: isolate; padding-bottom: 90px; overflow-x: clip; }
+.toate-ghid > .secbg { position: fixed; }
+.kw { font-family: var(--nf-mono); font-weight: 500; font-size: 12px; background: rgba(242,106,33,.16); color: #ffb37a; padding: 3px 9px; border-radius: 7px; border: 1px dashed rgba(242,106,33,.6); white-space: nowrap; }
+
+.top { padding: 120px var(--pad) 0; max-width: 1240px; margin: 0 auto; }
+.top h1 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(34px, 6vw, 76px); letter-spacing: -.045em; line-height: 1.02; margin: 14px 0; }
+.top h1 .serif { font-size: 1.15em; letter-spacing: -.01em; }
+.top .sub { color: var(--color-muted); font-size: clamp(15px, 1.6vw, 17px); line-height: 1.6; max-width: 560px; }
+
+.search { position: relative; margin: 28px 0 12px; max-width: 640px; }
+.search input { width: 100%; height: 58px; border-radius: 18px; border: 1px solid rgba(255,255,255,.14); background: rgba(21,16,13,.75); backdrop-filter: blur(14px); color: var(--color-cream); font: 500 16px var(--nf-inter); padding: 0 52px; outline: none; transition: border-color .2s, box-shadow .2s; }
+.search input::placeholder { color: #7d7066; }
+.search input:focus { border-color: rgba(242,106,33,.75); box-shadow: 0 0 0 4px rgba(242,106,33,.15); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search svg { position: absolute; z-index: 2; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; stroke: #ff8a3d; pointer-events: none; }
+.search .clr { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(255,255,255,.08); color: var(--color-cream); font-size: 15px; cursor: pointer; }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--color-muted); }
+.quick button { cursor: pointer; }
+.quick .hint { font-size: 22px; margin-right: 4px; transform: rotate(-3deg); }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--pad); }
+.count { margin: 34px 0 18px; font-size: 13px; color: var(--color-muted); }
+.count b { color: var(--color-cream); font-weight: 600; }
+
+.colaj { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr)); gap: 46px 34px; padding-top: 16px; }
+.colaj .gc { position: relative; display: block; background: var(--color-cream); color: #1b0f0a; padding: 12px 12px 18px; box-shadow: 0 26px 50px rgba(0,0,0,.5); transition: transform .35s cubic-bezier(.2,.8,.2,1); text-decoration: none; transform: rotate(var(--rot)); }
+.colaj .gc:nth-child(3n+1) { --rot: -2deg; }
+.colaj .gc:nth-child(3n+2) { --rot: 1.6deg; }
+.colaj .gc:nth-child(3n) { --rot: -.8deg; }
+.colaj .gc:hover, .colaj .gc:focus-visible { transform: rotate(0) translateY(-10px) scale(1.02); }
+.colaj .gc:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 4px; }
+.colaj .tape { position: absolute; top: -12px; left: 50%; width: 84px; height: 24px; margin-left: -42px; background: rgba(255,226,170,.85); transform: rotate(-3deg); z-index: 3; }
+.colaj .ph { display: block; aspect-ratio: 4/3; position: relative; overflow: hidden; }
+.colaj .ph img { object-fit: cover; }
+.colaj .ph b { position: absolute; left: 10px; top: 10px; z-index: 1; font-size: 10px; letter-spacing: .12em; background: #0b0908; color: var(--color-gold); padding: 4px 8px; }
+.colaj .t { display: block; font-family: var(--nf-unbounded); font-weight: 600; font-size: 17px; line-height: 1.22; margin: 14px 4px 6px; letter-spacing: -.02em; }
+.colaj .d { display: block; font-size: 13px; color: #6b5a4d; margin: 0 4px; line-height: 1.5; }
+.colaj .meta { display: flex; justify-content: space-between; align-items: center; margin: 14px 4px 0; font-size: 11px; color: #8a6a55; font-weight: 600; gap: 8px; }
+.colaj .kw { background: #fde3cf; color: #b2400f; border-color: #e98a50; }
+.colaj .feat { grid-column: 1 / -1; display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; padding: 16px; --rot: -1deg; }
+.colaj .feat .ph { aspect-ratio: auto; min-height: 320px; }
+.colaj .feat .txt { padding: 10px 8px 6px; display: flex; flex-direction: column; justify-content: center; }
+.colaj .feat .t { font-weight: 800; font-size: clamp(24px, 3.2vw, 40px); letter-spacing: -.04em; line-height: 1.06; margin: 6px 0 12px; }
+.colaj .feat .d { font-size: 15px; }
+.colaj .feat .go { margin-top: 18px; font-family: var(--nf-unbounded); font-weight: 600; font-size: 15px; color: #c2410c; }
+.colaj .sticker { position: absolute; right: -14px; top: -22px; z-index: 4; width: 92px; height: 92px; border-radius: 50%; background: var(--grad); color: #1b0f0a; display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--nf-caveat); font-size: 30px; line-height: .85; transform: rotate(12deg); box-shadow: 0 10px 24px rgba(0,0,0,.35); }
+.colaj .found { position: absolute; left: 10px; bottom: -30px; font-size: 24px; color: var(--color-gold); transform: rotate(-3deg); white-space: nowrap; }
+.colaj .gc.potrivit { box-shadow: 0 0 0 4px var(--color-gold), 0 26px 50px rgba(0,0,0,.5); }
+@media (max-width: 760px) { .colaj .feat { grid-template-columns: 1fr; } .colaj .feat .ph { min-height: 220px; } .colaj .sticker { right: -6px; width: 78px; height: 78px; font-size: 26px; } }
+
+.empty { text-align: center; padding: 50px 20px; border: 2px dashed rgba(246,239,227,.18); border-radius: 24px; }
+.empty h3 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(20px, 3vw, 28px); letter-spacing: -.03em; margin: 8px 0 10px; }
+.empty p { color: var(--color-muted); line-height: 1.6; max-width: 440px; margin: 0 auto 20px; }
+.empty a { display: inline-flex; align-items: center; gap: 8px; background: var(--grad); color: #1b0f0a; font-weight: 700; font-size: 14px; padding: 12px 20px; border-radius: 999px; text-decoration: none; }
