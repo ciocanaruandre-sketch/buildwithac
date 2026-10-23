@@ -53,6 +53,13 @@ export function Colaj({ ghiduri }: { ghiduri: GhidCard[] }) {
               <CardGhid key={ghid.slug} ghid={ghid} mare={faraCautare && i === 0} exact={exact} />
             ))}
           </div>
+        ) : !ghiduri.length ? (
+          <div className="empty">
+            <div className="hand" style={{ fontSize: 28 }}>aproape gata…</div>
+            <h3>Primul ghid vine curând.</h3>
+            <p>Urmărește-mă pe Instagram ca să afli când apare.</p>
+            <a href={SITE.instagram.url} target="_blank" rel="noopener">Urmărește-mă pe Instagram ↗</a>
+          </div>
         ) : (
           <div className="empty">
             <div className="hand" style={{ fontSize: 28 }}>hmm…</div>

@@ -91,6 +91,10 @@ export function incarcaGhiduri(dosar: string = DOSAR, mediu: MediuGhiduri = medi
   return ghiduri;
 }
 
+// Cache Components cere cel puțin un parametru; „_” nu e niciun ghid, deci duce la 404
+export const parametriGhiduri = (ghiduri: Ghid[]) =>
+  ghiduri.length ? ghiduri.map((g) => ({ slug: g.slug })) : [{ slug: "_" }];
+
 let cache: Ghid[] | undefined;
 
 export function toateGhidurile(): Ghid[] {

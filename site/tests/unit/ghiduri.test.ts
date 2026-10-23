@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import path from "node:path";
-import { incarcaGhiduri } from "@/lib/ghiduri";
+import { incarcaGhiduri, parametriGhiduri } from "@/lib/ghiduri";
 
 const fx = (n: string) => path.join(__dirname, "fixtures", n);
 const dev = { productie: false };
@@ -50,5 +50,15 @@ describe("incarcaGhiduri", () => {
 
   it("demo e ignorat în producție", () => {
     expect(incarcaGhiduri(fx("ghiduri"), { productie: true, demo: 15 })).toHaveLength(2);
+  });
+});
+
+describe("parametriGhiduri", () => {
+  it("dă câte un slug pentru fiecare ghid", () => {
+    expect(parametriGhiduri(incarcaGhiduri(fx("ghiduri"), dev))).toEqual([{ slug: "b" }, { slug: "c" }, { slug: "a" }]);
+  });
+
+  it("fără ghiduri (producție, doar exemple) dă un slug-santinelă — Cache Components refuză lista goală", () => {
+    expect(parametriGhiduri([])).toEqual([{ slug: "_" }]);
   });
 });

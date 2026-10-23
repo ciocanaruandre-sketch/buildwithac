@@ -11,11 +11,13 @@ import { SectiuneGhiduri } from "@/components/home/SectiuneGhiduri";
 import { faraCorp, toateGhidurile } from "@/lib/ghiduri";
 
 export default function Acasa() {
+  const ghiduri = toateGhidurile().map(faraCorp);
   return (
     <main>
       <Hero />
       <Cortina />
-      <SectiuneGhiduri ghiduri={toateGhidurile().map(faraCorp)} />
+      {/* în producție, până la primul ghid real, lista e goală */}
+      {ghiduri.length > 0 && <SectiuneGhiduri ghiduri={ghiduri} />}
       <PentruCine />
       <PereteClipuri />
       <SectiuneEmail />

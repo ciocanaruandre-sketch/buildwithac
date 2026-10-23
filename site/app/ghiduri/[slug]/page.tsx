@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import "@/components/ghid/ghid.css";
-import { faraCorp, ghidDupaSlug, toateGhidurile, type Ghid } from "@/lib/ghiduri";
+import { faraCorp, ghidDupaSlug, parametriGhiduri, toateGhidurile, type Ghid } from "@/lib/ghiduri";
 import { imagineGhid } from "@/lib/imagine";
 import { formatData } from "@/lib/data";
 import { Aurora } from "@/components/layout/Aurora";
@@ -14,7 +14,7 @@ import { CasetaPdf } from "@/components/ghid/CasetaPdf";
 import { FinalGhid } from "@/components/ghid/FinalGhid";
 
 export function generateStaticParams() {
-  return toateGhidurile().map((g) => ({ slug: g.slug }));
+  return parametriGhiduri(toateGhidurile());
 }
 
 export async function generateMetadata({ params }: PageProps<"/ghiduri/[slug]">): Promise<Metadata> {
