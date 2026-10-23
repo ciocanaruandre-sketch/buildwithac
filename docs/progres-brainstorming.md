@@ -184,7 +184,26 @@ Ultima sesiune: 2026-10-22. Suntem încă în faza de **brainstorming**: nu s-a 
 2. ~~Repo GitHub~~: **FĂCUT (2026-10-23)**: `https://github.com/ciocanaruandre-sketch/buildwithac.git`; ramurile `main` (cu site-ul, după merge) și `previzualizare`.
 3. ~~Fonturile~~: **rămân toate 6** (Andrei, 2026-10-23); Lighthouse mobil ~77.
 **Verificarea finală (2026-10-23):** făcută de un subagent; 1 critic + 3 importante reparate (build de producție fără ghiduri, stilurile formularului pe paginile de ghid, protecția abonării, teste pe build-ul de producție: `npm run e2e:prod`). Lucrurile mici amânate sunt în registru (`Final: minor (deferred)`). Ramura `plan-1-site` e unită în `main`.
-**Urmează (Task 13, pașii 5–7):** Andrei importă repo-ul în Vercel cu Root Directory = `site`, fără variabile; deschide pe telefon link-ul ramurii `previzualizare` (ghidurile de exemplu se văd, `/robots.txt` are `Disallow: /`) și spune ce trebuie schimbat. Apoi Plan 2 (CLAUDE.md + skill-uri + PDF) și Plan 3 (DNS/iCloud/Kit, limită de cereri în Vercel Firewall pentru `/api/abonare`, primul ghid, lansare).
+**Vercel (2026-10-23):** importat, verificat pe telefon de Andrei: arată bine, dar se mișcă puțin mai greu (mai ales peretele de clipuri la scroll rapid și încărcarea la scroll rapid în jos). Cloudflare nu ajută la asta.
+**Fluiditate (2026-10-23):** ramura `fluiditate`, commit 908c923, urcată pe `fluiditate` și pe `previzualizare` (nu e încă în `main`). Ce s-a schimbat:
+- Aurora se animă doar lângă ecran (IntersectionObserver în `Aurora.tsx`, `data-activ`);
+- fără `mix-blend-mode` pe panglici;
+- peretele de clipuri are 860px lățime pe telefon, iar `sizes` a fost ajustat;
+- fără `will-change` pe coloane.
+
+Memoria straturilor a scăzut de la ~1200 la ~650 MB. Teste: lint 0, tsc 0, vitest 38/38, e2e 92/92 (+ `tests/e2e/fluiditate.spec.ts`).
+**DE AICI CONTINUĂM sesiunea viitoare:**
+1. Andrei încearcă `previzualizare` pe telefon (peretele de clipuri la scroll rapid, scroll rapid pe tot homepage-ul).
+   - Dacă e OK, cu acordul lui: merge `fluiditate` → `main`, apoi push `main`.
+   - Dacă se mai blochează, următorii candidați sunt stratul de ~66 MB al `section.mail` și `backdrop-filter` pe burger și pe cardurile `.cway`.
+2. Domeniul `buildwithac.ro` (îl face Andrei, cu ajutorul meu dacă se încurcă):
+   - Cloudflare → Add site;
+   - nameserverele Cloudflare se trec la ROTLD;
+   - în Vercel → Domains: `buildwithac.ro` principal + `www` redirect;
+   - înregistrările din Cloudflare pe „DNS only” (nor gri).
+3. Task 13 pasul 7 (feedback de pe telefon), apoi se poate șterge `.superpowers/sdd/2026-10-23-plan-1-site/`.
+
+Apoi Plan 2 (CLAUDE.md + skill-uri + PDF) și Plan 3 (DNS/iCloud/Kit, limită de cereri în Vercel Firewall pentru `/api/abonare`, primul ghid, lansare).
 
 *Istoric:* Punctele mici și skill-urile sunt discutate (vezi mai sus).
 - **Unde:** `docs/superpowers/specs/2026-10-22-site-buildwithac-design.md` (aprobat de Andrei).
