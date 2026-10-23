@@ -1,0 +1,14 @@
+.legal { position: relative; isolation: isolate; overflow-x: clip; }
+.legal > .secbg { position: fixed; }
+.legal article { max-width: 720px; margin: 0 auto; padding: 130px clamp(18px, 5vw, 40px) 80px; }
+.legal h1 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 4.6vw, 52px); letter-spacing: -.04em; line-height: 1.05; margin: 14px 0 10px; }
+.legal .upd { color: var(--color-muted); font-size: 13px; margin-bottom: 30px; }
+.legal h2 { font-family: var(--nf-unbounded); font-weight: 600; font-size: 20px; letter-spacing: -.02em; margin: 36px 0 12px; }
+.legal p, .legal li { color: #ddd3c9; font-size: 16px; line-height: 1.7; }
+.legal p { margin-bottom: 14px; }
+.legal ul { list-style: none; }
+.legal li { position: relative; padding: 6px 0 6px 24px; }
+.legal li::before { content: ""; position: absolute; left: 4px; top: 17px; width: 8px; height: 8px; border-radius: 50%; background: var(--grad); }
+.legal b { color: var(--color-cream); }
+.legal a { color: #ffb37a; }
+.toate-link { display: inline-block; padding: 14px 24px; border-radius: 999px; background: var(--grad); color: #1b0f0a !important; font-weight: 700; text-decoration: none; }
