@@ -30,7 +30,7 @@ export function Cortina() {
       </p>
       <div className="who">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="" width={52} height={52} />
+        <img src="/logo.webp" alt="" width={52} height={52} />
         <span>Andrei · Build with AC</span>
       </div>
       <div className="note hand">tot gratuit ↓</div>

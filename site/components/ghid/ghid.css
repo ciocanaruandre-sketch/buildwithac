@@ -12,7 +12,7 @@
 .k-head .lead { color: #d8cdc2; font-size: 16px; line-height: 1.55; margin-bottom: 14px; max-width: 600px; }
 .k-head .upd { color: var(--color-muted); font-size: 13px; margin-bottom: 18px; }
 .k-count { position: absolute; right: clamp(18px, 5vw, 40px); top: 120px; width: 132px; text-align: center; transform: rotate(4deg); }
-.k-count .ring { position: relative; width: 112px; height: 112px; margin: 0 auto; }
+.k-count .cerc { position: relative; width: 112px; height: 112px; margin: 0 auto; }
 .k-count svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .k-count svg .arc { transition: stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1); }
 .k-count b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--nf-caveat); font-size: 40px; color: var(--color-gold); }
@@ -27,7 +27,7 @@
 @media (max-width: 640px) {
   .k-head h1 { padding-right: 0; }
   .k-count { position: static; transform: rotate(-3deg); display: flex; align-items: center; gap: 10px; width: auto; text-align: left; margin: 6px 0 4px; }
-  .k-count .ring { width: 72px; height: 72px; margin: 0; }
+  .k-count .cerc { width: 72px; height: 72px; margin: 0; }
   .k-count b { font-size: 26px; }
 }
 

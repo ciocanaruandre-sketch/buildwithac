@@ -12,6 +12,8 @@ export const useProgres = () => useContext(ProgresCtx);
 /** Pagina ghidului în stilul „pași în caiet”: antetul, foile (children = MDX) și ce vine după ele. */
 export function Caiet({ ghid, actualizat, children, dupa }: { ghid: GhidCard; actualizat: string; children: React.ReactNode; dupa: React.ReactNode }) {
   const [bifate, setBifate] = useState<string[]>([]);
+  // bifele salvate se citesc după hidratare (pe server nu există localStorage)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setBifate(citesteProgres(ghid.slug)), [ghid.slug]);
 
   const comuta = useCallback((id: string) => {

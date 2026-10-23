@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { StareAbonare } from "@/lib/kit";
+import { useHidratat } from "@/lib/hidratat";
 
 const MESAJE: Record<StareAbonare, string> = {
   ok: "Gata! Verifică-ți e-mailul și confirmă abonarea.",
@@ -12,6 +13,8 @@ const MESAJE: Record<StareAbonare, string> = {
 
 export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
   const [stare, setStare] = useState<StareAbonare | "trimite" | null>(null);
+  // butonul merge abia după hidratare: altfel un click timpuriu ar reîncărca pagina fără să trimită adresa
+  const hidratat = useHidratat();
 
   async function trimite(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,7 +41,7 @@ export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
           placeholder="adresa ta de e-mail"
           aria-label="Adresa ta de e-mail"
         />
-        <button type="submit" disabled={stare === "trimite"}>Mă abonez</button>
+        <button type="submit" disabled={!hidratat || stare === "trimite"}>Mă abonez</button>
       </form>
       <p className={`mesaj${stare === "ok" ? " ok" : ""}`} role="status" aria-live="polite">
         {stare && stare !== "trimite" ? MESAJE[stare] : ""}

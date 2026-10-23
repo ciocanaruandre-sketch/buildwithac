@@ -25,7 +25,11 @@ export type Pas = { id: string; titlu: string };
 export type Ghid = z.infer<typeof FrontmatterGhid> & { corp: string; pasi: Pas[]; dosar: string };
 /** Ce primesc componentele din browser: ghidul fără textul MDX. */
 export type GhidCard = Omit<Ghid, "corp">;
-export const faraCorp = ({ corp: _, ...rest }: Ghid): GhidCard => rest;
+export const faraCorp = (g: Ghid): GhidCard => {
+  const card: Partial<Ghid> = { ...g };
+  delete card.corp;
+  return card as GhidCard;
+};
 
 export type MediuGhiduri = { productie: boolean; demo?: number };
 

@@ -8,6 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
+// intrarea titlului e în CSS (home.css), ca să pornească la prima afișare, nu după încărcarea JS-ului
 // cât urcă fiecare strat la scroll (yPercent), ca în efectul Osmo
 const YP: Record<number, number> = { 2: 55, 3: 40, 4: 10 };
 
@@ -20,8 +21,6 @@ export function Hero() {
       gsap.utils.toArray<HTMLElement>(".px__layer").forEach((el, i) => {
         tl.to(el, { yPercent: YP[Number(el.dataset.l)], ease: "none" }, i ? "<" : 0);
       });
-      gsap.from(".px__title", { yPercent: 30, opacity: 0, duration: 1.4, ease: "expo.out", delay: 0.2 });
-      gsap.from(".px__sub", { y: 20, opacity: 0, duration: 1.2, ease: "expo.out", delay: 0.5 });
     });
   }, { scope: radacina });
 

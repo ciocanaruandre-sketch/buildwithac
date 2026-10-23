@@ -42,7 +42,7 @@ export function Nav() {
     <nav className="nav" aria-label="Principal">
       <Link href="/" className="logo" aria-label="buildwithac, acasă">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="" width={44} height={44} />
+        <img src="/logo.webp" alt="" width={44} height={44} />
       </Link>
       <div className="links">
         <Link href={ghiduri.href}>{ghiduri.text}</Link>

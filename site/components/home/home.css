@@ -11,6 +11,11 @@
 .px__title { font-family: var(--nf-unbounded); font-weight: 800; color: var(--color-cream); font-size: 11.5vw; line-height: 1; letter-spacing: -.05em; padding: 0 2vw; }
 .px__sub { margin-bottom: .6vw; font-size: clamp(15px, 1.7vw, 24px); color: rgba(246,239,227,.95); text-shadow: 0 2px 18px rgba(0,0,0,.45); }
 .px__sub .serif { font-size: 1.25em; }
+/* intrarea din prototip (expo.out); opacitatea pornește de la .01, nu 0, ca titlul să conteze imediat ca element principal */
+@keyframes intra-titlu { from { opacity: .01; transform: translateY(30%); } }
+@keyframes intra-sub { from { opacity: .01; transform: translateY(20px); } }
+.px__title { animation: intra-titlu 1.4s cubic-bezier(.16,1,.3,1) .2s both; }
+.px__sub { animation: intra-sub 1.2s cubic-bezier(.16,1,.3,1) .5s both; }
 @media (max-aspect-ratio: 1/1) { .px__layer img { object-position: 38% 50%; } }
 .px__fade { position: absolute; bottom: 0; left: 0; width: 100%; height: 22%; z-index: 30; background: linear-gradient(#0000, #0b090800 2%, #0b09080b 14%, #0b090831 35%, #0b090861 53%, #0b0908bc 81%, #0b0908); }
 .px__header { position: relative; z-index: 40; min-height: 100svh; display: flex; align-items: flex-end; justify-content: center; padding: 0 0 34px; }
@@ -29,6 +34,7 @@
 .curtain .who img { width: 52px; height: 52px; border-radius: 50%; }
 
 @media (prefers-reduced-motion: reduce) {
+  .px__title, .px__sub { animation: none; }
   .manifest .w { opacity: 1; }
   .scrollcue i { animation: none; }
 }

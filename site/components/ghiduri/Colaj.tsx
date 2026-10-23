@@ -10,21 +10,21 @@ import { CardGhid } from "./CardGhid";
 export function Colaj({ ghiduri }: { ghiduri: GhidCard[] }) {
   const [q, setQ] = useState("");
 
-  // ?q= din adresă completează lupa (ex. un link trimis pe Instagram);
-  // pe un telefon lent omul poate scrie înainte ca pagina să fie gata, așa că păstrăm și ce e deja în câmp
-  useEffect(() => {
-    const scris = document.querySelector<HTMLInputElement>(".search input")?.value;
-    const din = scris || new URLSearchParams(location.search).get("q");
-    if (din) schimba(din);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const schimba = (val: string) => {
     setQ(val);
     const url = new URL(location.href);
     if (val.trim()) url.searchParams.set("q", val); else url.searchParams.delete("q");
     history.replaceState(history.state, "", url);
   };
+
+  // ?q= din adresă completează lupa (ex. un link trimis pe Instagram);
+  // pe un telefon lent omul poate scrie înainte ca pagina să fie gata, așa că păstrăm și ce e deja în câmp
+  useEffect(() => {
+    const scris = document.querySelector<HTMLInputElement>(".search input")?.value;
+    const din = scris || new URLSearchParams(location.search).get("q");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (din) schimba(din);
+  }, []);
 
   const rezultate = cauta(ghiduri, q);
   const faraCautare = !q.trim();

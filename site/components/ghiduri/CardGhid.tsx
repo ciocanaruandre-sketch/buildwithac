@@ -9,7 +9,7 @@ export function CardGhid({ ghid, mare, exact }: { ghid: GhidCard; mare?: boolean
   const clase = `gc${mare ? " feat" : ""}${exact ? " potrivit" : ""}`;
   const poza = (
     <span className="ph">
-      <Image src={imagineGhid(ghid, ghid.imagine)} alt="" fill sizes={mare ? "(max-width: 760px) 100vw, 640px" : "(max-width: 600px) 100vw, 380px"} />
+      <Image src={imagineGhid(ghid, ghid.imagine)} alt="" fill priority={mare} sizes={mare ? "(max-width: 760px) 100vw, 640px" : "(max-width: 600px) 100vw, 380px"} />
       <b>GHID · {ghid.durata.toUpperCase()}</b>
     </span>
   );

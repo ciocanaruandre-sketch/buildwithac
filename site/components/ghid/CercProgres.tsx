@@ -4,7 +4,7 @@ const L = 2 * Math.PI * R;
 export function CercProgres({ bifate, total }: { bifate: number; total: number }) {
   return (
     <div className="k-count" aria-live="polite">
-      <div className="ring">
+      <div className="cerc">
         <svg viewBox="0 0 112 112" aria-hidden>
           <defs>
             <linearGradient id="cerc-grad" x1="0" x2="1">

@@ -4,6 +4,8 @@ test.describe("hero", () => {
   test("titlul e buildwithac, iar subtitlul stă deasupra lui", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("h1")).toHaveText("buildwithac");
+    // intrarea titlului e o animație CSS: o terminăm, ca să măsurăm pozițiile finale
+    await page.evaluate(() => document.getAnimations().forEach((a) => (a as CSSAnimation).animationName?.startsWith("intra") && a.finish()));
     const sus = await page.locator(".px__sub").boundingBox();
     const titlu = await page.locator("h1").boundingBox();
     expect(sus!.y + sus!.height).toBeLessThanOrEqual(titlu!.y + 1);
