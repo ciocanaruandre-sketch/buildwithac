@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Unbounded, Inter, Instrument_Serif, Caveat, Anton, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "@/components/layout/cadru.css";
+import { Nav } from "@/components/layout/Nav";
+import { Footer } from "@/components/layout/Footer";
+import { LenisProvider } from "@/components/layout/LenisProvider";
 
 const unbounded = Unbounded({ variable: "--nf-unbounded", subsets: ["latin", "latin-ext"], weight: ["600", "800"] });
 const inter = Inter({ variable: "--nf-inter", subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"] });
@@ -18,7 +22,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   const fonturi = [unbounded, inter, serif, caveat, anton, mono].map((f) => f.variable).join(" ");
   return (
     <html lang="ro" className={`${fonturi} antialiased`}>
-      <body className="font-inter bg-ink text-cream min-h-full">{children}</body>
+      <body className="font-inter bg-ink text-cream min-h-full">
+        <LenisProvider>
+          <Nav />
+          {children}
+          <Footer />
+        </LenisProvider>
+      </body>
     </html>
   );
 }
