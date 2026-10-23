@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { StareAbonare } from "@/lib/kit";
 import { useHidratat } from "@/lib/hidratat";
+import "./abonare.css";
 
 const MESAJE: Record<StareAbonare, string> = {
   ok: "Gata! Verifică-ți e-mailul și confirmă abonarea.",

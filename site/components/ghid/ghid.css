@@ -155,12 +155,12 @@
 .ecard.next .im img { object-fit: cover; }
 .ecard.next .in { padding: 20px 24px 24px; }
 .end .toate { display: block; width: fit-content; margin: 34px auto 0; padding: 14px 24px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); color: var(--color-cream); text-decoration: none; font-weight: 600; }
-.abonare-card form { margin-top: 14px; }
-.abonare-card input { width: 100%; min-width: 0; border-radius: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.3); color: var(--color-cream); font-size: 15px; padding: 13px 14px; }
-.abonare-card button { width: 100%; border-radius: 999px; background: var(--grad); color: #fff; padding: 13px; }
-.abonare-card .mesaj { color: #ffb37a; }
-.abonare-card .mesaj.ok { color: #9be3b0; }
-.abonare-card .acord { color: var(--color-muted); }
+.abonare.abonare-card form { margin-top: 14px; }
+.abonare.abonare-card input { width: 100%; min-width: 0; border-radius: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.3); color: var(--color-cream); font-size: 16px; padding: 13px 14px; }
+.abonare.abonare-card button { width: 100%; border-radius: 999px; background: var(--grad); color: #fff; padding: 13px; }
+.abonare.abonare-card .mesaj { color: #ffb37a; }
+.abonare.abonare-card .mesaj.ok { color: #9be3b0; }
+.abonare.abonare-card .acord { color: var(--color-muted); }
 
 @media (prefers-reduced-motion: reduce) {
   .k-box .ck, .k-count svg .arc { transition: none; }

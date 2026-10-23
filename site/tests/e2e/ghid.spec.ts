@@ -79,3 +79,15 @@ test("componentele ghidului apar", async ({ page }) => {
   await expect(page.locator(".shot img").first()).toBeVisible();
   await expect(page.locator(".need")).toContainText("Cont Claude Pro");
 });
+
+test("formularul de abonare din ghid are stilurile comune, deschis direct", async ({ page }) => {
+  await page.goto(URL);
+  const card = page.locator(".abonare-card");
+  const stil = await card.evaluate((el) => {
+    const mesaj = el.querySelector(".mesaj")!, input = el.querySelector("input")!;
+    return { minMesaj: getComputedStyle(mesaj).minHeight, litera: parseFloat(getComputedStyle(input).fontSize) };
+  });
+  expect(stil.minMesaj).not.toBe("0px");
+  // sub 16px, Safari pe iPhone mărește pagina când apeși în câmp
+  expect(stil.litera).toBeGreaterThanOrEqual(16);
+});
