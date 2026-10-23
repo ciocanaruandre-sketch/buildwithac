@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #0b0908;
+  --color-cream: #f6efe3;
+  --color-muted: #a99d92;
+  --color-gold: #ffb52e;
+  --color-orange: #f26a21;
+  --color-red: #e53222;
+  --color-wine: #7a0e0e;
+
+  --font-unbounded: var(--nf-unbounded);
+  --font-inter: var(--nf-inter);
+  --font-serif: var(--nf-serif);
+  --font-caveat: var(--nf-caveat);
+  --font-anton: var(--nf-anton);
+  --font-mono: var(--nf-mono);
+}
+
+:root {
+  --grad: linear-gradient(90deg, #ffb52e, #f26a21 45%, #e53222);
+}
+
+html { background: var(--color-ink); }
+body { background: var(--color-ink); color: var(--color-cream); overflow-x: hidden; }
+
+.serif { font-family: var(--nf-serif), serif; font-style: italic; font-weight: 400; }
+.hand { font-family: var(--nf-caveat), cursive; color: var(--color-gold); }
+.grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
