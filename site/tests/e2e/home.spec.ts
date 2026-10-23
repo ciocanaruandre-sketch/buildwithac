@@ -67,3 +67,36 @@ test.describe("pentru cine și clipuri", () => {
     await expect(page.locator("iframe")).toHaveCount(0);
   });
 });
+
+test.describe("abonare", () => {
+  test("fără cheia Kit apare mesajul și adresa rămâne în câmp", async ({ page }) => {
+    await page.goto("/");
+    const formular = page.locator(".mail form");
+    await formular.getByPlaceholder("adresa ta de e-mail").fill("ana@exemplu.ro");
+    await formular.getByRole("button", { name: "Mă abonez" }).click();
+    await expect(page.locator(".mail")).toContainText("Acum nu merge abonarea.");
+    await expect(formular.getByPlaceholder("adresa ta de e-mail")).toHaveValue("ana@exemplu.ro");
+  });
+
+  test("când Kit răspunde ok, cere confirmarea pe e-mail", async ({ page }) => {
+    await page.route("**/api/abonare", (r) => r.fulfill({ status: 200, json: { stare: "ok" } }));
+    await page.goto("/");
+    const formular = page.locator(".mail form");
+    await formular.getByPlaceholder("adresa ta de e-mail").fill("ana@exemplu.ro");
+    await formular.getByRole("button", { name: "Mă abonez" }).click();
+    await expect(page.locator(".mail")).toContainText("Gata! Verifică-ți e-mailul și confirmă abonarea.");
+  });
+
+  test("adresa greșită primește mesajul ei", async ({ page }) => {
+    await page.goto("/");
+    const formular = page.locator(".mail form");
+    await formular.getByPlaceholder("adresa ta de e-mail").fill("ana@");
+    await formular.getByRole("button", { name: "Mă abonez" }).click();
+    await expect(page.locator(".mail")).toContainText("Adresa nu pare corectă.");
+  });
+
+  test("lângă formular e acordul cu link spre confidențialitate", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".mail").getByRole("link", { name: "Confidențialitate" })).toHaveAttribute("href", "/confidentialitate");
+  });
+});

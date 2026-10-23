@@ -3,6 +3,7 @@ import { Hero } from "@/components/home/Hero";
 import { Cortina } from "@/components/home/Cortina";
 import { PentruCine } from "@/components/home/PentruCine";
 import { PereteClipuri } from "@/components/home/PereteClipuri";
+import { SectiuneEmail } from "@/components/home/SectiuneEmail";
 import { SectiuneGhiduri } from "@/components/home/SectiuneGhiduri";
 import { faraCorp, toateGhidurile } from "@/lib/ghiduri";
 
@@ -14,6 +15,7 @@ export default function Acasa() {
       <SectiuneGhiduri ghiduri={toateGhidurile().map(faraCorp)} />
       <PentruCine />
       <PereteClipuri />
+      <SectiuneEmail />
     </main>
   );
 }
