@@ -21,7 +21,12 @@ export const FrontmatterGhid = z.object({
 });
 
 export type Pas = { id: string; titlu: string };
-export type Ghid = z.infer<typeof FrontmatterGhid> & { corp: string; pasi: Pas[] };
+/** `dosar` = dosarul cu imagini din public/ghiduri (diferă de slug doar la copiile demo). */
+export type Ghid = z.infer<typeof FrontmatterGhid> & { corp: string; pasi: Pas[]; dosar: string };
+/** Ce primesc componentele din browser: ghidul fără textul MDX. */
+export type GhidCard = Omit<Ghid, "corp">;
+export const faraCorp = ({ corp: _, ...rest }: Ghid): GhidCard => rest;
+
 export type MediuGhiduri = { productie: boolean; demo?: number };
 
 const DOSAR = path.join(process.cwd(), "content", "ghiduri");
@@ -47,7 +52,7 @@ function citesteGhid(dosar: string, nume: string): Ghid {
   if (rezultat.data.slug !== nume) {
     throw new Error(`Slug-ul „${rezultat.data.slug}” nu se potrivește cu numele dosarului „${nume}”.`);
   }
-  return { ...rezultat.data, corp: content, pasi: extragePasi(content) };
+  return { ...rezultat.data, corp: content, pasi: extragePasi(content), dosar: nume };
 }
 
 function verificaUnice(ghiduri: Ghid[]) {

@@ -45,6 +45,7 @@ describe("incarcaGhiduri", () => {
     expect(new Set(g.map((x) => x.slug)).size).toBe(15);
     expect(new Set(g.map((x) => x.cuvant)).size).toBe(15);
     expect(g[0].slug).toBe("b");
+    expect(g.find((x) => x.slug === "b-2")?.dosar).toBe("b");
   });
 
   it("demo e ignorat în producție", () => {
