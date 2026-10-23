@@ -118,3 +118,31 @@ test.describe("servicii și contact", () => {
     await expect(contact).toContainText(SITE.emailContact);
   });
 });
+
+test.describe("portofoliu", () => {
+  test("portofoliul e înainte de servicii", async ({ page }) => {
+    await page.goto("/");
+    const ordine = await page.evaluate(() => {
+      const p = document.getElementById("portofoliu");
+      const s = document.getElementById("servicii");
+      return !!p && !!s && !!(p.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    expect(ordine).toBe(true);
+  });
+
+  test("fiecare concept e etichetat „Concept”", async ({ page }) => {
+    const { PORTOFOLIU } = await import("../../content/portofoliu");
+    await page.goto("/");
+    const carduri = page.locator("#portofoliu .it");
+    await expect(carduri).toHaveCount(PORTOFOLIU.length);
+    for (const [i, el] of PORTOFOLIU.entries()) {
+      if (el.tip === "concept") await expect(carduri.nth(i)).toContainText("Concept");
+    }
+  });
+
+  test("bara de sus are link spre portofoliu", async ({ page, isMobile }) => {
+    test.skip(!!isMobile, "pe telefon linkurile sunt în meniul ☰");
+    await page.goto("/");
+    await expect(page.getByRole("navigation", { name: "Principal" }).locator(".links").getByRole("link", { name: "Portofoliu" })).toHaveAttribute("href", /#portofoliu$/);
+  });
+});
