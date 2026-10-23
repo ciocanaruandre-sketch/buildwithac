@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SITE } from "@/lib/config";
+import { lenis } from "@/components/layout/LenisProvider";
 
 const LINKURI = [
   { href: "/ghiduri", text: "Ghiduri" },
@@ -32,8 +33,8 @@ export function Nav() {
     if (!meniuDeschis) return;
     const tasta = (e: KeyboardEvent) => e.key === "Escape" && setMeniuDeschis(false);
     document.addEventListener("keydown", tasta);
-    window.lenis?.stop();
-    return () => { document.removeEventListener("keydown", tasta); window.lenis?.start(); };
+    lenis.curent?.stop();
+    return () => { document.removeEventListener("keydown", tasta); lenis.curent?.start(); };
   }, [meniuDeschis]);
 
   const [ghiduri, cine, ...restul] = LINKURI;

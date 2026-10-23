@@ -90,6 +90,8 @@ export function incarcaGhiduri(dosar: string = DOSAR, mediu: MediuGhiduri = medi
 let cache: Ghid[] | undefined;
 
 export function toateGhidurile(): Ghid[] {
+  // în dezvoltare citim mereu din nou, ca ghidurile editate să apară fără repornire
+  if (process.env.NODE_ENV !== "production") return incarcaGhiduri();
   return (cache ??= incarcaGhiduri());
 }
 

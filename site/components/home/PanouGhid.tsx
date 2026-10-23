@@ -6,13 +6,14 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { GhidCard } from "@/lib/ghiduri";
 import { imagineGhid } from "@/lib/imagine";
+import { lenis } from "@/components/layout/LenisProvider";
 
 export function PanouGhid({ ghid, onClose }: { ghid: GhidCard; onClose: () => void }) {
   const panou = useRef<HTMLElement>(null);
 
   useEffect(() => {
     panou.current?.querySelector<HTMLElement>(".x")?.focus();
-    window.lenis?.stop();
+    lenis.curent?.stop();
     const tasta = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key !== "Tab" || !panou.current) return;
@@ -23,7 +24,7 @@ export function PanouGhid({ ghid, onClose }: { ghid: GhidCard; onClose: () => vo
       else if (!e.shiftKey && document.activeElement === ultimul) { e.preventDefault(); primul.focus(); }
     };
     document.addEventListener("keydown", tasta);
-    return () => { document.removeEventListener("keydown", tasta); window.lenis?.start(); };
+    return () => { document.removeEventListener("keydown", tasta); lenis.curent?.start(); };
   }, [onClose]);
 
   // în body, ca să nu rămână sub bara de sus (secțiunea are propriul context de stivuire)

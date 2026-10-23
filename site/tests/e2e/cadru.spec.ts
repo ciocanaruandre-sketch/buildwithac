@@ -51,11 +51,11 @@ test.describe("reduce motion", () => {
     await page.goto("/");
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await expect(page.locator("footer")).toBeInViewport();
-    expect(await page.evaluate(() => "lenis" in window)).toBe(false);
+    await expect(page.locator("html")).not.toHaveClass(/lenis/);
   });
 });
 
 test("cu mișcare, Lenis pornește", async ({ page }) => {
   await page.goto("/");
-  await expect.poll(() => page.evaluate(() => "lenis" in window)).toBe(true);
+  await expect(page.locator("html")).toHaveClass(/lenis/);
 });
