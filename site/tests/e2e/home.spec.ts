@@ -46,3 +46,24 @@ test.describe("cortina", () => {
     });
   });
 });
+
+test.describe("pentru cine și clipuri", () => {
+  test("cele două drumuri", async ({ page }) => {
+    await page.goto("/");
+    const cine = page.locator("#cine");
+    await expect(cine.locator(".path .eb")).toHaveText(["Înveți AI", "Ai o firmă"]);
+  });
+
+  test("clipurile duc pe TikTok, fără playere încorporate", async ({ page }) => {
+    const { CLIPURI } = await import("../../content/clipuri");
+    await page.goto("/");
+    const linkuri = page.locator("#tiktok .clip");
+    expect(await linkuri.count()).toBeGreaterThan(0);
+    const adrese = new Set(CLIPURI.map((c) => c.url));
+    for (const a of await linkuri.all()) {
+      expect(adrese.has((await a.getAttribute("href"))!)).toBe(true);
+      await expect(a).toHaveAttribute("target", "_blank");
+    }
+    await expect(page.locator("iframe")).toHaveCount(0);
+  });
+});
