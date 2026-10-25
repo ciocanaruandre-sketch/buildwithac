@@ -197,6 +197,7 @@ Memoria straturilor a scăzut de la ~1200 la ~650 MB. Teste: lint 0, tsc 0, vite
 **Mail (2026-10-25):** iCloud verificat; Andrei a făcut aliasurile `contact@buildwithac.ro` (contactul de pe site, deja în `site/lib/config.ts`) și **`ac@buildwithac.ro`** (expeditorul newsletterului, în loc de `andrei@`). iCloud a sincronizat singur mai multe înregistrări în Cloudflare. DMARC încă lipsește (opțional: `_dmarc` TXT `v=DMARC1; p=none;`). Plan 1 e închis (inclusiv Task 13 pasul 7, feedbackul de pe telefon).
 
 **DE AICI CONTINUĂM sesiunea viitoare: Plan 2.**
+**2026-10-25:** Plan 2 e scris: `docs/superpowers/plans/2026-10-25-plan-2-ghiduri.md` (8 taskuri, 1–8). Așteaptă aprobarea lui Andrei și alegerea modului de execuție (recomandat: direct în sesiune). Lucrurile mici amânate sunt împărțite: 3 în Plan 2 (pașii din cod, căutarea cu mai multe cuvinte, „0 ghiduri”), 5 în Plan 3.
 1. Scriu Plan 2 (`docs/superpowers/plans/`), din documentul de design: `CLAUDE.md` (regulile proiectului), skill-ul „ghid nou” (script carusel + ghid după standard + flux de publicare), skill-ul „idei”, PDF-ul ghidului. Îi spun lui Andrei înainte cât consumă (citit documentul de design e greu).
 2. Andrei aprobă planul și alege modul de execuție, apoi îl facem.
 3. De verificat la început: lucrurile mici amânate din registrul `.superpowers/sdd/2026-10-23-plan-1-site/progress.md` (`Final: minor (deferred)`); după ce sunt preluate în Plan 2/3, dosarul se poate șterge (cu acordul lui).
