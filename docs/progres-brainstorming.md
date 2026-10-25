@@ -192,7 +192,9 @@ Ultima sesiune: 2026-10-22. Suntem încă în faza de **brainstorming**: nu s-a 
 - fără `will-change` pe coloane.
 
 Memoria straturilor a scăzut de la ~1200 la ~650 MB. Teste: lint 0, tsc 0, vitest 38/38, e2e 92/92 (+ `tests/e2e/fluiditate.spec.ts`).
-**DE AICI CONTINUĂM sesiunea viitoare:**
+**2026-10-25:** Andrei a testat `previzualizare` pe telefon: „se mișcă mai bine” → `fluiditate` unită în `main` (fast-forward, 69c1ec2) și urcată. Previzualizările Vercel cer conectare (Deployment Protection, implicit); Andrei s-a conectat pe telefon, protecția rămâne. Domeniu: nameserverele Cloudflare sunt active la ROTLD; domeniul e adăugat în Vercel, dar „Invalid Configuration” până se pun în Cloudflare înregistrările A `@` + CNAME `www` (DNS only) cu valorile din Vercel.
+
+**DE AICI CONTINUĂM sesiunea viitoare** (punctul 1 e făcut; punctul 2 e în lucru: lipsesc înregistrările din Cloudflare):
 1. Andrei încearcă `previzualizare` pe telefon (peretele de clipuri la scroll rapid, scroll rapid pe tot homepage-ul).
    - Dacă e OK, cu acordul lui: merge `fluiditate` → `main`, apoi push `main`.
    - Dacă se mai blochează, următorii candidați sunt stratul de ~66 MB al `section.mail` și `backdrop-filter` pe burger și pe cardurile `.cway`.
