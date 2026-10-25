@@ -83,5 +83,5 @@ describe("pașii", () => {
   });
 
   it("un <Pas> fără titlu=\"…\" oprește încărcarea, cu numele fișierului", () =>
-    expect(() => incarcaGhiduri(fx("ghiduri-pas-fara-titlu"), dev)).toThrow(/x[\\/]index\.mdx.*titlu/s));
+    expect(() => incarcaGhiduri(fx("ghiduri-pas-fara-titlu"), dev)).toThrow(/x[\\/]index\.mdx[\s\S]*titlu/));
 });

@@ -13,6 +13,7 @@ test.describe("producție fără ghiduri", () => {
     await page.goto("/ghiduri");
     await expect(page.getByRole("heading", { name: "Primul ghid vine curând." })).toBeVisible();
     await expect(page.getByText("Nu găsesc ghidul ăsta.")).toHaveCount(0);
+    await expect(page.getByText(/0\s+ghiduri/)).toHaveCount(0);
   });
 
   test("un ghid inexistent duce la 404-ul nostru", async ({ page }) => {

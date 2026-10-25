@@ -44,9 +44,11 @@ export function Colaj({ ghiduri }: { ghiduri: GhidCard[] }) {
         </div>
       </header>
       <div className="wrap">
-        <p className="count" aria-live="polite">
-          {faraCautare ? <><b>{ghiduri.length}</b> ghiduri gratuite</> : <><b>{rezultate.length}</b> {rezultate.length === 1 ? "rezultat" : "rezultate"} pentru „{q.trim()}”</>}
-        </p>
+        {ghiduri.length > 0 && (
+          <p className="count" aria-live="polite">
+            {faraCautare ? <><b>{ghiduri.length}</b> ghiduri gratuite</> : <><b>{rezultate.length}</b> {rezultate.length === 1 ? "rezultat" : "rezultate"} pentru „{q.trim()}”</>}
+          </p>
+        )}
         {rezultate.length ? (
           <div className="colaj">
             {rezultate.map(({ ghid, exact }, i) => (

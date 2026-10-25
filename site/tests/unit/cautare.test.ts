@@ -34,3 +34,15 @@ describe("cauta", () => {
   });
   it("fără rezultat → []", () => expect(cauta(GHIDURI, "xyzxyz")).toEqual([]));
 });
+
+describe("mai multe cuvinte", () => {
+  const sluguri = (q: string) => cauta(GHIDURI, q).map((r) => r.ghid.slug);
+  it("găsește în orice ordine", () => {
+    expect(sluguri("claude animatii")).toEqual(["animatii"]);
+    expect(sluguri("animatii claude")).toEqual(["animatii"]);
+  });
+  it("cuvintele pot fi în câmpuri diferite", () => expect(sluguri("gsap intro")).toEqual(["animatii"]));
+  it("un cuvânt fără potrivire elimină ghidul", () => expect(sluguri("claude xyz")).toEqual([]));
+  it("„claude” singur le găsește pe toate trei", () => expect(sluguri("claude")).toHaveLength(3));
+  it("cuvântul exact rămâne marcat", () => expect(cauta(GHIDURI, "site")[0]).toMatchObject({ exact: true }));
+});
