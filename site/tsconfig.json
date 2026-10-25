@@ -42,7 +42,7 @@
     ".next-perf/types/**/*.ts",
     ".next-perf/dev/types/**/*.ts",
     ".next-pdf/types/**/*.ts",
-    ".next-pdf/dev/types/**/*.ts",
+    ".next-pdf/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
