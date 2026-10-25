@@ -42,8 +42,38 @@ function mediuCurent(): MediuGhiduri {
   };
 }
 
-function extragePasi(corp: string): Pas[] {
-  return [...corp.matchAll(/<Pas\s+titlu="([^"]+)"/g)].map((m, i) => ({ id: `pas-${i + 1}`, titlu: m[1] }));
+/** Înlocuiește blocurile de cod și codul inline cu spații, ca pozițiile din text să rămână aceleași. */
+export function ascundeCodul(corp: string): string {
+  const spatii = (m: string) => m.replace(/[^\n]/g, " ");
+  return corp.replace(/```[\s\S]*?```/g, spatii).replace(/`[^`\n]*`/g, spatii);
+}
+
+// eticheta deschisă a unui <Pas>, cu atributele ei (un „>” între ghilimele nu o închide)
+const ETICHETA_PAS = /<Pas\b((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
+
+/** Pașii adevărați (nu cei din cod): unde începe fiecare și titlul lui. */
+function pozitiiPasi(corp: string): { index: number; titlu: string }[] {
+  return [...ascundeCodul(corp).matchAll(ETICHETA_PAS)].map((m, i) => {
+    const titlu = /\btitlu="([^"]*)"/.exec(m[1])?.[1];
+    if (!titlu) throw new Error(`Pasul ${i + 1} nu are titlu="…" (cu ghilimele duble)`);
+    return { index: m.index, titlu };
+  });
+}
+
+export function extragePasi(corp: string): Pas[] {
+  return pozitiiPasi(corp).map((p, i) => ({ id: `pas-${i + 1}`, titlu: p.titlu }));
+}
+
+/** Fiecare <Pas> primește id-ul și numărul lui, în ordinea din fișier. */
+export function numeroteazaPasii(corp: string): string {
+  let rezultat = corp;
+  const pozitii = pozitiiPasi(corp);
+  // de la coadă spre început, ca inserările să nu mute pozițiile rămase
+  for (let i = pozitii.length - 1; i >= 0; i--) {
+    const dupa = pozitii[i].index + "<Pas".length;
+    rezultat = `${rezultat.slice(0, dupa)} id="pas-${i + 1}" n="${i + 1}"${rezultat.slice(dupa)}`;
+  }
+  return rezultat;
 }
 
 function citesteGhid(dosar: string, nume: string): Ghid {
@@ -56,7 +86,13 @@ function citesteGhid(dosar: string, nume: string): Ghid {
   if (rezultat.data.slug !== nume) {
     throw new Error(`Slug-ul „${rezultat.data.slug}” nu se potrivește cu numele dosarului „${nume}”.`);
   }
-  return { ...rezultat.data, corp: content, pasi: extragePasi(content), dosar: nume };
+  let pasi: Pas[];
+  try {
+    pasi = extragePasi(content);
+  } catch (e) {
+    throw new Error(`${path.join(nume, "index.mdx")}: ${(e as Error).message}`);
+  }
+  return { ...rezultat.data, corp: content, pasi, dosar: nume };
 }
 
 function verificaUnice(ghiduri: Ghid[]) {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import path from "node:path";
-import { incarcaGhiduri, parametriGhiduri } from "@/lib/ghiduri";
+import { extragePasi, incarcaGhiduri, numeroteazaPasii, parametriGhiduri } from "@/lib/ghiduri";
 
 const fx = (n: string) => path.join(__dirname, "fixtures", n);
 const dev = { productie: false };
@@ -61,4 +61,27 @@ describe("parametriGhiduri", () => {
   it("fără ghiduri (producție, doar exemple) dă un slug-santinelă — Cache Components refuză lista goală", () => {
     expect(parametriGhiduri([])).toEqual([{ slug: "_" }]);
   });
+});
+
+describe("pașii", () => {
+  const corp = [
+    '<Pas titlu="Unu">a</Pas>',
+    "```jsx\n<Pas titlu=\"Din cod\">x</Pas>\n```",
+    "Text cu `<Pas titlu=\"inline\">` în el.",
+    '<Pas\n  titlu="Doi">b</Pas>',
+  ].join("\n\n");
+
+  it("ignoră <Pas> din cod și prinde titlu pe alt rând", () =>
+    expect(extragePasi(corp)).toEqual([{ id: "pas-1", titlu: "Unu" }, { id: "pas-2", titlu: "Doi" }]));
+
+  it("numerotează doar pașii adevărați, în aceeași ordine", () => {
+    const n = numeroteazaPasii(corp);
+    expect(n).toContain('<Pas id="pas-1" n="1" titlu="Unu"');
+    expect(n).toContain('<Pas id="pas-2" n="2"\n  titlu="Doi"');
+    expect(n).toContain('```jsx\n<Pas titlu="Din cod">');
+    expect(n).toContain('`<Pas titlu="inline">`');
+  });
+
+  it("un <Pas> fără titlu=\"…\" oprește încărcarea, cu numele fișierului", () =>
+    expect(() => incarcaGhiduri(fx("ghiduri-pas-fara-titlu"), dev)).toThrow(/x[\\/]index\.mdx.*titlu/s));
 });

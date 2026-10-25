@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import "@/components/ghid/ghid.css";
-import { faraCorp, ghidDupaSlug, parametriGhiduri, toateGhidurile, type Ghid } from "@/lib/ghiduri";
+import { faraCorp, ghidDupaSlug, numeroteazaPasii, parametriGhiduri, toateGhidurile, type Ghid } from "@/lib/ghiduri";
 import { imagineGhid } from "@/lib/imagine";
 import { formatData } from "@/lib/data";
 import { Aurora } from "@/components/layout/Aurora";
@@ -26,12 +26,6 @@ export async function generateMetadata({ params }: PageProps<"/ghiduri/[slug]">)
     openGraph: { title: g.titlu, description: g.descriere, images: [imagineGhid(g, g.imagine)], type: "article" },
   };
 }
-
-// fiecare <Pas> primește id-ul și numărul lui, în ordinea din fișier
-const numeroteazaPasii = (corp: string) => {
-  let n = 0;
-  return corp.replace(/<Pas(\s)/g, (_, s) => (n++, `<Pas id="pas-${n}" n="${n}"${s}`));
-};
 
 const urmatorul = (g: Ghid) => {
   const toate = toateGhidurile();
