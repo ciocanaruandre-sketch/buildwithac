@@ -1,0 +1,52 @@
+/* stilul de tipar al ghidului: din el se face PDF-ul (npm run pdf). Foi crem pe hârtie albă, fără animații. */
+@media print {
+  @page { size: A4; }
+  html, body { background: #fff !important; color: #0b0908 !important; }
+  * { animation: none !important; transition: none !important; backdrop-filter: none !important; }
+  [data-fara-tipar] { display: none !important; }
+
+  .ghid { padding: 0 !important; overflow: visible !important; }
+
+  /* antet */
+  .k-head { max-width: none; padding: 0 0 6mm; }
+  .k-head h1 { color: #0b0908; font-size: 26pt; padding-right: 0; margin: 4mm 0 3mm; }
+  .k-head .lead { color: #3d2f26; font-size: 12pt; max-width: none; }
+  .k-head .upd { color: #6b5f55; font-size: 9pt; margin-bottom: 4mm; }
+  .chips span { background: none; border: 1px solid rgba(11,9,8,.25); color: #3d2f26; font-size: 9pt; padding: 1.5mm 3mm; }
+  .chips span.free { border-color: #f26a21; color: #c2410c; background: none; }
+  .k-toc { background: #f6efe3; border: 0; break-inside: avoid; }
+  .k-toc .eb { color: #c2410c; }
+  .k-toc a { color: #3d2f26; font-size: 10pt; padding: 1mm 0; text-decoration: none !important; }
+  .k-toc a.done { color: #3d2f26; text-decoration: none; }
+  .k-toc a::after { content: none !important; }
+
+  /* de ce ai nevoie */
+  .k-list { max-width: none; padding: 0; }
+  .need-wrap { margin: 0 0 6mm; break-inside: avoid; }
+  .need-wrap .eb { color: #c2410c; }
+  .need li { background: #f6efe3; border: 0; color: #1b0f0a; font-size: 10pt; }
+  .k-list > p, .k-list > .body p { color: #3d2f26; }
+
+  /* foile */
+  .k-sheet { box-shadow: none; border-radius: 5mm; margin: 0 0 6mm; padding: 7mm 7mm 5mm; transform: none !important; }
+  .k-sheet .tape { display: none; }
+  .k-sheet::after { display: none; }
+  .k-top { break-after: avoid; break-inside: avoid; }
+  .k-sheet h2 { break-after: avoid; }
+  .body p { font-size: 11pt; line-height: 1.6; margin-bottom: 3.5mm; orphans: 3; widows: 3; }
+  .body ul li { font-size: 11pt; }
+
+  /* prompturi, capturi, notițe: nu se rup între pagini */
+  .prompt, .shot, .mistake, .atentie, .daca-nu { break-inside: avoid; transform: none !important; box-shadow: none !important; }
+  .prompt { margin: 4mm 0 5mm; }
+  .prompt pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 9.5pt; }
+  .shot { margin: 4mm 0 5mm; border: 1px solid rgba(11,9,8,.2); }
+  .shot .tp { display: none; }
+  .mistake .tape { display: none; }
+  .k-list > .atentie { background: rgba(229,50,34,.08); }
+  .k-list > .atentie p { color: #3d2f26; }
+  .k-list > .atentie .k { color: #c2410c; }
+
+  /* link-urile externe: pe hârtie se vede adresa */
+  .k-list a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8.5pt; color: #6b5f55; overflow-wrap: anywhere; }
+}

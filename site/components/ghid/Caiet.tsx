@@ -65,9 +65,9 @@ export function Caiet({ ghid, actualizat, children, dupa }: { ghid: GhidCard; ac
             ))}
           </ol>
         </nav>
-        {ghid.pdf && <a className="pdf-top" href="#pdf"><i aria-hidden>⬇</i>Primește ghidul complet în PDF</a>}
+        {ghid.pdf && <a className="pdf-top" href="#pdf" data-fara-tipar><i aria-hidden>⬇</i>Primește ghidul complet în PDF</a>}
       </header>
-      <div className={`sbar${bara ? " on" : ""}`} aria-hidden={!bara}>
+      <div className={`sbar${bara ? " on" : ""}`} aria-hidden={!bara} data-fara-tipar>
         <span>{gata ? "Ghid terminat ✓" : `${nrBifate} din ${total} pași`}</span>
         <div className="segs">
           {ghid.pasi.map((p) => <a key={p.id} href={`#${p.id}`} tabIndex={bara ? 0 : -1} aria-label={p.titlu} className={bifate.includes(p.id) ? "d" : undefined} />)}
@@ -75,7 +75,7 @@ export function Caiet({ ghid, actualizat, children, dupa }: { ghid: GhidCard; ac
       </div>
       <div className="k-list">{children}</div>
       {gata && (
-        <div className="yay" role="status">
+        <div className="yay" role="status" data-fara-tipar>
           <div><b>Gata, ai terminat ghidul! 🎉</b><span>Trimite-mi pe Instagram ce ai construit, îl pot arăta într-un clip.</span></div>
         </div>
       )}

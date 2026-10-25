@@ -26,7 +26,7 @@ export function Aurora() {
     return () => obs().unobserve(nod);
   }, []);
   return (
-    <div className="secbg" aria-hidden ref={el}>
+    <div className="secbg" aria-hidden ref={el} data-fara-tipar>
       {PANGLICI.map((s, i) => <div key={i} className="rib" style={s} />)}
       <div className="grain" />
     </div>

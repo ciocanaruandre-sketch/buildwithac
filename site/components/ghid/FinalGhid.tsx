@@ -7,7 +7,7 @@ import { FormularAbonare } from "@/components/FormularAbonare";
 
 export function FinalGhid({ urmator }: { urmator?: GhidCard }) {
   return (
-    <section className="end">
+    <section className="end" data-fara-tipar>
       <h2>Ți-a fost util? <span className="serif gtxt">Hai mai departe.</span></h2>
       <p className="sub">Pe TikTok îți arăt ideea în 60 de secunde. Aici găsești restul.</p>
       <div className="endgrid">

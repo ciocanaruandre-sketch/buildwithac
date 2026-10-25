@@ -18,7 +18,7 @@ export function Prompt({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="prompt">
-      <div className="ph"><span>Prompt</span><button type="button" onClick={copiaza}>{copiat ? "Copiat ✓" : "Copiază"}</button></div>
+      <div className="ph"><span>Prompt</span><button type="button" onClick={copiaza} data-fara-tipar>{copiat ? "Copiat ✓" : "Copiază"}</button></div>
       <pre ref={text}>{children}</pre>
     </div>
   );

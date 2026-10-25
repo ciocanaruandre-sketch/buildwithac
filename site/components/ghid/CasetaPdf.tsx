@@ -27,7 +27,7 @@ export function CasetaPdf({ titlu, cuvant }: { titlu: string; cuvant: string }) 
   }
 
   return (
-    <section className="pdf" id="pdf">
+    <section className="pdf" id="pdf" data-fara-tipar>
       <div className="in">
         <div className="hand note" aria-hidden>bonus ↓</div>
         <div className="doc" aria-hidden>

@@ -19,7 +19,7 @@ export function Footer() {
   }, { scope: radacina });
 
   return (
-    <footer className="foot bgs" ref={radacina}>
+    <footer className="foot bgs" ref={radacina} data-fara-tipar>
       <Aurora />
       <div className="big"><span>buildwithac</span></div>
       <div className="row">

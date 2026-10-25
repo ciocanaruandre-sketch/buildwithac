@@ -42,3 +42,4 @@ next-env.d.ts
 /.next-demo/
 /.next-prod/
 /.next-perf/
+/.next-pdf/

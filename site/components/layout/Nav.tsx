@@ -39,7 +39,7 @@ export function Nav() {
 
   const [ghiduri, cine, ...restul] = LINKURI;
   return (
-    <nav className="nav" aria-label="Principal">
+    <nav className="nav" aria-label="Principal" data-fara-tipar>
       <Link href="/" className="logo" aria-label="buildwithac, acasă">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.webp" alt="" width={44} height={44} />

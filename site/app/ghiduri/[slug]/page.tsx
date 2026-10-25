@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import "@/components/ghid/ghid.css";
+import "@/components/ghid/tipar.css";
 import { faraCorp, ghidDupaSlug, numeroteazaPasii, parametriGhiduri, toateGhidurile, type Ghid } from "@/lib/ghiduri";
 import { imagineGhid } from "@/lib/imagine";
 import { formatData } from "@/lib/data";
