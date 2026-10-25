@@ -51,7 +51,7 @@ Vin de pe TikTok, deci **mai ales de pe telefon**. Totul se proiectează întâi
 
 - **Conturi:** Andrei are GitHub și Vercel. **Domeniul: `buildwithac.ro`**, cumpărat [Andrei, 2026-10-23: „nu e o platformă de AI, chiar dacă așa am handle-ul”]. Handle-urile rămân `@buildwithac.ai`. **E-mailul prin iCloud+** [Andrei, 2026-10-23]: Andrei are abonament iCloud și deja un alt domeniu legat acolo. Adaugă `buildwithac.ro` ca domeniu personalizat în iCloud și face aliasurile:
   - `contact@buildwithac.ro`: adresa de contact de pe site [Andrei];
-  - un alias pentru expeditorul newsletterului din Kit [Andrei: „fac aici și pentru newsletter aliasurile”]. Numele propus: `andrei@buildwithac.ro`, ca e-mailurile să sune personal, iar răspunsurile să ajungă tot în iCloud [apelul meu].
+  - un alias pentru expeditorul newsletterului din Kit [Andrei: „fac aici și pentru newsletter aliasurile”]. Alias făcut: **`ac@buildwithac.ro`** [Andrei, 2026-10-25; propunerea inițială era `andrei@`]; răspunsurile ajung tot în iCloud.
 
   **DNS** [apelul meu]: toate înregistrările stau într-un singur loc, de preferat **Cloudflare (gratuit)**, ca la primul domeniu al lui Andrei:
   - Vercel (site);

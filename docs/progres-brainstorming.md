@@ -194,18 +194,14 @@ Ultima sesiune: 2026-10-22. Suntem încă în faza de **brainstorming**: nu s-a 
 Memoria straturilor a scăzut de la ~1200 la ~650 MB. Teste: lint 0, tsc 0, vitest 38/38, e2e 92/92 (+ `tests/e2e/fluiditate.spec.ts`).
 **2026-10-25:** Andrei a testat `previzualizare` pe telefon: „se mișcă mai bine” → `fluiditate` unită în `main` (fast-forward, 69c1ec2) și urcată. Previzualizările Vercel cer conectare (Deployment Protection, implicit); Andrei s-a conectat pe telefon, protecția rămâne. Domeniu: nameserverele Cloudflare sunt active la ROTLD; domeniul e adăugat în Vercel, dar „Invalid Configuration” până se pun în Cloudflare înregistrările A `@` + CNAME `www` (DNS only) cu valorile din Vercel. **Rezolvat (2026-10-25):** `https://buildwithac.ro` merge (HTTPS valid). `www` lăsat deoparte, decizia lui Andrei (Vercel a dat „a domain cannot redirect itself”; probabil s-a scris domeniul principal în loc de `www.buildwithac.ro`). iCloud: domeniul e adăugat, toate înregistrările (MX, apple-domain, SPF, DKIM) sunt în DNS, verificarea Apple e „pending”; DMARC (`_dmarc` TXT `v=DMARC1; p=none;`) recomandat, încă nepus.
 
-**DE AICI CONTINUĂM sesiunea viitoare** (punctul 1 e făcut; punctul 2 e în lucru: lipsesc înregistrările din Cloudflare):
-1. Andrei încearcă `previzualizare` pe telefon (peretele de clipuri la scroll rapid, scroll rapid pe tot homepage-ul).
-   - Dacă e OK, cu acordul lui: merge `fluiditate` → `main`, apoi push `main`.
-   - Dacă se mai blochează, următorii candidați sunt stratul de ~66 MB al `section.mail` și `backdrop-filter` pe burger și pe cardurile `.cway`.
-2. Domeniul `buildwithac.ro` (îl face Andrei, cu ajutorul meu dacă se încurcă):
-   - Cloudflare → Add site;
-   - nameserverele Cloudflare se trec la ROTLD;
-   - în Vercel → Domains: `buildwithac.ro` principal + `www` redirect;
-   - înregistrările din Cloudflare pe „DNS only” (nor gri).
-3. Task 13 pasul 7 (feedback de pe telefon), apoi se poate șterge `.superpowers/sdd/2026-10-23-plan-1-site/`.
+**Mail (2026-10-25):** iCloud verificat; Andrei a făcut aliasurile `contact@buildwithac.ro` (contactul de pe site, deja în `site/lib/config.ts`) și **`ac@buildwithac.ro`** (expeditorul newsletterului, în loc de `andrei@`). iCloud a sincronizat singur mai multe înregistrări în Cloudflare. DMARC încă lipsește (opțional: `_dmarc` TXT `v=DMARC1; p=none;`). Plan 1 e închis (inclusiv Task 13 pasul 7, feedbackul de pe telefon).
 
-Apoi Plan 2 (CLAUDE.md + skill-uri + PDF) și Plan 3 (DNS/iCloud/Kit, limită de cereri în Vercel Firewall pentru `/api/abonare`, primul ghid, lansare).
+**DE AICI CONTINUĂM sesiunea viitoare: Plan 2.**
+1. Scriu Plan 2 (`docs/superpowers/plans/`), din documentul de design: `CLAUDE.md` (regulile proiectului), skill-ul „ghid nou” (script carusel + ghid după standard + flux de publicare), skill-ul „idei”, PDF-ul ghidului. Îi spun lui Andrei înainte cât consumă (citit documentul de design e greu).
+2. Andrei aprobă planul și alege modul de execuție, apoi îl facem.
+3. De verificat la început: lucrurile mici amânate din registrul `.superpowers/sdd/2026-10-23-plan-1-site/progress.md` (`Final: minor (deferred)`); după ce sunt preluate în Plan 2/3, dosarul se poate șterge (cu acordul lui).
+
+Apoi Plan 3: Kit (expeditor `ac@buildwithac.ro`, înregistrările Kit în Cloudflare, DMARC), limită de cereri în Vercel Firewall pentru `/api/abonare`, primul ghid, lansare. `www` rămâne nepus (decizia lui Andrei).
 
 *Istoric:* Punctele mici și skill-urile sunt discutate (vezi mai sus).
 - **Unde:** `docs/superpowers/specs/2026-10-22-site-buildwithac-design.md` (aprobat de Andrei).
