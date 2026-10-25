@@ -52,7 +52,7 @@ export function ascundeCodul(corp: string): string {
 const ETICHETA_PAS = /<Pas\b((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
 
 /** Pașii adevărați (nu cei din cod): unde începe fiecare și titlul lui. */
-function pozitiiPasi(corp: string): { index: number; titlu: string }[] {
+export function pozitiiPasi(corp: string): { index: number; titlu: string }[] {
   return [...ascundeCodul(corp).matchAll(ETICHETA_PAS)].map((m, i) => {
     const titlu = /\btitlu="([^"]*)"/.exec(m[1])?.[1];
     if (!titlu) throw new Error(`Pasul ${i + 1} nu are titlu="…" (cu ghilimele duble)`);

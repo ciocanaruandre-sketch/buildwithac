@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import Image from "next/image";
 import { imagineGhid } from "@/lib/imagine";
 
@@ -45,6 +47,14 @@ export function DacaNuMerge({ children }: Copii) {
 
 /** „Ce ar trebui să vezi”: o captură lipită cu bandă. `src` e numele fișierului din public/ghiduri/<dosar>/. */
 export function CeVezi({ src, alt, dosar }: { src: string; alt: string; dosar: string }) {
+  // captura pe care Andrei n-a trimis-o încă: loc marcat în previzualizare; `npm run verifica` nu o lasă în main
+  if (!fs.existsSync(path.join(process.cwd(), "public", "ghiduri", dosar, src))) {
+    return (
+      <figure className="shot lipsa">
+        <figcaption>captură de pus: {alt}</figcaption>
+      </figure>
+    );
+  }
   return (
     <figure className="shot">
       <div className="tp" />

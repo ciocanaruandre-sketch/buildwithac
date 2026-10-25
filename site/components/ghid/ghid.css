@@ -104,6 +104,8 @@
 .shot .scr img { object-fit: cover; }
 .shot figcaption { position: absolute; left: 14px; bottom: 12px; font-size: 12px; background: rgba(11,9,8,.8); padding: 5px 10px; border-radius: 8px; color: #e6dcd2; }
 .shot .tp { position: absolute; top: -10px; right: 30px; width: 70px; height: 22px; background: rgba(255,226,170,.85); transform: rotate(5deg); z-index: 2; }
+.shot.lipsa { display: grid; place-items: center; min-height: 160px; padding: 24px; background: #f6efe3; border: 2px dashed rgba(11,9,8,.35); box-shadow: none; }
+.shot.lipsa figcaption { position: static; background: none; padding: 0; color: #0b0908; font-family: var(--font-caveat), cursive; font-size: 24px; text-align: center; }
 
 /* gata */
 .yay { max-width: 760px; margin: 30px auto 0; padding: 0 clamp(18px, 5vw, 40px); text-align: center; }
