@@ -45,7 +45,20 @@ function mediuCurent(): MediuGhiduri {
 /** Înlocuiește blocurile de cod și codul inline cu spații, ca pozițiile din text să rămână aceleași. */
 export function ascundeCodul(corp: string): string {
   const spatii = (m: string) => m.replace(/[^\n]/g, " ");
-  return corp.replace(/```[\s\S]*?```/g, spatii).replace(/`[^`\n]*`/g, spatii);
+  const text = corp.replace(/```[\s\S]*?```/g, spatii);
+  // codul inline se ascunde doar în text: un ` din atributele unei etichete (titlu="…") rămâne
+  const eticheta = /<[A-Za-z](?:"[^"]*"|'[^']*'|[^>"'])*>?/y;
+  const cod = /`[^`\n]*`/y;
+  let rezultat = "";
+  for (let i = 0; i < text.length; ) {
+    eticheta.lastIndex = cod.lastIndex = i;
+    const e = text[i] === "<" ? eticheta.exec(text) : null;
+    const c = !e && text[i] === "`" ? cod.exec(text) : null;
+    const bucata = e?.[0] ?? c?.[0] ?? text[i];
+    rezultat += c ? spatii(bucata) : bucata;
+    i += bucata.length;
+  }
+  return rezultat;
 }
 
 // eticheta deschisă a unui <Pas>, cu atributele ei (un „>” între ghilimele nu o închide)
@@ -54,7 +67,9 @@ const ETICHETA_PAS = /<Pas\b((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
 /** Pașii adevărați (nu cei din cod): unde începe fiecare și titlul lui. */
 export function pozitiiPasi(corp: string): { index: number; titlu: string }[] {
   return [...ascundeCodul(corp).matchAll(ETICHETA_PAS)].map((m, i) => {
-    const titlu = /\btitlu="([^"]*)"/.exec(m[1])?.[1];
+    // titlul se citește din textul original, la aceleași poziții (ascunderea poate atinge ` din el)
+    const original = corp.slice(m.index, m.index + m[0].length);
+    const titlu = /\btitlu="([^"]*)"/.exec(original)?.[1];
     if (!titlu) throw new Error(`Pasul ${i + 1} nu are titlu="…" (cu ghilimele duble)`);
     return { index: m.index, titlu };
   });

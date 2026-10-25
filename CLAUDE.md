@@ -80,7 +80,7 @@ Doar munca lui Andrei. Site-urile-concept sunt marcate clar „Concept”.
 | `npx vitest run` | testele unitare |
 | `npx playwright test` | testele în browser (pornesc singure serverele de dev) |
 | `npm run e2e:prod` | build de producție + testele de producție (~2 min) |
-| `npm run verifica -- <slug>` | verifică un ghid; fără slug, pe toate cele adevărate |
+| `npm run verifica -- <slug> [--ciorna]` | verifică un ghid (`--ciorna`: capturile lipsă sunt doar avertismente); fără slug, toate cele adevărate |
 | `npm run pdf -- <slug>` | face PDF-ul ghidului în `public/pdf/` și afișează link-ul |
 | `npx tsc --noEmit -p .` | verificarea tipurilor (prinde ce nu prinde vitest) |
 

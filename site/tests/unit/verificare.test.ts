@@ -28,7 +28,7 @@ function ghid(corp: string, extra: Partial<Ghid> = {}): Ghid {
 
 const erori = (p: Problema[]) => p.filter((x) => x.nivel === "eroare").map((x) => x.mesaj);
 const avert = (p: Problema[]) => p.filter((x) => x.nivel === "avertisment").map((x) => x.mesaj);
-const E = (corp: string, extra?: Partial<Ghid>) => erori(verificaGhid(ghid(corp, extra), o)).join("\n");
+const E = (corp: string, extra?: Partial<Ghid>, azi = o.azi) => erori(verificaGhid(ghid(corp, extra), { ...o, azi })).join("\n");
 const A = (corp: string, extra?: Partial<Ghid>) => avert(verificaGhid(ghid(corp, extra), o)).join("\n");
 
 describe("verificaGhid — erori", () => {
@@ -63,6 +63,25 @@ describe("verificaGhid — erori", () => {
     expect(E(BAZA, { actualizat: new Date("2026-10-26") })).toMatch(/actualizat/);
     expect(E(BAZA, { publicat: new Date("2026-10-21") })).toMatch(/publicat/);
   });
+});
+
+describe("verificaGhid — ciornă (înainte de previzualizare)", () => {
+  const corp = '<DeCeAiNevoie>- 20 $/lună</DeCeAiNevoie>\n\n<Pas titlu="A"><CeVezi src="nu.webp" alt="x" /></Pas>';
+  const c = { ...o, ciorna: true };
+  it("captura lipsă e doar avertisment", () => {
+    expect(erori(verificaGhid(ghid(corp), c))).toEqual([]);
+    expect(avert(verificaGhid(ghid(corp), c)).join()).toMatch(/nu\.webp/);
+  });
+  it("coperta lipsă e doar avertisment", () => {
+    expect(erori(verificaGhid(ghid(BAZA, { imagine: "nu.webp" }), c))).toEqual([]);
+    expect(avert(verificaGhid(ghid(BAZA, { imagine: "nu.webp" }), c)).join()).toMatch(/nu\.webp/);
+  });
+  it("restul erorilor rămân erori", () => expect(erori(verificaGhid(ghid(BAZA + "\n\nşi"), c)).join()).toMatch(/sedil/));
+});
+
+describe("data de azi, noaptea", () => {
+  it("un ghid actualizat azi nu e „în viitor” la 01:00, ora locală", () =>
+    expect(E(BAZA, { actualizat: new Date("2026-10-25"), publicat: new Date("2026-10-25") }, new Date(2026, 9, 25, 1, 0))).toBe(""));
 });
 
 describe("verificaGhid — avertismente", () => {

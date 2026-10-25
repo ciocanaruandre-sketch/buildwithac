@@ -11,12 +11,20 @@ const UMPLUTURA = [/\b(TODO|TBD)\b/, /lorem ipsum/i, /\[(CAPTUR[AĂ]|LINK|PRE[T�
 const PRET = /\d[\d.,]*\s*(\$|€|lei\b|ron\b|usd\b|eur\b)|[$€]\s*\d|gratuit/i;
 const ZI = 86_400_000;
 
-/** Tot ce se poate verifica automat dintr-un ghid (§12). Erorile blochează publicarea. */
-export function verificaGhid(g: Ghid, o: { dosarPublic: string; azi?: Date }): Problema[] {
+// data din frontmatter e la miezul nopții UTC; „azi” se ia după calendarul local (ora României)
+const ziCalendar = (d: Date, utc: boolean) =>
+  utc ? Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) : Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+
+/**
+ * Tot ce se poate verifica automat dintr-un ghid (§12). Erorile blochează publicarea.
+ * `ciorna`: înainte de previzualizare, capturile și coperta care lipsesc sunt doar avertismente.
+ */
+export function verificaGhid(g: Ghid, o: { dosarPublic: string; azi?: Date; ciorna?: boolean }): Problema[] {
   const azi = o.azi ?? new Date();
   const probleme: Problema[] = [];
   const eroare = (mesaj: string) => probleme.push({ nivel: "eroare", mesaj });
   const avertisment = (mesaj: string) => probleme.push({ nivel: "avertisment", mesaj });
+  const lipsa = o.ciorna ? avertisment : eroare;
 
   const text = ascundeCodul(g.corp);
   const pasi = pozitiiPasi(g.corp);
@@ -26,11 +34,11 @@ export function verificaGhid(g: Ghid, o: { dosarPublic: string; azi?: Date }): P
 
   if (g.exemplu) eroare("e marcat exemplu: true; un ghid adevărat nu are câmpul (sau are exemplu: false)");
   if (!fs.existsSync(path.join(o.dosarPublic, "ghiduri", g.dosar, g.imagine)))
-    eroare(`imaginea de copertă lipsește: public/ghiduri/${g.dosar}/${g.imagine}`);
+    lipsa(`imaginea de copertă lipsește: public/ghiduri/${g.dosar}/${g.imagine}`);
 
   for (const m of text.matchAll(/<CeVezi\b[^>]*?\bsrc="([^"]+)"/g)) {
     if (!fs.existsSync(path.join(o.dosarPublic, "ghiduri", g.dosar, m[1])))
-      eroare(`captură lipsă: ${m[1]}, pasul ${pasLa(m.index)} (pune fișierul în public/ghiduri/${g.dosar}/)`);
+      lipsa(`captură lipsă: ${m[1]}, pasul ${pasLa(m.index)} (pune fișierul în public/ghiduri/${g.dosar}/)`);
   }
 
   if (!/<DeCeAiNevoie\b/.test(text)) eroare("lipsește <DeCeAiNevoie> (conturi, abonamente cu preț, programe, timp)");
@@ -62,7 +70,7 @@ export function verificaGhid(g: Ghid, o: { dosarPublic: string; azi?: Date }): P
     if (!exista) eroare(`pdf: true, dar nu există PDF-ul în public/pdf/ (rulează npm run pdf -- ${g.slug})`);
   }
 
-  if (g.actualizat.getTime() > azi.getTime()) eroare("data actualizat e în viitor");
+  if (ziCalendar(g.actualizat, true) > ziCalendar(azi, false)) eroare("data actualizat e în viitor");
   if (g.publicat.getTime() > g.actualizat.getTime()) eroare("data publicat e după actualizat");
 
   const linii = (totText.match(/—/g) ?? []).length;

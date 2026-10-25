@@ -85,3 +85,13 @@ describe("pașii", () => {
   it("un <Pas> fără titlu=\"…\" oprește încărcarea, cu numele fișierului", () =>
     expect(() => incarcaGhiduri(fx("ghiduri-pas-fara-titlu"), dev)).toThrow(/x[\\/]index\.mdx[\s\S]*titlu/));
 });
+
+describe("pașii cu ` în titlu", () => {
+  it("titlul cu cod inline rămâne întreg în cuprins", () =>
+    expect(extragePasi('<Pas titlu="Instalezi `gsap`">x</Pas>')).toEqual([{ id: "pas-1", titlu: "Instalezi `gsap`" }]));
+  it("un ` singur în titlu nu înghite pasul", () =>
+    expect(extragePasi('<Pas titlu="Apasă tasta `">x</Pas> apoi `cod`\n\n<Pas titlu="Doi">y</Pas>').map((p) => p.titlu))
+      .toEqual(["Apasă tasta `", "Doi"]));
+  it("codul inline din text tot se ignoră", () =>
+    expect(extragePasi('Scrie `<Pas titlu="nu">` aici.\n\n<Pas titlu="Da">x</Pas>').map((p) => p.titlu)).toEqual(["Da"]));
+});

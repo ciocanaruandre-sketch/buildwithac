@@ -1,9 +1,12 @@
-// npm run verifica -- <slug>   (fără slug: toate ghidurile care nu sunt de exemplu)
+// npm run verifica -- <slug> [--ciorna]   (fără slug: toate ghidurile care nu sunt de exemplu)
+// --ciorna: înainte de previzualizare, capturile și coperta care lipsesc sunt doar avertismente
 import path from "node:path";
 import { incarcaGhiduri } from "@/lib/ghiduri";
 import { verificaGhid } from "@/lib/verificare";
 
-const slug = process.argv[2];
+const argumente = process.argv.slice(2);
+const ciorna = argumente.includes("--ciorna");
+const slug = argumente.find((a) => !a.startsWith("--"));
 let toate;
 try {
   toate = incarcaGhiduri(undefined, { productie: false });
@@ -20,7 +23,7 @@ if (!alese.length) console.log("Niciun ghid adevărat de verificat.");
 
 let cuErori = false;
 for (const g of alese) {
-  const probleme = verificaGhid(g, { dosarPublic: path.join(process.cwd(), "public") });
+  const probleme = verificaGhid(g, { dosarPublic: path.join(process.cwd(), "public"), ciorna });
   const erori = probleme.filter((p) => p.nivel === "eroare");
   const avertismente = probleme.filter((p) => p.nivel === "avertisment");
   console.log(`\n${g.slug}: ${erori.length} erori, ${avertismente.length} avertismente`);

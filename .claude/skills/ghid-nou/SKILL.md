@@ -22,7 +22,7 @@ Citește înainte: `CLAUDE.md` (regulile) și **`standard.md`** din dosarul ăst
 3. **Întreabă-l pe Andrei de greșelile lui reale** din subiectul ăsta (pentru `<GresealaMea>`), dacă nu apar în clip. Fără răspuns = fără `<GresealaMea>`; folosește `<Atentie>` cu o capcană reală, verificată.
 4. **Scrie** caruselul (dacă e cazul) și ghidul `site/content/ghiduri/<slug>/index.mdx`, după `standard.md`. Capturile lipsă rămân `<CeVezi>` cu fișierul încă inexistent: pe site apar ca „captură de pus”. Fă lista lor pentru Andrei.
 5. **Cuvântul-cheie** (`cuvant`): un cuvânt scurt, cu MAJUSCULE, fără diacritice, ușor de scris pe telefon (ex. `SITE`, `ANIMATII`). Trebuie să fie unic; încărcarea ghidurilor oprește build-ul la un duplicat. E același pe ultima slide, în lupă și pentru PDF.
-6. **Verifică.** Din `site/`: `npm run verifica -- <slug>` (zero erori) și `npx vitest run`. Apoi lista de mai jos, de mână.
+6. **Verifică.** Din `site/`: `npm run verifica -- <slug> --ciorna` (zero erori; capturile și coperta care lipsesc sunt doar avertismente cât e ciornă). Apoi lista de mai jos, de mână. Verificarea completă, fără `--ciorna`, plus `npx vitest run`, se face abia la „Publică” (`publicare.md`, pasul 7).
 7. **Publică** după `publicare.md`: ramură, previzualizare, corecturi, PDF, `main`, e-mailul din `email.md`.
 8. **Marchează ideea** ca postată în `continut/idei.md` (secțiunea „Postate”: data și slug-ul).
 
