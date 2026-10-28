@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { SITE } from "../../lib/config";
 
-const URL = "/ghiduri/site-uri-fara-aer-de-ai";
+const URL = "/ghiduri/exemplu-test";
 const N = 5;
 
 test("antetul are titlul, data și cuprinsul cu câte o intrare pe pas", async ({ page }) => {
   await page.goto(URL);
-  await expect(page.locator("h1")).toHaveText("Site-uri care nu arată „făcute cu AI”");
+  await expect(page.locator("h1")).toHaveText("Ghid de test");
   await expect(page.locator(".k-head")).toContainText("Actualizat la 21 octombrie 2026");
   const cuprins = page.locator(".k-toc a");
   await expect(cuprins).toHaveCount(N);
@@ -54,10 +54,10 @@ test("Copiază pune promptul în clipboard", async ({ page, context, browserName
 test("caseta PDF are cuvântul ghidului și duce pe Instagram", async ({ page }) => {
   await page.goto(URL);
   const caseta = page.locator("#pdf");
-  await expect(caseta).toContainText("SITE");
+  await expect(caseta).toContainText("TEST");
   await caseta.getByRole("button", { name: /Primește-l pe Instagram/ }).click();
   const fereastra = page.getByRole("dialog");
-  await expect(fereastra).toContainText("SITE");
+  await expect(fereastra).toContainText("TEST");
   await expect(fereastra.getByRole("link", { name: /Deschide Instagram/ })).toHaveAttribute("href", SITE.instagram.url);
   await page.keyboard.press("Escape");
   await expect(fereastra).toBeHidden();

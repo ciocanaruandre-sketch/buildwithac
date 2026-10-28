@@ -2,66 +2,203 @@
 titlu: "Site-uri care nu arată „făcute cu AI”"
 slug: site-uri-fara-aer-de-ai
 cuvant: SITE
-descriere: "Cum îi dai lui Claude skill-urile care fac un site să arate „de agenție”, nu generat de AI. Pas cu pas, cu prompturile exacte pe care le folosesc eu."
+descriere: "Cele 3 lucruri care mi-au schimbat site-urile făcute cu Claude: Motion, UI UX Pro Max și 21st.dev. De la instalare la site-ul publicat."
 ceGasesti:
-  - "De ce site-urile făcute cu AI arată toate la fel"
-  - "Cele două skill-uri de design care schimbă tot"
-  - "Prompturile exacte pentru direcții vizuale și animații"
-durata: "30 min"
+  - "Claude Code în VS Code, instalat de la zero"
+  - "Motion, UI UX Pro Max și 21st.dev, pas cu pas"
+  - "Un site de probă, de la direcția vizuală la animații"
+  - "Site-ul pus online, gratuit, cu Vercel"
+durata: "1–2 ore"
 nivel: "începător"
-unelte: ["Claude Code", "UI UX Pro Max", "Motion", "21st.dev", "Vercel"]
-actualizat: 2026-10-21
-publicat: 2026-10-21
+unelte: ["Claude Code", "VS Code", "Motion", "UI UX Pro Max", "21st.dev", "Vercel"]
+actualizat: 2026-10-28
+publicat: 2026-10-28
 imagine: cover.webp
-exemplu: true
-pdf: true
+pdf: false
 ---
 
+Ghidul are cinci părți: pregătești calculatorul, pui cele 3 lucruri din carusel (Motion, UI UX Pro Max, 21st.dev), faci un site de probă pentru o cafenea și îl pui online. Dacă ai deja Claude Code în VS Code, sari direct la pasul 6.
+
 <DeCeAiNevoie>
-- Cont Claude Pro (20 $/lună)
-- Claude Code instalat
-- 30 de minute
+- Cont Claude Pro: 20 $/lună (17 $/lună cu plata pe un an). Claude Code nu e inclus în planul gratuit.
+- VS Code: gratuit.
+- Node.js: gratuit.
+- Python 3: gratuit. Îl folosește UI UX Pro Max; dacă nu-l ai, ți-l instalează Claude (pasul 10).
+- Cont pe 21st.dev: gratuit, cu 2 copieri de componente pe zi. Fără limită: de la 6 $/lună, cu plata pe un an.
+- Cont pe Vercel: gratuit, pe planul Hobby.
+- 1–2 ore, cu tot cu instalări.
 </DeCeAiNevoie>
 
-<Pas titlu="De ce site-urile făcute cu AI arată la fel">
-Dacă îi ceri lui Claude „fă-mi un site”, primești aproape mereu același lucru: gradient mov, carduri rotunjite, fonturi sigure. Nu e vina lui. **Fără indicații, alege varianta cea mai sigură.**
-
-Vestea bună: îi poți da gust. Nu prin prompturi mai lungi, ci prin skill-uri, adică instrucțiuni gata scrise pe care le citește înainte să lucreze.
-
-<GresealaMea>Primele mele site-uri le-am publicat exact așa. Toată lumea le recunoștea din prima ca „făcute cu AI”.</GresealaMea>
+<Pas titlu="Instalezi VS Code">
+VS Code e editorul în care o să lucreze Claude. Descarcă-l de pe [code.visualstudio.com](https://code.visualstudio.com), instalează-l cu setările de la început și deschide-l.
 </Pas>
 
-<Pas titlu="Instalezi skill-urile de design">
-Două skill-uri fac cea mai mare diferență:
+<Pas titlu="Instalezi Node.js">
+Node.js e programul care rulează comenzile din ghid și site-ul pe calculatorul tău. Pe [nodejs.org](https://nodejs.org/en/download) alege versiunea **LTS** (cea stabilă, acum v24) și instaleaz-o cu setările de la început.
 
-- **UI UX Pro Max**: îi dă reguli de design, palete și fonturi care merg împreună.
-- **Motion**: animații la scroll care nu arată ieftin.
+Ca să verifici, deschide în VS Code meniul **Terminal → New Terminal** și scrie:
 
-<Prompt>Instalează skill-ul UI UX Pro Max și confirmă-mi când e gata. Apoi spune-mi pe scurt ce reguli de design conține.</Prompt>
+<Prompt>node -v</Prompt>
 
-<DacaNuMerge>Dacă Claude spune că nu găsește skill-ul, închide și redeschide Claude Code, apoi scrie `/skills` ca să vezi lista.</DacaNuMerge>
+Trebuie să apară un număr care începe cu `v24`.
+
+<DacaNuMerge>Dacă terminalul spune că `node` nu e recunoscut, închide VS Code de tot și deschide-l din nou. Terminalul vede programele noi abia după repornire.</DacaNuMerge>
 </Pas>
 
-<Pas titlu="Alegi o direcție vizuală">
-Aici e trucul. **Nu-l lăsa să scrie cod din prima.** Cere-i întâi variante, ca un designer care îți arată schițe.
+<Pas titlu="Instalezi extensia Claude Code">
+Apasă `Ctrl+Shift+X` (pe Mac `Cmd+Shift+X`) ca să deschizi **Extensions**. Caută „Claude Code” și apasă **Install** la extensia publicată de **Anthropic**.
 
-<Prompt>Vreau un site pentru o cafenea din Cluj. Propune-mi 3 direcții vizuale diferite, fiecare cu paleta de culori, fonturile și cum ar arăta prima secțiune. Nu scrie cod încă.</Prompt>
+<CeVezi src="pas-3-extensia.webp" alt="Extensia Claude Code de la Anthropic, în lista Extensions" />
 
-<CeVezi src="directii.webp" alt="Cele 3 direcții primite de la Claude" />
+<Atentie>Sunt mai multe extensii cu „Claude” în nume. Cea oficială e publicată de Anthropic; celelalte nu sunt Claude Code.</Atentie>
 </Pas>
 
-<Pas titlu="Animații la scroll, fără să scrii cod">
-Odată aleasă direcția, îi ceri mișcare. Descrie efectul în cuvinte simple, cum l-ai povesti unui prieten.
+<Pas titlu="Deschizi un dosar pentru site">
+Claude scrie toate fișierele site-ului într-un dosar. Fă un dosar gol, de exemplu `site-cafenea`, apoi în VS Code alege **File → Open Folder** și deschide-l.
 
-<Prompt>Adaugă animații la scroll cu GSAP: titlurile apar cuvânt cu cuvânt, imaginile au un parallax ușor. Păstrează-le subtile.</Prompt>
-
-<Atentie>Pe telefon, prea multe animații fac site-ul greu. Două-trei efecte bine alese bat zece.</Atentie>
+Dacă VS Code te întreabă dacă ai încredere în autorii fișierelor, apasă **Yes, I trust the authors**: dosarul e al tău și e gol.
 </Pas>
 
-<Pas titlu="Verifici pe telefon și publici">
-Majoritatea vizitatorilor vin de pe telefon. Deschide site-ul pe al tău și treci prin el ca un client.
+<Pas titlu="Te conectezi la Claude">
+În bara din stânga a VS Code apare iconița Claude Code, o steluță portocalie. Apas-o și deschide o conversație nouă. Prima dată apare butonul **Sign in**: apasă-l și confirmă în browser cu contul tău Claude.
 
-<CeVezi src="telefon.webp" alt="Varianta de telefon, înainte și după" />
+<CeVezi src="pas-5-panou-claude.webp" alt="Panoul Claude Code deschis în VS Code, după conectare" />
 
-<Prompt>Publică site-ul pe Vercel și dă-mi link-ul. Explică-mi pas cu pas ce trebuie să apăs eu.</Prompt>
+<DacaNuMerge>Dacă după conectare scrie că planul tău nu include Claude Code, contul e pe planul gratuit. Claude Code merge doar pe planurile plătite, de la Pro în sus.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Instalezi Motion">
+Prima problemă a site-urilor mele: totul era static. Motion e o bibliotecă de animații pentru site-uri, iar kit-ul lor pentru AI îi dă lui Claude un skill, adică instrucțiuni gata scrise pe care le citește înainte să lucreze. Partea de care ai nevoie e gratuită și nu cere cont.
+
+În terminalul din VS Code rulează:
+
+<Prompt>npx motion-ai</Prompt>
+
+Dacă te întreabă „Ok to proceed?”, scrie `y` și apasă Enter. Apoi instalatorul te întreabă trei lucruri:
+
+1. **Install scope**: alege **Global**, ca să-l ai în toate proiectele.
+2. **Agents**: mergi cu săgețile pe **Claude Code**, apasă **Space** ca să-l bifezi, apoi Enter.
+3. **Install now?**: alege **Yes**.
+
+<CeVezi src="pas-6-motion-instalat.webp" alt="Terminalul arată că Motion s-a instalat pentru Claude Code" />
+</Pas>
+
+<Pas titlu="Verifici că Claude vede Motion">
+Claude vede skill-urile noi doar în conversațiile pornite după instalare. Deschide o conversație nouă în panoul Claude și scrie:
+
+<Prompt>/skills</Prompt>
+
+În listă trebuie să apară **motion**.
+
+<Atentie>Instalatorul îi adaugă lui Claude și două servere MCP (un MCP e un conector prin care Claude folosește alt program): `motion` și `motion-plus`. Al doilea e pentru Motion+, varianta plătită, și cere conectare. Pentru ghidul ăsta nu-ți trebuie: lasă-l neconectat.</Atentie>
+</Pas>
+
+<Pas titlu="Adaugi sursa pentru UI UX Pro Max">
+A doua problemă: culorile și fonturile. Claude alegea mereu aceleași combinații plictisitoare. UI UX Pro Max e un skill de design, gratuit, cu sute de palete de culori, perechi de fonturi și stiluri, din care Claude alege ce se potrivește site-ului tău.
+
+Se instalează ca plugin, adică un pachet cu skill-uri. În panoul Claude scrie `/plugins`: se deschide **Manage plugins**. În tab-ul **Marketplaces**, adaugă sursa:
+
+<Prompt>nextlevelbuilder/ui-ux-pro-max-skill</Prompt>
+
+<CeVezi src="pas-8-sursa-adaugata.webp" alt="Sursa ui-ux-pro-max-skill adăugată în tab-ul Marketplaces" />
+</Pas>
+
+<Pas titlu="Instalezi UI UX Pro Max">
+Treci în tab-ul **Plugins**, caută `ui-ux-pro-max` și apasă **Install**. Când te întreabă unde, alege **Install for you**: așa îl ai în toate proiectele.
+
+<CeVezi src="pas-9-plugin-instalat.webp" alt="UI UX Pro Max apare la pluginurile instalate" />
+
+<DacaNuMerge>Dacă nu apare în listă, întoarce-te în **Marketplaces** și apasă iconița de reîmprospătare de lângă sursă.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Ceri trei direcții vizuale">
+Nu-l lăsa să scrie cod din prima. Cere-i întâi variante, cum i-ai cere unui designer schițe. UI UX Pro Max pornește singur când îi ceri design.
+
+<Prompt>Vreau un site de prezentare pentru o cafenea de specialitate din Cluj. O singură pagină, cu: prima secțiune, meniul, povestea locului, programul și contactul. Propune-mi 3 direcții vizuale diferite, fiecare cu paleta de culori, fonturile și cum arată prima secțiune. Nu scrie cod încă.</Prompt>
+
+<CeVezi src="pas-10-directii.webp" alt="Cele 3 direcții vizuale propuse de Claude" />
+
+<DacaNuMerge>Dacă Claude spune că nu găsește Python, scrie-i „Instalează Python pentru mine” și aprobă comenzile pe care ți le arată. Skill-ul are nevoie de el ca să caute prin palete și fonturi.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Alegi direcția și faci site-ul">
+Alege direcția care îți place și schimbă numărul din prompt. React și Vite sunt uneltele cu care Claude construiește site-ul; nu trebuie să știi să le folosești.
+
+<Prompt>Merg pe direcția 2. Fă site-ul cu React și Vite, apoi pornește-l și dă-mi link-ul ca să-l deschid în browser.</Prompt>
+
+Claude îți cere voie înainte să ruleze comenzi pe calculatorul tău: citește ce vrea să facă și aprobă. La final îți dă un link de forma `http://localhost:5173`. Deschide-l în browser: e site-ul tău, pornit doar pe calculatorul tău, nu-l vede nimeni altcineva.
+
+<CeVezi src="pas-11-site-fara-animatii.webp" alt="Prima variantă a site-ului cafenelei, fără animații" />
+</Pas>
+
+<Pas titlu="Adaugi animațiile cu Motion">
+Acum vine mișcarea. Descrie efectul în cuvinte simple; skill-ul știe cum se face. Parallax înseamnă că imaginea se mișcă puțin mai încet decât pagina, la scroll.
+
+<Prompt>/motion Adaugă animații cu Motion: titlurile apar ușor la scroll, imaginile din meniu au un parallax discret, iar butoanele reacționează când treci cu mouse-ul peste ele. Păstrează-le subtile și oprește-le pentru cine are activată mișcarea redusă în sistem.</Prompt>
+
+<CeVezi src="pas-12-animatii.webp" alt="Site-ul cafenelei cu animațiile la scroll" />
+
+<Atentie>Pe telefon, prea multe animații fac site-ul greu și sacadat. Două-trei efecte bine alese arată mai bine decât zece.</Atentie>
+</Pas>
+
+<Pas titlu="Alegi o componentă de pe 21st.dev">
+Ultimul lucru: când vreau ceva anume, nu-l mai explic în cuvinte. 21st.dev e o bibliotecă de componente, adică bucăți de site gata făcute (o secțiune cu efect la scroll, un meniu, un fundal animat), de la care Claude pornește.
+
+Intră pe [21st.dev](https://21st.dev), fă-ți cont și caută în **Components** ce-ți trebuie. Deschide componenta și apasă **Copy prompt**.
+
+<CeVezi src="pas-13-copy-prompt.webp" alt="Butonul Copy prompt pe pagina unei componente de pe 21st.dev" />
+
+<Atentie>Pe planul gratuit ai 2 copieri pe zi. Alege componenta înainte să apeși **Copy prompt**, ca să nu le consumi pe probe.</Atentie>
+</Pas>
+
+<Pas titlu="I-o dai lui Claude">
+Lipește în panoul Claude promptul copiat, iar sub el scrie unde o vrei:
+
+<Prompt>Pune componenta asta în locul primei secțiuni. Adapteaz-o la culorile și fonturile site-ului și păstrează textele noastre.</Prompt>
+
+Claude pornește de la componentă și o potrivește cu restul site-ului. Reîncarcă pagina din browser ca să vezi rezultatul.
+
+<CeVezi src="pas-14-componenta.webp" alt="Prima secțiune a site-ului, refăcută pornind de la componentă" />
+</Pas>
+
+<Pas titlu="Verifici site-ul pe telefon">
+Majoritatea vizitatorilor vin de pe telefon. În Chrome, pe pagina site-ului, apasă `F12` (pe Mac `Cmd+Option+I`), apoi `Ctrl+Shift+M` (pe Mac `Cmd+Shift+M`): pagina se vede ca pe un telefon. Treci prin tot site-ul, ca un client.
+
+Dacă ceva arată prost, spune-i lui Claude exact ce vezi, de exemplu „pe telefon, meniul acoperă titlul”.
+
+<CeVezi src="pas-15-telefon.webp" alt="Site-ul cafenelei văzut ca pe telefon, în Chrome" />
+</Pas>
+
+<Pas titlu="Îți faci cont pe Vercel">
+Vercel pune site-ul pe internet, la o adresă pe care o poate deschide oricine. Fă-ți cont pe [vercel.com/signup](https://vercel.com/signup), pe planul **Hobby**, cel gratuit.
+
+<Atentie>Hobby e doar pentru proiecte personale, necomerciale. Pentru site-ul unei firme reale, Vercel cere planul Pro: 20 $/lună pentru fiecare membru.</Atentie>
+</Pas>
+
+<Pas titlu="Conectezi terminalul la Vercel">
+În terminalul din VS Code rulează:
+
+<Prompt>npx vercel login</Prompt>
+
+Terminalul îți deschide browserul sau îți dă un link. Confirmă acolo cu contul Vercel, apoi întoarce-te în VS Code.
+</Pas>
+
+<Pas titlu="Pui site-ul online">
+Tot în terminal, în dosarul site-ului, rulează:
+
+<Prompt>npx vercel --yes</Prompt>
+
+`--yes` răspunde singur la întrebările de la primul proiect (numele, dosarul, setările). Prima publicare merge direct pe adresa principală. La final, terminalul îți dă o adresă care se termină în `.vercel.app`: o poți trimite oricui.
+
+<CeVezi src="pas-18-online.webp" alt="Terminalul arată adresa .vercel.app a site-ului publicat" />
+
+<DacaNuMerge>Dacă publicarea pică, copiază eroarea din terminal și dă-i-o lui Claude: „Publicarea pe Vercel a dat eroarea asta: …”. De obicei e o problemă în cod pe care o repară singur.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Publici modificările">
+Când mai schimbi ceva cu Claude, pui varianta nouă online cu:
+
+<Prompt>npx vercel --prod</Prompt>
+
+<Atentie>Fără `--prod`, Vercel face doar o previzualizare, adică o copie de probă la altă adresă, iar site-ul principal rămâne cum era. Previzualizările cer conectare la Vercel, deci un client care le deschide vede o pagină de login.</Atentie>
 </Pas>

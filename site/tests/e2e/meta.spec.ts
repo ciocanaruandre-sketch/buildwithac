@@ -13,8 +13,8 @@ test("în afara producției, robots.txt blochează indexarea", async ({ request 
 });
 
 test("pagina de ghid are titlu și imagine Open Graph", async ({ page }) => {
-  await page.goto("/ghiduri/site-uri-fara-aer-de-ai");
-  await expect(page).toHaveTitle("Site-uri care nu arată „făcute cu AI” · buildwithac");
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/ghiduri\/site-uri-fara-aer-de-ai\/cover\.webp$/);
+  await page.goto("/ghiduri/exemplu-test");
+  await expect(page).toHaveTitle("Ghid de test · buildwithac");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/ghiduri\/exemplu-test\/cover\.webp$/);
   await expect(page.locator('link[rel="icon"]').first()).toHaveAttribute("href", /icon/);
 });

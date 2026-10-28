@@ -16,8 +16,8 @@ test("click pe card deschide panoul cu cuprinsul; Escape îl închide și focusu
   await card.click();
   const panou = page.getByRole("dialog");
   await expect(panou).toBeVisible();
-  await expect(panou.locator("ol li")).toHaveCount(5);
-  await expect(panou.locator("ol li").first()).toHaveText("De ce site-urile făcute cu AI arată la fel");
+  // ghidul cel mai nou e unul adevărat: cuprinsul lui se schimbă, deci verificăm doar că există
+  await expect(panou.locator("ol li").first()).toBeVisible();
   await expect(panou).toContainText("Ce găsești în ghid");
   await page.keyboard.press("Escape");
   await expect(panou).toBeHidden();
