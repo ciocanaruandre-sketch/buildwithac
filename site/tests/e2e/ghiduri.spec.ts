@@ -6,7 +6,7 @@ test("fără căutare, primul card e cel mai nou, cu „ghid nou!”", async ({ 
   const primul = page.locator(".colaj .gc").first();
   await expect(primul).toContainText("Site-uri care nu arată „făcute cu AI”");
   await expect(primul.locator(".sticker")).toHaveText("ghidnou!");
-  await expect(page.locator(".colaj .gc")).toHaveCount(3);
+  await expect(page.locator(".colaj .gc")).toHaveCount(4);
 });
 
 test("?q=site arată ghidul din clip, marcat", async ({ page }) => {

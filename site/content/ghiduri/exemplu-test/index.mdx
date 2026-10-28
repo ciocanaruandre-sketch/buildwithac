@@ -1,0 +1,67 @@
+---
+titlu: "Ghid de test"
+slug: exemplu-test
+cuvant: TEST
+descriere: "Ghidul pe care rulează testele. Nu apare niciodată în producție și nu se schimbă odată cu ghidurile adevărate."
+ceGasesti:
+  - "De ce site-urile făcute cu AI arată toate la fel"
+  - "Cele două skill-uri de design care schimbă tot"
+  - "Prompturile exacte pentru direcții vizuale și animații"
+durata: "30 min"
+nivel: "începător"
+unelte: ["Claude Code"]
+actualizat: 2026-10-21
+publicat: 2026-10-21
+imagine: cover.webp
+exemplu: true
+pdf: true
+---
+
+<DeCeAiNevoie>
+- Cont Claude Pro (20 $/lună)
+- Claude Code instalat
+- 30 de minute
+</DeCeAiNevoie>
+
+<Pas titlu="De ce site-urile făcute cu AI arată la fel">
+Dacă îi ceri lui Claude „fă-mi un site”, primești aproape mereu același lucru: gradient mov, carduri rotunjite, fonturi sigure. Nu e vina lui. **Fără indicații, alege varianta cea mai sigură.**
+
+Vestea bună: îi poți da gust. Nu prin prompturi mai lungi, ci prin skill-uri, adică instrucțiuni gata scrise pe care le citește înainte să lucreze.
+
+<GresealaMea>Primele mele site-uri le-am publicat exact așa. Toată lumea le recunoștea din prima ca „făcute cu AI”.</GresealaMea>
+</Pas>
+
+<Pas titlu="Instalezi skill-urile de design">
+Două skill-uri fac cea mai mare diferență:
+
+- **UI UX Pro Max**: îi dă reguli de design, palete și fonturi care merg împreună.
+- **Motion**: animații la scroll care nu arată ieftin.
+
+<Prompt>Instalează skill-ul UI UX Pro Max și confirmă-mi când e gata. Apoi spune-mi pe scurt ce reguli de design conține.</Prompt>
+
+<DacaNuMerge>Dacă Claude spune că nu găsește skill-ul, închide și redeschide Claude Code, apoi scrie `/skills` ca să vezi lista.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Alegi o direcție vizuală">
+Aici e trucul. **Nu-l lăsa să scrie cod din prima.** Cere-i întâi variante, ca un designer care îți arată schițe.
+
+<Prompt>Vreau un site pentru o cafenea din Cluj. Propune-mi 3 direcții vizuale diferite, fiecare cu paleta de culori, fonturile și cum ar arăta prima secțiune. Nu scrie cod încă.</Prompt>
+
+<CeVezi src="directii.webp" alt="Cele 3 direcții primite de la Claude" />
+</Pas>
+
+<Pas titlu="Animații la scroll, fără să scrii cod">
+Odată aleasă direcția, îi ceri mișcare. Descrie efectul în cuvinte simple, cum l-ai povesti unui prieten.
+
+<Prompt>Adaugă animații la scroll cu GSAP: titlurile apar cuvânt cu cuvânt, imaginile au un parallax ușor. Păstrează-le subtile.</Prompt>
+
+<Atentie>Pe telefon, prea multe animații fac site-ul greu. Două-trei efecte bine alese bat zece.</Atentie>
+</Pas>
+
+<Pas titlu="Verifici pe telefon și publici">
+Majoritatea vizitatorilor vin de pe telefon. Deschide site-ul pe al tău și treci prin el ca un client.
+
+<CeVezi src="telefon.webp" alt="Varianta de telefon, înainte și după" />
+
+<Prompt>Publică site-ul pe Vercel și dă-mi link-ul. Explică-mi pas cu pas ce trebuie să apăs eu.</Prompt>
+</Pas>

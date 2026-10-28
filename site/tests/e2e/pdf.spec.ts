@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { tiparesteGhid } from "../../scripts/pdf/tipar";
 
-const URL = "/ghiduri/site-uri-fara-aer-de-ai";
+const URL = "/ghiduri/exemplu-test";
 
 // page.pdf merge doar în Chromium
 test.beforeEach(({}, info) => test.skip(info.project.name !== "desktop", "doar în Chromium"));

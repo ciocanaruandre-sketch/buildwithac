@@ -63,6 +63,9 @@ Reguli:
 - `<Pas titlu="…">` cu **ghilimele duble**; titlul e acțiunea, la persoana a doua („Instalezi…”, „Alegi…”).
 - Un `<Prompt>` conține doar textul de copiat, fără explicații în el.
 - `<CeVezi src alt />`: fișierul e în `site/public/ghiduri/<slug>/`, cu numele `pas-N-ce-arata.webp`. `alt` spune ce se vede („Claude confirmă că…”). Capturile pe care le face Andrei rămân deocamdată fără fișier și apar pe site ca „captură de pus: {alt}”. Fă-i lista lor: pasul, ce să capteze, numele fișierului.
+- Capturile le face Claude, **doar unde e ușor**: pagini web din Chrome (site-ul unei unelte, un cont deja conectat al lui Andrei). Fără capturi din aplicații de pe calculator (VS Code, terminal) și fără site-uri de probă făcute doar pentru o poză (decizia lui Andrei): acolo scrii în text ce trebuie să apară pe ecran („La final, terminalul scrie **Done**”). Nu se iau poze de pe net.
+- Formatul capturilor: **16:9** (rama le taie la 16:9), apropiate de ce contează, ca să se citească pe telefon, iar lucrul important în primele **două treimi**, pentru că legenda acoperă ultimul sfert. Verifică-le în pagină, la 390px.
+- Fără capturi cu rezultatul unui prompt (site-ul generat, răspunsul lui Claude): diferă la fiecare om, deci nu ajută.
 - `<Pas` scris ca exemplu într-un bloc de cod nu contează ca pas.
 
 ## Tonul
@@ -84,6 +87,7 @@ Reguli:
 - cuvinte umflate: „revoluționar”, „fără efort”, „magic”, „game-changer”, „esențial”, „puternic”, „robust”;
 - încheieri: „Sper că…”, „Mult succes!”, „În concluzie…”, rezumatul a ce tocmai s-a spus;
 - emoji la fiecare rând; **bold** pe jumătate de frază;
+- cacofonii: „că Claude”, „că când”, „ca care”, „la la” (Andrei le prinde din prima; „Verifici dacă Claude…”, nu „Verifici că Claude…”);
 - englezisme când există cuvântul românesc obișnuit („folosește”, nu „utilizează”/„leverage”).
 
 ## Verificarea (ghiduri gratuite)
