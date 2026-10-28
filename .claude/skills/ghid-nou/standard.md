@@ -2,6 +2,8 @@
 
 Ținta (Andrei): omul îl pune în practică **fără nelămuriri**, chiar dacă e gratuit. Ghidul de pe site e complet și liber: nimic nu se ascunde în spatele PDF-ului sau al e-mailului.
 
+Ghidul e mai lung decât postarea (Andrei: „vor fi mai lungi, mai mari un pic”). Pune tot ce clipul sau caruselul sare: conturile, instalările, setările, pașii de mijloc. Ghidul de exemplu („site-uri”) e doar o probă, nu ținta de lungime.
+
 ## Structura
 1. **Antetul** (din frontmatter): titlu, descriere scurtă, durată, nivel, „actualizat la”. Cuprinsul se face singur din pași.
 2. **`<DeCeAiNevoie>`**: conturile, abonamentele (cu preț), programele, timpul.
