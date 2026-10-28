@@ -116,8 +116,6 @@ Nu-l lăsa să scrie cod din prima. Cere-i întâi variante, cum i-ai cere unui 
 
 <Prompt>Vreau un site de prezentare pentru o cafenea de specialitate din Cluj. O singură pagină, cu: prima secțiune, meniul, povestea locului, programul și contactul. Propune-mi 3 direcții vizuale diferite, fiecare cu paleta de culori, fonturile și cum arată prima secțiune. Nu scrie cod încă.</Prompt>
 
-<CeVezi src="pas-10-directii.webp" alt="Cele 3 direcții vizuale propuse de Claude" />
-
 <DacaNuMerge>Dacă Claude spune că nu găsește Python, scrie-i „Instalează Python pentru mine” și aprobă comenzile pe care ți le arată. Skill-ul are nevoie de el ca să caute prin palete și fonturi.</DacaNuMerge>
 </Pas>
 
@@ -127,16 +125,12 @@ Alege direcția care îți place și schimbă numărul din prompt. React și Vit
 <Prompt>Merg pe direcția 2. Fă site-ul cu React și Vite, apoi pornește-l și dă-mi link-ul ca să-l deschid în browser.</Prompt>
 
 Claude îți cere voie înainte să ruleze comenzi pe calculatorul tău: citește ce vrea să facă și aprobă. La final îți dă un link de forma `http://localhost:5173`. Deschide-l în browser: e site-ul tău, pornit doar pe calculatorul tău, nu-l vede nimeni altcineva.
-
-<CeVezi src="pas-11-site-fara-animatii.webp" alt="Prima variantă a site-ului cafenelei, fără animații" />
 </Pas>
 
 <Pas titlu="Adaugi animațiile cu Motion">
 Acum vine mișcarea. Descrie efectul în cuvinte simple; skill-ul știe cum se face. Parallax înseamnă că imaginea se mișcă puțin mai încet decât pagina, la scroll.
 
 <Prompt>/motion Adaugă animații cu Motion: titlurile apar ușor la scroll, imaginile din meniu au un parallax discret, iar butoanele reacționează când treci cu mouse-ul peste ele. Păstrează-le subtile și oprește-le pentru cine are activată mișcarea redusă în sistem.</Prompt>
-
-<CeVezi src="pas-12-animatii.webp" alt="Site-ul cafenelei cu animațiile la scroll" />
 
 <Atentie>Pe telefon, prea multe animații fac site-ul greu și sacadat. Două-trei efecte bine alese arată mai bine decât zece.</Atentie>
 </Pas>
@@ -157,16 +151,12 @@ Lipește în panoul Claude promptul copiat, iar sub el scrie unde o vrei:
 <Prompt>Pune componenta asta în locul primei secțiuni. Adapteaz-o la culorile și fonturile site-ului și păstrează textele noastre.</Prompt>
 
 Claude pornește de la componentă și o potrivește cu restul site-ului. Reîncarcă pagina din browser ca să vezi rezultatul.
-
-<CeVezi src="pas-14-componenta.webp" alt="Prima secțiune a site-ului, refăcută pornind de la componentă" />
 </Pas>
 
 <Pas titlu="Verifici site-ul pe telefon">
 Majoritatea vizitatorilor vin de pe telefon. În Chrome, pe pagina site-ului, apasă `F12` (pe Mac `Cmd+Option+I`), apoi `Ctrl+Shift+M` (pe Mac `Cmd+Shift+M`): pagina se vede ca pe un telefon. Treci prin tot site-ul, ca un client.
 
 Dacă ceva arată prost, spune-i lui Claude exact ce vezi, de exemplu „pe telefon, meniul acoperă titlul”.
-
-<CeVezi src="pas-15-telefon.webp" alt="Site-ul cafenelei văzut ca pe telefon, în Chrome" />
 </Pas>
 
 <Pas titlu="Îți faci cont pe Vercel">
@@ -190,7 +180,9 @@ Tot în terminal, în dosarul site-ului, rulează:
 
 `--yes` răspunde singur la întrebările de la primul proiect (numele, dosarul, setările). Prima publicare merge direct pe adresa principală. La final, terminalul îți dă o adresă care se termină în `.vercel.app`: o poți trimite oricui.
 
-<CeVezi src="pas-18-online.webp" alt="Terminalul arată adresa .vercel.app a site-ului publicat" />
+Proiectul apare și în contul tău de pe [vercel.com](https://vercel.com), cu adresa lui și starea **Ready**.
+
+<CeVezi src="pas-18-online.webp" alt="Proiectul publicat, în contul Vercel, cu starea Ready și adresa lui" />
 
 <DacaNuMerge>Dacă publicarea pică, copiază eroarea din terminal și dă-i-o lui Claude: „Publicarea pe Vercel a dat eroarea asta: …”. De obicei e o problemă în cod pe care o repară singur.</DacaNuMerge>
 </Pas>

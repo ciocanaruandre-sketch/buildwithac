@@ -22,5 +22,8 @@ Andrei (2026-10-28): fără „greșeala mea” (n-are una anume); ghidul merge 
 - Ce afișează `npx vercel login` acum (browser deschis singur sau cod de dispozitiv): ghidul le acoperă pe amândouă.
 - Dacă alegerea „Claude Code” din meniul „Optimized for” de pe 21st.dev schimbă promptul copiat: n-am apăsat, ca să nu consum copierile lui Andrei. Ghidul spune doar **Copy prompt**.
 
+## Capturile
+Andrei (2026-10-28): fără site de probă doar pentru capturi; le face Claude, nu din poze de pe net. Scoase: pașii 10, 11, 12, 14, 15 (rezultatul diferă la fiecare om). Făcută: pasul 13 (21st.dev, componenta „Living gradients in motion”). De făcut mai târziu, cu VS Code-ul lui Andrei (Claude controlează ecranul): pașii 3, 5, 6, 8, 9; pasul 18 = proiectul buildwithac din contul Vercel (Andrei se conectează întâi).
+
 ## Copertă
-Varianta B (aleasă provizoriu): partea de jos a slide-ului 1, fără text (1080×760). Varianta A, slide-ul întreg: `cover-A-slide.webp` (pe carduri textul se taie și eticheta cade peste el).
+Varianta B (aleasă de Andrei, 2026-10-28): partea de jos a slide-ului 1, fără text (1080×760). Varianta A, slide-ul întreg: `cover-A-slide.webp` (pe carduri textul se taie și eticheta cade peste el).
