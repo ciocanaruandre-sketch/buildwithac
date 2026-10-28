@@ -19,6 +19,8 @@ pdf: false
 
 Ghidul are cinci părți: pregătești calculatorul, pui cele 3 lucruri din carusel (Motion, UI UX Pro Max, 21st.dev), faci un site de probă pentru o cafenea și îl pui online. Dacă ai deja Claude Code în VS Code, sari direct la pasul 6.
 
+Eu folosesc Claude Code în VS Code, așa că ghidul merge pe el. Dacă îl folosești direct în terminal (comanda `claude`), pașii sunt aceiași; unde diferă, îți scriu la pas.
+
 <DeCeAiNevoie>
 - Cont Claude Pro: 20 $/lună (17 $/lună cu plata pe un an). Claude Code nu e inclus în planul gratuit.
 - VS Code: gratuit.
@@ -48,7 +50,7 @@ Trebuie să apară un număr care începe cu `v24`.
 <Pas titlu="Instalezi extensia Claude Code">
 Apasă `Ctrl+Shift+X` (pe Mac `Cmd+Shift+X`) ca să deschizi **Extensions**. Caută „Claude Code” și apasă **Install** la extensia publicată de **Anthropic**.
 
-<CeVezi src="pas-3-extensia.webp" alt="Extensia Claude Code de la Anthropic, în lista Extensions" />
+După instalare, în bara din stânga a VS Code apare iconița Claude Code, o steluță portocalie.
 
 <Atentie>Sunt mai multe extensii cu „Claude” în nume. Cea oficială e publicată de Anthropic; celelalte nu sunt Claude Code.</Atentie>
 </Pas>
@@ -62,7 +64,7 @@ Dacă VS Code te întreabă dacă ai încredere în autorii fișierelor, apasă 
 <Pas titlu="Te conectezi la Claude">
 În bara din stânga a VS Code apare iconița Claude Code, o steluță portocalie. Apas-o și deschide o conversație nouă. Prima dată apare butonul **Sign in**: apasă-l și confirmă în browser cu contul tău Claude.
 
-<CeVezi src="pas-5-panou-claude.webp" alt="Panoul Claude Code deschis în VS Code, după conectare" />
+După conectare apare lista **Learn Claude Code**, cu primii pași. O poți închide din X: panoul e gata să-i scrii.
 
 <DacaNuMerge>Dacă după conectare scrie că planul tău nu include Claude Code, contul e pe planul gratuit. Claude Code merge doar pe planurile plătite, de la Pro în sus.</DacaNuMerge>
 </Pas>
@@ -80,7 +82,7 @@ Dacă te întreabă „Ok to proceed?”, scrie `y` și apasă Enter. Apoi insta
 2. **Agents**: mergi cu săgețile pe **Claude Code**, apasă **Space** ca să-l bifezi, apoi Enter.
 3. **Install now?**: alege **Yes**.
 
-<CeVezi src="pas-6-motion-instalat.webp" alt="Terminalul arată că Motion s-a instalat pentru Claude Code" />
+La final, terminalul scrie **Done. Run /motion in your agent**. Atât: Motion e instalat.
 </Pas>
 
 <Pas titlu="Verifici că Claude vede Motion">
@@ -100,15 +102,23 @@ Se instalează ca plugin, adică un pachet cu skill-uri. În panoul Claude scrie
 
 <Prompt>nextlevelbuilder/ui-ux-pro-max-skill</Prompt>
 
-<CeVezi src="pas-8-sursa-adaugata.webp" alt="Sursa ui-ux-pro-max-skill adăugată în tab-ul Marketplaces" />
+Sursa apare în listă, sub **Marketplaces**.
+
+În terminal, în loc de `/plugins`, scrii în Claude:
+
+<Prompt>/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill</Prompt>
 </Pas>
 
 <Pas titlu="Instalezi UI UX Pro Max">
 Treci în tab-ul **Plugins**, caută `ui-ux-pro-max` și apasă **Install**. Când te întreabă unde, alege **Install for you**: așa îl ai în toate proiectele.
 
-<CeVezi src="pas-9-plugin-instalat.webp" alt="UI UX Pro Max apare la pluginurile instalate" />
+Pluginul apare sus, la cele instalate, cu comutatorul pornit.
 
 <DacaNuMerge>Dacă nu apare în listă, întoarce-te în **Marketplaces** și apasă iconița de reîmprospătare de lângă sursă.</DacaNuMerge>
+
+În terminal, în loc de butonul **Install**, scrii în Claude:
+
+<Prompt>/plugin install ui-ux-pro-max@ui-ux-pro-max-skill</Prompt>
 </Pas>
 
 <Pas titlu="Ceri trei direcții vizuale">
@@ -182,9 +192,9 @@ Tot în terminal, în dosarul site-ului, rulează:
 
 Proiectul apare și în contul tău de pe [vercel.com](https://vercel.com), cu adresa lui și starea **Ready**.
 
-<CeVezi src="pas-18-online.webp" alt="Proiectul publicat, în contul Vercel, cu starea Ready și adresa lui" />
+<CeVezi src="pas-18-online.webp" alt="Un proiect publicat în Vercel (aici, site-ul meu), cu adresa și starea Ready" />
 
-<DacaNuMerge>Dacă publicarea pică, copiază eroarea din terminal și dă-i-o lui Claude: „Publicarea pe Vercel a dat eroarea asta: …”. De obicei e o problemă în cod pe care o repară singur.</DacaNuMerge>
+<DacaNuMerge>Dacă publicarea pică, copiază eroarea din terminal și dă-i-o lui Claude: „Publicarea pe Vercel a dat eroarea asta: …”. Claude citește eroarea și repară codul.</DacaNuMerge>
 </Pas>
 
 <Pas titlu="Publici modificările">
