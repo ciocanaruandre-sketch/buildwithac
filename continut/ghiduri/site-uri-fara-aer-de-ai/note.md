@@ -27,3 +27,6 @@ Andrei (2026-10-28): fără site de probă doar pentru capturi; le face Claude, 
 
 ## Copertă
 Varianta B (aleasă de Andrei, 2026-10-28): partea de jos a slide-ului 1, fără text (1080×760). Varianta A, slide-ul întreg: `cover-A-slide.webp` (pe carduri textul se taie și eticheta cade peste el).
+
+## PDF
+Link-ul pentru Instagram (Andrei îl trimite manual celor care scriu SITE): https://buildwithac.ro/pdf/site-uri-fara-aer-de-ai-1be406f2a743.pdf (12 pagini, 766 KB, 2026-10-28).
