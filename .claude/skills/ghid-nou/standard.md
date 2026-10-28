@@ -87,6 +87,7 @@ Reguli:
 - cuvinte umflate: „revoluționar”, „fără efort”, „magic”, „game-changer”, „esențial”, „puternic”, „robust”;
 - încheieri: „Sper că…”, „Mult succes!”, „În concluzie…”, rezumatul a ce tocmai s-a spus;
 - emoji la fiecare rând; **bold** pe jumătate de frază;
+- cacofonii: „că Claude”, „că când”, „ca care”, „la la” (Andrei le prinde din prima; „Verifici dacă Claude…”, nu „Verifici că Claude…”);
 - englezisme când există cuvântul românesc obișnuit („folosește”, nu „utilizează”/„leverage”).
 
 ## Verificarea (ghiduri gratuite)
