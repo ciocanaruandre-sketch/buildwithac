@@ -15,7 +15,9 @@ Citește înainte: `CLAUDE.md` (regulile) și **`standard.md`** din dosarul ăst
 ## Pașii
 1. **Află ce e.** Subiectul, formatul (clip sau carusel), sursa (clipul, descrierea lui Andrei, o idee din `continut/idei.md`). Alege slug-ul (litere mici, cifre, cratime, fără diacritice) și creează `continut/ghiduri/<slug>/`.
    - **Clip:** clipul e în `continut/clipuri/`. Transcrie-l:
-     `hyperframes transcribe continut/clipuri/<fișier> -m large-v3 -l ro --to srt -o continut/ghiduri/<slug>/transcriere.srt`
+     `hyperframes transcribe continut/clipuri/<fișier> -l ro -d <dosar-temporar>` (scrie `transcript.json`; folosește Parakeet dacă e instalat, ~30 s pentru un clip de 30 s), apoi
+     `hyperframes transcribe <dosar-temporar>/transcript.json --to srt -o continut/ghiduri/<slug>/transcriere.srt`.
+     Cele două nu merg într-o singură comandă: `--to` exportă doar dintr-o transcriere existentă.
      Ghidul urmează ce spune Andrei în clip (pașii, ordinea, uneltele). Dacă transcrierea iese prost, spune-i și cere-i descrierea.
    - **Carusel:** urmează `carusel.md`.
 2. **Caută ce trebuie verificat**, înainte de scris: prețurile actuale, versiunile, numele exacte ale butoanelor și meniurilor, link-urile oficiale. Notează sursele în `continut/ghiduri/<slug>/note.md`.

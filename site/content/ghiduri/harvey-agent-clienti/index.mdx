@@ -1,0 +1,215 @@
+---
+titlu: "Harvey: agentul AI care îți caută clienți"
+slug: harvey-agent-clienti
+cuvant: HARVEY
+descriere: "Instalezi Harvey, îl înveți ce vinzi și îl lași să-ți găsească firme din orașul tău, cu ce le lipsește și cu telefonul lor."
+ceGasesti:
+  - "Harvey instalat de Claude, pe abonamentul tău"
+  - "Firme găsite în Google Maps, gratuit"
+  - "Lista cu telefoane și ce să le spui"
+  - "Ce spune legea despre e-mailurile reci"
+durata: "45 min"
+nivel: "începător"
+unelte: ["Harvey", "Claude Code", "Scavio"]
+actualizat: 2026-10-29
+publicat: 2026-10-29
+imagine: cover.webp
+clip: https://www.tiktok.com/@buildwithac.ai/video/7702113310866476310
+pdf: true
+---
+
+Harvey e un agent gratuit și open source (codul e public, îl poate folosi oricine). Îi dai site-ul tău, învață ce vinzi, apoi caută firme potrivite, le citește site-urile și află ce le lipsește. Merge pe abonamentul tău Claude, fără cont separat de API.
+
+În ghidul ăsta îl folosești ca să-ți faci lista de clienți: firme din orașul tău, cu ce le lipsește și cu numărul de telefon. Contactul îl faci tu, la telefon. De ce nu-l lași să trimită și e-mailurile, afli imediat mai jos.
+
+<Atentie>Harvey poate trimite singur e-mailuri reci, adică e-mailuri către oameni care nu ți-au cerut nimic. În România, e-mailurile comerciale trimise fără acordul dat dinainte sunt interzise și când le trimiți către firme (Legea 506/2004, art. 12). Amenda e de la 5.000 la 100.000 de lei și o dă ANSPDCP. Folosește Harvey ca să-ți faci lista și să afli ce are fiecare firmă, apoi sună tu: apelurile făcute de un om nu intră sub interdicție. Trimiterea automată e legală în SUA, nu și la noi.</Atentie>
+
+<DeCeAiNevoie>
+- Cont Claude Pro: 20 $/lună (17 $/lună cu plata pe un an). Planul gratuit nu include Claude Code.
+- Claude Code în terminal: gratuit, inclus în abonament.
+- Python: gratuit. Ți-l instalează Claude, dacă nu-l ai.
+- Cont pe Scavio: gratuit, cu 50 de credite la înscriere, fără card. Un credit aduce 20 de firme, deci ajunge pentru vreo 1.000.
+- Site-ul tău, ca Harvey să învețe ce vinzi.
+- 45 de minute.
+</DeCeAiNevoie>
+
+<Pas titlu="Instalezi Claude Code în terminal">
+Harvey vorbește cu Claude prin comanda `claude` din terminal. Extensia din VS Code nu ajunge: îți trebuie programul din terminal.
+
+Pe Windows, deschide **PowerShell** din meniul Start și rulează:
+
+<Prompt>irm https://claude.ai/install.ps1 | iex</Prompt>
+
+Pe Mac, deschide **Terminal** și rulează:
+
+<Prompt>curl -fsSL https://claude.ai/install.sh | bash</Prompt>
+
+Instalarea nu arată progresul cât descarcă. Când se termină, închide terminalul, deschide altul și scrie:
+
+<Prompt>claude --version</Prompt>
+
+Trebuie să apară un număr, de exemplu `2.1.211 (Claude Code)`.
+
+<DacaNuMerge>Dacă scrie că `claude` nu e recunoscut, terminalul încă nu vede programul nou. Repornește calculatorul și încearcă din nou `claude --version`.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Te conectezi la Claude">
+În același terminal scrie:
+
+<Prompt>claude</Prompt>
+
+Prima dată se deschide browserul: confirmă cu contul tău Claude. Înapoi în terminal, Claude așteaptă să-i scrii. Ieși cu `/exit`: îl pornești din nou în dosarul lui Harvey.
+
+<DacaNuMerge>Dacă după conectare scrie că planul tău nu include Claude Code, contul e pe planul gratuit. Harvey merge doar cu Pro sau Max.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Descarci Harvey">
+Deschide [github.com/ethanplusai/harvey](https://github.com/ethanplusai/harvey). Apasă butonul verde **Code**, apoi **Download ZIP**.
+
+<CeVezi src="pas-3-download-zip.webp" alt="Pagina lui Harvey pe GitHub, cu meniul Code deschis și Download ZIP" />
+</Pas>
+
+<Pas titlu="Dezarhivezi dosarul">
+Mută fișierul `harvey-main.zip` în **Documente** și dezarhivează-l. Pe Windows: clic dreapta pe el, **Extract All**, apoi **Extract**. Pe Mac: dublu clic.
+
+Ai acum dosarul `harvey-main`. Toate fișierele lui Harvey stau acolo, inclusiv lista de firme pe care o găsește.
+</Pas>
+
+<Pas titlu="Pornești Claude în dosarul Harvey">
+Deschide un terminal direct în dosar. Pe Windows: intră în dosarul `harvey-main`, clic dreapta pe un loc gol, **Open in Terminal**. Pe Mac: clic dreapta pe dosar, **Services → New Terminal at Folder**.
+
+Apoi scrie:
+
+<Prompt>claude</Prompt>
+
+Claude te întreabă dacă ai încredere în fișierele din dosar. Confirmă: sunt ale lui Harvey, descărcate chiar acum de pe GitHub.
+
+Dosarul are un fișier cu instrucțiuni pentru Claude, scris de autorii lui Harvey. Din cauza lui, Claude știe deja ce e Harvey și cum se instalează.
+</Pas>
+
+<Pas titlu="Îi ceri lui Claude să instaleze Harvey">
+Scrie-i lui Claude:
+
+<Prompt>Instalează Harvey pentru mine. Dacă nu am Python 3.12 sau 3.13, instalează-l întâi. Fă mediul .venv, instalează dependențele și creează fișierul .env din .env.example. Nu configura e-mailul și nu trimite nimic: folosesc Harvey doar ca să găsesc firme. La final rulează harvey status din .venv și spune-mi dacă merge.</Prompt>
+
+Claude îți cere voie înainte de fiecare comandă. Citește ce vrea să ruleze și aprobă. Durează câteva minute.
+
+La final, `harvey status` afișează **Harvey Pipeline Status**, cu toate numerele pe zero.
+
+<DacaNuMerge>Dacă Claude se oprește la Python, închide terminalul, deschide-l din nou în dosar (pasul 5) și scrie-i „continuă instalarea lui Harvey”. Windows vede programele noi abia într-un terminal nou.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Îl antrenezi pe site-ul tău">
+Harvey citește site-ul tău și scrie ce vinzi, cui și cu ce argumente. Scrie-i lui Claude, cu adresa ta în loc de exemplu:
+
+<Prompt>Rulează harvey train https://site-ul-tau.ro și arată-mi ce scrie la final.</Prompt>
+
+Harvey trece prin șase etape, de la `[1/6]` la `[6/6]`, și termină cu **Training complete!**. Durează câteva minute și consumă din limitele abonamentului tău Claude.
+
+Rezultatul e în fișierul `harvey.local.yaml`, din dosarul lui Harvey.
+
+<DacaNuMerge>Dacă scrie **Could not scrape any pages**, site-ul nu se încarcă fără JavaScript sau blochează roboții. Încearcă adresa paginii principale, cu `https://` în față, de exemplu `https://www.site-ul-tau.ro`.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Verifici ce a înțeles despre tine">
+Harvey scrie în engleză și uneori ghicește. Cere-i lui Claude un rezumat:
+
+<Prompt>Citește harvey.local.yaml și spune-mi în română, pe scurt, ce crede Harvey că vând, la ce preț și cui. Dacă ceva e greșit, întreabă-mă și corectează.</Prompt>
+
+Corectează acum ce e greșit. Din fișierul ăsta Harvey judecă ce firme ți se potrivesc.
+</Pas>
+
+<Pas titlu="Îi spui pe cine cauți">
+Harvey caută firmele după două liste: ce fel de firme și în ce oraș. După antrenare, ambele sunt de obicei în engleză și pentru SUA. Pune-le pe ale tale, de exemplu:
+
+<Prompt>În harvey.local.yaml, la icp, pune industries: ["cafenea"] și geography: ["Cluj-Napoca, Romania"]. Nu schimba nimic altceva.</Prompt>
+
+Scrie tipul de firmă cum l-ai căuta tu în Google Maps: „cafenea”, „salon de înfrumusețare”, „clinică stomatologică”. Fiecare tip, înmulțit cu fiecare oraș, e o căutare separată, deci începe cu un tip și un oraș.
+</Pas>
+
+<Pas titlu="Îți faci cont pe Scavio">
+Scavio caută firmele în Google Maps pentru Harvey. Intră pe [scavio.dev](https://scavio.dev), apasă **Get Started** și fă-ți cont. Primești 50 de credite gratuite, fără card.
+
+După conectare, în **Dashboard**, deschide **API Keys** și copiază cheia.
+
+<Atentie>Cheia e ca o parolă: cine o are îți consumă creditele. Nu o lipi în conversația cu Claude și nu o pune în poze. O pui direct în fișier, la pasul următor.</Atentie>
+</Pas>
+
+<Pas titlu="Pui cheia în fișierul .env">
+Fișierul `.env` din dosarul lui Harvey ține cheile. Deschide-l cu Notepad: clic dreapta pe el, **Open with → Notepad**. Pe Mac, cu TextEdit.
+
+Caută rândul `SCAVIO_API_KEY=` și lipește cheia imediat după egal, fără spații:
+
+<Prompt>SCAVIO_API_KEY=cheia-ta-de-pe-scavio</Prompt>
+
+Salvează cu `Ctrl+S` (pe Mac `Cmd+S`) și închide fișierul.
+
+<DacaNuMerge>Dacă nu vezi fișierul `.env`, Windows ascunde fișierele care încep cu punct. În dosar, apasă **View → Show → Hidden items**. Pe Mac, apasă `Cmd+Shift+.` în Finder.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Confirmi ce caută pe site-uri">
+Harvey poate afla 29 de lucruri despre o firmă: dacă are programare online, dacă face reclame pe Google, dacă blogul e abandonat. Le numește semnale. Nu caută niciunul până nu-l confirmi tu. Pornește cu cele gratuite:
+
+<Prompt>Rulează harvey signals --confirm free.</Prompt>
+
+Harvey răspunde cu numărul semnalelor confirmate, de exemplu **26 signal(s) confirmed**.
+</Pas>
+
+<Pas titlu="Afli cât costă căutarea">
+Înainte să caute, îi ceri o estimare. Nu consumă nimic:
+
+<Prompt>Rulează harvey discover --provider scavio_maps --limit 40 --estimate.</Prompt>
+
+`--limit 40` înseamnă cel mult 40 de firme pe căutare, adică două credite Scavio. Harvey îți arată căutările pe care le-ar face (de exemplu **cafenea Cluj-Napoca, Romania**) și costul estimat în dolari. Cu creditele gratuite nu plătești nimic.
+
+<Atentie>Fără `--provider scavio_maps`, Harvey caută în OpenStreetMap, sursa lui gratuită implicită. Ea găsește doar câteva meserii, scrise în engleză: dentiști (`dentist`), avocați (`lawyer`), electricieni, instalatori, constructori. Cafenelele, saloanele și agențiile imobiliare nu apar deloc acolo.</Atentie>
+</Pas>
+
+<Pas titlu="Cauți firmele">
+Acum aceeași comandă, fără estimare:
+
+<Prompt>Rulează harvey discover --provider scavio_maps --limit 40.</Prompt>
+
+Harvey face două lucruri. Întâi aduce firmele din Google Maps (**DISCOVER**), apoi le citește site-urile, gratuit (**PROFILE**). La final vezi câte firme noi a găsit și câte site-uri a citit.
+
+<DacaNuMerge>Dacă scrie **Scavio 401: invalid API key**, cheia din `.env` e greșită sau are un spațiu în plus: verific-o (pasul 11). Dacă scrie **Scavio 402: insufficient credits**, ai consumat creditele gratuite.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Deschizi panoul lui Harvey">
+Panoul e o pagină care merge doar pe calculatorul tău. Deschide un al doilea terminal în dosarul lui Harvey (ca la pasul 5) și scrie, pe Windows:
+
+<Prompt>.venv\Scripts\harvey dashboard</Prompt>
+
+Pe Mac:
+
+<Prompt>.venv/bin/harvey dashboard</Prompt>
+
+Terminalul afișează un link care începe cu `http://127.0.0.1:5555/#token=`. Deschide-l în browser. Lasă terminalul deschis cât folosești panoul.
+
+<DacaNuMerge>Dacă panoul scrie că e blocat, ai deschis adresa fără partea de după `#`. Deschide exact link-ul din terminal.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Alegi firmele potrivite">
+În meniul din stânga, deschide **Signals**. Jos e constructorul de liste:
+
+- la **Must have** bifezi ce trebuie să aibă firma, de exemplu **No online booking/scheduling** (n-are programare online);
+- la **Must not have** bifezi ce o scoate din listă.
+
+Numărul firmelor potrivite se schimbă pe loc. Alege ce se leagă de ce vinzi: dacă faci site-uri, **No website at all**; dacă faci programări online, **No online booking/scheduling**.
+</Pas>
+
+<Pas titlu="Scoți lista cu telefoane">
+Butonul **Export CSV** din panou dă numele și site-ul, dar nu și telefonul. Harvey îl are salvat, așa că îl ceri lui Claude, în primul terminal:
+
+<Prompt>Fă-mi un fișier lista-firme.csv din data/harvey.db, cu firmele găsite: nume, telefon, site, oraș și semnalele confirmate pentru fiecare, pe scurt și în română. Pune întâi firmele fără programare online. Nu modifica baza de date.</Prompt>
+
+Fișierul apare în dosarul lui Harvey. Se deschide în Excel sau Google Sheets.
+</Pas>
+
+<Pas titlu="Suni firmele">
+Pentru fiecare firmă ai acum un motiv concret de discuție. Pornește de la el, nu de la oferta ta: „Am văzut că la voi programările se fac doar la telefon. Câte apeluri pierdeți seara?”
+
+Notează în fișier cine a zis „da”, cine „nu” și cine „mai târziu”. Dacă cineva îți cere oferta pe e-mail, trimite-i-o liniștit: acum ți-a cerut-o el.
+
+<Atentie>Pe site-uri, Harvey caută și numele proprietarilor și adresele lor de e-mail. Astea sunt date personale, deci intră sub GDPR. Păstrează-le doar cât îți trebuie, nu le vinde și nu le da altora.</Atentie>
+</Pas>
