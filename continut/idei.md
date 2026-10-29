@@ -6,3 +6,4 @@ Lista o ține skill-ul `idei`. Andrei alege ce intră în „De făcut”. Când
 
 ## Postate
 - Site-uri care nu arată „făcute cu AI” (carusel TikTok): ghid publicat 2026-10-28 → ghid `site-uri-fara-aer-de-ai`
+- Harvey, agentul AI care îți caută clienți (clip TikTok): ghid publicat 2026-10-29 → ghid `harvey-agent-clienti` (doar cercetarea; trimiterea e ilegală în RO fără acord)

@@ -10,7 +10,7 @@ Comenzile `npm` rulează din `site/`, iar `git` din rădăcina repo-ului. Pe `ma
 6. **Corecturi** cu Andrei. Fiecare rundă: commit, push, aceeași previzualizare se actualizează. Capturile pe care le trimite Andrei se salvează ca `.webp` în `site/public/ghiduri/<slug>/`, cu numele din `<CeVezi>`.
 7. **La „Publică”** (doar la cuvântul lui Andrei):
    1. dacă ghidul are PDF: `npm run pdf -- <slug>` → `pdf: true` în frontmatter → commit (cu tot cu `site/public/pdf/<slug>-<cheie>.pdf`);
-   2. verificarea completă: `npm run verifica -- <slug>` (fără `--ciorna`, zero erori), `npx vitest run`, `npm run lint`. Dacă lipsesc capturi, ghidul nu se publică: le cere lui Andrei sau scoate `<CeVezi>`-urile acelea, cu acordul lui;
+   2. verificarea completă: `npm run verifica -- <slug>` (fără `--ciorna`, zero erori), `npx vitest run`, `npm run lint`. `tests/unit/continut.test.ts` are lista cuvintelor scrisă de mână (cel mai nou primul): adaugă cuvântul ghidului nou în ambele liste. Dacă lipsesc capturi, ghidul nu se publică: le cere lui Andrei sau scoate `<CeVezi>`-urile acelea, cu acordul lui;
    3. `git switch main && git pull && git merge --no-ff ghid/<slug> && git push`, apoi `git push origin --delete ghid/<slug>`;
    4. după ~1–2 minute, deschide `https://buildwithac.ro/ghiduri/<slug>` și `https://buildwithac.ro/ghiduri?q=<CUVÂNT>`: ghidul apare, căutarea îl marchează „ăsta e ghidul din clip ✓”.
 8. **Link-ul PDF-ului** (îl afișează `npm run pdf`) se scrie în `continut/ghiduri/<slug>/note.md`. Andrei îl trimite manual, în privat pe Instagram, celor care scriu cuvântul.
