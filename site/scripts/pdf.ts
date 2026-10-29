@@ -55,6 +55,11 @@ async function main() {
       const nume = numePdf(slug, fs.readdirSync(dosar));
       fs.writeFileSync(path.join(dosar, nume), pdf);
       console.log(`\n✓ public/pdf/${nume} (${Math.round(pdf.length / 1024)} KB)`);
+      // Copia lui Andrei, cu nume ușor de citit, de pus în Drive dacă e nevoie (ignorată în git).
+      const dosarAndrei = path.join(process.cwd(), "..", "PDF ghiduri");
+      fs.mkdirSync(dosarAndrei, { recursive: true });
+      fs.writeFileSync(path.join(dosarAndrei, `${slug}.pdf`), pdf);
+      console.log(`✓ copie în PDF ghiduri/${slug}.pdf`);
       console.log(`Link-ul pentru Instagram: ${SITE.url}/pdf/${nume}`);
       if (!g.pdf) console.log(`! În content/ghiduri/${slug}/index.mdx schimbă pdf: false în pdf: true.`);
     } finally {

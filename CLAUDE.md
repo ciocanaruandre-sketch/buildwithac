@@ -95,6 +95,7 @@ Doar munca lui Andrei. Site-urile-concept sunt marcate clar „Concept”.
 | Materialul de lucru (carusele, transcrieri, note) | `continut/ghiduri/<slug>/` |
 | Clipurile lui Andrei / de inspirație (ignorate în git) | `continut/clipuri/`, `continut/inspiratie/` |
 | Lista de idei | `continut/idei.md` |
+| PDF-urile ghidurilor, pentru Andrei (`<slug>.pdf`, ignorate în git) | `PDF ghiduri/` (le pune `npm run pdf`) |
 | Skill-urile | `.claude/skills/ghid-nou/`, `.claude/skills/idei/` |
 | Prototipurile | `prototip/` |
 | Montajul imaginii hero | `prototip/montaj/` (`compose.py`; pașii în `docs/progres-brainstorming.md`) |
