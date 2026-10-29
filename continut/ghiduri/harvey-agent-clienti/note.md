@@ -33,3 +33,7 @@ Ghidul acoperă **doar cercetarea** (instalare, antrenare pe site, găsirea firm
 - Amendă reală: https://financialintelligence.ro/operatorul-elefant-online-a-fost-amendat-cu-10-000-lei-pentru-ca-a-transmis-mesaje-comerciale-nesolicitate/
 - Apelurile făcute de un om nu intră sub art. 12 (doar sistemele automate de apelare).
 - Nu e consultanță juridică; e informare.
+
+## Publicare
+- Clipul pe TikTok: https://www.tiktok.com/@buildwithac.ai/video/7702113310866476310 (postat 2026-10-29).
+- PDF (12 pagini): https://buildwithac.ro/pdf/harvey-agent-clienti-ef000b11d20a.pdf (merge după unirea în `main`).
