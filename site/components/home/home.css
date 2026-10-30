@@ -133,6 +133,8 @@
 .paper .tape { position: absolute; top: -14px; left: 44%; width: 110px; height: 30px; background: rgba(255,226,170,.85); transform: rotate(3deg); }
 .paper h2 { font-family: var(--nf-anton); font-size: clamp(40px, 6vw, 74px); line-height: 1.04; margin-top: 8px; text-transform: uppercase; }
 .paper h2 span { background: #f2591c; color: var(--color-cream); padding: 0 8px; }
+/* pe un rând al lui: blocul nu mai acoperă rândul de deasupra (felicitarea de după confirmare) */
+.paper h2 span.bloc { display: inline-block; margin-top: 6px; }
 .paper > p { margin: 16px 0 26px; color: #4a3a30; font-size: 16px; line-height: 1.5; }
 .paper .hand { position: absolute; right: -20px; bottom: -40px; font-size: 30px; color: #1b0f0a; transform: rotate(-7deg); }
 .sticker { position: absolute; right: max(20px, calc(50% - 470px)); top: 100px; width: 140px; height: 140px; border-radius: 50%; background: #0b0908; color: var(--color-gold); display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--nf-anton); font-size: 22px; line-height: 1; transform: rotate(12deg); z-index: 2; }

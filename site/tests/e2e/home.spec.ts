@@ -117,6 +117,21 @@ test.describe("abonare", () => {
     await expect(formular.getByRole("button", { name: "Mă abonez" })).toBeEnabled();
   });
 
+  test("după confirmarea din e-mail (?abonat=1), secțiunea arată felicitarea în loc de formular", async ({ page }) => {
+    await page.goto("/?abonat=1#email");
+    const mail = page.locator(".mail");
+    await expect(mail.getByRole("heading", { name: /Felicitări/ })).toBeVisible();
+    await expect(mail).toContainText("De acum îți vin pe e-mail noutățile din AI și ghidurile noi.");
+    await expect(mail.locator("form")).toHaveCount(0);
+    await expect(mail.getByRole("heading", { name: /Felicitări/ })).toBeInViewport();
+  });
+
+  test("fără ?abonat, secțiunea are formularul", async ({ page }) => {
+    await page.goto("/#email");
+    await expect(page.locator(".mail form")).toHaveCount(1);
+    await expect(page.locator(".mail")).not.toContainText("Felicitări");
+  });
+
   test("lângă formular e acordul cu link spre confidențialitate", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator(".mail").getByRole("link", { name: "Confidențialitate" })).toHaveAttribute("href", "/confidentialitate");
