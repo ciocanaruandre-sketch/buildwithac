@@ -14,6 +14,9 @@ import { Atentie, CeVezi, DacaNuMerge, DeCeAiNevoie, GresealaMea } from "@/compo
 import { CasetaPdf } from "@/components/ghid/CasetaPdf";
 import { FinalGhid } from "@/components/ghid/FinalGhid";
 
+// un slug nelistat așteaptă pagina completă: altfel pleacă învelișul cu 200, înainte ca notFound() să dea 404
+export const ensureStatic = "navigation";
+
 export function generateStaticParams() {
   return parametriGhiduri(toateGhidurile());
 }

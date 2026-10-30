@@ -19,8 +19,8 @@ describe("PDF-urile nu se indexează", () => {
     const h = await nextConfig.headers!();
     expect(h).toContainEqual({ source: "/pdf/:fisier*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] });
   });
-  it("robots exclude /pdf/ în producție", () => {
+  it("robots lasă /pdf/ deschis în producție, ca crawlerul să vadă noindex", () => {
     vi.stubEnv("VERCEL_ENV", "production");
-    expect(robots().rules).toMatchObject({ allow: "/", disallow: "/pdf/" });
+    expect(robots().rules).toEqual({ userAgent: "*", allow: "/" });
   });
 });

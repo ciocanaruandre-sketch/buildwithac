@@ -1,10 +1,15 @@
 // npm run verifica -- <slug> [--ciorna]   (fără slug: toate ghidurile care nu sunt de exemplu)
 // --ciorna: înainte de previzualizare, capturile și coperta care lipsesc sunt doar avertismente
+// --productie: pentru `prebuild`; verifică doar în build-ul de producție de pe Vercel, ca ciornele de pe previzualizări să treacă
 import path from "node:path";
 import { incarcaGhiduri } from "@/lib/ghiduri";
 import { verificaGhid } from "@/lib/verificare";
 
 const argumente = process.argv.slice(2);
+if (argumente.includes("--productie") && process.env.VERCEL_ENV !== "production") {
+  console.log("verifica: sar, nu e producție");
+  process.exit(0);
+}
 const ciorna = argumente.includes("--ciorna");
 const slug = argumente.find((a) => !a.startsWith("--"));
 let toate;

@@ -27,8 +27,19 @@ test.describe("producție", () => {
   });
 
   test("un ghid inexistent duce la 404-ul nostru", async ({ page }) => {
-    await page.goto("/ghiduri/ceva-gresit");
+    // slug nou la fiecare rulare: prima cerere, nu una din cache, trebuie să dea 404
+    const r = await page.goto(`/ghiduri/nu-exista-${Date.now()}`);
+    expect(r!.status()).toBe(404);
     await expect(page.getByRole("link", { name: /ghiduri/i }).first()).toBeVisible();
     await expect(page.locator('meta[name="robots"][content*="noindex"]').first()).toBeAttached();
+  });
+});
+
+test.describe("PDF-urile", () => {
+  test("robots.txt nu le ascunde, iar PDF-ul răspunde cu noindex", async ({ request }) => {
+    expect(await (await request.get("/robots.txt")).text()).not.toContain("/pdf/");
+    const r = await request.get("/pdf/harvey-agent-clienti-ef000b11d20a.pdf");
+    expect(r.status()).toBe(200);
+    expect(r.headers()["x-robots-tag"]).toBe("noindex, nofollow");
   });
 });

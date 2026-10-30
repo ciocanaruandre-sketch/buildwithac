@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/pdf/:fisier*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
   },
+  // PDF-urile sunt fișiere statice: nu au ce căuta în funcțiile paginilor (cheia e un glob, deci nu „[slug]”)
+  outputFileTracingExcludes: { "/*": ["./public/pdf/**"] },
   partialPrefetching: true,
   turbopack: {
     rules: {
