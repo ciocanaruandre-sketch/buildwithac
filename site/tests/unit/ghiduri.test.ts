@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import path from "node:path";
-import { extragePasi, incarcaGhiduri, numeroteazaPasii, parametriGhiduri } from "@/lib/ghiduri";
+import { ascundeCodul, extragePasi, incarcaGhiduri, numeroteazaPasii, parametriGhiduri } from "@/lib/ghiduri";
 
 const fx = (n: string) => path.join(__dirname, "fixtures", n);
 const dev = { productie: false };
@@ -94,4 +94,14 @@ describe("pașii cu ` în titlu", () => {
       .toEqual(["Apasă tasta `", "Doi"]));
   it("codul inline din text tot se ignoră", () =>
     expect(extragePasi('Scrie `<Pas titlu="nu">` aici.\n\n<Pas titlu="Da">x</Pas>').map((p) => p.titlu)).toEqual(["Da"]));
+});
+
+describe("ascundeCodul", () => {
+  it("ascunde și blocurile cu ~~~, păstrând pozițiile", () => {
+    const corp = "a\n~~~\nș ţ\n~~~\nb";
+    const ascuns = ascundeCodul(corp);
+    expect(ascuns).toHaveLength(corp.length);
+    expect(ascuns).not.toContain("ţ");
+    expect(ascuns.startsWith("a\n") && ascuns.endsWith("\nb")).toBe(true);
+  });
 });

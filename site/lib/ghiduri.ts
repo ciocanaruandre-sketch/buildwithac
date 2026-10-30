@@ -45,7 +45,7 @@ function mediuCurent(): MediuGhiduri {
 /** Înlocuiește blocurile de cod și codul inline cu spații, ca pozițiile din text să rămână aceleași. */
 export function ascundeCodul(corp: string): string {
   const spatii = (m: string) => m.replace(/[^\n]/g, " ");
-  const text = corp.replace(/```[\s\S]*?```/g, spatii);
+  const text = corp.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, spatii);
   // codul inline se ascunde doar în text: un ` din atributele unei etichete (titlu="…") rămâne
   const eticheta = /<[A-Za-z](?:"[^"]*"|'[^']*'|[^>"'])*>?/y;
   const cod = /`[^`\n]*`/y;

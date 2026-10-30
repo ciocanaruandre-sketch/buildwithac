@@ -29,3 +29,9 @@ test("PDF-ul iese, are mai multe pagini și imaginile încărcate", async ({ pag
     imgs.every((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0));
   expect(incarcate).toBe(true);
 });
+
+test("o imagine care a eșuat deja oprește PDF-ul cu numele ei, nu așteaptă la nesfârșit", async ({ page }) => {
+  const inceput = Date.now();
+  await expect(tiparesteGhid(page, "data:text/html,<img src='http://127.0.0.1:9/lipsa.png'>")).rejects.toThrow(/lipsa\.png/);
+  expect(Date.now() - inceput).toBeLessThan(5000);
+});

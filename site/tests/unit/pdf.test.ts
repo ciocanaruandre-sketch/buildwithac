@@ -8,6 +8,8 @@ describe("numePdf", () => {
     expect(numePdf("site", ["site-0123456789ab.pdf", "alt-ffffffffffff.pdf"])).toBe("site-0123456789ab.pdf"));
   it("nu confundă slug-urile care încep la fel", () =>
     expect(numePdf("site", ["site-uri-0123456789ab.pdf"], () => "aaaaaaaaaaaa")).toBe("site-aaaaaaaaaaaa.pdf"));
+  it("punctul din .pdf e literal", () =>
+    expect(numePdf("ghid", ["ghid-0123456789abXpdf"], () => "aaaaaaaaaaaa")).toBe("ghid-aaaaaaaaaaaa.pdf"));
   it("cheia nouă are 12 caractere hex", () => expect(numePdf("x", [])).toMatch(/^x-[0-9a-f]{12}\.pdf$/));
 });
 

@@ -4,7 +4,7 @@ import { SITE } from "../../lib/config";
 
 /** Numele PDF-ului: păstrează cheia unui PDF existent, ca link-ul trimis deja pe Instagram să meargă și după actualizare. */
 export function numePdf(slug: string, existente: string[], cheieNoua = () => randomBytes(6).toString("hex")): string {
-  const tipar = new RegExp(`^${slug}-[0-9a-f]{12}\.pdf$`);
+  const tipar = new RegExp(`^${slug}-[0-9a-f]{12}\\.pdf$`);
   return existente.find((f) => tipar.test(f)) ?? `${slug}-${cheieNoua()}.pdf`;
 }
 
@@ -13,15 +13,20 @@ export async function tiparesteGhid(page: Page, url: string): Promise<Buffer> {
   await page.emulateMedia({ media: "print", reducedMotion: "reduce" });
   await page.goto(url, { waitUntil: "networkidle" });
   // next/image încarcă leneș: fără asta, capturile de mai jos ar ieși cadre goale
-  await page.evaluate(async () => {
+  const lipsa = await page.evaluate(async () => {
     const imagini = [...document.images];
     imagini.forEach((i) => (i.loading = "eager"));
-    await Promise.all(imagini.map((i) => (i.complete && i.naturalWidth ? null : new Promise((gata) => {
+    // o imagine eșuată e deja „complete”, cu lățimea 0: nu mai trimite niciun eveniment, deci nu o așteptăm
+    await Promise.all(imagini.map((i) => (i.complete ? null : new Promise((gata) => {
       i.addEventListener("load", gata, { once: true });
       i.addEventListener("error", gata, { once: true });
     }))));
     await document.fonts.ready;
+    return imagini.filter((i) => !i.naturalWidth).map((i) => i.currentSrc || i.src);
   });
+  if (lipsa.length) throw new Error(`Imagini care nu s-au încărcat: ${lipsa.join(", ")}`);
+  // indicatorul Next de pe serverul de dev (npm run pdf --url) nu intră în PDF
+  await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
   const adresa = `${SITE.domeniu}${new URL(url).pathname}`;
   return page.pdf({
     format: "A4",
