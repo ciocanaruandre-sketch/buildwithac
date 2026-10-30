@@ -1,4 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { ghidulNou } from "../../lib/ghiduri";
+
+// cel mai nou ghid se schimbă la fiecare publicare: îl luăm din conținut, nu-l scriem de mână
+const NOU = ghidulNou()!;
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -8,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 test("primul card e ghidul cel mai nou, marcat Nou", async ({ page }) => {
   const primul = page.locator("#ghiduri .gcard").first();
   await expect(primul).toContainText("Nou");
-  await expect(primul).toContainText("Site-uri care nu arată „făcute cu AI”");
+  await expect(primul).toContainText(NOU.titlu);
 });
 
 test("click pe card deschide panoul cu cuprinsul; Escape îl închide și focusul revine", async ({ page }) => {

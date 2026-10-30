@@ -1,12 +1,16 @@
 import { test, expect } from "@playwright/test";
 import { SITE } from "../../lib/config";
+import { ghidulNou, toateGhidurile } from "../../lib/ghiduri";
+
+// cel mai nou ghid se schimbă la fiecare publicare: îl luăm din conținut, nu-l scriem de mână
+const NOU = ghidulNou()!;
 
 test("fără căutare, primul card e cel mai nou, cu „ghid nou!”", async ({ page }) => {
   await page.goto("/ghiduri");
   const primul = page.locator(".colaj .gc").first();
-  await expect(primul).toContainText("Site-uri care nu arată „făcute cu AI”");
+  await expect(primul).toContainText(NOU.titlu);
   await expect(primul.locator(".sticker")).toHaveText("ghidnou!");
-  await expect(page.locator(".colaj .gc")).toHaveCount(4);
+  await expect(page.locator(".colaj .gc")).toHaveCount(toateGhidurile().length);
 });
 
 test("?q=site arată ghidul din clip, marcat", async ({ page }) => {
@@ -41,5 +45,5 @@ test("fără rezultat: mesaj și link spre Instagram", async ({ page }) => {
 
 test("un card duce la pagina ghidului", async ({ page }) => {
   await page.goto("/ghiduri");
-  await expect(page.locator(".colaj .gc").first()).toHaveAttribute("href", "/ghiduri/site-uri-fara-aer-de-ai");
+  await expect(page.locator(".colaj .gc").first()).toHaveAttribute("href", `/ghiduri/${NOU.slug}`);
 });
