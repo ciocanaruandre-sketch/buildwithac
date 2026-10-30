@@ -11,6 +11,11 @@ test("confidențialitate: operatorul, e-mailul de contact și ANSPDCP", async ({
   await expect(main).toContainText("Kit");
 });
 
+test("confidențialitate: spune cât rămân abonările neconfirmate", async ({ page }) => {
+  await page.goto("/confidentialitate");
+  await expect(page.locator("main")).toContainText("Dacă nu confirmi abonarea în 30 de zile, îți șterg adresa");
+});
+
 test("un ghid inexistent dă 404 cu link spre toate ghidurile", async ({ page }) => {
   const r = await page.goto("/ghiduri/ceva-gresit");
   expect(r?.status()).toBe(404);

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 // textul se actualizează când operatorul devine PFA (datele stau în lib/config.ts)
-const ACTUALIZAT = "23 octombrie 2026";
+const ACTUALIZAT = "30 octombrie 2026";
 
 export default function Confidentialitate() {
   const op = SITE.operatorDate;
@@ -44,7 +44,7 @@ export default function Confidentialitate() {
         <p>Ambele firme prelucrează datele doar la instrucțiunile mele. Pentru că sunt în SUA, transferul se face pe baza mecanismelor permise de GDPR: cadrul UE-SUA privind protecția datelor sau clauze contractuale standard.</p>
 
         <h2>Cât timp le păstrez</h2>
-        <p>Adresa de e-mail rămâne în lista de abonați până te dezabonezi sau îmi ceri să o șterg. Dacă nu confirmi abonarea, adresa nu primește e-mailuri.</p>
+        <p>Adresa de e-mail rămâne în lista de abonați până te dezabonezi sau îmi ceri să o șterg. Dacă nu confirmi abonarea, adresa nu primește e-mailuri. Dacă nu confirmi abonarea în 30 de zile, îți șterg adresa: o dată pe lună scot din listă adresele neconfirmate mai vechi de 30 de zile.</p>
 
         <h2>Ce se salvează în browserul tău</h2>
         <p>Când bifezi pașii unui ghid, bifele se salvează doar în browserul tău (localStorage), ca să le găsești data viitoare. Nu ajung la mine și nu sunt folosite pentru altceva. Le ștergi din setările browserului. Site-ul nu folosește cookie-uri de reclamă sau de urmărire.</p>
