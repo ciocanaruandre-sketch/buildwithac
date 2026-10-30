@@ -8,7 +8,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * Abonează o adresă la newsletter: creează abonatul ca „inactive” (devine activ când confirmă),
  * apoi îl adaugă la formular. Dubla confirmare se pornește din setările formularului în Kit.
  */
-export async function aboneaza(email: string, mediu: MediuKit, f: typeof fetch = fetch): Promise<StareAbonare> {
+export async function aboneaza(email: string, mediu: MediuKit, f: typeof fetch = fetch, ms = 8000): Promise<StareAbonare> {
   const adresa = email.trim().toLowerCase();
   if (!EMAIL.test(adresa)) return "invalid";
   if (!mediu.cheie || !mediu.formular) return "indisponibil";
@@ -18,6 +18,8 @@ export async function aboneaza(email: string, mediu: MediuKit, f: typeof fetch =
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Kit-Api-Key": mediu.cheie! },
       body: JSON.stringify(corp),
+      // dacă Kit nu răspunde, omul primește „indisponibil” în câteva secunde, nu un buton care se învârte
+      signal: AbortSignal.timeout(ms),
     });
 
   try {

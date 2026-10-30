@@ -97,6 +97,26 @@ test.describe("abonare", () => {
     await expect(page.locator(".mail")).toContainText("Adresa nu pare corectă.");
   });
 
+  test("cât așteaptă, butonul scrie „Se trimite…” și nu se poate apăsa", async ({ page }) => {
+    await page.route("**/api/abonare", async (r) => { await new Promise((g) => setTimeout(g, 2000)); await r.fulfill({ status: 200, json: { stare: "ok" } }); });
+    await page.goto("/");
+    const formular = page.locator(".mail form");
+    await formular.getByPlaceholder("adresa ta de e-mail").fill("ana@exemplu.ro");
+    await formular.getByRole("button", { name: "Mă abonez" }).click();
+    await expect(formular.getByRole("button", { name: "Se trimite…" })).toBeDisabled();
+    await expect(formular.getByRole("button", { name: "Mă abonez" })).toBeEnabled({ timeout: 5000 });
+  });
+
+  test("limita de cereri (429, pagină HTML) → mesajul „indisponibil”, butonul revine", async ({ page }) => {
+    await page.route("**/api/abonare", (r) => r.fulfill({ status: 429, contentType: "text/html", body: "<html>Too Many Requests</html>" }));
+    await page.goto("/");
+    const formular = page.locator(".mail form");
+    await formular.getByPlaceholder("adresa ta de e-mail").fill("ana@exemplu.ro");
+    await formular.getByRole("button", { name: "Mă abonez" }).click();
+    await expect(page.locator(".mail")).toContainText("Acum nu merge abonarea.");
+    await expect(formular.getByRole("button", { name: "Mă abonez" })).toBeEnabled();
+  });
+
   test("lângă formular e acordul cu link spre confidențialitate", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator(".mail").getByRole("link", { name: "Confidențialitate" })).toHaveAttribute("href", "/confidentialitate");

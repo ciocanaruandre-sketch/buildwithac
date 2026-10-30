@@ -49,4 +49,12 @@ describe("aboneaza", () => {
     const f = vi.fn().mockRejectedValue(new Error("rețea"));
     expect(await aboneaza("ana@exemplu.ro", ENV, f)).toBe("indisponibil");
   });
+
+  it("Kit nu răspunde → indisponibil, după limita de timp", async () => {
+    // fetch-ul nu se termină niciodată singur; se oprește doar când expiră semnalul
+    const f = vi.fn((_url: string, init: RequestInit) => new Promise<Response>((_, respinge) => {
+      init.signal?.addEventListener("abort", () => respinge(init.signal!.reason));
+    }));
+    expect(await aboneaza("ana@exemplu.ro", ENV, f as unknown as typeof fetch, 20)).toBe("indisponibil");
+  }, 2000);
 });

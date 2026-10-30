@@ -25,7 +25,7 @@ export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
     const website = String(date.get("website") ?? "");
     setStare("trimite");
     try {
-      const r = await fetch("/api/abonare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, website }) });
+      const r = await fetch("/api/abonare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, website }), signal: AbortSignal.timeout(20000) });
       const { stare } = (await r.json()) as { stare: StareAbonare };
       setStare(MESAJE[stare] ? stare : "indisponibil");
     } catch {
@@ -46,7 +46,7 @@ export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
         />
         {/* câmp-capcană pentru roboți: ascuns pentru oameni și pentru cititoarele de ecran */}
         <input className="capcana" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-        <button type="submit" disabled={!hidratat || stare === "trimite"}>Mă abonez</button>
+        <button type="submit" disabled={!hidratat || stare === "trimite"}>{stare === "trimite" ? "Se trimite…" : "Mă abonez"}</button>
       </form>
       <p className={`mesaj${stare === "ok" ? " ok" : ""}`} role="status" aria-live="polite">
         {stare && stare !== "trimite" ? MESAJE[stare] : ""}
