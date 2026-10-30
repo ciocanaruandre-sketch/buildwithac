@@ -53,3 +53,11 @@ test("cu Tab prin pista fixată, fiecare card ajunge în ecran", async ({ page, 
     }, { timeout: 4000 }).toBe(true);
   }
 });
+
+test("un click pe un card nu mută pagina, doar deschide panoul", async ({ page }) => {
+  await page.locator("#ghiduri .gcard").nth(1).hover();
+  const inainte = await page.evaluate(() => scrollY);
+  await page.locator("#ghiduri .gcard").nth(1).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  expect(await page.evaluate(() => scrollY)).toBe(inainte);
+});

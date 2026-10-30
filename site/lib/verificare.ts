@@ -11,9 +11,10 @@ const UMPLUTURA = [/\b(TODO|TBD)\b/, /lorem ipsum/i, /\[(CAPTUR[AĂ]|LINK|PRE[T�
 const PRET = /\d[\d.,]*\s*(\$|€|lei\b|ron\b|usd\b|eur\b)|[$€]\s*\d|gratuit/i;
 const ZI = 86_400_000;
 
-// data din frontmatter e la miezul nopții UTC; „azi” se ia după calendarul local (ora României)
+// data din frontmatter e la miezul nopții UTC; „azi” se ia după calendarul de la București, chiar și pe serverele Vercel (UTC)
+const ziBucuresti = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Bucharest", year: "numeric", month: "2-digit", day: "2-digit" });
 const ziCalendar = (d: Date, utc: boolean) =>
-  utc ? Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) : Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  utc ? Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) : Date.parse(ziBucuresti.format(d));
 
 /**
  * Tot ce se poate verifica automat dintr-un ghid (§12). Erorile blochează publicarea.

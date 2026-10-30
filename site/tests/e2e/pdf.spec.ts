@@ -35,3 +35,8 @@ test("o imagine care a eșuat deja oprește PDF-ul cu numele ei, nu așteaptă l
   await expect(tiparesteGhid(page, "data:text/html,<img src='http://127.0.0.1:9/lipsa.png'>")).rejects.toThrow(/lipsa\.png/);
   expect(Date.now() - inceput).toBeLessThan(5000);
 });
+
+test("o captură care lipsește din dosar oprește PDF-ul, nu lasă o gaură", async ({ page }) => {
+  const html = "<figure class='shot lipsa'><figcaption>captură de pus: Pagina de start</figcaption></figure>";
+  await expect(tiparesteGhid(page, `data:text/html;charset=utf-8,${encodeURIComponent(html)}`)).rejects.toThrow(/Capturi lipsă: Pagina de start/);
+});

@@ -25,6 +25,9 @@ export async function tiparesteGhid(page: Page, url: string): Promise<Buffer> {
     return imagini.filter((i) => !i.naturalWidth).map((i) => i.currentSrc || i.src);
   });
   if (lipsa.length) throw new Error(`Imagini care nu s-au încărcat: ${lipsa.join(", ")}`);
+  // o captură care lipsește din dosar nu e <img>, ci locul marcat de <CeVezi> („captură de pus: …”)
+  const capturi = await page.locator(".shot.lipsa figcaption").allTextContents();
+  if (capturi.length) throw new Error(`Capturi lipsă: ${capturi.map((t) => t.replace(/^captură de pus:\s*/, "")).join(", ")}`);
   // indicatorul Next de pe serverul de dev (npm run pdf --url) nu intră în PDF
   await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
   const adresa = `${SITE.domeniu}${new URL(url).pathname}`;

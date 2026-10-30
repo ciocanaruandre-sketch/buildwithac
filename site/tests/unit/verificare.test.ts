@@ -82,6 +82,17 @@ describe("verificaGhid — ciornă (înainte de previzualizare)", () => {
 describe("data de azi, noaptea", () => {
   it("un ghid actualizat azi nu e „în viitor” la 01:00, ora locală", () =>
     expect(E(BAZA, { actualizat: new Date("2026-10-25"), publicat: new Date("2026-10-25") }, new Date(2026, 9, 25, 1, 0))).toBe(""));
+
+  it("pe un server în UTC (Vercel), la 01:30 ora României, ghidul de azi nu e „în viitor”", () => {
+    const tz = process.env.TZ;
+    process.env.TZ = "UTC";
+    try {
+      // 2026-11-01T23:30Z = 2 noiembrie, 01:30 la București
+      expect(E(BAZA, { actualizat: new Date("2026-11-02"), publicat: new Date("2026-11-02") }, new Date("2026-11-01T23:30:00Z"))).toBe("");
+    } finally {
+      if (tz === undefined) delete process.env.TZ; else process.env.TZ = tz;
+    }
+  });
 });
 
 describe("verificaGhid — avertismente", () => {

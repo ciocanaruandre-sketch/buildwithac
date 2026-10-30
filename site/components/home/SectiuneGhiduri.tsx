@@ -33,7 +33,8 @@ export function SectiuneGhiduri({ ghiduri }: { ghiduri: GhidCard[] }) {
       // cu Tab, pista nu se mișcă singură: derulăm pagina până unde animația aduce cardul în mijlocul ecranului
       const laFocus = (e: FocusEvent) => {
         const card = (e.target as HTMLElement).closest<HTMLElement>(".gcard");
-        if (!card) return;
+        // doar pentru tastatură: un click sau o atingere pe Android dau și ele focus, iar pagina n-are voie să sară
+        if (!card || !card.matches(":focus-visible")) return;
         radacina.current!.scrollLeft = 0; // browserul poate împinge secțiunea ca să arate cardul
         const pozitie = card.getBoundingClientRect().left - tr.getBoundingClientRect().left;
         const parte = gsap.utils.clamp(0, 1, (pozitie + card.offsetWidth / 2 - innerWidth / 2) / (tr.scrollWidth - innerWidth));
