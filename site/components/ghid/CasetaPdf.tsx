@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SITE } from "@/lib/config";
 import { lenis } from "@/components/layout/LenisProvider";
+import { useCapcanaFocus } from "@/lib/capcana-focus";
 
 /** PDF-ul se ia doar prin Instagram: urmărești, scrii cuvântul în privat, primești link-ul. */
 export function CasetaPdf({ titlu, cuvant }: { titlu: string; cuvant: string }) {
@@ -11,6 +12,7 @@ export function CasetaPdf({ titlu, cuvant }: { titlu: string; cuvant: string }) 
   const [copiat, setCopiat] = useState(false);
   const buton = useRef<HTMLButtonElement>(null);
   const fereastra = useRef<HTMLDivElement>(null);
+  useCapcanaFocus(fereastra, deschis);
 
   useEffect(() => {
     if (!deschis) return;

@@ -9,6 +9,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { GhidCard } from "@/lib/ghiduri";
 import { imagineGhid } from "@/lib/imagine";
 import { Aurora } from "@/components/layout/Aurora";
+import { lenis } from "@/components/layout/LenisProvider";
 import { PanouGhid } from "./PanouGhid";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -24,11 +25,23 @@ export function SectiuneGhiduri({ ghiduri }: { ghiduri: GhidCard[] }) {
   useGSAP(() => {
     gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
       const tr = pista.current!;
-      gsap.to(tr, {
+      const st = gsap.to(tr, {
         x: () => -(tr.scrollWidth - innerWidth),
         ease: "none",
         scrollTrigger: { trigger: radacina.current, start: "top top", end: () => "+=" + (tr.scrollWidth - innerWidth), pin: true, scrub: 1, invalidateOnRefresh: true },
-      });
+      }).scrollTrigger!;
+      // cu Tab, pista nu se mișcă singură: derulăm pagina până unde animația aduce cardul în mijlocul ecranului
+      const laFocus = (e: FocusEvent) => {
+        const card = (e.target as HTMLElement).closest<HTMLElement>(".gcard");
+        if (!card) return;
+        radacina.current!.scrollLeft = 0; // browserul poate împinge secțiunea ca să arate cardul
+        const pozitie = card.getBoundingClientRect().left - tr.getBoundingClientRect().left;
+        const parte = gsap.utils.clamp(0, 1, (pozitie + card.offsetWidth / 2 - innerWidth / 2) / (tr.scrollWidth - innerWidth));
+        const y = st.start + parte * (st.end - st.start);
+        if (lenis.curent) lenis.curent.scrollTo(y, { immediate: true }); else scrollTo(0, y);
+      };
+      tr.addEventListener("focusin", laFocus);
+      return () => tr.removeEventListener("focusin", laFocus);
     });
   }, { scope: radacina });
 

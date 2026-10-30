@@ -30,9 +30,26 @@ test("click pe card deschide panoul cu cuprinsul; Escape îl închide și focusu
 
 test("Citește ghidul duce la pagina ghidului", async ({ page }) => {
   await page.locator("#ghiduri .gcard").first().click();
-  await expect(page.getByRole("dialog").getByRole("link", { name: /Citește ghidul/ })).toHaveAttribute("href", "/ghiduri/site-uri-fara-aer-de-ai");
+  await expect(page.getByRole("dialog").getByRole("link", { name: /Citește ghidul/ })).toHaveAttribute("href", `/ghiduri/${NOU.slug}`);
 });
 
 test("ultimul card duce la toate ghidurile", async ({ page }) => {
   await expect(page.locator("#ghiduri a.gcard.more")).toHaveAttribute("href", "/ghiduri");
+});
+
+test("cu Tab prin pista fixată, fiecare card ajunge în ecran", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Tab-ul de la tastatură e pe desktop");
+  const carduri = page.locator("#ghiduri .gcard");
+  const n = await carduri.count();
+  await carduri.first().focus();
+  for (let i = 1; i < n; i++) {
+    await page.keyboard.press("Tab");
+    await expect(carduri.nth(i)).toBeFocused();
+    // pista se mișcă cu scrub, deci cu o mică întârziere
+    await expect.poll(async () => {
+      const c = (await carduri.nth(i).boundingBox())!;
+      const v = page.viewportSize()!;
+      return c.x >= 0 && c.x + c.width <= v.width && c.y >= 0 && c.y + c.height <= v.height;
+    }, { timeout: 4000 }).toBe(true);
+  }
 });

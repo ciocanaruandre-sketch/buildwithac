@@ -37,6 +37,24 @@ test.describe("mobil", () => {
     await page.keyboard.press("Escape");
     await expect(meniu).toBeHidden();
   });
+
+  test("în meniul ☰, Tab rămâne în meniu, iar la închidere focusul revine pe ☰", async ({ page }) => {
+    await page.goto("/");
+    const burger = page.getByRole("button", { name: "Meniu" });
+    await burger.click();
+    const meniu = page.getByRole("dialog", { name: "Meniu" });
+    await expect(meniu.getByRole("button", { name: "Închide meniul" })).toBeFocused();
+    // ✕ + 5 link-uri + 2 rețele = 8; a noua apăsare trece de capăt
+    for (let i = 0; i < 9; i++) {
+      await page.keyboard.press("Tab");
+      expect(await meniu.evaluate((m) => m.contains(document.activeElement))).toBe(true);
+    }
+    await meniu.getByRole("button", { name: "Închide meniul" }).focus();
+    await page.keyboard.press("Shift+Tab");
+    await expect(meniu.getByRole("link", { name: "TikTok" })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(burger).toBeFocused();
+  });
 });
 
 test("footer-ul are link spre confidențialitate", async ({ page }) => {

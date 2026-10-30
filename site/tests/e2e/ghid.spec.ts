@@ -63,6 +63,21 @@ test("caseta PDF are cuvântul ghidului și duce pe Instagram", async ({ page })
   await expect(fereastra).toBeHidden();
 });
 
+test("în fereastra PDF, Tab rămâne în fereastră", async ({ page }) => {
+  await page.goto(URL);
+  await page.locator("#pdf").getByRole("button", { name: /Primește-l pe Instagram/ }).click();
+  const fereastra = page.getByRole("dialog");
+  await expect(fereastra.getByRole("button", { name: "Închide" })).toBeFocused();
+  // ✕, Copiază, Deschide Instagram: de două ori în jurul ferestrei
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press("Tab");
+    expect(await fereastra.evaluate((f) => f.contains(document.activeElement))).toBe(true);
+  }
+  await fereastra.getByRole("button", { name: "Închide" }).focus();
+  await page.keyboard.press("Shift+Tab");
+  await expect(fereastra.getByRole("link", { name: /Deschide Instagram/ })).toBeFocused();
+});
+
 test("finalul are ghidul următor și link spre toate ghidurile", async ({ page }) => {
   await page.goto(URL);
   const final = page.locator(".end");

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SITE } from "@/lib/config";
 import { lenis } from "@/components/layout/LenisProvider";
+import { useCapcanaFocus } from "@/lib/capcana-focus";
 
 const LINKURI = [
   { href: "/ghiduri", text: "Ghiduri" },
@@ -21,6 +22,9 @@ export function Nav() {
   const [socialDeschis, setSocialDeschis] = useState(false);
   const [meniuDeschis, setMeniuDeschis] = useState(false);
   const dd = useRef<HTMLDivElement>(null);
+  const meniu = useRef<HTMLDivElement>(null);
+  const burger = useRef<HTMLButtonElement>(null);
+  useCapcanaFocus(meniu, meniuDeschis);
 
   // pe telefon nu există hover: meniul Social media se închide la click în afara lui
   useEffect(() => {
@@ -34,7 +38,8 @@ export function Nav() {
     const tasta = (e: KeyboardEvent) => e.key === "Escape" && setMeniuDeschis(false);
     document.addEventListener("keydown", tasta);
     lenis.curent?.stop();
-    return () => { document.removeEventListener("keydown", tasta); lenis.curent?.start(); };
+    const declansator = burger.current;
+    return () => { document.removeEventListener("keydown", tasta); lenis.curent?.start(); declansator?.focus(); };
   }, [meniuDeschis]);
 
   const [ghiduri, cine, ...restul] = LINKURI;
@@ -59,9 +64,9 @@ export function Nav() {
         </div>
         {restul.map((l) => <Link key={l.href} href={l.href}>{l.text}</Link>)}
       </div>
-      <button type="button" className="burger" aria-label="Meniu" aria-expanded={meniuDeschis} onClick={() => setMeniuDeschis(true)}>☰</button>
+      <button type="button" className="burger" ref={burger} aria-label="Meniu" aria-expanded={meniuDeschis} onClick={() => setMeniuDeschis(true)}>☰</button>
       {meniuDeschis && (
-        <div className="mmenu" role="dialog" aria-modal="true" aria-label="Meniu" data-lenis-prevent>
+        <div className="mmenu" ref={meniu} role="dialog" aria-modal="true" aria-label="Meniu" data-lenis-prevent>
           <button type="button" className="x" aria-label="Închide meniul" onClick={() => setMeniuDeschis(false)} autoFocus>✕</button>
           {LINKURI.map((l) => <Link key={l.href} href={l.href} onClick={() => setMeniuDeschis(false)}>{l.text}</Link>)}
           <div className="soc">
