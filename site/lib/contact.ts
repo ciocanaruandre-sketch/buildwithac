@@ -1,3 +1,5 @@
+import { SITE } from "@/lib/config";
+
 export const SERVICII_CONTACT = [
   { cheie: "site", eticheta: "Site" },
   { cheie: "automatizari", eticheta: "Automatizări" },
@@ -56,4 +58,23 @@ export function construiesteEmail(c: CerereContact, acum: Date): { subiect: stri
   ].join("\n");
 
   return { subiect, text, html };
+}
+
+export type StareContact = "ok" | "invalid" | "indisponibil";
+
+/** Trimite cererea prin Resend, pe adresa de contact. Orice eșec, inclusiv timpul depășit, e „indisponibil”. */
+export async function trimiteCerere(c: CerereContact, mediu: { cheie?: string }, f: typeof fetch = fetch, ms = 8000, acum = new Date()): Promise<"ok" | "indisponibil"> {
+  if (!mediu.cheie) return "indisponibil";
+  const { subiect, text, html } = construiesteEmail(c, acum);
+  try {
+    const r = await f("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${mediu.cheie}` },
+      body: JSON.stringify({ from: `Site buildwithac <${SITE.emailFormular}>`, to: [SITE.emailContact], subject: subiect, text, html }),
+      signal: AbortSignal.timeout(ms),
+    });
+    return r.ok ? "ok" : "indisponibil";
+  } catch {
+    return "indisponibil";
+  }
 }

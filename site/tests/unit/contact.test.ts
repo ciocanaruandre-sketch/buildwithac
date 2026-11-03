@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { verificaCerere, construiesteEmail, type CerereContact } from "@/lib/contact";
+import { describe, it, expect, vi } from "vitest";
+import { verificaCerere, construiesteEmail, trimiteCerere, type CerereContact } from "@/lib/contact";
 
 const buna = { nume: "Maria Popescu", telefon: "0721123456", serviciu: "site", descriere: "" };
 const greseli = (d: unknown) => {
@@ -87,5 +87,45 @@ describe("construiesteEmail", () => {
 
   it("ora e cea din București", () => {
     expect(construiesteEmail(c, acum).text).toContain("12:00");
+  });
+});
+
+describe("trimiteCerere", () => {
+  const c: CerereContact = { nume: "Maria Popescu", telefon: "0721123456", serviciu: "site", descriere: "" };
+  const acum = new Date("2026-11-03T10:00:00Z");
+  const raspuns = (status: number) => vi.fn(async () => new Response("{}", { status }));
+
+  it("fără cheie → indisponibil, fără nicio cerere", async () => {
+    const f = raspuns(200);
+    expect(await trimiteCerere(c, {}, f as unknown as typeof fetch)).toBe("indisponibil");
+    expect(f).not.toHaveBeenCalled();
+  });
+
+  it("Resend 200 → ok, cu expeditorul, destinatarul și e-mailul construit", async () => {
+    const f = raspuns(200);
+    expect(await trimiteCerere(c, { cheie: "re_test" }, f as unknown as typeof fetch, 8000, acum)).toBe("ok");
+    expect(f).toHaveBeenCalledOnce();
+    const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.resend.com/emails");
+    expect(init.method).toBe("POST");
+    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer re_test");
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+    const { subiect, text, html } = construiesteEmail(c, acum);
+    expect(JSON.parse(String(init.body))).toEqual({
+      from: "Site buildwithac <formular@buildwithac.ro>",
+      to: ["contact@buildwithac.ro"],
+      subject: subiect,
+      text,
+      html,
+    });
+  });
+
+  it.each([401, 422, 429, 500])("Resend %i → indisponibil", async (status) => {
+    expect(await trimiteCerere(c, { cheie: "re_test" }, raspuns(status) as unknown as typeof fetch)).toBe("indisponibil");
+  });
+
+  it("timp depășit → indisponibil", async () => {
+    const f = vi.fn(async () => { throw new DOMException("timeout", "AbortError"); });
+    expect(await trimiteCerere(c, { cheie: "re_test" }, f as unknown as typeof fetch)).toBe("indisponibil");
   });
 });
