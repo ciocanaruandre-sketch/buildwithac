@@ -39,7 +39,7 @@ describe("verificaCerere", () => {
   });
 
   it("descrierea lipsă devine șir gol", () => {
-    const { descriere: _, ...fara } = buna;
+    const fara = { nume: buna.nume, telefon: buna.telefon, serviciu: buna.serviciu };
     expect(verificaCerere(fara)).toEqual({ cerere: { ...buna, descriere: "" } });
   });
 
