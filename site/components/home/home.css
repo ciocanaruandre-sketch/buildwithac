@@ -199,4 +199,3 @@
 .cway .h { display: inline-block; margin-top: 18px; font-weight: 600; font-size: 15px; word-break: break-all; }
 .cway .arr { position: absolute; top: 30px; right: 30px; font-size: 22px; transition: transform .3s; }
 .cway:hover .arr { transform: translate(4px, -4px); }
-.contact .note2 { margin-top: 34px; font-size: 26px; transform: rotate(-3deg); display: inline-block; }

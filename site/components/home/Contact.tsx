@@ -24,7 +24,6 @@ export function Contact() {
         </a>
       </div>
       <FormularContact />
-      <div className="note2 hand">răspund de obicei în 1–2 zile</div>
     </section>
   );
 }

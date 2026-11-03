@@ -38,6 +38,11 @@ test.describe("formularul de contact", () => {
     await expect(card(page).getByRole("link", { name: "politica de confidențialitate" })).toHaveAttribute("href", "/confidentialitate");
   });
 
+  test("termenul de 1–2 zile apare doar după trimitere, nu și ca notă sub secțiune", async ({ page }) => {
+    await deschide(page);
+    await expect(page.locator(".contact")).not.toContainText("răspund de obicei");
+  });
+
   test("formularul gol arată greșelile, focusul pe nume, fără cerere", async ({ page }) => {
     const corpuri = await intercepteaza(page, { status: 200, json: { stare: "ok" } });
     await deschide(page);
