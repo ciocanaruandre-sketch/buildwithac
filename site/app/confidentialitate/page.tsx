@@ -21,7 +21,7 @@ export default function Confidentialitate() {
         <h1>Ce date strâng și <span className="serif gtxt">ce faci cu ele.</span></h1>
         <p className="upd">Actualizat la {ACTUALIZAT}</p>
 
-        <p>Pe scurt: site-ul nu are conturi și nici plăți. Pe site strâng o singură dată personală: adresa ta de e-mail, și doar dacă te abonezi la newsletter. Dacă lucrăm împreună, îți trimit separat un formular despre afacerea ta. Mai jos scrie și ce fac cu răspunsurile de acolo.</p>
+        <p>Pe scurt: site-ul nu are conturi și nici plăți. Pe site strâng date personale doar în două cazuri: adresa ta de e-mail, dacă te abonezi la newsletter, și numele și telefonul tău, dacă îmi lași o cerere în formularul de contact. Dacă lucrăm împreună, îți trimit separat un formular despre afacerea ta. Mai jos scrie și ce fac cu răspunsurile de acolo.</p>
 
         <h2>Cine strânge datele</h2>
         <p>Operatorul datelor este {op.nume}, {op.tip}. Pentru orice întrebare despre datele tale îmi scrii la <a href={`mailto:${op.email}`}>{op.email}</a>.</p>

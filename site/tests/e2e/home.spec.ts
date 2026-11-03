@@ -181,3 +181,13 @@ test.describe("portofoliu", () => {
     await expect(page.getByRole("navigation", { name: "Principal" }).locator(".links").getByRole("link", { name: "Portofoliu" })).toHaveAttribute("href", /#portofoliu$/);
   });
 });
+
+test("abonarea merge și pe iPhone-uri vechi (fără AbortSignal.timeout)", async ({ page }) => {
+  await page.addInitScript(() => { Object.defineProperty(AbortSignal, "timeout", { value: undefined }); });
+  await page.route("**/api/abonare", (r) => r.fulfill({ status: 200, json: { stare: "ok" } }));
+  await page.goto("/");
+  const formular = page.locator(".mail form");
+  await formular.getByPlaceholder("adresa ta de e-mail").fill("ana@exemplu.ro");
+  await formular.getByRole("button", { name: "Mă abonez" }).click();
+  await expect(page.locator(".mail")).toContainText("Gata! Verifică-ți e-mailul și confirmă abonarea.");
+});

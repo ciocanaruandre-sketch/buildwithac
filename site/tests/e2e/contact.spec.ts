@@ -144,3 +144,12 @@ test.describe("linkurile de pe cardurile de servicii", () => {
     await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "false");
   });
 });
+
+test("pe iPhone-uri vechi (fără AbortSignal.timeout) trimiterea tot merge", async ({ page }) => {
+  await page.addInitScript(() => { Object.defineProperty(AbortSignal, "timeout", { value: undefined }); });
+  await intercepteaza(page, { status: 200, json: { stare: "ok" } });
+  await deschide(page);
+  await completeaza(page);
+  await trimite(page).click();
+  await expect(card(page)).toContainText("Am primit. Mersi!");
+});

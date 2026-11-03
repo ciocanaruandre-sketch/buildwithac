@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { SERVICII_CONTACT, verificaCerere, type CampContact, type CheieServiciu } from "@/lib/contact";
 import { SITE } from "@/lib/config";
 import { useHidratat } from "@/lib/hidratat";
+import { limitaTimp } from "@/lib/limita-timp";
 import "./formular-contact.css";
 
 const GRESELI: Record<CampContact, string> = {
@@ -50,7 +51,7 @@ export function FormularContact() {
     seTrimite.current = true;
     setStare("trimite");
     try {
-      const r = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(date), signal: AbortSignal.timeout(20000) });
+      const r = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(date), signal: limitaTimp(20000) });
       const corp = (await r.json()) as { stare?: string; camp?: CampContact };
       if (corp.stare === "ok") return setStare("ok");
       if (corp.stare === "invalid" && corp.camp && GRESELI[corp.camp]) { setStare(null); return arata([corp.camp]); }

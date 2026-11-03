@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { StareAbonare } from "@/lib/kit";
 import { useHidratat } from "@/lib/hidratat";
+import { limitaTimp } from "@/lib/limita-timp";
 import "./abonare.css";
 
 const MESAJE: Record<StareAbonare, string> = {
@@ -25,7 +26,7 @@ export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
     const website = String(date.get("website") ?? "");
     setStare("trimite");
     try {
-      const r = await fetch("/api/abonare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, website }), signal: AbortSignal.timeout(20000) });
+      const r = await fetch("/api/abonare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, website }), signal: limitaTimp(20000) });
       const { stare } = (await r.json()) as { stare: StareAbonare };
       setStare(MESAJE[stare] ? stare : "indisponibil");
     } catch {

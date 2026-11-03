@@ -42,3 +42,10 @@ test("confidențialitate: formularul de contact, Resend, iCloud și cele 90 de z
   await expect(main).toContainText("iCloud");
   await expect(main).toContainText("90 de zile");
 });
+
+test("confidențialitate: rezumatul de sus pomenește formularul de contact", async ({ page }) => {
+  await page.goto("/confidentialitate");
+  const rezumat = page.locator("main p", { hasText: "Pe scurt" });
+  await expect(rezumat).toContainText("formularul de contact");
+  await expect(rezumat).not.toContainText("o singură dată personală");
+});
