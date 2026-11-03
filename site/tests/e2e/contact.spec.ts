@@ -127,3 +127,20 @@ test.describe("formularul de contact", () => {
     await expect(card(page)).not.toContainText("Am primit.");
   });
 });
+
+test.describe("linkurile de pe cardurile de servicii", () => {
+  test("duc la formular și aleg serviciul cardului", async ({ page }) => {
+    await deschide(page);
+    const link = (i: number) => page.locator("#servicii .scard").nth(i).getByRole("link", { name: /Hai să vorbim/ });
+    await expect(link(0)).toHaveAttribute("href", "#formular");
+    // ca un om: întâi ajunge la card, apoi apasă (un clic în aceeași clipă cu un scroll nativ se bate cu Lenis)
+    await link(1).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    await link(1).click();
+    await expect(card(page)).toBeInViewport();
+    await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "true");
+    await link(2).click();
+    await expect(card(page).getByRole("button", { name: "Sesiune 1 la 1 sau ghid personalizat" })).toHaveAttribute("aria-pressed", "true");
+    await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "false");
+  });
+});

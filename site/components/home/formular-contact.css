@@ -1,5 +1,5 @@
 /* cardul „Vrei să colaborăm?” din secțiunea Contact (prototip/contact.html, varianta A) */
-.contact .fcard { position: relative; max-width: 860px; margin: 20px auto 0; text-align: left; padding: 34px; border-radius: 26px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px); }
+.contact .fcard { scroll-margin-top: 90px; position: relative; max-width: 860px; margin: 20px auto 0; text-align: left; padding: 34px; border-radius: 26px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px); }
 .contact .fcard h3 { font-family: var(--nf-unbounded); font-weight: 600; font-size: 22px; letter-spacing: -.02em; }
 .contact .fcard .sub { color: #cfc4ba; font-size: 14px; margin-top: 8px; line-height: 1.5; }
 .contact .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }

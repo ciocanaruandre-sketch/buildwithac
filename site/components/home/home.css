@@ -183,7 +183,9 @@
 .scard h3 .serif { font-size: 1.12em; letter-spacing: 0; }
 .scard h3 .kick { display: block; font-family: var(--nf-serif), serif; font-style: italic; font-weight: 400; font-size: clamp(22px, 2.4vw, 32px); letter-spacing: 0; margin-top: 6px; }
 .scard p { color: #cfc4ba; font-size: 15px; line-height: 1.55; }
-.scard .soon { display: inline-block; margin-top: 16px; font-size: 11px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); color: var(--color-muted); }
+.scard .spre-contact { display: inline-block; margin-top: 18px; font-size: 15px; font-weight: 600; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; text-decoration: none; border-bottom: 1px solid rgba(242,106,33,.5); padding-bottom: 3px; transition: border-color .2s; }
+.scard .spre-contact:hover { border-bottom-color: #f26a21; }
+.scard .spre-contact:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 4px; border-radius: 4px; }
 @media (max-width: 700px) { .scard { grid-template-columns: 1fr; padding: 30px; min-height: 280px; } }
 
 /* CONTACT */

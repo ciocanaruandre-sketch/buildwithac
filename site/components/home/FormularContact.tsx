@@ -70,7 +70,7 @@ export function FormularContact() {
     greseli.includes(c) ? <p className="greseala" id={`contact-greseala-${c}`}>{GRESELI[c]}</p> : null;
 
   return (
-    <div className={`fcard${stare === "ok" ? " sent" : ""}`}>
+    <div className={`fcard${stare === "ok" ? " sent" : ""}`} id="formular">
       {stare === "ok" ? (
         <div className="ok" role="status" tabIndex={-1} ref={mesajOk}>
           <div className="big">Am primit.{" "}<span className="serif gtxt">Mersi!</span></div>
