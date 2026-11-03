@@ -31,3 +31,6 @@ Sursa: caruselul TikTok al lui Andrei (capturile din `continut/clipuri/Screensho
 ## Nu se poate verifica fără contul lui Andrei
 - Cum arată în Claude Code pluginul instalat (lista din `/plugin`).
 - Cât din limita Pro consumă un clip (depinde de clip).
+
+## PDF
+- Link-ul pentru Instagram: https://buildwithac.ro/pdf/animatii-video-cu-claude-d72417c513cb.pdf (copie în `PDF ghiduri/animatii-video-cu-claude.pdf`), făcut pe 2026-11-03.
