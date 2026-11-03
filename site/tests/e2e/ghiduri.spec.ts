@@ -25,7 +25,7 @@ test("căutarea fără diacritice găsește ghidul și actualizează adresa", as
   await page.goto("/ghiduri");
   await page.getByRole("searchbox").fill("animatii");
   await expect(page.locator(".colaj .gc")).toHaveCount(1);
-  await expect(page.locator(".colaj .gc")).toContainText("Animații video cu Claude");
+  await expect(page.locator(".colaj .gc")).toContainText("Animații video din câteva cuvinte");
   await expect(page).toHaveURL(/\?q=animatii/);
 });
 

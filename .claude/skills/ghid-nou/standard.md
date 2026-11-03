@@ -60,6 +60,7 @@ O frază despre ce faci și de ce.
 ```
 
 Reguli:
+- **Ceri lui Claude, nu ții minte comenzi** (Andrei, 2026-11-03). După ce o unealtă e instalată (plugin, skill), Claude alege singur ce folosește. Deci drumul principal al unui pas e un **mesaj către Claude, în cuvinte**, în `<Prompt>` („Randează clipul în MP4, cu numele intro.mp4.”). Comanda de terminal apare doar ca variantă, scurt, sub mesaj (`Varianta din terminal, în dosarul X: \`comanda\`.`) sau în `<DacaNuMerge>`, fără `<Prompt>` propriu. Și instalarea programelor de care are nevoie unealta (Node.js, FFmpeg, Python) o face Claude: „Verifică dacă am tot ce-i trebuie lui X și instalează ce lipsește.” Comenzile rămân drum principal doar unde Claude nu le poate face pentru tine: instalarea lui Claude Code, adăugarea pluginului sau a skill-ului, `/model`, conectările la conturi. Spune-o o dată, în introducerea ghidului.
 - `<Pas titlu="…">` cu **ghilimele duble**; titlul e acțiunea, la persoana a doua („Instalezi…”, „Alegi…”).
 - Un `<Prompt>` conține doar textul de copiat, fără explicații în el.
 - `<CeVezi src alt />`: fișierul e în `site/public/ghiduri/<slug>/`, cu numele `pas-N-ce-arata.webp`. `alt` spune ce se vede („Claude confirmă că…”). Capturile pe care le face Andrei rămân deocamdată fără fișier și apar pe site ca „captură de pus: {alt}”. Fă-i lista lor: pasul, ce să capteze, numele fișierului.

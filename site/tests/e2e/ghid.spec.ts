@@ -81,7 +81,7 @@ test("în fereastra PDF, Tab rămâne în fereastră", async ({ page }) => {
 test("finalul are ghidul următor și link spre toate ghidurile", async ({ page }) => {
   await page.goto(URL);
   const final = page.locator(".end");
-  await expect(final.getByRole("link", { name: /Animații video cu Claude/ })).toHaveAttribute("href", "/ghiduri/animatii-video-cu-claude");
+  await expect(final.getByRole("link", { name: /Claude conectat la TradingView/ })).toHaveAttribute("href", "/ghiduri/claude-tradingview-mcp");
   await expect(final.getByRole("link", { name: /Toate ghidurile/ })).toHaveAttribute("href", "/ghiduri");
   await expect(final.getByPlaceholder("adresa ta de e-mail")).toBeVisible();
 });
