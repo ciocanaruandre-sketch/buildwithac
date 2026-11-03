@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formulare Tally — previzualizare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@600;800&family=Instrument+Serif:ital@1&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0908; --cream:#f6efe3; --muted:#a99d92;
+    --gold:#ffb52e; --orange:#f26a21; --red:#e53222; --wine:#7a0e0e;
+    --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222);
+    /* ce se poate seta în Tally gratuit */
+    --t-bg:#0b0908; --t-text:#f6efe3; --t-btn:#f26a21; --t-btn-text:#0b0908; --t-accent:#ffb52e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:#1a1614;color:var(--cream);font-family:Inter,system-ui,sans-serif}
+
+  /* ---------- bara prototipului (nu face parte din formular) ---------- */
+  .bara{position:sticky;top:0;z-index:50;background:#1a1614;border-bottom:1px solid #2c2622;
+    display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 16px;font-size:13px}
+  .bara b{color:var(--muted);font-weight:500;margin-right:4px}
+  .grup{display:flex;gap:4px;align-items:center}
+  .bara button{font:inherit;color:var(--cream);background:#2a2420;border:1px solid #3a322c;border-radius:999px;padding:6px 12px;cursor:pointer}
+  .bara button.on{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+  .nota{flex-basis:100%;color:var(--muted);font-size:12px;line-height:1.4}
+
+  /* ---------- cadrul: calculator sau telefon ---------- */
+  #cadru{background:var(--t-bg);min-height:calc(100vh - 90px)}
+  body.telefon #cadru{width:390px;height:780px;margin:24px auto;overflow:auto;border:10px solid #000;border-radius:44px;min-height:0;box-shadow:0 30px 80px #0008}
+  body.telefon #cadru::-webkit-scrollbar{display:none}
+
+  /* ---------- formularul, cât mai aproape de Tally ---------- */
+  .progres{position:sticky;top:0;height:4px;background:#ffffff14;z-index:5}
+  .progres i{display:block;height:100%;background:var(--t-accent);transition:width .3s}
+  .coperta{position:relative;height:260px;overflow:hidden}
+  body.telefon .coperta{height:150px}
+  .col{max-width:700px;margin:0 auto;padding:0 24px}
+  .logo{position:relative;width:96px;height:96px;margin-top:-58px;z-index:2}
+  .logo img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 14px #0008)}
+  body.telefon .logo{width:72px;height:72px;margin-top:-44px}
+  .formular{padding-bottom:40px;color:var(--t-text)}
+  h1{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:44px 0 22px}
+  .intro strong{font-weight:700}
+  body.telefon h1{font-size:28px}
+  .intro p{margin:0 0 10px;line-height:1.55;font-size:16px}
+  h2{font-size:22px;font-weight:700;margin:34px 0 4px}
+  .pas{color:var(--muted);font-size:14px;margin:0 0 8px}
+  .camp{margin:30px 0}
+  .camp label.t{display:block;font-weight:600;font-size:16px;margin-bottom:6px;line-height:1.35}
+  .camp .req{color:var(--red);margin-left:3px}
+  .ajutor{color:var(--muted);font-size:14px;line-height:1.45;margin:0 0 10px}
+  input[type=text],input[type=email],input[type=tel],input[type=url],textarea{
+    width:100%;font:inherit;font-size:16px;color:var(--t-text);background:#ffffff0d;border:1px solid #ffffff26;border-radius:8px;padding:11px 12px;outline:none}
+  textarea{min-height:110px;resize:vertical}
+  input:focus,textarea:focus{border-color:var(--t-accent);box-shadow:0 0 0 3px #ffb52e33}
+  ::placeholder{color:#a99d9299}
+  .opt{display:flex;align-items:center;gap:10px;border:1px solid #ffffff26;background:#ffffff08;border-radius:8px;padding:10px 12px;margin:0 0 8px;cursor:pointer;font-size:15px;max-width:460px}
+  .opt:hover{border-color:#ffffff4d}
+  .opt input{appearance:none;width:18px;height:18px;border:1.5px solid #ffffff59;margin:0;flex:none;display:grid;place-items:center}
+  .opt input[type=radio]{border-radius:50%}
+  .opt input[type=checkbox]{border-radius:4px}
+  .opt input:checked{border-color:var(--t-accent);background:var(--t-accent)}
+  .opt input[type=radio]:checked{box-shadow:inset 0 0 0 3px var(--t-bg)}
+  .opt:has(input:checked){border-color:var(--t-accent);background:#ffb52e14}
+  .fisier{border:1.5px dashed #ffffff40;border-radius:8px;padding:26px 14px;text-align:center;color:var(--muted);font-size:14px}
+  .fisier b{display:block;color:var(--t-text);font-weight:500;margin-bottom:4px}
+  .sub{margin-left:18px;padding-left:14px;border-left:2px solid #ffffff1a}
+  .butoane{display:flex;gap:12px;align-items:center;margin-top:36px}
+  .btn{font:inherit;font-weight:700;font-size:16px;background:var(--t-btn);color:var(--t-btn-text);border:0;border-radius:8px;padding:12px 22px;cursor:pointer}
+  .inapoi{font:inherit;background:none;border:0;color:var(--muted);cursor:pointer;font-size:15px;padding:12px 4px}
+  .mic{color:var(--muted);font-size:13px;line-height:1.5;margin-top:22px}
+  .mic a{color:var(--t-accent)}
+  .tally{margin:50px auto 0;width:max-content;font-size:12px;color:#a99d92aa;border:1px solid #ffffff1f;border-radius:6px;padding:6px 10px}
+  .gata h1{margin-top:30px}
+
+  /* ---------- coperțile (imaginea care se urcă în Tally) ---------- */
+  .cv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center}
+  .kicker{font-family:Unbounded;font-weight:600;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--cream);opacity:.85}
+  .cuv{font-family:"Instrument Serif";font-style:italic;font-size:76px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .08em}
+  body.telefon .cuv{font-size:44px}
+  body.telefon .kicker{font-size:8px}
+  /* A: fotografia de pe site */
+  .cv-a{background:url(cov-om.webp) center 60%/cover,url(cov-munte.webp) center 60%/cover;align-items:flex-start;padding-top:30px}
+  .cv-a::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0b090800 30%,#0b090899 80%,#0b0908)}
+  .cv-a>div{position:relative}
+  body.telefon .cv-a{padding-top:12px}
+  .cv-a .cuv,.cv-a .kicker{filter:drop-shadow(0 2px 10px #000c) drop-shadow(0 0 22px #0009)}
+  /* B: aurora din culorile logoului */
+  .cv-b{background:
+      radial-gradient(60% 120% at 20% 110%,#e5322299,transparent 60%),
+      radial-gradient(50% 110% at 55% 120%,#f26a2199,transparent 60%),
+      radial-gradient(40% 90% at 85% 100%,#ffb52e88,transparent 60%),
+      radial-gradient(70% 80% at 50% -10%,#7a0e0e66,transparent 70%),var(--ink)}
+  .cv-b::after{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .cv-b>div{position:relative;transform:translateY(-14px)}
+  .cv-b .cuv{background:none;color:var(--cream)}
+  /* C: colaj, hârtie cu bandă adezivă */
+  .cv-c{background:radial-gradient(80% 140% at 50% 120%,#7a0e0e55,transparent 70%),var(--ink)}
+  .hartie{position:relative;background:var(--cream);color:var(--ink);padding:18px 34px 16px;transform:rotate(-2deg) translateY(-12px);box-shadow:0 14px 30px #0009}
+  .hartie::before,.hartie::after{content:"";position:absolute;top:-12px;width:78px;height:24px;background:#ffb52ebb;mix-blend-mode:multiply}
+  .hartie::before{left:-22px;transform:rotate(-24deg)}
+  .hartie::after{right:-22px;transform:rotate(20deg)}
+  .hartie .kicker{color:#5b514a;opacity:1}
+  .hartie .cuv{font-size:64px}
+  body.telefon .hartie{padding:10px 18px 9px}
+  body.telefon .hartie .cuv{font-size:36px}
+  .scris{position:absolute;font-family:Caveat;font-weight:600;color:var(--gold);font-size:26px;transform:rotate(-4deg)}
+  body.telefon .scris{font-size:17px}
+</style>
+</head>
+<body>
+
+<div class="bara">
+  <div class="grup"><b>Formular</b>
+    <button data-f="site" class="on">Site</button><button data-f="auto">Automatizări</button><button data-f="ghid">Ghid personalizat</button></div>
+  <div class="grup"><b>Ecran</b>
+    <button data-e="pc" class="on">Calculator</button><button data-e="tel">Telefon</button></div>
+  <div class="nota">Previzualizare, nu formularul adevărat. În Tally gratuit merge un singur font (aici Inter) și culorile: fundal, text, buton, accent. Coperta (aurora, fără text) e o imagine care se urcă în Tally.</div>
+</div>
+
+<div id="cadru"><div id="tally"></div></div>
+
+<script>
+/* ---------- conținutul (sursa: continut/formulare/tally.md) ---------- */
+const FINAL_INTRO = "Durează cam 10 minute și nu există răspunsuri greșite. Dacă nu știi ceva, sari peste întrebare sau scrie „nu știu”. Lămurim împreună la telefon.";
+const TITLURI = {
+  site: {h1:"Hai să-ți fac site-ul", intro:[
+    "Înainte să ne apucăm de site, <strong>vreau să înțeleg afacerea ta cât mai bine.</strong>",
+    "Întrebările sunt despre ce faci, cui vinzi și ce trebuie să facă site-ul pentru tine. Din răspunsuri îmi dau seama ce pagini îți trebuie, ce texte și ce poze, și cum ar trebui să arate ca să semene cu afacerea ta.",
+    FINAL_INTRO]},
+  auto: {h1:"Hai să-ți automatizez munca", intro:[
+    "Înainte să automatizez ceva, <strong>vreau să văd exact cum lucrezi acum.</strong>",
+    "Întrebările sunt despre treaba care îți mănâncă timpul: ce faci, pas cu pas, în ce aplicații și cât de des. Din răspunsuri îmi dau seama ce poate merge singur, ce rămâne la tine și ce unelte se potrivesc.",
+    FINAL_INTRO]},
+  ghid: {h1:"Hai să-ți fac ghidul", intro:[
+    "Înainte să-ți fac ghidul, <strong>vreau să știu unde ești acum cu AI-ul și ce vrei să facă pentru tine.</strong>",
+    "Întrebările sunt despre afacerea ta, uneltele pe care le folosești și felul în care înveți. Din răspunsuri îți fac un ghid pe firma ta: pașii, exemplele și tutorialele de care ai nevoie.",
+    FINAL_INTRO]},
+};
+
+const P1 = {titlu:"Despre tine", campuri:[
+  {id:"nume", t:"Numele tău", tip:"text", req:1},
+  {id:"afacere", t:"Numele afacerii", tip:"text", req:1},
+  {id:"email", t:"E-mail", tip:"email", req:1, a:"Aici îți trimit ce lucrăm."},
+  {id:"tel", t:"Telefon", tip:"tel", req:1},
+  {id:"vorbim", t:"Cum preferi să vorbim?", tip:"una", req:1, o:["WhatsApp","Telefon","E-mail"]},
+]};
+const P2 = {titlu:"Afacerea ta", campuri:[
+  {id:"ce", t:"Ce faci, pe scurt?", tip:"lung", req:1, a:"Ce vinzi și cui te adresezi?"},
+  {id:"decand", t:"De când există afacerea?", tip:"una", o:["Abia încep","Sub 1 an","1–3 ani","Peste 3 ani"]},
+  {id:"clienti", t:"De unde vin clienții acum?", tip:"multe", o:["Recomandări","Instagram","TikTok","Facebook","Google sau Google Maps","Site-ul meu","Trec pe lângă local","Altceva"]},
+  {id:"dece", t:"De ce te aleg clienții pe tine și nu pe alții?", tip:"lung", a:"Ce ai în plus față de alții sau cum te evidențiezi?"},
+]};
+const P4 = {titlu:"Cum lucrăm", campuri:[
+  {id:"rezultat", t:"Ce rezultate vrei să ai în 3 luni?", tip:"lung", req:1, a:"Un rezultat concret. De exemplu: „să nu mai răspund eu la aceleași 10 întrebări pe zi”."},
+  {id:"termen", t:"În cât timp ai vrea să fie livrat?", tip:"una", o:["Cât mai repede","În luna asta","Nu mă grăbesc","Am o dată fixă"]},
+  {id:"data", t:"Ce dată și de ce?", tip:"text", daca:["termen",["Am o dată fixă"]]},
+  {id:"implicat", t:"Cât de implicat vrei să fii?", tip:"una", o:["Vreau să văd și să aprob fiecare pas","Îmi arăți direcția, aprob la final","Mână liberă"]},
+  {id:"altceva", t:"Mai e ceva ce ar trebui să știu?", tip:"lung"},
+]};
+
+const P3 = {
+  site:{titlu:"Site-ul", campuri:[
+    {id:"aresite", t:"Ai deja un site?", tip:"una", req:1, o:["Nu","Da, și vreau să-l refac","Da, și vreau unul nou de la zero"]},
+    {id:"linksite", t:"Link-ul site-ului actual", tip:"url", daca:["aresite",["Da, și vreau să-l refac","Da, și vreau unul nou de la zero"]]},
+    {id:"domeniu", t:"Ai un domeniu?", tip:"una", a:"Domeniul e adresa site-ului, de exemplu cafeneauamea.ro.", o:["Da","Nu","Nu știu"]},
+    {id:"careDom", t:"Care e?", tip:"text", daca:["domeniu",["Da"]]},
+    {id:"unlucru", t:"Ce acțiune vrei să facă un client pe site-ul tău?", tip:"una", req:1, o:["Să mă sune sau să-mi scrie oamenii","Să-și facă programări","Să cumpere online","Să vadă meniul sau prețurile","Să-mi vadă lucrările","Altceva"]},
+    {id:"pagini", t:"Ce pagini crezi că-ți trebuie?", tip:"multe", o:["Acasă","Despre mine / noi","Servicii, meniu sau prețuri","Galerie sau lucrări","Recenzii","Contact","Programări","Nu știu, mă ajuți tu"]},
+    {id:"placsite", t:"2–3 site-uri care îți plac și ce-ți place la ele", tip:"lung", a:"Pot fi din orice domeniu, nu doar al tău. Pune link-ul și o frază."},
+    {id:"nuvrea", t:"Ce n-ai vrea să vezi pe site-ul tău?", tip:"lung", a:"Culori, stiluri, lucruri care te enervează pe alte site-uri."},
+    {id:"logo", t:"Ai un logo?", tip:"una", o:["Da","Am, dar nu-mi place","Nu"]},
+    {id:"logoF", t:"Încarcă logoul", tip:"fisier", daca:["logo",["Da","Am, dar nu-mi place"]]},
+    {id:"culori", t:"Ai culori sau fonturi pe care le folosești deja?", tip:"text", a:"Pe firmă, pe meniu, pe Instagram. Dacă nu, scrie „nu”."},
+    {id:"texte", t:"Cine scrie textele de pe site?", tip:"una", o:["Le am deja","Le scriem împreună","Scrie-le tu, eu le verific"]},
+    {id:"poze", t:"Ai poze bune cu afacerea ta?", tip:"una", o:["Da, multe","Câteva","Nu prea"]},
+    {id:"pozeF", t:"Încarcă 3–5 poze", tip:"fisier", daca:["poze",["Da, multe","Câteva"]]},
+    {id:"singur", t:"Ce o să mai trebuiască schimbat sau actualizat pe site?", tip:"multe", o:["Prețurile","Meniul sau serviciile","Programul","Pozele","Nu știu încă"]},
+  ]},
+  auto:{titlu:"Treaba de automatizat", campuri:[
+    {id:"treaba", t:"Ce treabă repetitivă îți ia cel mai mult timp?", tip:"lung", req:1, a:"Descrie-o pas cu pas, ca și cum i-ai explica unui angajat nou. De exemplu: „primesc comanda pe WhatsApp, o trec în Excel, apoi trimit factura pe mail”."},
+    {id:"des", t:"Cât de des o faci?", tip:"una", o:["De mai multe ori pe zi","O dată pe zi","Săptămânal","Lunar"]},
+    {id:"timp", t:"Cât timp îți ia aproximativ pe săptămână?", tip:"una", o:["Sub 1 oră","1–3 ore","3–10 ore","Peste 10 ore"]},
+    {id:"aplicatii", t:"Ce aplicații folosești deja?", tip:"multe", o:["WhatsApp sau WhatsApp Business","Gmail","Outlook","Google Sheets","Excel","Google Calendar","Instagram sau Facebook","Un program de facturare","Un program de programări","Altceva"]},
+    {id:"careApl", t:"Care anume?", tip:"text", daca:["aplicatii",["Un program de facturare","Un program de programări","Altceva"]]},
+    {id:"unde", t:"Unde ții acum clienții și comenzile?", tip:"una", o:["Într-un tabel","Într-un program","În caiet","În telefon","Peste tot, un pic"]},
+    {id:"niciodata", t:"Ce n-ar trebui să se întâmple niciodată?", tip:"lung", a:"De exemplu: să plece un preț greșit la un client, să se șteargă o programare."},
+    {id:"sensibile", t:"Lucrezi cu date sensibile?", tip:"una", a:"Date medicale, CNP-uri, contracte, date bancare. Contează la ce unelte alegem.", o:["Da","Nu","Nu sunt sigur"]},
+    {id:"cine", t:"Cine o să folosească automatizarea?", tip:"una", o:["Doar eu","Eu și 1–3 colegi","O echipă mai mare"]},
+    {id:"abonament", t:"Anumite aplicații necesită abonament lunar, ești ok cu acest lucru?", tip:"una", o:["Da, unul mic","Contează rezultatul, nu costul"]},
+    {id:"exemplu", t:"Un exemplu din treaba asta", tip:"fisier", a:"O captură, un tabel, un e-mail tipic. Fără parole și fără date reale ale clienților."},
+  ]},
+  ghid:{titlu:"Tu și AI-ul", campuri:[
+    {id:"unde", t:"Unde ești acum cu AI-ul?", tip:"una", req:1, o:["Nu l-am folosit","L-am încercat de câteva ori","Îl folosesc des"]},
+    {id:"unelte", t:"Ce unelte AI ai folosit?", tip:"multe", o:["ChatGPT","Claude","Gemini","Copilot","Niciuna","Altele"]},
+    {id:"plata", t:"Plătești vreun abonament?", tip:"una", o:["Da","Nu"], daca:["unelte",["ChatGPT","Claude","Gemini","Copilot","Altele"]]},
+    {id:"vrea", t:"Ce vrei să facă AI-ul pentru tine?", tip:"lung", req:1, a:"2–3 treburi. Pentru cea mai importantă, dă-mi un exemplu concret: „să răspundă la mesajele de pe Instagram cu prețurile”, nu „să mă ajute la marketing”."},
+    {id:"cine", t:"Cine o să-l folosească?", tip:"una", o:["Doar eu","Eu și echipa"]},
+    {id:"echipa", t:"Câți sunteți și cât de bine se descurcă la calculator?", tip:"text", daca:["cine",["Eu și echipa"]]},
+    {id:"pece", t:"Pe ce lucrați mai mult?", tip:"una", o:["Telefon","Calculator","Amândouă"]},
+    {id:"sensibile", t:"Lucrezi cu date pe care n-ai vrea să le pui pe internet?", tip:"una", a:"Date de pacienți, CNP-uri, contracte, date bancare. Îți arăt ce să NU pui în AI.", o:["Da","Nu","Nu sunt sigur"]},
+    {id:"invata", t:"Cum înveți cel mai ușor?", tip:"una", o:["Citesc pașii","Mă uit la un video","Îmi arată cineva live"]},
+    {id:"ajutor", t:"Cum ai vrea să te ajut la început?", tip:"una", o:["O sesiune live, apoi mă descurc cu ghidul","Câteva sesiuni scurte în primele săptămâni","Doar ghidul scris"]},
+    {id:"exemplu", t:"Un exemplu din munca ta", tip:"fisier", a:"Un document, un e-mail sau un tabel pe care vrei să-l faci cu AI. Fără date reale ale clienților."},
+  ]},
+};
+
+/* ---------- starea ---------- */
+const stare = {f:"site", c:"a", pag:0, val:{}};
+try{ const s=JSON.parse(localStorage.getItem("formulare-proto")||"{}"); Object.assign(stare,{f:s.f||"site",c:s.c||"a"}); if(s.e==="tel") document.body.classList.add("telefon"); }catch(e){}
+function salveaza(){ try{ localStorage.setItem("formulare-proto",JSON.stringify({f:stare.f,c:stare.c,e:document.body.classList.contains("telefon")?"tel":"pc"})); }catch(e){} }
+
+const pagini = () => [P1,P2,P3[stare.f],P4];
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function coperta(){
+  return `<div class="cv cv-b"></div>`;
+  const T = TITLURI[stare.f];
+  if(stare.c==="a") return `<div class="cv cv-a"><div><div class="kicker">buildwithac · formular</div><div class="cuv">${T.cuv}</div></div></div>`;
+  if(stare.c==="b") return `<div class="cv cv-b"><div><div class="kicker">buildwithac · formular</div><div class="cuv">${T.cuv}</div></div></div>`;
+  return `<div class="cv cv-c"><div class="hartie"><div class="kicker">buildwithac · formular</div><div class="cuv">${T.cuv}</div></div><div class="scris" style="right:9%;bottom:16%">${T.scris}</div></div>`;
+}
+
+function vizibil(c){
+  if(!c.daca) return true;
+  const [id,vals] = c.daca, v = stare.val[id];
+  if(Array.isArray(v)) return v.some(x=>vals.includes(x));
+  return vals.includes(v);
+}
+
+function camp(c){
+  const req = c.req?'<span class="req">*</span>':"";
+  const aj = c.a?`<p class="ajutor">${esc(c.a)}</p>`:"";
+  const v = stare.val[c.id];
+  let inp="";
+  if(["text","email","tel","url"].includes(c.tip)){
+    const ph = {email:"nume@exemplu.ro",tel:"+40 7xx xxx xxx",url:"https://"}[c.tip]||"";
+    inp=`<input type="${c.tip==="text"?"text":c.tip}" data-id="${c.id}" placeholder="${ph}" value="${v?esc(v):""}">`;
+  } else if(c.tip==="lung"){
+    inp=`<textarea data-id="${c.id}">${v?esc(v):""}</textarea>`;
+  } else if(c.tip==="una"||c.tip==="multe"){
+    const t = c.tip==="una"?"radio":"checkbox";
+    inp=c.o.map(o=>{
+      const ch = c.tip==="una"? v===o : (v||[]).includes(o);
+      return `<label class="opt"><input type="${t}" name="${c.id}" data-id="${c.id}" value="${esc(o)}" ${ch?"checked":""}>${esc(o)}</label>`;
+    }).join("");
+  } else if(c.tip==="fisier"){
+    inp=`<div class="fisier"><b>Alege un fișier sau trage-l aici</b>Dimensiune maximă: 10 MB</div>`;
+  }
+  return `<div class="camp ${c.daca?"sub":""}"><label class="t">${esc(c.t)}${req}</label>${aj}${inp}</div>`;
+}
+
+function randeaza(){
+  const T = TITLURI[stare.f], pp = pagini(), n = pp.length;
+  let h = `<div class="progres"><i style="width:${stare.pag>=n?100:(stare.pag/n*100)}%"></i></div>`;
+  h += `<div class="coperta">${coperta()}</div>`;
+  h += `<div class="col formular">`;
+  if(stare.pag===0) h += `<div class="logo"><img src="logo-site.webp" alt="buildwithac"></div>`;
+  if(stare.pag>=n){
+    h += `<div class="gata"><h1>Gata, am primit. Mersi!</h1><div class="intro"><p>Mă uit peste răspunsuri și te contactez în 1–2 zile, cum ai ales mai sus, ca să stabilim primul telefon.</p></div>
+      <div class="butoane"><button class="inapoi" data-act="dela0">↺ Ia-o de la capăt (doar în previzualizare)</button></div></div>`;
+  } else {
+    const p = pp[stare.pag];
+    if(stare.pag===0){
+      h += `<h1>${T.h1}</h1><div class="intro">${T.intro.map(p=>`<p>${p}</p>`).join("")}</div>`;
+    }
+    h += `<h2>${p.titlu}</h2><p class="pas">Partea ${stare.pag+1} din ${n}</p>`;
+    h += p.campuri.filter(vizibil).map(camp).join("");
+    const ultima = stare.pag===n-1;
+    if(ultima) h += `<p class="mic">Răspunsurile ajung doar la mine și le folosesc doar pentru proiectul tău. Detalii: <a href="#" onclick="return false">buildwithac.ro/confidentialitate</a></p>`;
+    h += `<div class="butoane">${stare.pag>0?'<button class="inapoi" data-act="inapoi">← Înapoi</button>':""}<button class="btn" data-act="inainte">${ultima?"Trimite":"Mai departe →"}</button></div>`;
+  }
+  h += `<div class="tally">Made with Tally</div></div>`;
+  document.getElementById("tally").innerHTML = h;
+}
+
+/* ---------- interacțiuni ---------- */
+document.getElementById("tally").addEventListener("input", e=>{
+  const el = e.target, id = el.dataset.id; if(!id) return;
+  if(el.type==="checkbox"){
+    const arr = [...document.querySelectorAll(`input[name="${id}"]:checked`)].map(x=>x.value);
+    stare.val[id]=arr; randeazaPastrand();
+  } else if(el.type==="radio"){ stare.val[id]=el.value; randeazaPastrand(); }
+  else stare.val[id]=el.value;
+});
+function randeazaPastrand(){
+  const box = document.body.classList.contains("telefon")?document.getElementById("cadru"):document.scrollingElement;
+  const y = box.scrollTop; randeaza(); box.scrollTop = y;
+}
+document.getElementById("tally").addEventListener("click", e=>{
+  const a = e.target.closest("[data-act]"); if(!a) return;
+  if(a.dataset.act==="inainte") stare.pag++;
+  if(a.dataset.act==="inapoi") stare.pag--;
+  if(a.dataset.act==="dela0") { stare.pag=0; stare.val={}; }
+  randeaza(); sus();
+});
+function sus(){ document.getElementById("cadru").scrollTop=0; window.scrollTo(0,0); }
+
+function marcheaza(){
+  document.querySelectorAll("[data-f]").forEach(b=>b.classList.toggle("on",b.dataset.f===stare.f));
+  document.querySelectorAll("[data-c]").forEach(b=>b.classList.toggle("on",b.dataset.c===stare.c));
+  const tel = document.body.classList.contains("telefon");
+  document.querySelectorAll("[data-e]").forEach(b=>b.classList.toggle("on",(b.dataset.e==="tel")===tel));
+}
+document.querySelector(".bara").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.f){ stare.f=b.dataset.f; stare.pag=0; stare.val={}; sus(); }
+  if(b.dataset.c){ stare.c=b.dataset.c; }
+  if(b.dataset.e){ document.body.classList.toggle("telefon", b.dataset.e==="tel"); }
+  salveaza(); marcheaza(); randeaza();
+});
+
+marcheaza(); randeaza();
+</script>
+</body>
+</html>

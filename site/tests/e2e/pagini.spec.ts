@@ -9,6 +9,8 @@ test("confidențialitate: operatorul, e-mailul de contact și ANSPDCP", async ({
   await expect(main).toContainText(SITE.operatorDate.email);
   await expect(main).toContainText("ANSPDCP");
   await expect(main).toContainText("Kit");
+  await expect(main).toContainText("Tally");
+  await expect(main).toContainText("încă un an după ultimul proiect");
 });
 
 test("confidențialitate: spune cât rămân abonările neconfirmate", async ({ page }) => {
