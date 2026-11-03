@@ -1,0 +1,37 @@
+/* cardul „Vrei să colaborăm?” din secțiunea Contact (prototip/contact.html, varianta A) */
+.contact .fcard { position: relative; max-width: 860px; margin: 20px auto 0; text-align: left; padding: 34px; border-radius: 26px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px); }
+.contact .fcard h3 { font-family: var(--nf-unbounded); font-weight: 600; font-size: 22px; letter-spacing: -.02em; }
+.contact .fcard .sub { color: #cfc4ba; font-size: 14px; margin-top: 8px; line-height: 1.5; }
+.contact .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.contact .fgrid .full { grid-column: 1 / -1; }
+.contact .fld label, .contact .fld .lb { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--color-cream); }
+.contact .fld .opt { color: var(--color-muted); font-weight: 400; }
+.contact .fld input, .contact .fld textarea { width: 100%; font: inherit; font-size: 16px; color: var(--color-cream); background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 14px 16px; outline: none; transition: border-color .2s, background .2s; }
+.contact .fld textarea { min-height: 110px; resize: vertical; line-height: 1.5; display: block; }
+.contact .fld input::placeholder, .contact .fld textarea::placeholder { color: #7d7269; }
+.contact .fld input:focus, .contact .fld textarea:focus { border-color: var(--color-orange); background: rgba(242,106,33,.06); }
+.contact .fld [aria-invalid="true"] { border-color: var(--color-red); }
+.contact .fld .greseala { margin-top: 6px; font-size: 13px; color: #ff8a6b; }
+.contact .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.contact .chip { font: inherit; font-size: 14px; font-weight: 500; color: var(--color-cream); background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 10px 16px; cursor: pointer; transition: all .2s; text-align: left; }
+.contact .chip:hover { border-color: rgba(242,106,33,.6); }
+.contact .chip:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+.contact .chip[aria-pressed="true"] { background: var(--grad); border-color: transparent; color: #fff; }
+.contact .frow { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 22px; flex-wrap: wrap; }
+.contact .legal { font-size: 12px; color: var(--color-muted); line-height: 1.5; max-width: 420px; }
+.contact .legal a, .contact .fcard .mesaj a { color: var(--color-cream); }
+.contact .fcard .btn { font-family: var(--nf-unbounded); font-weight: 600; font-size: 15px; color: #fff; background: var(--grad); border: 0; border-radius: 999px; padding: 16px 28px; cursor: pointer; transition: transform .2s, box-shadow .2s, opacity .2s; box-shadow: 0 10px 30px -10px rgba(242,106,33,.7); }
+.contact .fcard .btn:hover:not(:disabled) { transform: translateY(-2px); }
+.contact .fcard .btn:disabled { opacity: .6; cursor: default; }
+.contact .fcard .mesaj { margin-top: 14px; font-size: 14px; color: #ff8a6b; min-height: 1px; }
+.contact .fcard .mesaj:empty { margin: 0; }
+.contact .capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.contact .fcard .ok { text-align: center; padding: 30px 0 10px; outline: none; }
+.contact .fcard .ok .big { font-family: var(--nf-unbounded); font-weight: 800; font-size: 28px; letter-spacing: -.03em; }
+.contact .fcard .ok .hand { font-size: 26px; display: inline-block; transform: rotate(-3deg); margin-top: 10px; }
+
+@media (max-width: 720px) {
+  .contact .fgrid { grid-template-columns: 1fr; }
+  .contact .fcard { padding: 26px 22px; }
+  .contact .frow { flex-direction: column; align-items: stretch; }
+}

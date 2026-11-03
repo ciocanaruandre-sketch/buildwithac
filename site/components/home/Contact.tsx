@@ -1,5 +1,6 @@
 import { Aurora } from "@/components/layout/Aurora";
 import { SITE } from "@/lib/config";
+import { FormularContact } from "./FormularContact";
 
 export function Contact() {
   return (
@@ -22,6 +23,7 @@ export function Contact() {
           <span className="h gtxt">{SITE.emailContact}</span>
         </a>
       </div>
+      <FormularContact />
       <div className="note2 hand">răspund de obicei în 1–2 zile</div>
     </section>
   );
