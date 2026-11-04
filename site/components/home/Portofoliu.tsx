@@ -18,18 +18,25 @@ export function Portofoliu() {
       <h2>Ce am construit <span className="serif gtxt">cu AI.</span></h2>
       <p className="intro">Proiecte reale și concepte pentru firme mici. Conceptele sunt marcate clar.</p>
       <div className="pa">
-        {PORTOFOLIU.map((el, i) => (
-          <article key={el.titlu} className={`it ${el.tip}${i === 0 ? " big" : ""}${el.inCurand ? " soon" : ""}`}>
-            <span className="tp" aria-hidden />
-            <div className="im">
-              {el.imagine && <Image src={el.imagine} alt="" fill sizes={i === 0 ? "(max-width: 700px) 100vw, 90vw" : "(max-width: 700px) 100vw, 33vw"} />}
-              <span className={`ctag ${el.tip}`}>{ETICHETE[el.tip]}</span>
-              {el.inCurand && <span className="cc">în curând</span>}
-            </div>
-            <h3>{el.titlu}</h3>
-            <p>{el.descriere}</p>
-          </article>
-        ))}
+        {PORTOFOLIU.map((el, i) => {
+          const continut = (
+            <>
+              <div className="im">
+                {el.imagine && <Image src={el.imagine} alt="" fill sizes={i === 0 ? "(max-width: 700px) 100vw, 90vw" : "(max-width: 700px) 100vw, 33vw"} />}
+                <span className={`ctag ${el.tip}`}>{ETICHETE[el.tip]}</span>
+              </div>
+              <h3>{el.titlu}</h3>
+              <p>{el.descriere}</p>
+            </>
+          );
+          return (
+            <article key={el.titlu} className={`it ${el.tip}${i === 0 ? " big" : ""}`}>
+              <span className="tp" aria-hidden />
+              {/* <a> simplu: conceptele sunt fișiere statice, în afara aplicației */}
+              {el.link ? <a className="lk" href={el.link}>{continut}</a> : continut}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

@@ -175,6 +175,15 @@ test.describe("portofoliu", () => {
     }
   });
 
+  test("cardurile-concept duc la pagini și nu mai sunt „în curând”", async ({ page }) => {
+    await page.goto("/");
+    const carduri = page.locator("#portofoliu .it.concept");
+    await expect(carduri).toHaveCount(3);
+    for (const [i, cale] of ["/concepte/clinica", "/concepte/frizerie", "/concepte/tatuaje"].entries())
+      await expect(carduri.nth(i).locator("a").first()).toHaveAttribute("href", cale);
+    await expect(page.locator("#portofoliu")).not.toContainText("în curând");
+  });
+
   test("bara de sus are link spre portofoliu", async ({ page, isMobile }) => {
     test.skip(!!isMobile, "pe telefon linkurile sunt în meniul ☰");
     await page.goto("/");
