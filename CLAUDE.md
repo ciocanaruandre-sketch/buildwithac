@@ -58,7 +58,7 @@ Fără testare cap-coadă (decizia lui Andrei). Claude verifică singur tot ce s
 3. Lucrează cu Andrei pe text.
 4. `git push`: Vercel face o previzualizare, pe care Andrei o verifică pe telefon.
 5. La „Publică”: PDF-ul (`npm run pdf -- <slug>`), apoi verificările, apoi unirea în `main`, apoi push.
-6. Textul e-mailului „ghid nou” pentru Kit (Andrei îl trimite manual).
+6. Textul e-mailului „ghid nou” pentru Kit (Andrei îl trimite manual), doar dacă există abonați.
 
 Pașii exacți sunt în `.claude/skills/ghid-nou/publicare.md`. Înainte de orice unire în `main`, rulează din `site/`: `npx vitest run`, `npm run verifica`, `npm run lint`.
 

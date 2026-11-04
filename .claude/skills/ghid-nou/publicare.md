@@ -14,7 +14,7 @@ Comenzile `npm` rulează din `site/`, iar `git` din rădăcina repo-ului. Pe `ma
    3. `git switch main && git pull && git merge --no-ff ghid/<slug> && git push`, apoi `git push origin --delete ghid/<slug>`;
    4. după ~1–2 minute, deschide `https://buildwithac.ro/ghiduri/<slug>` și `https://buildwithac.ro/ghiduri?q=<CUVÂNT>`: ghidul apare, căutarea îl marchează „ăsta e ghidul din clip ✓”.
 8. **Link-ul PDF-ului** (îl afișează `npm run pdf`) se scrie în `continut/ghiduri/<slug>/note.md`. Tot `npm run pdf` pune o copie în `PDF ghiduri/<slug>.pdf` (în rădăcina proiectului): spune-i lui Andrei că e acolo. Andrei îl trimite manual, în privat pe Instagram, celor care scriu cuvântul.
-9. **E-mailul:** textul din `email.md`, completat, gata de lipit în Kit.
+9. **E-mailul:** doar dacă există abonați (decizia lui Andrei, 2026-11-04: cât nu sunt abonați, pasul se sare). Textul din `email.md`, completat, gata de lipit în Kit.
 10. **Ideea** trece în „Postate” în `continut/idei.md`.
 11. **Peretele de clipuri:** dacă ghidul vine dintr-un clip, întreabă-l pe Andrei dacă intră pe homepage. Dacă da: coperta în `site/public/clipuri/`, plus o intrare în `site/content/clipuri.ts` (titlul cu *cuvântul evidențiat* între stele și link-ul clipului).
 
