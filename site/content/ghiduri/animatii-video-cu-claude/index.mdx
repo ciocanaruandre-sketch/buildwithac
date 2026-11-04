@@ -1,37 +1,142 @@
 ---
-titlu: "Animații video cu Claude"
+titlu: "Animații video din câteva cuvinte, cu Claude Opus 5.5"
 slug: animatii-video-cu-claude
 cuvant: ANIMATII
-descriere: "Claude scrie animația în cod, HyperFrames o transformă în MP4. Bun pentru intro-uri, logo-uri și grafice."
+descriere: "Claude scrie animația în cod, cu GSAP, iar HyperFrames o face MP4. Un intro cu logo-ul tău, de la instalare la clipul urcat pe TikTok."
 ceGasesti:
-  - "Ce poți și ce nu poți anima așa"
-  - "Primul tău clip, de la prompt la MP4"
-  - "Cum ajustezi fără să te pierzi în cod"
-durata: "1–2 ore"
-nivel: "mediu"
-unelte: ["Claude Code", "GSAP", "HyperFrames"]
-actualizat: 2026-10-15
-publicat: 2026-10-15
+  - "Pluginul HyperFrames instalat; restul îl pregătește Claude"
+  - "Promptul pentru un intro vertical cu logo-ul tău"
+  - "Cum ajustezi animația fără să atingi codul"
+  - "Clipul MP4, gata de urcat pe TikTok sau Instagram"
+durata: "1 oră"
+nivel: "începător"
+unelte: ["Claude Code", "Claude Opus 5.5", "GSAP", "HyperFrames", "FFmpeg"]
+actualizat: 2026-11-03
+publicat: 2026-11-03
 imagine: cover.webp
-exemplu: true
+pdf: true
 ---
 
+Claude nu generează video din imagini, ca Veo sau Kling. Scrie o pagină web animată, iar HyperFrames o filmează cadru cu cadru și o salvează ca MP4. De aceea textul iese clar, logo-ul e exact cel al tău și poți schimba orice detaliu, cu o frază.
+
+Ghidul are trei părți: pregătești totul (pașii 1–5), faci un intro de 8 secunde cu logo-ul tău (pașii 6–8) și scoți clipul MP4 (pașii 9–10).
+
+**Nu trebuie să ții minte comenzi.** După ce instalezi pluginul HyperFrames, îi spui lui Claude în cuvinte ce vrei, iar el alege singur ce folosește: pluginul, GSAP, comenzile. La unii pași îți las și comanda pentru terminal, ca variantă, dacă vrei s-o rulezi tu.
+
+Eu folosesc Claude Code în VS Code, așa că ghidul merge pe el. Dacă n-ai încă Claude Code, fă întâi pașii 1–4 din ghidul [Site-uri care nu arată „făcute cu AI”](/ghiduri/site-uri-fara-aer-de-ai): VS Code, extensia Claude Code și conectarea. Dacă îl folosești în terminal (comanda `claude`), pașii sunt aceiași; unde diferă, îți scriu la pas.
+
 <DeCeAiNevoie>
-- Cont Claude Pro (20 $/lună)
-- Claude Code instalat
-- Node.js
+- Cont Claude Pro: 20 $/lună (17 $/lună cu plata pe un an). Claude Code nu e inclus în planul gratuit.
+- Claude Code în VS Code sau în terminal.
+- HyperFrames: gratuit, open source (îl instalezi la pașii 2–3).
+- Node.js 22 sau mai nou și FFmpeg: gratuite. Dacă lipsesc, le instalează Claude la pasul 5.
+- GSAP: gratuit, inclusiv pentru clipuri comerciale. Nu-l instalezi tu: Claude îl pune singur în animație.
+- Logo-ul tău, ideal PNG cu fundal transparent sau SVG.
+- O oră, cu tot cu instalări.
 </DeCeAiNevoie>
 
-<Pas titlu="Ce se poate anima">
-Merge pe intro-uri, logo-uri, grafice și text. **Nu** merge pe oameni reali.
+<Pas titlu="Deschizi un dosar pentru clip">
+HyperFrames ține tot clipul într-un dosar: pagina animată, logo-ul, MP4-ul de la final. Fă un dosar gol, de exemplu `intro-video`, apoi în VS Code alege **File → Open Folder** și deschide-l.
 
-<Atentie>Realist, primul clip îți ia câteva ore de ajustări.</Atentie>
+Copiază logo-ul în dosar și numește-l `logo.png` (sau `logo.svg`). Claude îl folosește exact cum e, nu-l redesenează.
 </Pas>
 
-<Pas titlu="Ceri prima animație">
-<Prompt>Fă-mi un intro de 5 secunde pentru contul meu, cu logo-ul care apare din lumină. Randează-l în MP4.</Prompt>
+<Pas titlu="Adaugi sursa pentru HyperFrames">
+HyperFrames vine ca plugin, adică un pachet de skill-uri pentru Claude. Un skill e un set de instrucțiuni gata scrise, pe care Claude le citește singur când îi ceri ceva legat de el. Pluginul ăsta îl învață cum se construiește un clip și cum se transformă în MP4.
+
+În panoul Claude scrie `/plugins`: se deschide **Manage plugins**. În tab-ul **Marketplaces**, adaugă sursa:
+
+<Prompt>heygen-com/hyperframes</Prompt>
+
+În terminal, în loc de `/plugins`, scrii în Claude:
+
+<Prompt>/plugin marketplace add heygen-com/hyperframes</Prompt>
 </Pas>
 
-<Pas titlu="Ajustezi">
-Spune-i ce nu-ți place, o singură schimbare pe rând.
+<Pas titlu="Instalezi pluginul HyperFrames">
+Treci în tab-ul **Plugins**, caută `hyperframes` și apasă **Install**. Când te întreabă unde, alege **Install for you**: așa îl ai în toate proiectele.
+
+În terminal, în loc de butonul **Install**, scrii în Claude:
+
+<Prompt>/plugin install hyperframes@hyperframes</Prompt>
+
+Claude vede pluginul doar în conversațiile pornite după instalare. Deschide o conversație nouă.
+
+<DacaNuMerge>Dacă pluginul nu apare în listă, întoarce-te în **Marketplaces** și apasă iconița de reîmprospătare de lângă sursă. Dacă tot nu merge, varianta fără plugin e comanda `npx skills add heygen-com/hyperframes`, rulată în terminal, în dosarul clipului. Alege **Core Skills**, apoi deschide o conversație nouă.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Verifici modelul">
+Pe planul Pro, Claude Code lucrează implicit cu Opus 5.5, modelul din carusel. Ca să fii sigur, scrie în panoul Claude:
+
+<Prompt>/model</Prompt>
+
+În listă, modelul ales trebuie să fie **Opus 5.5**. Dacă e altul, alege-l cu săgețile și apasă Enter.
+
+<DacaNuMerge>Dacă Opus 5.5 nu apare, ai o versiune veche de Claude Code. În VS Code, actualizează extensia din **Extensions**; în terminal, rulează `claude update`.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Îi ceri lui Claude să pregătească restul">
+Ca să facă MP4-ul, HyperFrames are nevoie de două programe: Node.js 22 sau mai nou și FFmpeg, programul care lipește cadrele într-un fișier video. Nu le cauți tu. Scrie-i lui Claude:
+
+<Prompt>Verifică dacă am tot ce-i trebuie lui HyperFrames ca să facă MP4-uri. Dacă îmi lipsește Node.js 22 sau FFmpeg, instalează-le. La final spune-mi pe scurt dacă e totul gata.</Prompt>
+
+Claude îți cere voie înainte să ruleze comenzi pe calculatorul tău: citește ce vrea să facă și aprobă. Pentru verificare, folosește comanda `npx hyperframes doctor`.
+
+<Atentie>Dacă vezi rezultatul comenzii, la final scrie „Some checks failed”, chiar dacă merge totul. Contează doar **Node.js**, **FFmpeg**, **FFprobe** și **Chrome**. Crucile de la **whisper-cpp**, **TTS (Kokoro)**, **BGM (MusicGen)** și **Docker** sunt pentru subtitrări, voce și muzică generate, opționale.</Atentie>
+
+<DacaNuMerge>Dacă Claude a instalat FFmpeg, dar zice că tot nu-l găsește, închide VS Code de tot și deschide-l din nou: terminalul vede programele noi abia după repornire. Dacă vrei să le instalezi tu: pe Windows, `winget install Gyan.FFmpeg`; pe Mac, `brew install ffmpeg`; Node.js, versiunea **LTS** de pe [nodejs.org](https://nodejs.org/en/download).</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Descrii animația">
+Aici e toată treaba ta: spui ce se întâmplă, secundă cu secundă. GSAP e biblioteca de animații cu care Claude scrie mișcarea; tu doar o descrii. Schimbă textele dintre paranteze drepte cu ale tale.
+
+<Prompt>Fă-mi cu HyperFrames un intro de 8 secunde, vertical (1080×1920), pentru TikTok și Instagram. Folosește logo-ul din logo.png exact cum e și culorile din el. Fundal închis.
+0–2 s: logo-ul apare din centru, cu o lumină care trece peste el.
+2–5 s: logo-ul urcă puțin și dedesubt apare textul „[numele firmei tale]”, literă cu literă.
+5–8 s: apare mai mic „[ce faci, în 4–5 cuvinte]”, apoi totul se oprește liniștit.
+Folosește GSAP pentru mișcare. Ține textul departe de marginea de jos și de cea din dreapta, unde TikTok pune butoanele. Când e gata, deschide-mi previzualizarea.</Prompt>
+
+Prima variantă durează câteva minute.
+
+<DacaNuMerge>Dacă Claude face o pagină web obișnuită în loc de clip, începe mesajul cu `/hyperframes:hyperframes`: așa îl obligi să folosească pluginul. Dacă ai instalat varianta fără plugin, scrii `/hyperframes`.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Te uiți la previzualizare">
+Claude deschide în browser editorul HyperFrames, la o adresă de forma `http://localhost:3002`. E doar pe calculatorul tău. Apasă play și urmărește clipul de câteva ori, ca un om care îl vede prima dată pe telefon.
+
+Dacă ai închis fereastra, scrie-i lui Claude:
+
+<Prompt>Deschide-mi din nou previzualizarea clipului.</Prompt>
+
+Varianta din terminal, în dosarul clipului: `npx hyperframes preview`.
+</Pas>
+
+<Pas titlu="Ajustezi, o schimbare pe rând">
+Spune-i lui Claude, în aceeași conversație, exact ce vrei altfel. Numește elementul și secunda.
+
+<Prompt>Logo-ul intră prea repede. Fă-l să apară în 1,5 secunde, nu într-una, și restul să se mute mai târziu cu jumătate de secundă.</Prompt>
+
+Previzualizarea se actualizează singură. Când ți-e bine, treci la următoarea schimbare.
+
+<Atentie>Cinci schimbări într-un mesaj se amestecă între ele și nu mai știi care a stricat ce. O schimbare, te uiți, apoi următoarea.</Atentie>
+</Pas>
+
+<Pas titlu="Randezi clipul în MP4">
+A randa înseamnă a transforma animația în fișier video. Scrie-i lui Claude:
+
+<Prompt>Randează clipul în MP4, cu numele intro.mp4.</Prompt>
+
+`intro.mp4` apare în dosarul clipului. Un clip de 10 secunde se randează în mai puțin de un minut pe un calculator obișnuit.
+
+Varianta din terminal, în dosarul clipului: `npx hyperframes render --output intro.mp4`.
+
+<DacaNuMerge>Dacă randarea pică, spune-i lui Claude: „Randarea a dat eroare. Verifică ce lipsește și repară.” Claude citește eroarea și rulează singur verificarea de la pasul 5.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Verifici clipul pe telefon">
+Trimite-ți `intro.mp4` pe telefon (pe WhatsApp, la tine însuți, sau prin e-mail) și uită-te la el pe ecranul mic. Textul trebuie să se citească fără să apropii telefonul de ochi.
+
+Apoi îl urci pe TikTok sau Instagram ca pe orice clip. Dacă vrei altă variantă, întoarce-te la pasul 8: proiectul rămâne în dosar și îl poți schimba oricând.
+
+<Atentie>Pe TikTok, descrierea, numele contului și butoanele acoperă cam o cincime din partea de jos a ecranului și o fâșie din dreapta. Un text pus acolo nu se vede. Verifică pe telefon înainte să postezi.</Atentie>
 </Pas>

@@ -11,21 +11,22 @@ ceGasesti:
 durata: "1–2 ore"
 nivel: "începător"
 unelte: ["Claude Code", "VS Code", "Motion", "UI UX Pro Max", "21st.dev", "Vercel"]
-actualizat: 2026-10-28
+actualizat: 2026-11-03
 publicat: 2026-10-28
 imagine: cover.webp
 pdf: true
 ---
 
-Ghidul are cinci părți: pregătești calculatorul, pui cele 3 lucruri din carusel (Motion, UI UX Pro Max, 21st.dev), faci un site de probă pentru o cafenea și îl pui online. Dacă ai deja Claude Code în VS Code, sari direct la pasul 6.
+Ghidul are cinci părți: pregătești calculatorul, pui cele 3 lucruri din carusel (Motion, UI UX Pro Max, 21st.dev), faci un site de probă pentru o cafenea și îl pui online. Dacă ai deja Claude Code în VS Code, sari direct la pasul 5.
+
+**Nu trebuie să ții minte comenzi.** După ce instalezi uneltele, îi spui lui Claude în cuvinte ce vrei, iar el alege singur ce folosește și ce comenzi rulează. Comenzile le scrii tu doar unde Claude nu le poate face în locul tău: la instalarea uneltelor și la conectarea la conturi. La unii pași îți las comanda și ca variantă, dacă vrei s-o rulezi tu.
 
 Eu folosesc Claude Code în VS Code, așa că ghidul merge pe el. Dacă îl folosești direct în terminal (comanda `claude`), pașii sunt aceiași; unde diferă, îți scriu la pas.
 
 <DeCeAiNevoie>
 - Cont Claude Pro: 20 $/lună (17 $/lună cu plata pe un an). Claude Code nu e inclus în planul gratuit.
 - VS Code: gratuit.
-- Node.js: gratuit.
-- Python 3: gratuit. Îl folosește UI UX Pro Max; dacă nu-l ai, ți-l instalează Claude (pasul 10).
+- Node.js și Python 3: gratuite. Dacă nu le ai, ți le instalează Claude (pasul 5).
 - Cont pe 21st.dev: gratuit, cu 2 copieri de componente pe zi. Fără limită: de la 6 $/lună, cu plata pe un an.
 - Cont pe Vercel: gratuit, pe planul Hobby.
 - 1–2 ore, cu tot cu instalări.
@@ -33,18 +34,6 @@ Eu folosesc Claude Code în VS Code, așa că ghidul merge pe el. Dacă îl folo
 
 <Pas titlu="Instalezi VS Code">
 VS Code e editorul în care o să lucreze Claude. Descarcă-l de pe [code.visualstudio.com](https://code.visualstudio.com), instalează-l cu setările de la început și deschide-l.
-</Pas>
-
-<Pas titlu="Instalezi Node.js">
-Node.js e programul care rulează comenzile din ghid și site-ul pe calculatorul tău. Pe [nodejs.org](https://nodejs.org/en/download) alege versiunea **LTS** (cea stabilă, acum v24) și instaleaz-o cu setările de la început.
-
-Ca să verifici, deschide în VS Code meniul **Terminal → New Terminal** și scrie:
-
-<Prompt>node -v</Prompt>
-
-Trebuie să apară un număr care începe cu `v24`.
-
-<DacaNuMerge>Dacă terminalul spune că `node` nu e recunoscut, închide VS Code de tot și deschide-l din nou. Terminalul vede programele noi abia după repornire.</DacaNuMerge>
 </Pas>
 
 <Pas titlu="Instalezi extensia Claude Code">
@@ -69,10 +58,20 @@ După conectare apare lista **Learn Claude Code**, cu primii pași. O poți înc
 <DacaNuMerge>Dacă după conectare scrie că planul tău nu include Claude Code, contul e pe planul gratuit. Claude Code merge doar pe planurile plătite, de la Pro în sus.</DacaNuMerge>
 </Pas>
 
+<Pas titlu="Îi ceri lui Claude să pregătească restul">
+Mai ai nevoie de două programe: Node.js, care rulează instalatorul de la pasul următor și site-ul pe calculatorul tău, și Python 3, cu care UI UX Pro Max caută prin palete și fonturi. Nu le cauți tu. Scrie-i lui Claude:
+
+<Prompt>Verifică dacă am instalate Node.js (versiunea LTS) și Python 3. Dacă lipsește vreunul, instalează-l. La final spune-mi pe scurt dacă e totul gata.</Prompt>
+
+Claude îți cere voie înainte să ruleze comenzi pe calculatorul tău: citește ce vrea să facă și aprobă.
+
+<DacaNuMerge>Dacă Claude a instalat ceva, dar zice că tot nu-l găsește, închide VS Code de tot și deschide-l din nou: terminalul vede programele noi abia după repornire. Dacă vrei să le instalezi tu: Node.js, versiunea **LTS** de pe [nodejs.org](https://nodejs.org/en/download); Python, de pe [python.org](https://www.python.org/downloads/).</DacaNuMerge>
+</Pas>
+
 <Pas titlu="Instalezi Motion">
 Prima problemă a site-urilor mele: totul era static. Motion e o bibliotecă de animații pentru site-uri, iar kit-ul lor pentru AI îi dă lui Claude un skill, adică instrucțiuni gata scrise pe care le citește înainte să lucreze. Partea de care ai nevoie e gratuită și nu cere cont.
 
-În terminalul din VS Code rulează:
+Instalatorul îți pune întrebări pe care trebuie să le alegi tu, așa că îl rulezi tu, în terminal. În VS Code deschide meniul **Terminal → New Terminal** și scrie:
 
 <Prompt>npx motion-ai</Prompt>
 
@@ -83,6 +82,8 @@ Dacă te întreabă „Ok to proceed?”, scrie `y` și apasă Enter. Apoi insta
 3. **Install now?**: alege **Yes**.
 
 La final, terminalul scrie **Done. Run /motion in your agent**. Atât: Motion e instalat.
+
+<DacaNuMerge>Dacă terminalul spune că `npx` nu e recunoscut, nu vede încă Node.js, instalat la pasul 5. Închide VS Code de tot, deschide-l din nou și rulează comanda încă o dată.</DacaNuMerge>
 </Pas>
 
 <Pas titlu="Verifici dacă Claude vede Motion">
@@ -126,7 +127,7 @@ Nu-l lăsa să scrie cod din prima. Cere-i întâi variante, cum i-ai cere unui 
 
 <Prompt>Vreau un site de prezentare pentru o cafenea de specialitate din Cluj. O singură pagină, cu: prima secțiune, meniul, povestea locului, programul și contactul. Propune-mi 3 direcții vizuale diferite, fiecare cu paleta de culori, fonturile și cum arată prima secțiune. Nu scrie cod încă.</Prompt>
 
-<DacaNuMerge>Dacă Claude spune că nu găsește Python, scrie-i „Instalează Python pentru mine” și aprobă comenzile pe care ți le arată. Skill-ul are nevoie de el ca să caute prin palete și fonturi.</DacaNuMerge>
+<DacaNuMerge>Dacă Claude spune că nu găsește Python, ai sărit pasul 5. Scrie-i „Instalează Python pentru mine” și aprobă comenzile pe care ți le arată. Skill-ul are nevoie de el ca să caute prin palete și fonturi.</DacaNuMerge>
 </Pas>
 
 <Pas titlu="Alegi direcția și faci site-ul">
@@ -176,7 +177,7 @@ Vercel pune site-ul pe internet, la o adresă pe care o poate deschide oricine. 
 </Pas>
 
 <Pas titlu="Conectezi terminalul la Vercel">
-În terminalul din VS Code rulează:
+Conectarea la cont o faci tu, o singură dată. În terminalul din VS Code rulează:
 
 <Prompt>npx vercel login</Prompt>
 
@@ -184,23 +185,27 @@ Terminalul îți deschide browserul sau îți dă un link. Confirmă acolo cu co
 </Pas>
 
 <Pas titlu="Pui site-ul online">
-Tot în terminal, în dosarul site-ului, rulează:
+De aici încolo, Claude publică în locul tău. Scrie-i:
 
-<Prompt>npx vercel --yes</Prompt>
+<Prompt>Pune site-ul online pe Vercel și dă-mi adresa la care se vede.</Prompt>
 
-`--yes` răspunde singur la întrebările de la primul proiect (numele, dosarul, setările). Prima publicare merge direct pe adresa principală. La final, terminalul îți dă o adresă care se termină în `.vercel.app`: o poți trimite oricui.
+Prima publicare merge direct pe adresa principală. La final, Claude îți dă o adresă care se termină în `.vercel.app`: o poți trimite oricui.
+
+Varianta din terminal, în dosarul site-ului: `npx vercel --yes`.
 
 Proiectul apare și în contul tău de pe [vercel.com](https://vercel.com), cu adresa lui și starea **Ready**.
 
 <CeVezi src="pas-18-online.webp" alt="Un proiect publicat în Vercel (aici, site-ul meu), cu adresa și starea Ready" />
 
-<DacaNuMerge>Dacă publicarea pică, copiază eroarea din terminal și dă-i-o lui Claude: „Publicarea pe Vercel a dat eroarea asta: …”. Claude citește eroarea și repară codul.</DacaNuMerge>
+<DacaNuMerge>Dacă publicarea pică, spune-i lui Claude: „Publicarea pe Vercel a dat eroare. Citește-o și repară.” Claude citește eroarea și repară codul.</DacaNuMerge>
 </Pas>
 
 <Pas titlu="Publici modificările">
-Când mai schimbi ceva cu Claude, pui varianta nouă online cu:
+Când mai schimbi ceva cu Claude, îi ceri să pună varianta nouă online:
 
-<Prompt>npx vercel --prod</Prompt>
+<Prompt>Pune modificările online pe Vercel, pe adresa principală.</Prompt>
 
-<Atentie>Fără `--prod`, Vercel face doar o previzualizare, adică o copie de probă la altă adresă, iar site-ul principal rămâne cum era. Previzualizările cer conectare la Vercel, deci un client care le deschide vede o pagină de login.</Atentie>
+Varianta din terminal, în dosarul site-ului: `npx vercel --prod`.
+
+<Atentie>Spune „pe adresa principală”. Altfel, Vercel poate face doar o previzualizare, adică o copie de probă la altă adresă, iar site-ul principal rămâne cum era. Previzualizările cer conectare la Vercel, deci un client care le deschide vede o pagină de login. Dacă primești o adresă nouă, diferită de cea de la pasul 18, e o previzualizare.</Atentie>
 </Pas>

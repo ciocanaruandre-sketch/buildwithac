@@ -11,7 +11,7 @@ ceGasesti:
 durata: "45 min"
 nivel: "începător"
 unelte: ["Harvey", "Claude Code", "Scavio"]
-actualizat: 2026-10-29
+actualizat: 2026-11-03
 publicat: 2026-10-29
 imagine: cover.webp
 clip: https://www.tiktok.com/@buildwithac.ai/video/7702113310866476310
@@ -21,6 +21,8 @@ pdf: true
 Harvey e un agent gratuit și open source (codul e public, îl poate folosi oricine). Îi dai site-ul tău, învață ce vinzi, apoi caută firme potrivite, le citește site-urile și află ce le lipsește. Merge pe abonamentul tău Claude, fără cont separat de API.
 
 În ghidul ăsta îl folosești ca să-ți faci lista de clienți: firme din orașul tău, cu ce le lipsește și cu numărul de telefon. Contactul îl faci tu, la telefon. De ce nu-l lași să trimită și e-mailurile, afli imediat mai jos.
+
+**Nu trebuie să ții minte comenzile lui Harvey.** Dosarul lui are instrucțiuni pentru Claude, așa că îi spui lui Claude în cuvinte ce vrei, iar el rulează comenzile. Tu scrii în terminal doar instalarea lui Claude Code și conectarea. La un pas îți las comanda și ca variantă, dacă vrei s-o rulezi tu.
 
 <Atentie>Harvey poate trimite singur e-mailuri reci, adică e-mailuri către oameni care nu ți-au cerut nimic. În România, e-mailurile comerciale trimise fără acordul dat dinainte sunt interzise și când le trimiți către firme (Legea 506/2004, art. 12). Amenda e de la 5.000 la 100.000 de lei și o dă ANSPDCP. Folosește Harvey ca să-ți faci lista și să afli ce are fiecare firmă, apoi sună tu: apelurile făcute de un om nu intră sub interdicție. Trimiterea automată e legală în SUA, nu și la noi.</Atentie>
 
@@ -102,7 +104,7 @@ La final, `harvey status` afișează **Harvey Pipeline Status**, cu toate numere
 <Pas titlu="Îl antrenezi pe site-ul tău">
 Harvey citește site-ul tău și scrie ce vinzi, cui și cu ce argumente. Scrie-i lui Claude, cu adresa ta în loc de exemplu:
 
-<Prompt>Rulează harvey train https://site-ul-tau.ro și arată-mi ce scrie la final.</Prompt>
+<Prompt>Antrenează Harvey pe site-ul meu, https://site-ul-tau.ro, și arată-mi ce scrie la final.</Prompt>
 
 Harvey trece prin șase etape, de la `[1/6]` la `[6/6]`, și termină cu **Training complete!**. Durează câteva minute și consumă din limitele abonamentului tău Claude.
 
@@ -150,7 +152,7 @@ Salvează cu `Ctrl+S` (pe Mac `Cmd+S`) și închide fișierul.
 <Pas titlu="Confirmi ce caută pe site-uri">
 Harvey poate afla 29 de lucruri despre o firmă: dacă are programare online, dacă face reclame pe Google, dacă blogul e abandonat. Le numește semnale. Nu caută niciunul până nu-l confirmi tu. Pornește cu cele gratuite:
 
-<Prompt>Rulează harvey signals --confirm free.</Prompt>
+<Prompt>Confirmă în Harvey toate semnalele gratuite.</Prompt>
 
 Harvey răspunde cu numărul semnalelor confirmate, de exemplu **26 signal(s) confirmed**.
 </Pas>
@@ -158,17 +160,17 @@ Harvey răspunde cu numărul semnalelor confirmate, de exemplu **26 signal(s) co
 <Pas titlu="Afli cât costă căutarea">
 Înainte să caute, îi ceri o estimare. Nu consumă nimic:
 
-<Prompt>Rulează harvey discover --provider scavio_maps --limit 40 --estimate.</Prompt>
+<Prompt>Estimează cât ar costa o căutare de firme cu Harvey în Google Maps, prin Scavio, cu cel mult 40 de firme pe căutare. Doar estimarea, nu căuta încă.</Prompt>
 
-`--limit 40` înseamnă cel mult 40 de firme pe căutare, adică două credite Scavio. Harvey îți arată căutările pe care le-ar face (de exemplu **cafenea Cluj-Napoca, Romania**) și costul estimat în dolari. Cu creditele gratuite nu plătești nimic.
+40 de firme pe căutare înseamnă două credite Scavio. Harvey îți arată căutările pe care le-ar face (de exemplu **cafenea Cluj-Napoca, Romania**) și costul estimat în dolari. Cu creditele gratuite nu plătești nimic.
 
-<Atentie>Fără `--provider scavio_maps`, Harvey caută în OpenStreetMap, sursa lui gratuită implicită. Ea găsește doar câteva meserii, scrise în engleză: dentiști (`dentist`), avocați (`lawyer`), electricieni, instalatori, constructori. Cafenelele, saloanele și agențiile imobiliare nu apar deloc acolo.</Atentie>
+<Atentie>Dacă nu spui „prin Scavio”, Harvey caută în OpenStreetMap, sursa lui gratuită implicită. Ea găsește doar câteva meserii, scrise în engleză: dentiști (`dentist`), avocați (`lawyer`), electricieni, instalatori, constructori. Cafenelele, saloanele și agențiile imobiliare nu apar deloc acolo.</Atentie>
 </Pas>
 
 <Pas titlu="Cauți firmele">
-Acum aceeași comandă, fără estimare:
+Acum căutarea adevărată:
 
-<Prompt>Rulează harvey discover --provider scavio_maps --limit 40.</Prompt>
+<Prompt>Fă căutarea cu aceleași setări: Google Maps prin Scavio, cel mult 40 de firme pe căutare.</Prompt>
 
 Harvey face două lucruri. Întâi aduce firmele din Google Maps (**DISCOVER**), apoi le citește site-urile, gratuit (**PROFILE**). La final vezi câte firme noi a găsit și câte site-uri a citit.
 
@@ -176,17 +178,15 @@ Harvey face două lucruri. Întâi aduce firmele din Google Maps (**DISCOVER**),
 </Pas>
 
 <Pas titlu="Deschizi panoul lui Harvey">
-Panoul e o pagină care merge doar pe calculatorul tău. Deschide un al doilea terminal în dosarul lui Harvey (ca la pasul 5) și scrie, pe Windows:
+Panoul e o pagină care merge doar pe calculatorul tău. Scrie-i lui Claude:
 
-<Prompt>.venv\Scripts\harvey dashboard</Prompt>
+<Prompt>Pornește panoul lui Harvey în fundal și dă-mi link-ul exact, cu tot cu partea de după #.</Prompt>
 
-Pe Mac:
+Link-ul începe cu `http://127.0.0.1:5555/#token=`. Deschide-l în browser. Panoul merge cât timp e deschisă conversația cu Claude.
 
-<Prompt>.venv/bin/harvey dashboard</Prompt>
+Varianta din terminal: deschide un al doilea terminal în dosarul lui Harvey (ca la pasul 5) și scrie `.venv\Scripts\harvey dashboard` (pe Mac, `.venv/bin/harvey dashboard`). Lasă terminalul deschis cât folosești panoul.
 
-Terminalul afișează un link care începe cu `http://127.0.0.1:5555/#token=`. Deschide-l în browser. Lasă terminalul deschis cât folosești panoul.
-
-<DacaNuMerge>Dacă panoul scrie că e blocat, ai deschis adresa fără partea de după `#`. Deschide exact link-ul din terminal.</DacaNuMerge>
+<DacaNuMerge>Dacă panoul scrie că e blocat, ai deschis adresa fără partea de după `#`. Deschide exact link-ul primit, întreg.</DacaNuMerge>
 </Pas>
 
 <Pas titlu="Alegi firmele potrivite">
