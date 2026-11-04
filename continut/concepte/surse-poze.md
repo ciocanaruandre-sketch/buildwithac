@@ -24,7 +24,7 @@ Adresa fiecărei poze: `https://images.unsplash.com/photo-<id>`.
 ## Tatuajele (`prototip/concept-tatuaje/`)
 | Fișier | ID | Folosită în varianta aleasă |
 |---|---|---|
-| `maini.jpg` | `1568515045052-f9a854d70bfd` | da |
+| `maini.jpg` | `1568515045052-f9a854d70bfd` (pe site e retușată: logo-ul de pe mașina de tatuat șters) | da |
 | `linii.jpg` | `1597852075234-fd721ac361d3` | da |
 | `fin.jpg` | `1570168983832-8989dae1522e` | da |
 | `brat.jpg` | `1651692883249-ed36b3523419` | da |

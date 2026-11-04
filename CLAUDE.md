@@ -97,6 +97,8 @@ Doar munca lui Andrei. Site-urile-concept sunt marcate clar „Concept”.
 | Lista de idei | `continut/idei.md` |
 | PDF-urile ghidurilor, pentru Andrei (`<slug>.pdf`, ignorate în git) | `PDF ghiduri/` (le pune `npm run pdf`) |
 | Skill-urile | `.claude/skills/ghid-nou/`, `.claude/skills/idei/` |
+| Site-urile-concept (pagini statice, cu `noindex`) | `site/public/concepte/<slug>/`, resursele comune în `_comun/` |
+| Sursele pozelor din concepte | `continut/concepte/surse-poze.md` |
 | Prototipurile | `prototip/` |
 | Montajul imaginii hero | `prototip/montaj/` (`compose.py`; pașii în `docs/progres-brainstorming.md`) |
 | Logo-ul | `C:\Instagram Content Pipeline\buildwithacai\brand\logo-transparent.png` |

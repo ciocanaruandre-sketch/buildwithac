@@ -11,6 +11,15 @@ test.describe("producție", () => {
     await expect(page.locator("#portofoliu")).toBeVisible();
   });
 
+  test("site-urile-concept merg și nu intră în căutări", async ({ request }) => {
+    for (const slug of ["clinica", "frizerie", "tatuaje"]) {
+      const r = await request.get(`/concepte/${slug}`);
+      expect(r.status()).toBe(200);
+      expect(r.headers()["x-robots-tag"]).toContain("noindex");
+    }
+    expect((await request.get("/concepte/altceva")).status()).toBe(404);
+  });
+
   test("pagina de ghiduri n-are ghidurile de exemplu", async ({ page }) => {
     await page.goto("/ghiduri");
     await expect(page.locator(".colaj .gc").first()).toBeVisible();
