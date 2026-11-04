@@ -37,3 +37,6 @@ Claude ca analist de trading, prin proiectul comunitar `tradesdontlie/tradingvie
 
 ## Greșeala mea
 Andrei nu folosește TradingView, deci fără `<GresealaMea>`.
+
+## PDF
+- Link-ul pentru Instagram: https://buildwithac.ro/pdf/claude-tradingview-mcp-e39f4e1b2870.pdf (copie în `PDF ghiduri/claude-tradingview-mcp.pdf`), făcut pe 2026-11-04.
