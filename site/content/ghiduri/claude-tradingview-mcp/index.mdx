@@ -1,36 +1,176 @@
 ---
-titlu: "Claude conectat la TradingView"
+titlu: "Claude conectat la TradingView, cu MCP-ul oficial"
 slug: claude-tradingview-mcp
 cuvant: TRADING
-descriere: "Conectezi Claude la TradingView printr-un MCP, ca să-ți citească graficele și să-ți explice ce vede."
+descriere: "Conectezi Claude la TradingView prin MCP-ul oficial, fără terminal. Scanezi piața, citești știri, pui alerte și testezi strategii în Pine Script."
 ceGasesti:
-  - "Ce e un MCP, pe scurt"
-  - "Instalarea, pas cu pas"
-  - "Primele întrebări de pus"
-durata: "45 min"
-nivel: "avansat"
-unelte: ["Claude Desktop", "MCP", "TradingView"]
-actualizat: 2026-10-08
-publicat: 2026-10-08
+  - "Conectarea în câteva minute, din browser"
+  - "Prompturi pentru analiză, screener și știri"
+  - "Alerte de preț puse din conversație"
+  - "O strategie în Pine Script, testată pe date din trecut"
+durata: "30 min"
+nivel: "începător"
+unelte: ["Claude", "TradingView", "MCP", "Pine Script"]
+actualizat: 2026-11-04
+publicat: 2026-11-04
 imagine: cover.webp
-exemplu: true
+pdf: false
 ---
 
+Până de curând, ca să conectezi Claude la TradingView aveai nevoie de Node.js, Git, un proiect de pe GitHub și o aplicație pornită cu o comandă specială. Din septembrie 2026, TradingView are un server MCP oficial. Îl conectezi din browser, în câteva minute, fără terminal.
+
+Un MCP e un conector: un drum prin care Claude citește date din alt program. După conectare, tu întrebi în cuvinte, iar Claude ia singur prețurile, indicatorii, știrile și rezultatele din screener, filtrul de piață din TradingView.
+
+Ghidul are trei părți: conectezi Claude (pașii 1–6), lucrezi cu datele din piață (pașii 7–10) și testezi o strategie (pașii 11–15).
+
+**Ce poate Claude prin conector:** citește prețuri, indicatori, știri, rezultate financiare și calendare, rulează screenerul, îți administrează listele de simboluri și alertele de preț.
+
+**Ce nu poate:** nu mișcă graficul, nu desenează pe el, nu scrie în Pine Editor, nu rulează backtesturi și nu plasează tranzacții. Partea cu strategiile o faci prin copiere: Claude scrie codul, tu îl lipești în TradingView, apoi îi dai rezultatele.
+
+**Nu trebuie să ții minte comenzi.** După conectare, îi spui lui Claude ce vrei, iar el alege singur ce unealtă folosește. Prompturile de mai jos sunt doar puncte de pornire: schimbă simbolul, intervalul și criteriile.
+
 <DeCeAiNevoie>
-- Cont Claude Pro (20 $/lună)
-- Cont TradingView
+- Cont TradingView cu plan Essential sau mai mare: 14,95 €/lună sau 12,95 €/lună cu plata pe un an. Planul gratuit Basic și perioada de probă nu includ MCP-ul.
+- Cont Claude. Merge și pe planul gratuit, care permite un singur conector personalizat. Pentru analize lungi, Claude Pro costă 20 $/lună.
+- Un browser sau aplicația Claude. Nu instalezi nimic altceva.
+- Un calculator pentru partea cu Pine Script (pașii 12–13).
+- 30 de minute.
 </DeCeAiNevoie>
 
-<Atentie>Nu e sfat financiar. Claude îți explică graficul, deciziile rămân ale tale.</Atentie>
+<Atentie>Nu e sfat financiar. Claude poate greși, iar tranzacțiile le decizi și le plasezi tu. Nu investi bani pe baza unui răspuns pe care nu l-ai verificat pe grafic.</Atentie>
 
-<Pas titlu="Ce e un MCP">
-Un MCP e o „priză” prin care Claude poate folosi un alt program.
+<Atentie>Pe net găsești tutoriale cu proiecte de pe GitHub care pornesc TradingView cu un port de depanare. Nu sunt de la TradingView, iar termenii lor interzic uneltele care prelucrează automat datele de pe platformă. Îți riști contul. Rămâi pe serverul oficial din ghidul ăsta.</Atentie>
+
+<Pas titlu="Alegi planul Essential">
+Intră pe [tradingview.com/pricing](https://www.tradingview.com/pricing/). Comutatorul de sus schimbă între **Monthly** și **Annually**. La **Essential**, apasă **Start now** și urmează pașii de plată. Dacă n-ai cont, TradingView îți cere să-ți faci unul.
+
+<CeVezi src="pas-1-plan-essential.webp" alt="Planul Essential și butonul Start now" />
+
+<Atentie>Perioada de probă nu include MCP-ul. Dacă pornești proba, conectorul nu merge până treci pe planul plătit.</Atentie>
 </Pas>
 
-<Pas titlu="Instalezi conectorul">
-<Prompt>Instalează MCP-ul pentru TradingView și verifică dacă merge.</Prompt>
+<Pas titlu="Copiezi adresa serverului">
+Adresa e aceeași pentru toată lumea. O găsești și în [documentația TradingView](https://www.tradingview.com/mcp/docs), la **Server URL**.
+
+<Prompt>https://mcp.tradingview.com/mcp</Prompt>
+
+<CeVezi src="pas-2-adresa-server.webp" alt="Adresa serverului, cu butonul Copy" />
 </Pas>
 
-<Pas titlu="Primele întrebări">
-<Prompt>Uită-te la graficul BTC pe 4 ore și explică-mi ce vezi, pe înțelesul unui începător.</Prompt>
+<Pas titlu="Deschizi conectorii din Claude">
+Intră pe [claude.ai](https://claude.ai) și alege **Customize**, apoi **Connectors**. Sus, în dreapta, apasă **Add** și alege **Add custom connector**.
+
+Documentația TradingView încă scrie **Settings → Connectors**. Claude a mutat conectorii în **Customize**, deci în **Settings** găsești doar un link spre ei.
+</Pas>
+
+<Pas titlu="Adaugi conectorul TradingView">
+La **Name** scrie `TradingView`. La **MCP server URL** lipește adresa de la pasul 2, apoi apasă **Continue**.
+
+<CeVezi src="pas-4-conector-claude.webp" alt="Numele și adresa, completate în Claude" />
+
+Claude detectează singur cum se face conectarea. Lasă setările propuse și mergi mai departe până la **Add**.
+
+Dacă folosești Claude Code, adaugi serverul din terminal, cu `claude mcp add --transport http mcp-tradingview https://mcp.tradingview.com/mcp`. Apoi scrii `/mcp` în Claude Code și autorizezi din browser.
+
+<DacaNuMerge>Pe planul gratuit al lui Claude ai loc pentru un singur conector personalizat. Dacă ai deja unul, scoate-l sau treci pe Pro.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Te conectezi cu contul TradingView">
+Claude te trimite pe TradingView. Te conectezi cu contul tău și aprobi accesul. Nu copiezi nicio cheie, iar parola o scrii doar pe site-ul lor.
+
+Dacă nu ești trimis automat, intră la **Customize → Connectors**, fila **Yours**, și apasă **Connect** lângă TradingView.
+
+<DacaNuMerge>Dacă autorizarea nu trece, verifică planul. Pe Basic și în perioada de probă, accesul e refuzat.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Verifici conexiunea">
+Deschide o conversație nouă. Apasă **+** în stânga jos, alege **Connectors** și verifică dacă TradingView e pornit. Apoi scrie:
+
+<Prompt>Folosește conectorul TradingView și spune-mi ce unelte ai disponibile.</Prompt>
+
+Trebuie să primești o listă cu unelte pentru date de piață, screener, știri și alerte. Conectorul adăugat o dată merge și în aplicația Claude de pe telefon.
+
+Când Claude vrea să folosească o unealtă, îți cere voie. Citește ce vrea să facă. **Allow always** e în regulă la uneltele care doar citesc date. La cele care schimbă ceva, ca alertele sau listele, aprobă de fiecare dată.
+</Pas>
+
+<Pas titlu="Ceri prima analiză">
+Simbolurile se scriu `BURSĂ:SIMBOL`, de exemplu `BINANCE:BTCUSDT` sau `NASDAQ:NVDA`. Dacă nu știi forma exactă, scrie numele, iar Claude o caută.
+
+<Prompt>Analizează BINANCE:BTCUSDT pe intervalul de 1 oră, din ultimele 300 de lumânări. Spune-mi trendul, valorile RSI și MACD, volumul față de medie și cele mai clare zone de suport și rezistență. Explică-mi pe înțelesul meu.</Prompt>
+
+RSI și MACD sunt indicatori care arată cât de repede s-a mișcat prețul. Suportul și rezistența sunt zonele unde prețul s-a oprit de mai multe ori. Claude le calculează din date, dar nu le poate desena. Dacă le vrei pe grafic, le tragi tu, cu o linie orizontală.
+
+<Atentie>Datele din MCP vin cu întârziere, iar TradingView nu spune cu cât. Sunt bune pentru analiză. Pentru prețul din acest moment, uită-te pe grafic.</Atentie>
+</Pas>
+
+<Pas titlu="Scanezi piața">
+Aici câștigi cel mai mult timp. În loc să deschizi zeci de grafice, Claude rulează screenerul și îți dă doar ce trece de criteriile tale.
+
+<Prompt>Rulează screenerul TradingView pe piața crypto. Găsește activele cu RSI sub 30 și volum relativ peste 2. Ordonează-le după volum și dă-mi primele 20 într-un tabel. Dacă un criteriu nu există în screener, spune-mi în loc să-l aproximezi.</Prompt>
+
+Volum relativ 2 înseamnă dublul volumului obișnuit. Pentru acțiuni americane, înlocuiește „crypto” cu „acțiuni din SUA”. Un rezultat din listă e un punct de pornire, nu un semnal de cumpărare.
+</Pas>
+
+<Pas titlu="Citești știrile și calendarul">
+Înainte să te uiți la un grafic, e util să știi ce urmează: rezultate financiare, decizii pe dobânzi, date despre inflație.
+
+<Prompt>Ce știri importante are NASDAQ:NVDA din ultima săptămână, când e următorul raport financiar și ce evenimente economice importante sunt în SUA în următoarele 7 zile? Răspunde pe scurt, în română.</Prompt>
+</Pas>
+
+<Pas titlu="Pui o alertă de preț">
+Schimbă simbolul și prețul din mesaj. Claude îți cere voie înainte să creeze alerta.
+
+<Prompt>Pune o alertă TradingView pe BINANCE:BTCUSDT când prețul coboară sub [prețul tău], cu notificare pe telefon. Să expire în 30 de zile.</Prompt>
+
+Alerta pornește cu o mică întârziere, așa că verific-o după un minut:
+
+<Prompt>Listează alertele mele active din TradingView.</Prompt>
+
+<DacaNuMerge>Prin MCP merg doar alertele simple de preț. Alertele pe indicatori, cu mai multe condiții sau cu webhook (trimitere automată către alt program) le faci direct pe TradingView.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Ceri o strategie în Pine Script">
+Pine Script e limbajul din TradingView pentru indicatori și strategii. Claude scrie codul aici, în conversație.
+
+<Prompt>Scrie o strategie în Pine Script v6 pentru TradingView. Cumpără când RSI(14) trece în sus peste 30 și MACD e peste linia de semnal, doar dacă volumul e peste media pe 20 de lumânări. Stop loss 2%, take profit 4%, comision 0,1% pe tranzacție. Dă-mi tot codul într-un singur bloc și explică-mi pe scurt fiecare parte.</Prompt>
+
+Stop loss e prețul la care ieși ca să oprești pierderea, iar take profit e prețul la care iei câștigul.
+
+<Atentie>Dacă nu ceri comisionul, Pine Script îl consideră zero, iar rezultatele arată mai bine decât în realitate. Lasă-l în prompt și pune valoarea de la platforma ta.</Atentie>
+</Pas>
+
+<Pas titlu="Lipești scriptul în Pine Editor">
+De pe calculator, deschide [graficul TradingView](https://www.tradingview.com/chart/) pe simbolul și intervalul pe care vrei să testezi. Din bara din dreapta, deschide **Pine Editor**. Șterge ce e scris acolo, lipește codul de la Claude și apasă **Add to chart**.
+
+<CeVezi src="pas-12-pine-editor.webp" alt="Pine Editor, cu butonul Add to chart" />
+
+<DacaNuMerge>Dacă editorul arată o eroare, copiază textul erorii și trimite-l lui Claude, cu mesajul „Repară codul”. De obicei se rezolvă din una sau două încercări.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Descarci rezultatele backtestului">
+Un backtest e testarea strategiei pe date din trecut. TradingView îl rulează singur când adaugi strategia pe grafic, iar rezultatele apar în panoul **Strategy Report**, sub grafic.
+
+Deschide **List of Trades** și apasă **Download**. Primești un fișier CSV, un tabel cu toate tranzacțiile din test.
+
+<DacaNuMerge>Descărcarea listei de tranzacții merge de la Essential în sus. Dacă nu vezi **Download**, verifică planul cu care ești conectat.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Îi dai lui Claude raportul">
+În conversație, atașează fișierul CSV și trimite:
+
+<Prompt>Am atașat lista de tranzacții din backtest. Calculează rata de câștig, profitul net, drawdown-ul maxim, profit factor și numărul de tranzacții. Spune-mi care e cea mai bună și cea mai slabă perioadă și ce rezultate ar putea fi doar noroc.</Prompt>
+
+Drawdown-ul e cea mai mare scădere de la un vârf al contului. Profit factor e totalul câștigurilor împărțit la totalul pierderilor. Peste 1 înseamnă că strategia a câștigat pe perioada testată.
+
+<Atentie>Un backtest bun nu garantează nimic. Dacă schimbi setările până arată frumos, strategia se potrivește cu trecutul, nu cu ce urmează. Testează pe altă perioadă și pe alt simbol, înainte să crezi rezultatul.</Atentie>
+</Pas>
+
+<Pas titlu="Îți analizezi jurnalul de tranzacții">
+Dacă tranzacționezi deja, exportă istoricul din platforma ta, ca fișier CSV, și atașează-l. Merge și un tabel ținut de mână.
+
+<Prompt>Am atașat jurnalul meu de tranzacții. Găsește greșelile care se repetă, tipul de intrare cel mai profitabil, ziua și ora la care pierd cel mai des și dacă ies prea devreme. Dă-mi trei reguli concrete pe care să le respect.</Prompt>
+
+<Atentie>Înainte să urci fișierul, șterge numele și numărul contului. Lui Claude îi ajung datele tranzacțiilor.</Atentie>
+
+<Atentie>Datele din TradingView sunt pentru uzul tău. Termenii lor interzic tranzacționarea automată pe baza lor, deci nu lega conectorul de un robot și nu construi un produs pe ele.</Atentie>
 </Pas>
