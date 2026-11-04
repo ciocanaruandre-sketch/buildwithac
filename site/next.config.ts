@@ -7,7 +7,15 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   // PDF-urile ghidurilor: link-uri trimise pe Instagram, nelistate și neindexate
   async headers() {
-    return [{ source: "/pdf/:fisier*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+    return [
+      { source: "/pdf/:fisier*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      // site-urile-concept: firme inventate, nu trebuie să apară în căutări
+      { source: "/concepte/:cale*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+    ];
+  },
+  // site-urile-concept sunt pagini statice, fără meniul și subsolul site-ului
+  async rewrites() {
+    return [{ source: "/concepte/:slug", destination: "/concepte/:slug/index.html" }];
   },
   // PDF-urile sunt fișiere statice: nu au ce căuta în funcțiile paginilor (cheia e un glob, deci nu „[slug]”)
   outputFileTracingExcludes: { "/*": ["./public/pdf/**"] },

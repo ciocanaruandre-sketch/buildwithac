@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clinica Tei (concept)</title>
+<!-- Concept: firmă inventată. Sursele pozelor: continut/concepte/surse-poze.md -->
+<link rel="stylesheet" href="/concepte/_comun/fonturi/clinica.css">
+<script src="/concepte/_comun/gsap.min.js"></script>
+<script src="/concepte/_comun/ScrollTrigger.min.js"></script>
+<style>
+:root{--banda:32px;--pad:24px;
+  --hartie:#f3f2ed;--lemn:#1e3343;--stins:#566470;--miere:#c79a4b;--miere-text:#3a5a69;--tei:#d5dfe3;--linie:rgba(44,33,24,.16);
+  --lemn-stins:#b7c4cc;--tenta:18,32,43;--linie-inchis:rgba(244,239,230,.2)}
+*{box-sizing:border-box;margin:0}
+html{background:var(--hartie);-webkit-text-size-adjust:100%}
+body{background:var(--hartie);color:var(--lemn);font:400 17px/1.6 'Figtree',system-ui,sans-serif;overflow-x:hidden}
+img{display:block;max-width:100%}
+button,a{font:inherit;color:inherit}
+a{text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--miere-text);outline-offset:3px}
+h1,h2{font-family:'Fraunces',serif;font-weight:340;line-height:1.08;font-optical-sizing:auto}
+
+.concept{position:fixed;inset:0 0 auto 0;height:var(--banda);z-index:40;display:flex;align-items:center;justify-content:center;gap:6px;background:#0b0908;color:#f6efe3;font-size:13px;white-space:nowrap}
+.concept b{font-weight:600;color:#ffb52e}
+.concept a{margin-left:8px;padding:8px 0;color:#f6efe3}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;border:0;border-radius:999px;background:var(--lemn);color:var(--hartie);font-weight:500;font-size:16px;cursor:pointer;text-decoration:none}
+.btn.gol{background:transparent;color:inherit;box-shadow:inset 0 0 0 1px currentColor}
+
+.marca{font-family:'Fraunces',serif;font-size:22px;font-weight:400}
+
+/* primul ecran */
+.erou{position:relative;height:100vh;height:100svh;min-height:620px;overflow:hidden}
+.erou .poza{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.erou .marca{position:absolute;z-index:3;top:calc(var(--banda) + 18px);left:var(--pad)}
+.erou h1{font-size:clamp(40px,11.4vw,84px);max-width:13ch}
+.sub{margin-top:14px;max-width:30ch}
+.actiuni{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+
+/* arcada */
+.c{background:var(--tei)}
+.c .poza{object-position:50% 50%;filter:brightness(.88) saturate(.95);clip-path:inset(47% 7% 0% 7% round 170px 170px 0 0);will-change:clip-path}
+.c .in{position:absolute;z-index:2;left:var(--pad);right:var(--pad);top:calc(var(--banda) + 84px)}
+.c .sosit{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:90px var(--pad) 34px;color:var(--hartie);background:linear-gradient(180deg,rgba(var(--tenta),0),rgba(var(--tenta),.86));opacity:0;visibility:hidden}
+.c .sosit p{font:340 clamp(36px,10vw,72px)/1.08 'Fraunces',serif;max-width:12ch}
+.c .sosit .btn{margin-top:20px;background:var(--hartie);color:var(--lemn)}
+
+/* secțiuni */
+.bloc{max-width:720px;margin:0 auto;padding:84px var(--pad)}
+h2{font-size:clamp(36px,10vw,64px)}
+.intro{margin-top:14px;color:var(--stins);max-width:36ch}
+
+.pasi{list-style:none;padding:0;margin-top:34px;counter-reset:p}
+.pasi li{counter-increment:p;display:grid;grid-template-columns:44px 1fr;padding:20px 0;border-top:1px solid var(--linie)}
+.pasi li::before{content:counter(p);font:340 30px/1.1 'Fraunces',serif;color:var(--miere-text)}
+.pasi h3{font-size:19px;font-weight:600;line-height:1.3}
+.pasi p{margin-top:4px;color:var(--stins)}
+.foto-lata{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:14px;margin-top:14px}
+
+.tarife{background:var(--tei)}
+.lista{list-style:none;padding:0;margin-top:30px;border-top:1px solid var(--linie)}
+.lista li{display:grid;grid-template-columns:1fr auto;gap:2px 16px;padding:16px 0;border-bottom:1px solid var(--linie)}
+.lista .pret{font:400 20px/1.35 'Fraunces',serif;white-space:nowrap}
+.lista small{grid-column:1/-1;font-size:15px;color:var(--stins)}
+.nota-t{margin-top:18px;font-size:15px;color:var(--stins)}
+
+.pachete{background:var(--lemn);color:var(--hartie)}
+.pachete .intro{color:var(--lemn-stins)}
+.pachet{padding:24px 0;border-top:1px solid var(--linie-inchis)}
+.pachet:first-of-type{margin-top:30px}
+.pachet h3{font:340 28px/1.15 'Fraunces',serif}
+.pachet p{margin-top:6px;color:var(--lemn-stins);max-width:36ch}
+.pachet .pret{margin-top:10px;font-size:18px;color:var(--hartie);font-weight:500}
+.pachet .btn{margin-top:16px;background:var(--hartie);color:var(--lemn);min-height:48px}
+
+.vizita address{font-style:normal;font-size:19px;margin-top:18px}
+.stare{margin-top:4px;color:var(--miere-text);font-weight:500}
+.vizita dl{display:grid;grid-template-columns:1fr auto;gap:10px 18px;margin-top:26px;padding-top:22px;border-top:1px solid var(--linie)}
+.vizita dt,.vizita dd{margin:0}
+.vizita .azi{color:var(--miere-text);font-weight:600}
+.urgenta{margin-top:26px;padding:18px 20px;border-radius:14px;background:var(--tei)}
+.butoane{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.subsol{background:#0b0908;color:#a99d92;padding:34px var(--pad) 112px;font-size:15px;text-align:center}
+.subsol a{color:#f6efe3}
+
+.bara{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:8px;padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));background:rgba(244,239,230,.96);box-shadow:0 -1px 0 var(--linie);transform:translateY(110%);transition:transform .3s ease}
+.bara.vizibila{transform:none}
+.bara .btn:first-child{flex:1}
+
+dialog{width:100%;max-width:520px;max-height:90vh;margin:auto auto 0;padding:28px var(--pad) calc(24px + env(safe-area-inset-bottom));border:0;border-radius:20px 20px 0 0;background:var(--hartie);color:var(--lemn);overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+dialog h2{font-size:32px}
+dialog fieldset{border:0;padding:0;margin-top:20px}
+dialog legend{font-weight:600;margin-bottom:8px;padding:0}
+.alegeri{display:flex;flex-wrap:wrap;gap:8px}
+.alegeri button{min-height:44px;padding:0 16px;border:1px solid var(--linie);border-radius:999px;background:transparent;cursor:pointer}
+.alegeri button[aria-pressed=true]{background:var(--lemn);border-color:var(--lemn);color:var(--hartie)}
+dialog .btn{width:100%;margin-top:24px}
+dialog .btn[disabled]{opacity:.4;cursor:not-allowed}
+.inchide{position:absolute;top:10px;right:10px;width:44px;height:44px;border:0;background:none;font-size:26px;cursor:pointer}
+.nota{margin-top:14px;font-size:15px;color:var(--stins)}
+.mesaj{position:fixed;left:50%;bottom:92px;z-index:50;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:10px;background:#0b0908;color:#f6efe3;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none}
+.mesaj.on{opacity:1}
+
+@media (min-width:800px){
+  .c .poza{clip-path:inset(58% 7% 0% 7% round 170px 170px 0 0)}
+  .bara{justify-content:center}
+  .bara .btn:first-child{flex:0 0 280px}
+}
+@media (prefers-reduced-motion:reduce){.bara{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="concept"><b>Concept</b> firmă inventată <a href="/#portofoliu">Înapoi pe site</a></div>
+
+<main>
+  <section class="erou c">
+    <img class="poza" fetchpriority="high" src="/concepte/clinica/foto/cabinet.webp" alt="Cabinet stomatologic luminos, cu podea de lemn">
+    <div class="marca">Clinica Tei</div>
+    <div class="in">
+      <h1>Îți explicăm totul înainte să începem.</h1>
+      <p class="sub">Stomatologie în București, Sector 2.</p>
+    </div>
+    <div class="sosit">
+      <p>Prima vizită e doar o discuție.</p>
+      <button class="btn" data-programare>Programează-te</button>
+    </div>
+  </section>
+
+  <section class="bloc" id="vizita-1">
+    <h2>Cum decurge prima vizită</h2>
+    <ol class="pasi">
+      <li><div><h3>Stăm de vorbă</h3><p>Ne spui ce te supără. Facem consultația și, dacă e nevoie, o radiografie.</p></div></li>
+      <li><div><h3>Primești planul în scris</h3><p>Cu pașii, durata și prețul total, înainte de orice tratament.</p></div></li>
+      <li><div><h3>Hotărăști tu</h3><p>Poți lua planul acasă. Începem doar când ești de acord.</p></div></li>
+    </ol>
+    <img class="foto-lata" src="/concepte/clinica/foto/explica.webp" alt="Medic care îi arată unei paciente radiografia pe ecran" loading="lazy">
+  </section>
+
+  <div class="tarife" id="tarife">
+    <section class="bloc">
+      <h2>Tarife</h2>
+      <ul class="lista">
+        <li><span>Consultație</span><span class="pret">200 lei</span></li>
+        <li><span>Igienizare</span><span class="pret">350 lei</span><small>Detartraj și periaj profesional.</small></li>
+        <li><span>Plombă</span><span class="pret">de la 300 lei</span></li>
+        <li><span>Tratament de canal</span><span class="pret">de la 500 lei</span></li>
+        <li><span>Albire în cabinet</span><span class="pret">1.200 lei</span></li>
+        <li><span>Implant cu coroană</span><span class="pret">de la 4.500 lei</span></li>
+      </ul>
+      <p class="nota-t">Prețul exact îl afli la consultație, în planul scris.</p>
+    </section>
+  </div>
+
+  <div class="pachete">
+    <section class="bloc" id="pachete">
+      <h2>Pachete</h2>
+      <div class="pachet">
+        <h3>Control anual</h3>
+        <p>Consultație, radiografie și igienizare, într-o singură vizită.</p>
+        <p class="pret">450 lei</p>
+        <button class="btn" data-programare="Control anual">Programează-te</button>
+      </div>
+      <div class="pachet">
+        <h3>Zâmbet mai alb</h3>
+        <p>Igienizare și albire în cabinet.</p>
+        <p class="pret">1.400 lei</p>
+        <button class="btn" data-programare="Albire">Programează-te</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="bloc vizita" id="unde">
+    <h2>Unde ne găsești</h2>
+    <address>Strada Florilor de Tei 12, Sector 2, București</address>
+    <p class="stare" id="stare"></p>
+    <dl id="program">
+      <dt data-zile="1,2,3,4,5">Luni – vineri</dt><dd data-zile="1,2,3,4,5">09:00 – 20:00</dd>
+      <dt data-zile="6">Sâmbătă</dt><dd data-zile="6">09:00 – 14:00</dd>
+      <dt data-zile="0">Duminică</dt><dd data-zile="0">Închis</dd>
+    </dl>
+    <p class="urgenta"><strong>Ai o problemă urgentă?</strong> Sună și încercăm să te primim în aceeași zi.</p>
+    <div class="butoane">
+      <button class="btn gol" data-mesaj="Pe un site adevărat, aici se deschide harta.">Vezi pe hartă</button>
+      <button class="btn gol" data-mesaj="Pe un site adevărat, aici suni direct.">Sună</button>
+    </div>
+  </section>
+</main>
+
+<footer class="subsol">Site-concept. Clinica, adresa și prețurile sunt inventate. Pozele sunt de pe Unsplash.<br><a href="/#formular">Vrei un site ca ăsta? Scrie-mi pe buildwithac.ro</a></footer>
+
+<div class="bara" id="bara">
+  <button class="btn" data-programare>Programează-te</button>
+  <button class="btn gol" data-mesaj="Pe un site adevărat, aici suni direct.">Sună</button>
+</div>
+
+<dialog id="programare" aria-labelledby="titlu-prog">
+  <button class="inchide" aria-label="Închide">×</button>
+  <div id="pasi">
+    <h2 id="titlu-prog">Programează-te</h2>
+    <fieldset><legend>Pentru ce vii?</legend><div class="alegeri" id="a-serv"></div></fieldset>
+    <fieldset><legend>Ziua</legend><div class="alegeri" id="a-zi"></div></fieldset>
+    <fieldset><legend>Ora</legend><div class="alegeri" id="a-ora"></div></fieldset>
+    <button class="btn" id="trimite" disabled>Programează-te</button>
+  </div>
+  <div id="gata" hidden>
+    <h2>Te așteptăm</h2>
+    <p id="rezumat" style="margin-top:12px"></p>
+    <p class="nota">E un concept, deci nu s-a trimis nimic. Pe un site adevărat, aici primești confirmarea.</p>
+  </div>
+</dialog>
+
+<div class="mesaj" id="mesaj" role="status"></div>
+
+<script>
+const miscare = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
+gsap.ticker.lagSmoothing(0);
+
+const erou = document.querySelector('.erou');
+const poza = erou.querySelector('.poza');
+
+if (miscare) {
+  gsap.from(erou.querySelectorAll('h1, .sub, .actiuni'), { opacity: 0, y: 14, duration: 1, ease: 'power2.out', stagger: .14, delay: .15 });
+  {
+    const arc = { p: 0 };
+    const sus = innerWidth >= 800 ? 58 : 47; // pe calculator, titlul încape pe două rânduri mai late
+    const deseneaza = () => {
+      const r = 1 - arc.p;
+      poza.style.clipPath = `inset(${sus * r}% ${7 * r}% 0% ${7 * r}% round ${170 * r}px ${170 * r}px 0px 0px)`;
+    };
+    deseneaza();
+    const t = gsap.timeline({ scrollTrigger: { trigger: erou, start: 'top top', end: '+=150%', pin: true, scrub: .6, anticipatePin: 1 } });
+    t.to('.c .in', { opacity: 0, y: -24, duration: .3 }, 0)
+     .to(arc, { p: 1, ease: 'power1.inOut', duration: .8, onUpdate: deseneaza }, 0)
+     .to('.c .marca', { opacity: 0, duration: .2 }, .6)
+     .to('.c .sosit', { autoAlpha: 1, duration: .2 }, .8);
+  }
+} else {
+  document.querySelector('.c .sosit').style.cssText = 'opacity:1;visibility:visible';
+}
+
+const bara = document.getElementById('bara');
+ScrollTrigger.create({ trigger: '#vizita-1', start: 'top 85%', onEnter: () => bara.classList.add('vizibila'), onLeaveBack: () => bara.classList.remove('vizibila') });
+
+const acum = new Date(), zi = acum.getDay(), ora = acum.getHours() + acum.getMinutes() / 60;
+document.querySelectorAll('#program [data-zile]').forEach(e => { if (e.dataset.zile.split(',').includes(String(zi))) e.classList.add('azi'); });
+const interval = zi === 0 ? null : zi === 6 ? [9, 14] : [9, 20];
+document.getElementById('stare').textContent = interval && ora >= interval[0] && ora < interval[1]
+  ? `Deschis azi până la ${interval[1]}:00` : 'Închis acum';
+
+const mesaj = document.getElementById('mesaj');
+let cronometru;
+document.querySelectorAll('[data-mesaj]').forEach(b => b.onclick = () => {
+  mesaj.textContent = b.dataset.mesaj; mesaj.classList.add('on');
+  clearTimeout(cronometru); cronometru = setTimeout(() => mesaj.classList.remove('on'), 2600);
+});
+
+const dlg = document.getElementById('programare');
+const alegere = { serv: null, zi: null, ora: null };
+const MOTIVE = ['Consultație', 'Control anual', 'Igienizare', 'Albire', 'Mă doare ceva', 'Altceva'];
+const ZILE = ['duminică', 'luni', 'marți', 'miercuri', 'joi', 'vineri', 'sâmbătă'];
+const LUNI = ['ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie', 'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie'];
+const zile = [], lungi = {};
+for (let i = 1; zile.length < 5; i++) {
+  const d = new Date(); d.setDate(d.getDate() + i);
+  if (!d.getDay()) continue;
+  const scurt = `${ZILE[d.getDay()]} ${d.getDate()}`;
+  zile.push(scurt); lungi[scurt] = `${ZILE[d.getDay()]}, ${d.getDate()} ${LUNI[d.getMonth()]}`;
+}
+const ORE = ['09:00', '10:30', '12:00', '14:00', '16:00', '18:00'];
+
+function pastile(id, valori, cheie) {
+  const loc = document.getElementById(id);
+  loc.innerHTML = '';
+  valori.forEach(val => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = val; b.setAttribute('aria-pressed', alegere[cheie] === val);
+    b.onclick = () => { alegere[cheie] = val; pastile(id, valori, cheie); verifica(); };
+    loc.append(b);
+  });
+}
+function verifica() { document.getElementById('trimite').disabled = !(alegere.serv && alegere.zi && alegere.ora); }
+function deschide(serv) {
+  alegere.serv = serv || alegere.serv;
+  document.getElementById('pasi').hidden = false;
+  document.getElementById('gata').hidden = true;
+  pastile('a-serv', MOTIVE, 'serv'); pastile('a-zi', zile, 'zi'); pastile('a-ora', ORE, 'ora'); verifica();
+  dlg.showModal();
+}
+document.querySelectorAll('[data-programare]').forEach(b => b.onclick = () => deschide(b.dataset.programare));
+document.querySelector('.inchide').onclick = () => dlg.close();
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+document.getElementById('trimite').onclick = () => {
+  document.getElementById('rezumat').textContent = `${alegere.serv}: ${lungi[alegere.zi]}, la ${alegere.ora}.`;
+  document.getElementById('pasi').hidden = true;
+  document.getElementById('gata').hidden = false;
+};
+</script>
+</body>
+</html>
