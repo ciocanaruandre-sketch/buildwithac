@@ -20,6 +20,17 @@ test.describe("producție", () => {
     expect((await request.get("/concepte/altceva")).status()).toBe(404);
   });
 
+  for (const [selector, tinta] of [[".concept a", "#portofoliu h2"], ["footer a", "#formular"]] as const) {
+    test(`din concept, ${selector} ajunge la ${tinta}`, async ({ page }) => {
+      await page.goto("/concepte/clinica");
+      await page.locator(selector).click();
+      await page.waitForURL(/#/);
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(2500);
+      await expect(page.locator(tinta)).toBeInViewport();
+    });
+  }
+
   test("pagina de ghiduri n-are ghidurile de exemplu", async ({ page }) => {
     await page.goto("/ghiduri");
     await expect(page.locator(".colaj .gc").first()).toBeVisible();

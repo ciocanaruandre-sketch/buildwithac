@@ -63,6 +63,18 @@ for (const c of CONCEPTE) {
       await expect(page.locator("dialog")).toBeVisible();
     });
 
+    test("atingerea în fereastră n-o închide, cea de pe fundal da", async ({ page }) => {
+      await page.goto(`/concepte/${c.slug}`);
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.locator(".bara .btn", { hasText: c.cta }).click();
+      const fereastra = page.locator("dialog");
+      await expect(fereastra).toBeVisible();
+      await fereastra.click({ position: { x: 4, y: 120 } });
+      await expect(fereastra).toBeVisible();
+      await page.mouse.click(4, 4);
+      await expect(fereastra).toBeHidden();
+    });
+
     test("slash final", async ({ page }) => {
       const r = await page.goto(`/concepte/${c.slug}/`);
       expect(r!.status()).toBeLessThan(400);
@@ -76,6 +88,7 @@ for (const c of CONCEPTE) {
       await page.goto(`/concepte/${c.slug}`);
       await expect(page.locator(".sosit")).toBeVisible();
       await expect(page.locator(".pin-spacer")).toHaveCount(0);
+      expect(await page.locator(".erou .poza").evaluate((e) => getComputedStyle(e).clipPath)).toBe("none");
       await expect(page.getByText(c.titlu, { exact: true }).first()).toBeVisible();
       await context.close();
     });
@@ -102,6 +115,60 @@ test("etichetele nu pomenesc artiști", async ({ page }) => {
   await page.goto("/concepte/tatuaje");
   await expect(page.locator(".tablou")).not.toHaveCount(0);
   await expect(page.locator(".tablou figcaption", { hasText: /Ana|Radu|Mara/ })).toHaveCount(0);
+});
+
+for (const [cale, selector, tinta] of [
+  ["banda", ".concept a", "#portofoliu h2"],
+  ["subsolul", "footer a", "#formular"],
+] as const) {
+  test(`linkul din ${cale} ajunge la secțiunea cerută`, async ({ page }) => {
+    await page.goto("/concepte/clinica");
+    await page.locator(selector).click();
+    await page.waitForURL(/#/);
+    // scenele fixate de pe homepage împing ținta în jos după sosire, deci se verifică după ce pagina s-a așezat
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2500);
+    await expect(page.locator(tinta)).toBeInViewport();
+  });
+}
+
+for (const [slug, tarzii, ultima] of [
+  ["clinica", ["14:00", "16:00", "18:00"], "18:00"],
+  ["frizerie", ["17:00"], "17:00"],
+] as const) {
+  test(`${slug}: sâmbăta nu oferă ore după închidere`, async ({ page }) => {
+    await page.goto(`/concepte/${slug}`);
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.locator(".bara .btn", { hasText: "Programează-te" }).click();
+    await page.locator("#a-serv button").first().click();
+    await page.locator("#a-zi button", { hasNotText: "sâmbătă" }).first().click();
+    await page.locator("#a-ora button", { hasText: ultima }).click();
+    await expect(page.locator("#trimite")).toBeEnabled();
+    await page.locator("#a-zi button", { hasText: "sâmbătă" }).click();
+    for (const ora of tarzii) await expect(page.locator("#a-ora button", { hasText: ora })).toHaveCount(0);
+    await expect(page.locator("#trimite")).toBeDisabled();
+  });
+}
+
+test("frizeria: focusul se vede pe fondurile deschise", async ({ page }) => {
+  await page.goto("/concepte/frizerie");
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.locator(".bara .btn", { hasText: "Programează-te" }).click();
+  await page.keyboard.press("Tab");
+  const culoare = await page.evaluate(() => getComputedStyle(document.activeElement!).outlineColor);
+  expect(culoare).toBe("rgb(20, 35, 29)");
+});
+
+test("clinica: scena rămâne întreagă când bara de adrese se ascunde", async ({ page }) => {
+  // în Chromium fără bară de adrese lvh = svh, deci se verifică regula, nu efectul
+  await page.goto("/concepte/clinica");
+  const inaltime = await page.evaluate(() => {
+    for (const foaie of document.styleSheets)
+      for (const r of foaie.cssRules)
+        if (r instanceof CSSStyleRule && r.selectorText === ".erou.c") return r.style.height;
+    return "";
+  });
+  expect(inaltime).toBe("100lvh");
 });
 
 test("slug inexistent dă 404", async ({ request }) => {

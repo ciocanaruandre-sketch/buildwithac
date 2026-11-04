@@ -38,11 +38,13 @@ h1,h2{font-family:'Fraunces',serif;font-weight:340;line-height:1.08;font-optical
 .sub{margin-top:14px;max-width:30ch}
 .actiuni{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 
-/* arcada */
+/* arcada; scena e cât ecranul fără bara de adrese, ca fundalul deschis să nu apară sub ea */
+.erou.c{height:100vh;height:100lvh}
 .c{background:var(--tei)}
 .c .poza{object-position:50% 50%;filter:brightness(.88) saturate(.95);clip-path:inset(47% 7% 0% 7% round 170px 170px 0 0);will-change:clip-path}
 .c .in{position:absolute;z-index:2;left:var(--pad);right:var(--pad);top:calc(var(--banda) + 84px)}
 .c .sosit{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:90px var(--pad) 34px;color:var(--hartie);background:linear-gradient(180deg,rgba(var(--tenta),0),rgba(var(--tenta),.86));opacity:0;visibility:hidden}
+.c .sosit{padding-bottom:calc(34px + 100lvh - 100svh)}
 .c .sosit p{font:340 clamp(36px,10vw,72px)/1.08 'Fraunces',serif;max-width:12ch}
 .c .sosit .btn{margin-top:20px;background:var(--hartie);color:var(--lemn)}
 
@@ -108,7 +110,7 @@ dialog .btn[disabled]{opacity:.4;cursor:not-allowed}
   .bara{justify-content:center}
   .bara .btn:first-child{flex:0 0 280px}
 }
-@media (prefers-reduced-motion:reduce){.bara{transition:none}}
+@media (prefers-reduced-motion:reduce){.bara{transition:none}.c .poza{clip-path:none}.c .in{opacity:0}}
 </style>
 </head>
 <body>
@@ -272,6 +274,7 @@ for (let i = 1; zile.length < 5; i++) {
   zile.push(scurt); lungi[scurt] = `${ZILE[d.getDay()]}, ${d.getDate()} ${LUNI[d.getMonth()]}`;
 }
 const ORE = ['09:00', '10:30', '12:00', '14:00', '16:00', '18:00'];
+const ORE_SAMBATA = ORE.slice(0, 3); // sâmbăta se închide la 14:00
 
 function pastile(id, valori, cheie) {
   const loc = document.getElementById(id);
@@ -279,21 +282,29 @@ function pastile(id, valori, cheie) {
   valori.forEach(val => {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = val; b.setAttribute('aria-pressed', alegere[cheie] === val);
-    b.onclick = () => { alegere[cheie] = val; pastile(id, valori, cheie); verifica(); };
+    b.onclick = () => { alegere[cheie] = val; pastile(id, valori, cheie); if (cheie === 'zi') ore(); verifica(); };
     loc.append(b);
   });
+}
+function ore() {
+  const lista = alegere.zi && alegere.zi.startsWith('sâmbătă') ? ORE_SAMBATA : ORE;
+  if (!lista.includes(alegere.ora)) alegere.ora = null;
+  pastile('a-ora', lista, 'ora');
 }
 function verifica() { document.getElementById('trimite').disabled = !(alegere.serv && alegere.zi && alegere.ora); }
 function deschide(serv) {
   alegere.serv = serv || alegere.serv;
   document.getElementById('pasi').hidden = false;
   document.getElementById('gata').hidden = true;
-  pastile('a-serv', MOTIVE, 'serv'); pastile('a-zi', zile, 'zi'); pastile('a-ora', ORE, 'ora'); verifica();
+  pastile('a-serv', MOTIVE, 'serv'); pastile('a-zi', zile, 'zi'); ore(); verifica();
   dlg.showModal();
 }
 document.querySelectorAll('[data-programare]').forEach(b => b.onclick = () => deschide(b.dataset.programare));
 document.querySelector('.inchide').onclick = () => dlg.close();
-dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+dlg.addEventListener('click', e => {
+  const r = dlg.getBoundingClientRect();
+  if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
+});
 document.getElementById('trimite').onclick = () => {
   document.getElementById('rezumat').textContent = `${alegere.serv}: ${lungi[alegere.zi]}, la ${alegere.ora}.`;
   document.getElementById('pasi').hidden = true;
