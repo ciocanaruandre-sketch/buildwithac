@@ -8,3 +8,4 @@ Lista o ține skill-ul `idei`. Andrei alege ce intră în „De făcut”. Când
 - Site-uri care nu arată „făcute cu AI” (carusel TikTok): ghid publicat 2026-10-28 → ghid `site-uri-fara-aer-de-ai`
 - Harvey, agentul AI care îți caută clienți (clip TikTok): ghid publicat 2026-10-29 → ghid `harvey-agent-clienti` (doar cercetarea; trimiterea e ilegală în RO fără acord)
 - Animații video din câteva cuvinte, cu Claude Opus 5.5 (carusel TikTok): ghid publicat 2026-11-04 → ghid `animatii-video-cu-claude`
+- Claude conectat la TradingView, cu MCP-ul oficial (din ghidul vechi al lui Andrei; poate urmează un clip): ghid publicat 2026-11-04 → ghid `claude-tradingview-mcp`
