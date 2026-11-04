@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conu' Leonida, frizerie (concept)</title>
+<!-- PROTOTIP DE ARUNCAT. Firmă inventată. Pozele: Unsplash, licență gratuită (photo-1585747860715, 1517832606299, 1536520002442, 1503951914875, 1647140655214, 1593702275687). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --sticla:#10261d;      /* verde de sticlă */
+  --sticla-adanc:#0a1a14;
+  --alama:#d4aa5f;
+  --os:#efe6d2;
+  --os-stins:#b9b29f;
+  --visina:#6e1b20;
+  --banda:32px;
+  --pad:20px;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--sticla-adanc);-webkit-text-size-adjust:100%}
+body{background:var(--sticla-adanc);color:var(--os);font:400 17px/1.55 'Hanken Grotesk',system-ui,sans-serif;overflow-x:hidden}
+img{display:block;max-width:100%}
+button,a{font:inherit;color:inherit}
+a{text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--alama);outline-offset:3px}
+h1,h2{font-family:'Rozha One',serif;font-weight:400;line-height:.98}
+
+/* banda „Concept”, mereu vizibilă */
+.concept{position:fixed;inset:0 0 auto 0;height:var(--banda);z-index:40;display:flex;align-items:center;justify-content:center;gap:6px;background:#0b0908;color:#f6efe3;font-size:13px;white-space:nowrap}
+.concept b{font-weight:700;color:#ffb52e}
+
+/* comutatorul de variante: există doar în prototip */
+.comut{position:fixed;top:calc(var(--banda) + 10px);right:10px;z-index:41;display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(11,9,8,.82);backdrop-filter:blur(6px)}
+.comut button{width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:#f6efe3;font-size:14px;font-weight:700;cursor:pointer}
+.comut button[aria-pressed=true]{background:#ffb52e;color:#0b0908}
+
+/* butoane */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border:0;border-radius:3px;background:var(--alama);color:#1c1408;font-weight:700;font-size:17px;cursor:pointer;text-decoration:none}
+.btn.gol{background:transparent;color:var(--os);box-shadow:inset 0 0 0 1px rgba(239,230,210,.45)}
+
+/* prim ecran: comun */
+.erou{position:relative;height:100vh;height:100svh;min-height:600px;overflow:hidden;background:#000}
+.erou .poza{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.erou h1{position:relative}
+.nume>span{display:block}
+.litera{display:inline-block}
+
+/* A: firma de pe geam */
+.a .poza{object-position:50% 60%}
+.a::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,26,20,.82) 0%,rgba(10,26,20,.66) 50%,rgba(10,26,20,.9) 100%)}
+.a .in{position:absolute;inset:var(--banda) 0 0 0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 var(--pad);gap:20px}
+.a h1{white-space:nowrap;font-size:clamp(70px,23vw,190px);background:linear-gradient(172deg,#f8e4ae 8%,#d4aa5f 44%,#94702f 58%,#ecd08c 88%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 rgba(0,0,0,.55))}
+.a .deviza{font-size:21px}
+
+/* B: de aproape */
+.b .poza{object-position:50% 100%}
+.b .in{position:absolute;inset:var(--banda) 0 0 0;z-index:2;display:flex;flex-direction:column;justify-content:space-between;padding:58px var(--pad) 24px}
+.b h1{white-space:nowrap;font-size:clamp(76px,25vw,230px);color:var(--os);margin-left:-4px}
+.b .deviza{font-size:20px;margin-top:10px;color:var(--os)}
+.b .jos{display:flex}
+.b .btn{width:100%}
+
+/* C: intri pe hol */
+.c .poza{object-position:62% 50%;transform-origin:64% 47%;will-change:transform}
+.c::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,26,20,.2) 40%,rgba(10,26,20,.92) 100%);pointer-events:none}
+.c .in{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 var(--pad) 30px}
+.c h1{white-space:nowrap;font-size:clamp(68px,22vw,170px);color:var(--os)}
+.c .deviza{font-size:20px;margin:10px 0 18px}
+.c .indemn{font-size:15px;color:var(--os-stins)}
+.c .sosit{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:0 var(--pad);opacity:0;visibility:hidden;background:rgba(10,26,20,.74)}
+.c .sosit p{font:400 clamp(44px,12vw,92px)/1.02 'Rozha One',serif;max-width:12ch}
+
+/* servicii */
+.sectiune{padding:76px var(--pad);max-width:760px;margin:0 auto}
+.fond-sticla{background:var(--sticla)}
+h2{font-size:clamp(44px,12.4vw,84px)}
+.lista{list-style:none;padding:0;margin-top:30px}
+.lista button{display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;gap:10px;width:100%;min-height:66px;padding:14px 0 12px;border:0;background:none;cursor:pointer;text-align:left}
+.lista .serv{font-size:20px;font-weight:500}
+.lista .serv small{display:block;font-size:14px;font-weight:400;color:var(--os-stins)}
+.lista .pct{align-self:end;margin-bottom:8px;border-bottom:2px dotted rgba(212,170,95,.45)}
+.lista .pret{font:400 26px/1 'Rozha One',serif;color:var(--alama);white-space:nowrap}
+.lista .pret i{font:500 14px 'Hanken Grotesk',sans-serif;font-style:normal;margin-left:3px}
+.nota{margin-top:18px;font-size:15px;color:var(--os-stins)}
+
+/* promisiunea */
+.promisiune{background:var(--visina);padding:92px var(--pad)}
+.promisiune p{font:400 clamp(46px,12.8vw,104px)/1.04 'Rozha One',serif;max-width:760px;margin:0 auto}
+.cuv{opacity:.22}
+
+/* galeria */
+.galerie{background:var(--sticla-adanc);padding:76px 0 64px}
+.galerie h2{padding:0 var(--pad);max-width:760px;margin:0 auto 28px}
+.pista{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 var(--pad);scrollbar-width:none}
+.pista::-webkit-scrollbar{display:none}
+.pista img{flex:0 0 78vw;max-width:400px;height:112vw;max-height:540px;object-fit:cover;scroll-snap-align:center}
+
+/* unde suntem */
+.loc dl{display:grid;grid-template-columns:1fr auto;gap:10px 18px;margin-top:26px}
+.loc dt,.loc dd{margin:0}
+.loc .azi{color:var(--alama);font-weight:700}
+.loc address{font-style:normal;font-size:20px;margin-top:22px}
+.stare{margin-top:20px;font-weight:700}
+.loc .butoane{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.subsol{background:#0b0908;color:#a99d92;padding:34px var(--pad) 110px;font-size:15px;text-align:center}
+.subsol a{color:#f6efe3}
+
+/* bara de jos */
+.bara{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:8px;padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));background:rgba(10,26,20,.94);transform:translateY(110%);transition:transform .3s ease}
+.bara.vizibila{transform:none}
+.bara .btn:first-child{flex:1}
+
+/* programarea */
+dialog{width:100%;max-width:520px;max-height:90vh;margin:auto auto 0;padding:24px var(--pad) calc(24px + env(safe-area-inset-bottom));border:0;border-radius:10px 10px 0 0;background:var(--os);color:#1a1a14;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h2{font-size:38px;margin-bottom:6px}
+dialog fieldset{border:0;padding:0;margin-top:18px}
+dialog legend{font-weight:700;margin-bottom:8px;padding:0}
+.alegeri{display:flex;flex-wrap:wrap;gap:8px}
+.alegeri button{min-height:44px;padding:0 14px;border:1px solid #1a1a14;border-radius:3px;background:transparent;cursor:pointer}
+.alegeri button[aria-pressed=true]{background:var(--sticla);border-color:var(--sticla);color:var(--os)}
+dialog .btn{width:100%;margin-top:22px;background:var(--sticla);color:var(--os)}
+dialog .btn[disabled]{opacity:.4;cursor:not-allowed}
+.inchide{position:absolute;top:10px;right:10px;width:44px;height:44px;border:0;background:none;font-size:26px;cursor:pointer}
+.mesaj{position:fixed;left:50%;bottom:92px;z-index:50;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:3px;background:#0b0908;color:#f6efe3;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none}
+.mesaj.on{opacity:1}
+
+@media (min-width:800px){
+  .a .poza,.b .poza{object-position:50% 50%}
+  .b .poza{object-position:50% 38%}
+  .b .btn{width:auto}
+  .b h1{font-size:11vw}
+  .b .nume>span{display:inline}
+  .bara{justify-content:center}
+  .bara .btn:first-child{flex:0 0 280px}
+  .pista{justify-content:center}
+  .pista img{flex-basis:30vw;height:40vw}
+}
+@media (prefers-reduced-motion:reduce){.bara{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="concept"><b>Concept</b> firmă inventată, site făcut de buildwithac</div>
+
+<div class="comut" role="group" aria-label="Varianta primului ecran">
+  <button data-v="a">A</button><button data-v="b">B</button><button data-v="c">C</button>
+</div>
+
+<main>
+  <section class="erou a" data-erou="a" hidden>
+    <img class="poza" src="concept-frizerie/scaune.jpg" alt="Trei scaune de frizerie sub lămpi, în fața unui perete de cărămidă">
+    <div class="in">
+      <h1 class="nume"><span>Conu'</span><span>Leonida</span></h1>
+      <p class="deviza">față cu briciul, din 2009</p>
+      <button class="btn" data-programare>Programează-te</button>
+    </div>
+  </section>
+
+  <section class="erou b" data-erou="b" hidden>
+    <img class="poza" src="concept-frizerie/aproape.jpg" alt="Frizer care aranjează barba unui client cu foarfeca">
+    <div class="in">
+      <div>
+        <h1 class="nume"><span>Conu'</span><span>Leonida</span></h1>
+        <p class="deviza">față cu briciul, din 2009</p>
+      </div>
+      <div class="jos"><button class="btn" data-programare>Programează-te</button></div>
+    </div>
+  </section>
+
+  <section class="erou c" data-erou="c" hidden>
+    <img class="poza" src="concept-frizerie/hol.jpg" alt="Hol lung de frizerie, cu scaune aliniate și lămpi">
+    <div class="in">
+      <h1 class="nume"><span>Conu'</span><span>Leonida</span></h1>
+      <p class="deviza">față cu briciul, din 2009</p>
+      <p class="indemn">Dă scroll și intră.</p>
+    </div>
+    <div class="sosit">
+      <p>Ia loc, urmează tu.</p>
+      <button class="btn" data-programare>Programează-te</button>
+    </div>
+  </section>
+
+  <div class="fond-sticla">
+    <section class="sectiune" id="servicii">
+      <h2>Ce facem și cât costă</h2>
+      <ul class="lista">
+        <li><button data-serviciu="Tuns"><span class="serv">Tuns<small>40 de minute</small></span><span class="pct"></span><span class="pret">80<i>lei</i></span></button></li>
+        <li><button data-serviciu="Barbă"><span class="serv">Barbă<small>30 de minute</small></span><span class="pct"></span><span class="pret">60<i>lei</i></span></button></li>
+        <li><button data-serviciu="Tuns și barbă"><span class="serv">Tuns și barbă<small>o oră</small></span><span class="pct"></span><span class="pret">120<i>lei</i></span></button></li>
+        <li><button data-serviciu="Bărbierit cu briciul"><span class="serv">Bărbierit cu briciul<small>40 de minute, cu prosop cald</small></span><span class="pct"></span><span class="pret">90<i>lei</i></span></button></li>
+        <li><button data-serviciu="Tuns copii"><span class="serv">Tuns copii<small>până la 12 ani, 30 de minute</small></span><span class="pct"></span><span class="pret">60<i>lei</i></span></button></li>
+      </ul>
+      <p class="nota">Apasă pe un serviciu ca să te programezi.</p>
+    </section>
+  </div>
+
+  <section class="promisiune">
+    <p id="promisiune">Ai programare la 17:00? La 17:00 stai pe scaun.</p>
+  </section>
+
+  <section class="galerie">
+    <h2>Din frizerie</h2>
+    <div class="pista" tabindex="0" aria-label="Fotografii din frizerie">
+      <img src="concept-frizerie/foarfeca.jpg" alt="Frizer care tunde cu foarfeca și pieptenele" loading="lazy">
+      <img src="concept-frizerie/brici.jpg" alt="Bărbierit cu briciul, în lumină caldă" loading="lazy">
+      <img src="concept-frizerie/tuns.jpg" alt="Tuns scurt pe laterale, cu mașina" loading="lazy">
+    </div>
+  </section>
+
+  <div class="fond-sticla">
+    <section class="sectiune loc">
+      <h2>Ne găsești aici</h2>
+      <address>Strada Briciului 7, București</address>
+      <p class="stare" id="stare"></p>
+      <dl id="program">
+        <dt data-zile="1,2,3,4,5">Luni – vineri</dt><dd data-zile="1,2,3,4,5">10:00 – 20:00</dd>
+        <dt data-zile="6">Sâmbătă</dt><dd data-zile="6">09:00 – 17:00</dd>
+        <dt data-zile="0">Duminică</dt><dd data-zile="0">închis</dd>
+      </dl>
+      <div class="butoane">
+        <button class="btn gol" data-mesaj="Pe un site adevărat, aici se deschide harta.">Deschide harta</button>
+        <button class="btn gol" data-mesaj="Pe un site adevărat, aici suni direct.">Sună</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="subsol">Conu' Leonida nu există. Numele, adresa și prețurile sunt exemple.<br><a href="https://buildwithac.ro">Vrei un site așa? Scrie-mi pe buildwithac.ro</a></footer>
+
+<div class="bara" id="bara">
+  <button class="btn" data-programare>Programează-te</button>
+  <button class="btn gol" data-mesaj="Pe un site adevărat, aici suni direct.">Sună</button>
+</div>
+
+<dialog id="programare" aria-labelledby="titlu-prog">
+  <button class="inchide" aria-label="Închide">×</button>
+  <div id="pasi">
+    <h2 id="titlu-prog">Programează-te</h2>
+    <fieldset><legend>Serviciul</legend><div class="alegeri" id="a-serv"></div></fieldset>
+    <fieldset><legend>Ziua</legend><div class="alegeri" id="a-zi"></div></fieldset>
+    <fieldset><legend>Ora</legend><div class="alegeri" id="a-ora"></div></fieldset>
+    <button class="btn" id="trimite" disabled>Programează-te</button>
+  </div>
+  <div id="gata" hidden>
+    <h2>Te-ai programat</h2>
+    <p id="rezumat"></p>
+    <p class="nota" style="color:#55524a">E un concept, deci nu s-a trimis nimic. Pe un site adevărat, aici primești confirmarea.</p>
+  </div>
+</dialog>
+
+<div class="mesaj" id="mesaj" role="status"></div>
+
+<script>
+if (self !== top) document.documentElement.style.scrollbarWidth = 'none';
+const miscare = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.registerPlugin(ScrollTrigger);
+gsap.ticker.lagSmoothing(0);
+
+// varianta aleasă
+const v = new URLSearchParams(location.search).get('v') || 'a';
+document.querySelectorAll('[data-erou]').forEach(s => { if (s.dataset.erou === v) s.hidden = false; else s.remove(); });
+document.querySelectorAll('.comut button').forEach(b => {
+  b.setAttribute('aria-pressed', b.dataset.v === v);
+  b.onclick = () => { location.search = '?v=' + b.dataset.v; };
+});
+const erou = document.querySelector('.erou');
+const poza = erou.querySelector('.poza');
+
+// numele intră literă cu literă: singurul moment de încărcare
+if (miscare) {
+  const litere = [];
+  erou.querySelectorAll('.nume span').forEach(r => {
+    const t = r.textContent; r.textContent = ''; r.setAttribute('aria-label', t);
+    [...t].forEach(c => { const l = document.createElement('span'); l.className = 'litera'; l.textContent = c; l.setAttribute('aria-hidden', 'true'); r.append(l); litere.push(l); });
+  });
+  // la A, gradientul stă pe titlu: acolo intră tot titlul, nu fiecare literă
+  if (v === 'a') {
+    gsap.fromTo(poza, { scale: 1.12 }, { scale: 1, duration: 2.2, ease: 'power2.out' });
+    gsap.from('.a h1', { opacity: 0, y: 26, duration: 1.1, ease: 'power3.out', delay: .25 });
+    gsap.from('.a .deviza, .a .btn', { opacity: 0, duration: .8, delay: .9, stagger: .12 });
+  } else {
+    gsap.from(litere, { yPercent: 40, opacity: 0, duration: .9, ease: 'power3.out', stagger: .035, delay: .2 });
+    gsap.from(erou.querySelectorAll('.deviza, .indemn, .jos'), { opacity: 0, duration: .8, delay: .8, stagger: .12 });
+  }
+
+  // scroll: poza
+  if (v === 'a') gsap.to(poza, { yPercent: 12, ease: 'none', scrollTrigger: { trigger: erou, start: 'top top', end: 'bottom top', scrub: true } });
+  if (v === 'b') {
+    gsap.fromTo(poza, { scale: 1.16 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: erou, start: 'top top', end: 'bottom top', scrub: true } });
+    gsap.to('.b h1', { yPercent: -30, ease: 'none', scrollTrigger: { trigger: erou, start: 'top top', end: 'bottom top', scrub: true } });
+  }
+  if (v === 'c') {
+    const t = gsap.timeline({ scrollTrigger: { trigger: erou, start: 'top top', end: '+=170%', pin: true, scrub: .6, anticipatePin: 1 } });
+    t.to(poza, { scale: 3.1, ease: 'power1.in', duration: 1 }, 0)
+     .to('.c .in', { opacity: 0, y: -30, duration: .25 }, .05)
+     .to('.c .sosit', { autoAlpha: 1, duration: .25 }, .72);
+  }
+
+  // promisiunea se aprinde cuvânt cu cuvânt
+  const p = document.getElementById('promisiune');
+  const cuvinte = p.textContent.split(' ');
+  p.setAttribute('aria-label', p.textContent);
+  p.innerHTML = cuvinte.map(c => `<span class="cuv" aria-hidden="true">${c}</span>`).join(' ');
+  gsap.to('.cuv', { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: p, start: 'top 80%', end: 'bottom 45%', scrub: true } });
+} else if (v === 'c') {
+  document.querySelector('.c .sosit').remove();
+}
+
+// bara de jos apare după primul ecran
+ScrollTrigger.create({ trigger: '#servicii', start: 'top 85%', onToggle: s => document.getElementById('bara').classList.toggle('vizibila', s.isActive), end: 'max' });
+
+// programul de azi, după ceasul vizitatorului
+const acum = new Date(), zi = acum.getDay(), ora = acum.getHours() + acum.getMinutes() / 60;
+document.querySelectorAll('#program [data-zile]').forEach(e => { if (e.dataset.zile.split(',').includes(String(zi))) e.classList.add('azi'); });
+const interval = zi === 0 ? null : zi === 6 ? [9, 17] : [10, 20];
+document.getElementById('stare').textContent = interval && ora >= interval[0] && ora < interval[1]
+  ? `Deschis acum, până la ${interval[1]}:00` : 'Închis acum';
+
+// mesaje
+const mesaj = document.getElementById('mesaj');
+let cronometru;
+document.querySelectorAll('[data-mesaj]').forEach(b => b.onclick = () => {
+  mesaj.textContent = b.dataset.mesaj; mesaj.classList.add('on');
+  clearTimeout(cronometru); cronometru = setTimeout(() => mesaj.classList.remove('on'), 2600);
+});
+
+// programarea
+const dlg = document.getElementById('programare');
+const alegere = { serv: null, zi: null, ora: null };
+const SERVICII = ['Tuns', 'Barbă', 'Tuns și barbă', 'Bărbierit cu briciul', 'Tuns copii'];
+const ZILE = ['duminică', 'luni', 'marți', 'miercuri', 'joi', 'vineri', 'sâmbătă'];
+const zile = [];
+for (let i = 1; zile.length < 5; i++) { const d = new Date(); d.setDate(d.getDate() + i); if (d.getDay()) zile.push(`${ZILE[d.getDay()]}, ${d.getDate()}`); }
+const ORE = ['10:00', '11:00', '12:30', '14:00', '15:30', '17:00'];
+
+function pastile(id, valori, cheie) {
+  const loc = document.getElementById(id);
+  loc.innerHTML = '';
+  valori.forEach(val => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = val; b.setAttribute('aria-pressed', alegere[cheie] === val);
+    b.onclick = () => { alegere[cheie] = val; pastile(id, valori, cheie); verifica(); };
+    loc.append(b);
+  });
+}
+function verifica() { document.getElementById('trimite').disabled = !(alegere.serv && alegere.zi && alegere.ora); }
+function deschide(serv) {
+  alegere.serv = serv || alegere.serv;
+  document.getElementById('pasi').hidden = false;
+  document.getElementById('gata').hidden = true;
+  pastile('a-serv', SERVICII, 'serv'); pastile('a-zi', zile, 'zi'); pastile('a-ora', ORE, 'ora'); verifica();
+  dlg.showModal();
+}
+document.querySelectorAll('[data-programare]').forEach(b => b.onclick = () => deschide());
+document.querySelectorAll('[data-serviciu]').forEach(b => b.onclick = () => deschide(b.dataset.serviciu));
+document.querySelector('.inchide').onclick = () => dlg.close();
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+document.getElementById('trimite').onclick = () => {
+  document.getElementById('rezumat').textContent = `${alegere.serv}, ${alegere.zi}, la ${alegere.ora}.`;
+  document.getElementById('pasi').hidden = true;
+  document.getElementById('gata').hidden = false;
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Frizerie: culorile</title>
+<style>
+body{margin:0;background:#1b1b1b;color:#f6efe3;font:15px/1.4 system-ui,sans-serif}
+.sus{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:10px}
+.sus button{min-height:34px;padding:0 14px;border:1px solid #666;border-radius:999px;background:none;color:inherit;cursor:pointer}
+.sus button[aria-pressed=true]{background:#ffb52e;border-color:#ffb52e;color:#0b0908}
+.rand{display:flex;gap:24px;justify-content:center;padding:0 14px 14px;zoom:.74}
+figure{margin:0}
+figcaption{margin-bottom:8px;font-weight:700}
+iframe{width:390px;height:780px;border:0;border-radius:18px;background:#000}
+</style>
+</head>
+<body>
+<div class="sus">
+  <span>Titluri:</span>
+  <button data-t="1">Gros (Rozha)</button>
+  <button data-t="2">Fin (Bodoni)</button>
+  <span>Sari la:</span>
+  <button data-la="sus">Început</button>
+  <button data-la="servicii">Servicii</button>
+  <button data-la="vizita">Vizită</button>
+</div>
+<div class="rand">
+  <figure><figcaption>1: verde aproape negru</figcaption><iframe data-c="1" title="Culori 1"></iframe></figure>
+  <figure><figcaption>2: verde măsliniu</figcaption><iframe data-c="2" title="Culori 2"></iframe></figure>
+  <figure><figcaption>3: verde cu piatră</figcaption><iframe data-c="3" title="Culori 3"></iframe></figure>
+</div>
+<script>
+const t = new URLSearchParams(location.search).get('t') || '1';
+document.querySelectorAll('iframe').forEach(f => f.src = `concept-frizerie-c.html?c=${f.dataset.c}&t=${t}`);
+document.querySelectorAll('[data-t]').forEach(b => {
+  b.setAttribute('aria-pressed', b.dataset.t === t);
+  b.onclick = () => { location.search = '?t=' + b.dataset.t; };
+});
+document.querySelectorAll('[data-la]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('iframe').forEach(f => {
+    const d = f.contentDocument, w = f.contentWindow;
+    if (b.dataset.la === 'sus') w.scrollTo(0, 0);
+    else {
+      const e = d.querySelector(b.dataset.la === 'servicii' ? '#servicii' : '.vizita');
+      w.scrollTo(0, e.getBoundingClientRect().top + w.scrollY - 32);
+    }
+  });
+});
+</script>
+</body>
+</html>

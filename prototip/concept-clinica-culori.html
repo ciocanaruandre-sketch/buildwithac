@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Clinica: culorile</title>
+<style>
+body{margin:0;background:#1b1b1b;color:#f6efe3;font:15px/1.4 system-ui,sans-serif}
+.sus{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:10px}
+.sus button{min-height:34px;padding:0 14px;border:1px solid #666;border-radius:999px;background:none;color:inherit;cursor:pointer}
+.rand{display:flex;gap:24px;justify-content:center;padding:0 14px 14px;zoom:.74}
+figure{margin:0}
+figcaption{margin-bottom:8px;font-weight:700}
+iframe{width:390px;height:780px;border:0;border-radius:18px;background:#000}
+</style>
+</head>
+<body>
+<div class="sus">
+  <span>Sari la:</span>
+  <button data-la="sus">Început</button>
+  <button data-la="#vizita-1">Prima vizită</button>
+  <button data-la="#tarife">Tarife</button>
+  <button data-la="#pachete">Pachete</button>
+  <button data-la="#unde">Unde ne găsești</button>
+</div>
+<div class="rand">
+  <figure><figcaption>1: albastru de noapte</figcaption><iframe src="concept-clinica.html?v=c&c=1" title="Culoarea 1"></iframe></figure>
+  <figure><figcaption>2: petrol</figcaption><iframe src="concept-clinica.html?v=c&c=2" title="Culoarea 2"></iframe></figure>
+  <figure><figcaption>3: prună</figcaption><iframe src="concept-clinica.html?v=c&c=3" title="Culoarea 3"></iframe></figure>
+</div>
+<script>
+document.querySelectorAll('[data-la]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('iframe').forEach(f => {
+    const d = f.contentDocument, w = f.contentWindow;
+    if (b.dataset.la === 'sus') return w.scrollTo(0, 0);
+    w.scrollTo(0, d.querySelector(b.dataset.la).getBoundingClientRect().top + w.scrollY - 32);
+  });
+});
+</script>
+</body>
+</html>

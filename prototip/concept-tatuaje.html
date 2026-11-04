@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Casa de Cerneală (concept)</title>
+<!-- PROTOTIP DE ARUNCAT. Firmă inventată, artiști inventați. Pozele: Unsplash, licență gratuită. ?v=a|b|c primul ecran -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{--banda:32px;--pad:22px;--cerneala:#100e0d;--nisip:#cfb5a0;--nisip-deschis:#e4d3c5;--os:#f3ebe2;--stins:#4e4239;--stins-inchis:#b5a79b;--linie:rgba(16,14,13,.24);--linie-inchis:rgba(243,235,226,.2)}
+*{box-sizing:border-box;margin:0}
+html{background:var(--cerneala);-webkit-text-size-adjust:100%}
+body{background:var(--cerneala);color:var(--os);font:400 17px/1.55 'Instrument Sans',system-ui,sans-serif;overflow-x:hidden}
+img{display:block;max-width:100%}
+button,a{font:inherit;color:inherit}
+a{text-underline-offset:3px}
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+h1,h2,h3{font-family:'Gloock',serif;font-weight:400;line-height:1.04}
+
+.concept{position:fixed;inset:0 0 auto 0;height:var(--banda);z-index:40;display:flex;align-items:center;justify-content:center;gap:6px;background:#0b0908;color:#f6efe3;font-size:13px;white-space:nowrap}
+.concept b{font-weight:600;color:#ffb52e}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;border:0;border-radius:0;background:var(--os);color:var(--cerneala);font-weight:600;font-size:16px;cursor:pointer;text-decoration:none}
+.btn.negru{background:var(--cerneala);color:var(--os)}
+.btn.gol{background:transparent;color:inherit;box-shadow:inset 0 0 0 1px currentColor}
+
+/* primul ecran */
+.erou{position:relative;height:100vh;height:100svh;min-height:620px;overflow:hidden;background:var(--cerneala)}
+.erou .poza{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.in{position:absolute;z-index:2;left:var(--pad);right:var(--pad)}
+h1{font-size:clamp(58px,17.4vw,150px)}
+h1 span{display:block}
+.sub{margin-top:14px;font-size:18px}
+
+/* A */
+.a .poza{object-position:50% 40%}
+.a::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,14,13,.55),rgba(16,14,13,.28) 40%,rgba(16,14,13,.9))}
+.a .in{bottom:30px}
+.a .btn{margin-top:20px}
+
+/* B */
+.perete{position:absolute;inset:-12% -6%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.perete div{display:flex;flex-direction:column;gap:8px}
+.perete div:nth-child(2){margin-top:-70px}
+.perete img{flex:none;width:100%;aspect-ratio:1;object-fit:cover}
+.b::after{content:"";position:absolute;inset:0;background:rgba(16,14,13,.66)}
+.b .in{top:50%;transform:translateY(-50%);text-align:center}
+.b .btn{margin-top:20px}
+
+/* C */
+.c .poza{object-position:50% 40%;clip-path:circle(0)}
+.c .in{top:calc(var(--banda) + 64px)}
+.c .indemn{margin-top:14px;font-size:15px;color:var(--stins-inchis)}
+.sosit{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:110px var(--pad) 30px;background:linear-gradient(180deg,rgba(16,14,13,0),rgba(16,14,13,.92));opacity:0;visibility:hidden}
+.sosit p{font:400 clamp(38px,10.6vw,76px)/1.06 'Gloock',serif;max-width:11ch}
+.sosit .btn{margin-top:20px}
+
+/* sala de expoziție: ?r=1|2|3 */
+[data-r="1"]{--perete:#171311;--perete-text:#f3ebe2;--eticheta:#b5a79b;--rama-g:10px;--rama-fond:linear-gradient(145deg,#2d2724,#0b0a09);--pas:22px;--pas-fond:#efe7da;--umbra:0 18px 40px rgba(0,0,0,.7);--spot:.26}
+[data-r="2"]{--perete:#cfb5a0;--perete-text:#100e0d;--eticheta:#4e4239;--rama-g:5px;--rama-fond:#100e0d;--pas:30px;--pas-fond:#f7f3ec;--umbra:6px 14px 26px rgba(60,35,20,.35);--spot:.3}
+[data-r="3"]{--perete:#2a1416;--perete-text:#f3ebe2;--eticheta:#cdb3a0;--rama-g:16px;--rama-fond:linear-gradient(135deg,#8a6a2c,#e2c477 22%,#a17c34 45%,#f0d98f 62%,#7a5a22 85%,#c9a85a);--pas:14px;--pas-fond:#efe3cf;--umbra:0 20px 44px rgba(0,0,0,.65);--spot:.24}
+.sala{background:var(--perete);color:var(--perete-text);overflow:hidden}
+.expozitie{display:flex;flex-direction:column;gap:64px;margin-top:44px}
+.tablou{position:relative;margin:0}
+.tablou.lat{width:100%}
+.tablou.dreapta{width:76%;align-self:flex-end}
+.tablou.stanga{width:70%}
+.tablou.dreapta2{width:84%;align-self:flex-end}
+.tablou::before{content:"";position:absolute;left:-24%;right:-24%;top:-74px;bottom:-20px;background:radial-gradient(ellipse 52% 56% at 50% 34%,rgba(255,236,205,var(--spot)),transparent 100%);opacity:0;transition:opacity 1.1s ease;pointer-events:none}
+.tablou.aprins::before{opacity:1}
+.rama{position:relative;padding:var(--rama-g);background:var(--rama-fond);box-shadow:var(--umbra),inset 0 0 0 1px rgba(255,255,255,.14),inset 0 0 0 3px rgba(0,0,0,.25)}
+.paspartu{padding:var(--pas);background:var(--pas-fond);box-shadow:inset 1px 1px 6px rgba(0,0,0,.38)}
+.paspartu img{width:100%;aspect-ratio:4/5;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.25);filter:brightness(.42);transition:filter 1.1s ease}
+.tablou.lat .paspartu img{aspect-ratio:3/2}
+.tablou.aprins .paspartu img{filter:none}
+.tablou figcaption{position:relative;margin-top:14px;font-size:14px;line-height:1.35;color:var(--eticheta)}
+.tablou figcaption b{display:block;font:400 19px/1.2 'Gloock',serif;color:var(--perete-text)}
+
+/* secțiuni */
+.nisip{background:var(--nisip);color:var(--cerneala)}
+.bloc{max-width:760px;margin:0 auto;padding:80px var(--pad)}
+h2{font-size:clamp(40px,11.5vw,72px)}
+.intro{margin-top:12px;max-width:36ch}
+
+.grila{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:30px}
+.grila img{width:100%;aspect-ratio:1;object-fit:cover}
+.grila img:first-child{grid-column:1/-1;aspect-ratio:4/3}
+
+.artisti{list-style:none;padding:0;margin-top:30px;border-top:1px solid var(--linie-inchis)}
+.artisti li{display:grid;grid-template-columns:1fr auto;gap:2px 14px;padding:18px 0;border-bottom:1px solid var(--linie-inchis)}
+.artisti h3{font-size:28px}
+.artisti .liber{align-self:center;font-size:15px;color:var(--stins-inchis);text-align:right}
+.artisti p{grid-column:1/-1;color:var(--stins-inchis)}
+
+.pasi{list-style:none;padding:0;margin-top:30px;counter-reset:p}
+.pasi li{counter-increment:p;display:grid;grid-template-columns:42px 1fr;padding:18px 0;border-top:1px solid var(--linie)}
+.pasi li::before{content:counter(p);font:400 28px/1.15 'Gloock',serif}
+.pasi h3{font:600 18px/1.35 'Instrument Sans',sans-serif}
+.pasi p{margin-top:2px;color:var(--stins)}
+.pret-nota{margin-top:10px;padding-top:18px;border-top:1px solid var(--linie)}
+
+.vizita address{font-style:normal;font-size:19px;margin-top:18px}
+.stare{margin-top:4px;color:var(--nisip)}
+.vizita dl{display:grid;grid-template-columns:1fr auto;gap:10px 18px;margin-top:26px;padding-top:22px;border-top:1px solid var(--linie-inchis)}
+.vizita dt,.vizita dd{margin:0}
+.vizita .azi{color:var(--nisip)}
+.majori{margin-top:22px;color:var(--stins-inchis)}
+.butoane{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.subsol{background:#0b0908;color:#a99d92;padding:34px var(--pad) 112px;font-size:15px;text-align:center}
+.subsol a{color:#f6efe3}
+
+.bara{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:8px;padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));background:rgba(16,14,13,.95);transform:translateY(110%);transition:transform .3s ease}
+.bara.vizibila{transform:none}
+.bara .btn{flex:1}
+
+dialog{width:100%;max-width:520px;max-height:90vh;margin:auto auto 0;padding:28px var(--pad) calc(24px + env(safe-area-inset-bottom));border:0;background:var(--nisip-deschis);color:var(--cerneala);overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+dialog h2{font-size:32px}
+dialog fieldset{border:0;padding:0;margin-top:20px}
+dialog legend{font-weight:600;margin-bottom:8px;padding:0}
+.alegeri{display:flex;flex-wrap:wrap;gap:8px}
+.alegeri button{min-height:44px;padding:0 14px;border:1px solid var(--cerneala);background:transparent;cursor:pointer}
+.alegeri button[aria-pressed=true]{background:var(--cerneala);color:var(--os)}
+dialog .btn{width:100%;margin-top:24px;background:var(--cerneala);color:var(--os)}
+dialog .btn[disabled]{opacity:.4;cursor:not-allowed}
+.inchide{position:absolute;top:10px;right:10px;width:44px;height:44px;border:0;background:none;font-size:26px;cursor:pointer}
+.nota{margin-top:14px;font-size:15px;color:var(--stins)}
+.mesaj{position:fixed;left:50%;bottom:92px;z-index:50;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);padding:10px 16px;background:#0b0908;color:#f6efe3;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none}
+.mesaj.on{opacity:1}
+
+@media (min-width:800px){
+  h1{font-size:clamp(90px,10vw,150px)}
+  .grila{grid-template-columns:repeat(3,1fr)}
+  .grila img:first-child{grid-column:auto;aspect-ratio:1}
+  .bara{justify-content:center}
+  .bara .btn{flex:0 0 280px}
+}
+@media (prefers-reduced-motion:reduce){.bara{transition:none}.c .poza{clip-path:none}.c .in{display:none}}
+</style>
+</head>
+<body>
+
+<div class="concept"><b>Concept</b> firmă inventată, site făcut de buildwithac</div>
+
+<main>
+  <section class="erou a" data-erou="a" hidden>
+    <img class="poza" src="concept-tatuaje/maini.jpg" alt="Mâini cu mănuși care lucrează un tatuaj mare pe braț">
+    <div class="in">
+      <h1><span>Casa de</span><span>Cerneală</span></h1>
+      <p class="sub">Tatuaje desenate pentru tine, în București.</p>
+      <button class="btn" data-idee>Trimite-ne ideea</button>
+    </div>
+  </section>
+
+  <section class="erou b" data-erou="b" hidden>
+    <div class="perete" aria-hidden="true">
+      <div><img src="concept-tatuaje/fin.jpg" alt=""><img src="concept-tatuaje/maini.jpg" alt=""><img src="concept-tatuaje/hartie.jpg" alt=""><img src="concept-tatuaje/brat.jpg" alt=""></div>
+      <div><img src="concept-tatuaje/linii.jpg" alt=""><img src="concept-tatuaje/artist.jpg" alt=""><img src="concept-tatuaje/fin.jpg" alt=""><img src="concept-tatuaje/masina.jpg" alt=""><img src="concept-tatuaje/maini.jpg" alt=""></div>
+      <div><img src="concept-tatuaje/brat.jpg" alt=""><img src="concept-tatuaje/masina.jpg" alt=""><img src="concept-tatuaje/linii.jpg" alt=""><img src="concept-tatuaje/hartie.jpg" alt=""></div>
+    </div>
+    <div class="in">
+      <h1><span>Casa de</span><span>Cerneală</span></h1>
+      <p class="sub">Tatuaje desenate pentru tine, în București.</p>
+      <button class="btn" data-idee>Trimite-ne ideea</button>
+    </div>
+  </section>
+
+  <section class="erou c" data-erou="c" hidden>
+    <img class="poza" src="concept-tatuaje/maini.jpg" alt="Mâini cu mănuși care lucrează un tatuaj mare pe braț">
+    <div class="in">
+      <h1><span>Casa de</span><span>Cerneală</span></h1>
+      <p class="sub">Tatuaje desenate pentru tine, în București.</p>
+      <p class="indemn">Dă scroll.</p>
+    </div>
+    <div class="sosit">
+      <p>Fiecare desen, făcut o singură dată.</p>
+      <button class="btn" data-idee>Trimite-ne ideea</button>
+    </div>
+  </section>
+
+  <div class="sala" id="lucrari">
+    <section class="bloc">
+      <h2>Lucrări</h2>
+      <div class="expozitie">
+        <figure class="tablou lat">
+          <div class="rama"><div class="paspartu"><img src="concept-tatuaje/linii.jpg" alt="Tatuaj mare cu linii, în lucru pe braț" loading="lazy"></div></div>
+          <figcaption><b>Valuri</b><span>Alb-negru</span></figcaption>
+        </figure>
+        <figure class="tablou dreapta">
+          <div class="rama"><div class="paspartu"><img src="concept-tatuaje/fin.jpg" alt="Tatuaj fin, scris de mână, pe braț" loading="lazy"></div></div>
+          <figcaption><b>Scris de mână</b><span>Linie fină</span></figcaption>
+        </figure>
+        <figure class="tablou stanga">
+          <div class="rama"><div class="paspartu"><img src="concept-tatuaje/brat.jpg" alt="Braț cu mai multe tatuaje alb-negru" loading="lazy"></div></div>
+          <figcaption><b>Coroana</b><span>Ornamental</span></figcaption>
+        </figure>
+        <figure class="tablou dreapta2">
+          <div class="rama"><div class="paspartu"><img src="concept-tatuaje/hartie.jpg" alt="Tatuaj mic, în lucru, fotografie alb-negru" loading="lazy"></div></div>
+          <figcaption><b>Prima linie</b><span>Linie fină</span></figcaption>
+        </figure>
+      </div>
+    </section>
+  </div>
+
+  <section class="bloc">
+    <h2>Artiști</h2>
+    <ul class="artisti">
+      <li><h3>Ana</h3><span class="liber">Liberă din decembrie</span><p>Linie fină și scris de mână.</p></li>
+      <li><h3>Radu</h3><span class="liber">Liber din ianuarie</span><p>Alb-negru, piese mari.</p></li>
+      <li><h3>Mara</h3><span class="liber">Liberă din decembrie</span><p>Ornamental și flori.</p></li>
+    </ul>
+  </section>
+
+  <div class="nisip">
+    <section class="bloc">
+      <h2>Cum lucrăm</h2>
+      <ol class="pasi">
+        <li><div><h3>Ne trimiți ideea</h3><p>Spui ce vrei, unde și cât de mare. O poză de referință ajută.</p></div></li>
+        <li><div><h3>Îți răspundem cu un preț</h3><p>Stabilim artistul, data și avansul.</p></div></li>
+        <li><div><h3>Vezi desenul înainte</h3><p>Îl modificăm până îți place. Abia apoi începem.</p></div></li>
+      </ol>
+      <p class="pret-nota">Tatuajele mici pornesc de la 400 de lei. Avansul de 200 de lei se scade din preț.</p>
+    </section>
+  </div>
+
+  <section class="bloc vizita" id="unde">
+    <h2>Vizită</h2>
+    <address>Strada Cernelii 3, Sector 3, București</address>
+    <p class="stare" id="stare"></p>
+    <dl id="program">
+      <dt data-zile="2,3,4,5,6">Marți – sâmbătă</dt><dd data-zile="2,3,4,5,6">11:00 – 20:00</dd>
+      <dt data-zile="0,1">Duminică și luni</dt><dd data-zile="0,1">Închis</dd>
+    </dl>
+    <p class="majori">Lucrăm doar cu programare și doar cu persoane peste 18 ani.</p>
+    <div class="butoane">
+      <button class="btn gol" data-mesaj="Pe un site adevărat, aici se deschide harta.">Vezi pe hartă</button>
+      <button class="btn gol" data-mesaj="Pe un site adevărat, aici se deschide Instagramul.">Instagram</button>
+    </div>
+  </section>
+</main>
+
+<footer class="subsol">Site-concept. Firma, artiștii, adresa și prețurile sunt inventate. Pozele sunt de pe Unsplash.<br><a href="https://buildwithac.ro">Vrei un site ca ăsta? Scrie-mi pe buildwithac.ro</a></footer>
+
+<div class="bara" id="bara"><button class="btn" data-idee>Trimite-ne ideea</button></div>
+
+<dialog id="idee" aria-labelledby="titlu-idee">
+  <button class="inchide" aria-label="Închide">×</button>
+  <div id="pasi">
+    <h2 id="titlu-idee">Trimite-ne ideea</h2>
+    <fieldset><legend>Stilul</legend><div class="alegeri" id="a-stil"></div></fieldset>
+    <fieldset><legend>Locul de pe corp</legend><div class="alegeri" id="a-loc"></div></fieldset>
+    <fieldset><legend>Mărimea</legend><div class="alegeri" id="a-marime"></div></fieldset>
+    <button class="btn" id="trimite" disabled>Trimite ideea</button>
+  </div>
+  <div id="gata" hidden>
+    <h2>Am primit ideea</h2>
+    <p id="rezumat" style="margin-top:12px"></p>
+    <p class="nota">E un concept, deci nu s-a trimis nimic. Pe un site adevărat, aici primești răspunsul pe e-mail.</p>
+  </div>
+</dialog>
+
+<div class="mesaj" id="mesaj" role="status"></div>
+
+<script>
+if (self !== top) document.documentElement.style.scrollbarWidth = 'none';
+const miscare = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.registerPlugin(ScrollTrigger);
+gsap.ticker.lagSmoothing(0);
+
+const q = new URLSearchParams(location.search);
+const v = q.get('v') || 'c';
+document.documentElement.dataset.r = q.get('r') || '1';
+document.querySelectorAll('[data-erou]').forEach(s => { if (s.dataset.erou === v) s.hidden = false; else s.remove(); });
+const erou = document.querySelector('.erou');
+erou.querySelectorAll('.perete div').forEach(c => { c.innerHTML += c.innerHTML; });
+const poza = erou.querySelector('.poza');
+
+if (miscare) {
+  gsap.from(erou.querySelectorAll('h1 span, .sub, .indemn, .in .btn'), { opacity: 0, y: 16, duration: .9, ease: 'power2.out', stagger: .12, delay: .15 });
+  if (v === 'a') gsap.to(poza, { yPercent: 10, ease: 'none', scrollTrigger: { trigger: erou, start: 'top top', end: 'bottom top', scrub: true } });
+  if (v === 'b') {
+    const col = erou.querySelectorAll('.perete div');
+    [-90, 110, -130].forEach((y, i) => gsap.to(col[i], { y, ease: 'none', scrollTrigger: { trigger: erou, start: 'top top', end: 'bottom top', scrub: true } }));
+  }
+  if (v === 'c') {
+    // pata de cerneală: un contur neregulat care crește cu scroll-ul
+    const pata = { p: 0 };
+    const deseneaza = () => {
+      const w = erou.clientWidth, h = erou.clientHeight, D = Math.hypot(w, h);
+      const r = (.08 + Math.pow(pata.p, 1.7) * 1.5) * D, cx = w * .52, cy = h * .62, N = 84, pts = [];
+      for (let i = 0; i < N; i++) {
+        const a = i / N * Math.PI * 2;
+        const n = 1 + .15 * Math.sin(3 * a + 1) + .1 * Math.sin(7 * a + 2 + pata.p * 3) + .06 * Math.sin(13 * a + 4) + .035 * Math.sin(29 * a + pata.p * 9);
+        pts.push(`${(cx + Math.cos(a) * r * n).toFixed(1)}px ${(cy + Math.sin(a) * r * n).toFixed(1)}px`);
+      }
+      poza.style.clipPath = `polygon(${pts.join(',')})`;
+    };
+    deseneaza();
+    const t = gsap.timeline({ scrollTrigger: { trigger: erou, start: 'top top', end: '+=170%', pin: true, scrub: .6, anticipatePin: 1 } });
+    t.to(pata, { p: 1, ease: 'none', duration: 1, onUpdate: deseneaza }, 0)
+     .to('.c .in', { opacity: 0, y: -24, duration: .3 }, .25)
+     .to('.sosit', { autoAlpha: 1, duration: .2 }, .8);
+  }
+} else if (v === 'c') {
+  document.querySelector('.sosit').style.cssText = 'opacity:1;visibility:visible';
+}
+
+document.querySelectorAll('.tablou').forEach(el => {
+  if (!miscare) return el.classList.add('aprins');
+  ScrollTrigger.create({ trigger: el, start: 'top 72%', once: true, onEnter: () => el.classList.add('aprins') });
+});
+
+ScrollTrigger.create({ trigger: '#lucrari', start: 'top 85%', end: 'max', onToggle: s => document.getElementById('bara').classList.toggle('vizibila', s.isActive) });
+
+const acum = new Date(), zi = acum.getDay(), ora = acum.getHours() + acum.getMinutes() / 60;
+document.querySelectorAll('#program [data-zile]').forEach(e => { if (e.dataset.zile.split(',').includes(String(zi))) e.classList.add('azi'); });
+document.getElementById('stare').textContent = zi >= 2 && zi <= 6 && ora >= 11 && ora < 20 ? 'Deschis azi până la 20:00' : 'Închis acum';
+
+const mesaj = document.getElementById('mesaj');
+let cronometru;
+document.querySelectorAll('[data-mesaj]').forEach(b => b.onclick = () => {
+  mesaj.textContent = b.dataset.mesaj; mesaj.classList.add('on');
+  clearTimeout(cronometru); cronometru = setTimeout(() => mesaj.classList.remove('on'), 2600);
+});
+
+const dlg = document.getElementById('idee');
+const alegere = { stil: null, loc: null, marime: null };
+function pastile(id, valori, cheie) {
+  const loc = document.getElementById(id);
+  loc.innerHTML = '';
+  valori.forEach(val => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = val; b.setAttribute('aria-pressed', alegere[cheie] === val);
+    b.onclick = () => { alegere[cheie] = val; pastile(id, valori, cheie); verifica(); };
+    loc.append(b);
+  });
+}
+function verifica() { document.getElementById('trimite').disabled = !(alegere.stil && alegere.loc && alegere.marime); }
+function deschide() {
+  document.getElementById('pasi').hidden = false;
+  document.getElementById('gata').hidden = true;
+  pastile('a-stil', ['Linie fină', 'Alb-negru', 'Ornamental', 'Nu știu încă'], 'stil');
+  pastile('a-loc', ['Braț', 'Picior', 'Spate', 'Piept', 'Altul'], 'loc');
+  pastile('a-marime', ['Mică', 'Medie', 'Mare'], 'marime');
+  verifica(); dlg.showModal();
+}
+document.querySelectorAll('[data-idee]').forEach(b => b.onclick = deschide);
+document.querySelector('.inchide').onclick = () => dlg.close();
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+document.getElementById('trimite').onclick = () => {
+  document.getElementById('rezumat').textContent = `${alegere.stil}, ${alegere.loc.toLowerCase()}, mărime ${alegere.marime.toLowerCase()}.`;
+  document.getElementById('pasi').hidden = true;
+  document.getElementById('gata').hidden = false;
+};
+</script>
+</body>
+</html>
