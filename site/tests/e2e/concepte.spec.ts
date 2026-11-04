@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 
-const CONCEPTE = [{ slug: "clinica", titlu: "Clinica Tei", cta: "Programează-te" }];
+const CONCEPTE = [
+  { slug: "clinica", titlu: "Clinica Tei", cta: "Programează-te" },
+  { slug: "frizerie", titlu: "Conu' Leonida", cta: "Programează-te" },
+];
 
 for (const c of CONCEPTE) {
   test.describe(c.slug, () => {
@@ -72,6 +75,7 @@ for (const c of CONCEPTE) {
       await page.goto(`/concepte/${c.slug}`);
       await expect(page.locator(".sosit")).toBeVisible();
       await expect(page.locator(".pin-spacer")).toHaveCount(0);
+      await expect(page.getByText(c.titlu, { exact: true }).first()).toBeVisible();
       await context.close();
     });
   });
