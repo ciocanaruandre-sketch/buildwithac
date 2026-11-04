@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 const CONCEPTE = [
   { slug: "clinica", titlu: "Clinica Tei", cta: "Programează-te" },
   { slug: "frizerie", titlu: "Conu' Leonida", cta: "Programează-te" },
+  { slug: "tatuaje", titlu: "Casa de Cerneală", cta: "Trimite-ne ideea" },
 ];
 
 for (const c of CONCEPTE) {
@@ -80,6 +81,28 @@ for (const c of CONCEPTE) {
     });
   });
 }
+
+test("pata se redesenează la rotire", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/concepte/tatuaje");
+  const inainte = await page.locator(".erou .poza").evaluate((e) => (e as HTMLElement).style.clipPath);
+  await page.setViewportSize({ width: 844, height: 390 });
+  await expect.poll(() => page.locator(".erou .poza").evaluate((e) => (e as HTMLElement).style.clipPath)).not.toBe(inainte);
+});
+
+test("tablourile se aprind la scroll", async ({ page }) => {
+  await page.goto("/concepte/tatuaje");
+  const t = page.locator(".tablou").first();
+  await expect(t).not.toHaveClass(/aprins/);
+  await t.scrollIntoViewIfNeeded();
+  await expect(t).toHaveClass(/aprins/);
+});
+
+test("etichetele nu pomenesc artiști", async ({ page }) => {
+  await page.goto("/concepte/tatuaje");
+  await expect(page.locator(".tablou")).not.toHaveCount(0);
+  await expect(page.locator(".tablou figcaption", { hasText: /Ana|Radu|Mara/ })).toHaveCount(0);
+});
 
 test("slug inexistent dă 404", async ({ request }) => {
   expect((await request.get("/concepte/altceva")).status()).toBe(404);
