@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banda și chatul · variante</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Instrument+Serif:ital@1&family=Inter:wght@400;500;600&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0b0908;--cream:#f6efe3;--muted:#a99d92;--gold:#ffb52e;--org:#f26a21;--red:#e53222;--wine:#7a0e0e;--tape:rgba(255,226,170,.9);--grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#050404;color:var(--cream);font-family:Inter,sans-serif;overflow-x:hidden}
+  .serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+  .gtxt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hand{font-family:Caveat,cursive;font-weight:600}
+  .eb{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#ff8a3d}
+
+  .frame{margin:0 auto;background:var(--ink);container-type:inline-size;padding-bottom:220px}
+  body.tel .frame{max-width:390px;border-left:1px solid #222;border-right:1px solid #222}
+  .ctx{opacity:.55}
+  .ctx-l{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6d625a;text-align:center;padding:10px 0}
+
+  /* ===== context: finalul cortinei, începutul ghidurilor ===== */
+  .curtain{position:relative;background:#120d0b;border-radius:36px 36px 0 0;padding:90px clamp(20px,8cqw,140px) 70px}
+  .manifest{font-family:Unbounded;font-weight:600;font-size:clamp(22px,3.6cqw,52px);line-height:1.2;letter-spacing:-.02em;max-width:1100px}
+  .manifest .serif{font-size:1.15em}
+  .stub{padding:70px clamp(20px,6cqw,90px) 90px;background:#0b0908}
+  .stub h2,.serv h2,.faq h2,.contact h2{font-family:Unbounded;font-weight:800;font-size:clamp(30px,4.4cqw,64px);letter-spacing:-.04em;line-height:1.05}
+  .stub p{color:var(--muted);margin-top:14px;font-size:15px;max-width:520px}
+
+  /* ===== BANDA ===== */
+  .tapes{position:relative;overflow:hidden;background:#0b0908}
+  .strip{position:relative;width:118%;margin-left:-9%;white-space:nowrap;overflow:hidden}
+  .track{display:inline-flex;will-change:transform}
+  .track span{display:inline-flex;align-items:center;flex-shrink:0}
+
+  /* A · două benzi adezive încrucișate */
+  .vA{height:clamp(170px,22cqw,260px)}
+  .vA .strip{position:absolute;left:0;top:50%}
+  .vA .s1{transform:translateY(-50%) rotate(-4.5deg);background:var(--tape);color:#1b0f0a;padding:clamp(12px,1.6cqw,20px) 0;z-index:2;box-shadow:0 14px 30px rgba(0,0,0,.45);
+    background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 2px,transparent 2px 7px),linear-gradient(var(--tape),var(--tape))}
+  .vA .s1 span{font-family:Unbounded;font-weight:800;font-size:clamp(20px,3.4cqw,46px);letter-spacing:-.02em;text-transform:uppercase;gap:clamp(16px,2.4cqw,34px);padding-right:clamp(16px,2.4cqw,34px)}
+  .vA .s1 i{font-style:normal;color:var(--org);font-size:.7em}
+  .vA .s2{transform:translateY(-50%) rotate(3.5deg);background:#1c1411;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);padding:clamp(8px,1.2cqw,14px) 0;z-index:1}
+  .vA .s2 span{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(22px,3.2cqw,42px);gap:clamp(14px,2cqw,28px);padding-right:clamp(14px,2cqw,28px)}
+  .vA .s2 b{font-weight:400;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.08em}
+  .vA .s2 i{font-style:normal;color:#5b4a40;font-family:Inter;font-size:.5em}
+
+  /* B · gradientul logo-ului peste o fâșie de hârtie */
+  .vB{height:clamp(170px,22cqw,260px)}
+  .vB .strip{position:absolute;left:0;top:50%}
+  .vB .s1{transform:translateY(-50%) rotate(-4deg);background:var(--grad);color:#1a0703;padding:clamp(12px,1.6cqw,20px) 0;z-index:2;box-shadow:0 18px 40px rgba(0,0,0,.5)}
+  .vB .s1 span{font-family:Unbounded;font-weight:800;font-size:clamp(20px,3.4cqw,46px);letter-spacing:-.02em;text-transform:uppercase;gap:clamp(16px,2.4cqw,34px);padding-right:clamp(16px,2.4cqw,34px)}
+  .vB .s1 i{font-style:normal;font-size:.6em;opacity:.7}
+  .vB .s2{transform:translateY(-50%) rotate(3.5deg);background:var(--cream);color:#1b0f0a;padding:clamp(8px,1.2cqw,14px) 0;z-index:1}
+  .vB .s2 span{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(22px,3.2cqw,42px);gap:clamp(14px,2cqw,28px);padding-right:clamp(14px,2cqw,28px)}
+  .vB .s2 i{font-style:normal;color:#c2410c;font-family:Inter;font-size:.5em}
+
+  /* pe telefon, unghiurile mici ascundeau fâșia de dedesubt: le depărtăm */
+  @container (max-width:600px){
+    .vA .s1,.vB .s1{transform:translateY(-82%) rotate(-6deg)}
+    .vA .s2,.vB .s2{transform:translateY(-2%) rotate(5deg)}
+  }
+
+  /* C · o singură fâșie de hârtie ruptă, scrisă de mână */
+  .vC{padding:clamp(40px,6cqw,80px) 0}
+  .vC .strip{transform:rotate(-2deg);background:var(--cream);color:#1b0f0a;padding:clamp(14px,2cqw,24px) 0 clamp(10px,1.6cqw,20px);
+    clip-path:polygon(0 6%,4% 0,9% 5%,15% 1%,21% 6%,27% 0,33% 4%,40% 1%,46% 6%,52% 0,58% 5%,64% 1%,70% 6%,76% 0,82% 5%,88% 1%,94% 6%,100% 2%,100% 95%,95% 100%,89% 94%,83% 99%,77% 95%,71% 100%,65% 94%,59% 99%,53% 95%,47% 100%,41% 94%,35% 99%,29% 95%,23% 100%,17% 94%,11% 99%,5% 95%,0 100%);
+    background-image:radial-gradient(rgba(120,80,40,.07) 1px,transparent 1px),linear-gradient(var(--cream),var(--cream));background-size:5px 5px,auto}
+  .vC .strip span{font-family:Caveat,cursive;font-weight:600;font-size:clamp(34px,5.4cqw,72px);line-height:1;gap:clamp(18px,2.6cqw,36px);padding-right:clamp(18px,2.6cqw,36px)}
+  .vC .strip b{font-weight:600;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .vC .strip i{font-style:normal;color:var(--red);font-size:.6em}
+  .vC .bits{position:absolute;inset:0;pointer-events:none}
+  .vC .bits em{position:absolute;width:clamp(60px,8cqw,100px);height:clamp(20px,2.4cqw,28px);background:rgba(255,226,170,.75)}
+  .vC .bits{z-index:2}
+  .vC{--h:clamp(29px,4.5cqw,58px);--dy:calc(41cqw * .035)}
+  .vC .bits em:nth-child(1){left:9%;top:calc(50% - var(--h) + var(--dy));transform:translateY(-50%) rotate(-10deg)}
+  .vC .bits em:nth-child(2){right:11%;top:calc(50% + var(--h) - var(--dy));transform:translateY(-50%) rotate(8deg)}
+  .acum{padding:40px 0;text-align:center;color:#6d625a;font-size:13px}
+
+  /* hârtie ruptă, comună pentru C2–C4 */
+  .rupt{clip-path:polygon(0 6%,4% 0,9% 5%,15% 1%,21% 6%,27% 0,33% 4%,40% 1%,46% 6%,52% 0,58% 5%,64% 1%,70% 6%,76% 0,82% 5%,88% 1%,94% 6%,100% 2%,100% 95%,95% 100%,89% 94%,83% 99%,77% 95%,71% 100%,65% 94%,59% 99%,53% 95%,47% 100%,41% 94%,35% 99%,29% 95%,23% 100%,17% 94%,11% 99%,5% 95%,0 100%)}
+  .rupt span{font-family:Caveat,cursive;font-weight:600;line-height:1}
+
+  /* C2 · marker pe cuvintele-cheie */
+  .vC2 .strip span{color:#1b0f0a}
+  .vC2 mark{color:inherit;background:linear-gradient(100deg,transparent 2%,rgba(255,181,46,.85) 4%,rgba(242,106,33,.75) 96%,transparent 98%) 0 72%/100% 46% no-repeat;padding:0 .12em;margin:0 -.04em;border-radius:.2em}
+  .vC2 .strip i{color:#a08a78;font-size:.7em}
+
+  /* C3 · fâșie kraft sub fâșia crem, în sensuri opuse */
+  .vC3{padding:clamp(46px,6cqw,80px) 0}
+  .vC3 .kraft{transform:rotate(2.6deg);background:#c49a6c;color:#3a2414;padding:clamp(10px,1.4cqw,16px) 0;
+    background-image:radial-gradient(rgba(60,30,10,.12) 1px,transparent 1.4px),linear-gradient(#c49a6c,#b88b5b);background-size:4px 4px,auto}
+  .vC3 .kraft span{font-size:clamp(24px,3.4cqw,44px);gap:clamp(14px,2cqw,26px);padding-right:clamp(14px,2cqw,26px)}
+  .vC3 .kraft i{font-style:normal;opacity:.6}
+  .vC3 .crem{position:relative;z-index:2;margin-top:clamp(-30px,-2.4cqw,-14px);transform:rotate(-2.4deg);background:var(--cream);color:#1b0f0a;padding:clamp(14px,2cqw,24px) 0 clamp(10px,1.6cqw,20px);box-shadow:0 10px 24px rgba(0,0,0,.4)}
+  .vC3 .crem span{font-size:clamp(34px,5.4cqw,72px);gap:clamp(18px,2.6cqw,36px);padding-right:clamp(18px,2.6cqw,36px)}
+  .vC3 .crem i{font-style:normal;color:var(--red);font-size:.6em}
+
+  /* C4 · bandă de hârtie (washi) cu desene de mână */
+  .vC4{padding:clamp(40px,6cqw,80px) 0}
+  .vC4 .washi{transform:rotate(-2deg);background:rgba(255,226,170,.92);color:#1b0f0a;padding:clamp(16px,2.2cqw,26px) 0 clamp(14px,2cqw,22px);
+    clip-path:polygon(0 3%,3% 0,6% 3%,9% 0,12% 3%,15% 0,18% 3%,21% 0,24% 3%,27% 0,30% 3%,33% 0,36% 3%,39% 0,42% 3%,45% 0,48% 3%,51% 0,54% 3%,57% 0,60% 3%,63% 0,66% 3%,69% 0,72% 3%,75% 0,78% 3%,81% 0,84% 3%,87% 0,90% 3%,93% 0,96% 3%,100% 0,100% 97%,97% 100%,94% 97%,91% 100%,88% 97%,85% 100%,82% 97%,79% 100%,76% 97%,73% 100%,70% 97%,67% 100%,64% 97%,61% 100%,58% 97%,55% 100%,52% 97%,49% 100%,46% 97%,43% 100%,40% 97%,37% 100%,34% 97%,31% 100%,28% 97%,25% 100%,22% 97%,19% 100%,16% 97%,13% 100%,10% 97%,7% 100%,4% 97%,0 100%);
+    background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.2) 0 2px,transparent 2px 9px),linear-gradient(rgba(255,226,170,.92),rgba(255,226,170,.92))}
+  .vC4 .washi span{font-size:clamp(34px,5.2cqw,70px);gap:clamp(18px,2.6cqw,36px);padding-right:clamp(18px,2.6cqw,36px)}
+  .vC4 .washi i{font-style:normal;color:#c2410c;font-size:.75em}
+  .vC4 u{text-decoration:none;position:relative;display:inline-block}
+  .vC4 u.cerc::after{content:"";position:absolute;inset:-.08em -.22em -.02em;border:2.5px solid var(--red);border-radius:58% 42% 55% 45%/52% 60% 40% 48%;transform:rotate(-4deg)}
+  .vC4 u.val{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 4 Q6 0 12 4 T24 4' fill='none' stroke='%23f26a21' stroke-width='2.4'/%3E%3C/svg%3E") 0 100%/24px 8px repeat-x;padding-bottom:.12em}
+
+  /* ===== context: servicii (doar ultima carte) ===== */
+  .serv{padding:90px clamp(20px,6cqw,90px) 40px;background:#0b0908}
+  .scard{border-radius:30px;padding:40px;margin-top:40px;background:#3d0f0a;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:end}
+  .scard .n{font-family:Unbounded;font-size:13px;color:#ff8a3d}
+  .scard h3{font-family:Unbounded;font-weight:800;font-size:clamp(26px,3cqw,42px);letter-spacing:-.03em;line-height:1.05;margin-top:10px}
+  .scard h3 .kick{display:block;font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(22px,2.4cqw,32px);letter-spacing:0;margin-top:6px}
+  .scard p{color:#cfc4ba;font-size:15px;line-height:1.55}
+  @container (max-width:700px){.scard{grid-template-columns:1fr;padding:30px}}
+
+  /* ===== CHATUL ===== */
+  .faq{padding:90px clamp(20px,6cqw,90px) 110px;background:#0b0908;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(30px,6cqw,90px);align-items:center}
+  /* minmax(0,…): rândul de întrebări din C3 (fără trecere la rând nou) lățea altfel coloana peste ecran */
+  @container (max-width:760px){.faq{grid-template-columns:minmax(0,1fr)}}
+  .faq .lead{color:var(--muted);font-size:15px;line-height:1.55;margin-top:16px;max-width:420px}
+  .faq .direct{display:inline-block;margin-top:22px;font-weight:600;font-size:15px;color:var(--cream);text-decoration:none;border-bottom:1px solid rgba(242,106,33,.6);padding-bottom:3px}
+  .faq .direct:hover{border-color:var(--org)}
+  .msgs{display:flex;flex-direction:column;gap:10px;overflow-y:auto;scroll-behavior:smooth;scrollbar-width:none}
+  .msgs::-webkit-scrollbar{display:none}
+  .b{max-width:84%;padding:11px 15px;font-size:14.5px;line-height:1.5;animation:apare .35s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes apare{from{opacity:0;transform:translateY(8px) scale(.97)}}
+  .b.eu{align-self:flex-end}
+  .b.el{align-self:flex-start}
+  .dots{display:inline-flex;gap:4px;padding:3px 0}
+  .dots i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.4;animation:pct 1s infinite}
+  .dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+  @keyframes pct{50%{opacity:1;transform:translateY(-3px)}}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chips button{font:inherit;cursor:pointer;transition:transform .2s,background .2s,border-color .2s}
+  .chips button:hover{transform:translateY(-2px)}
+  .chips button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .reset{font:inherit;font-size:12px;background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;margin-top:6px}
+
+  /* A · DM întunecat */
+  .cA{border-radius:26px;background:#140f0d;border:1px solid rgba(255,255,255,.09);box-shadow:0 30px 70px rgba(0,0,0,.5);overflow:hidden}
+  .cA .top{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+  .cA .top img{width:40px;height:40px;border-radius:50%;background:#000}
+  .cA .top b{display:block;font-size:14px}
+  .cA .top small{color:var(--muted);font-size:12px}
+  .cA .msgs{height:300px;padding:18px}
+  .cA .b{border-radius:20px}
+  .cA .b.eu{background:var(--grad);color:#1a0703;font-weight:500;border-bottom-right-radius:6px}
+  .cA .b.el{background:#241a16;color:#ece3d9;border-bottom-left-radius:6px}
+  .cA .ask{padding:14px 18px 18px;border-top:1px solid rgba(255,255,255,.07)}
+  .cA .ask .l{font-size:11px;color:var(--muted);letter-spacing:.06em;margin-bottom:10px}
+  .cA .chips button{font-size:13px;color:var(--cream);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:8px 13px}
+  .cA .chips button:hover{border-color:rgba(242,106,33,.7);background:rgba(242,106,33,.1)}
+
+  /* B · foaie de caiet, colaj */
+  .cB{position:relative;background:var(--cream);color:#1b0f0a;padding:44px 26px 26px;transform:rotate(-1.2deg);box-shadow:0 34px 70px rgba(0,0,0,.55);
+    background-image:linear-gradient(90deg,transparent 30px,rgba(229,50,34,.35) 30px 31px,transparent 31px),repeating-linear-gradient(transparent 0 27px,rgba(60,90,140,.13) 27px 28px);background-color:var(--cream)}
+  .cB .tape{position:absolute;top:-13px;left:50%;width:110px;height:28px;margin-left:-55px;background:var(--tape);transform:rotate(3deg)}
+  .cB .titl{font-family:Caveat,cursive;font-weight:600;font-size:28px;line-height:1;margin:0 0 14px 18px;color:#1b0f0a}
+  .cB .msgs{height:290px;padding:4px 2px 4px 18px}
+  .cB .b.eu{background:#0b0908;color:var(--cream);border-radius:4px;transform:rotate(.6deg)}
+  .cB .b.el{background:transparent;color:#2a1c14;padding-left:0;font-size:15px}
+  .cB .b.el .semn{display:block;font-family:Caveat,cursive;font-size:20px;color:#c2410c;margin-top:2px}
+  .cB .chips{margin-top:16px;padding-left:18px}
+  .cB .chips button{font-size:13px;font-weight:500;color:#1b0f0a;background:#fff8ec;border:1px solid rgba(27,15,10,.15);border-radius:3px;padding:8px 12px;box-shadow:0 3px 0 rgba(27,15,10,.12)}
+  .cB .chips button:nth-child(odd){transform:rotate(-1deg)}
+  .cB .chips button:nth-child(even){transform:rotate(1.2deg)}
+  .cB .chips button:hover{background:#ffe6b8}
+  .cB .reset{color:#7a6658;padding-left:18px}
+
+  /* C · telefon lipit pe pagină */
+  .cC{position:relative;justify-self:center;width:min(340px,100%)}
+  .cC .phone{position:relative;border-radius:44px;background:#050404;border:10px solid #1d1714;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 80px rgba(0,0,0,.6);overflow:hidden;transform:rotate(2.5deg)}
+  .cC .tape{position:absolute;z-index:3;width:96px;height:26px;background:var(--tape)}
+  .cC .tape.t1{top:-8px;left:-18px;transform:rotate(-24deg)}
+  .cC .tape.t2{top:440px;right:-26px;transform:rotate(-18deg)}
+  .cC .isl{width:90px;height:24px;border-radius:20px;background:#000;margin:8px auto 0}
+  .cC .top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+  .cC .top img{width:32px;height:32px;border-radius:50%}
+  .cC .top b{font-size:13px}
+  .cC .msgs{height:330px;padding:14px}
+  .cC .b{font-size:13.5px;border-radius:20px}
+  .cC .b.eu{background:linear-gradient(135deg,#f26a21,#e53222);color:#fff;border-bottom-right-radius:6px}
+  .cC .b.el{background:#262120;color:#ece3d9;border-bottom-left-radius:6px}
+  .cC .bar{margin:6px 12px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.14);padding:9px 14px;font-size:12.5px;color:#7a6f67}
+  .cC .under{margin-top:26px}
+  .cC .under .l{font-family:Caveat,cursive;font-size:24px;color:var(--gold);transform:rotate(-3deg);margin-bottom:10px}
+  .cC .chips button{font-size:13px;color:#1b0f0a;background:var(--cream);border:0;border-radius:999px;padding:8px 13px}
+  .cC .chips button:hover{background:#ffe6b8}
+
+  /* C2 · întrebările pe bilețele rupte, scrise de mână */
+  .cC2 .chips{gap:12px 10px;margin-top:4px}
+  .cC2 .chips button{position:relative;font-family:Caveat,cursive;font-weight:600;font-size:22px;line-height:1.05;color:#1b0f0a;background:var(--cream);border:0;border-radius:0;padding:12px 14px 10px;box-shadow:0 8px 16px rgba(0,0,0,.35);text-align:left;
+    clip-path:polygon(0 4%,8% 0,20% 3%,33% 0,47% 4%,60% 0,74% 3%,88% 0,100% 4%,98% 50%,100% 96%,86% 100%,72% 96%,58% 100%,44% 96%,30% 100%,16% 96%,0 100%,2% 50%)}
+  .cC2 .chips button:nth-child(3n+1){transform:rotate(-2.5deg)}
+  .cC2 .chips button:nth-child(3n+2){transform:rotate(1.8deg);background:#ffe6b8}
+  .cC2 .chips button:nth-child(3n){transform:rotate(-1deg)}
+  .cC2 .chips button:hover{transform:rotate(0) translateY(-3px)}
+
+  /* C3 · antet de Instagram, întrebările ca răspunsuri rapide, în telefon */
+  .cC .top.ig{gap:10px}
+  .cC .back{font-size:26px;line-height:1;color:var(--cream);margin-right:2px}
+  .cC .ring{width:36px;height:36px;border-radius:50%;padding:2px;background:linear-gradient(45deg,#ffb52e,#f26a21 45%,#e53222,#7a0e0e);display:inline-flex;flex-shrink:0}
+  .cC .ring img{width:100%;height:100%;border-radius:50%;border:2px solid #050404}
+  .cC .top.ig b{display:block;font-size:13px}
+  .cC .top.ig small{font-size:11px;color:#8a7f77}
+  .cC3 .msgs{height:280px}
+  .cC3 .qr{padding:2px 12px 4px;overflow-x:auto;scrollbar-width:none}
+  .cC3 .qr::-webkit-scrollbar{display:none}
+  .cC3 .qr .chips{flex-wrap:nowrap;gap:6px}
+  .cC3 .qr .chips button{flex-shrink:0;font-size:12px;color:#ffb27a;background:transparent;border:1px solid rgba(242,106,33,.6);border-radius:999px;padding:7px 11px;white-space:nowrap}
+  .cC3 .qr .chips button:hover{background:rgba(242,106,33,.15);transform:none}
+  .cC3 .bar{margin-top:8px}
+
+  /* C4 · telefon alb, ca un Instagram pe mod luminos */
+  .cC4 .phone{background:#fffaf2;border-color:#e9dfd0;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 40px 80px rgba(0,0,0,.65)}
+  .cC4 .isl{background:#1b0f0a}
+  .cC4 .top{border-bottom-color:rgba(27,15,10,.08)}
+  .cC4 .back{color:#1b0f0a}
+  .cC4 .ring img{border-color:#fffaf2}
+  .cC4 .top.ig b{color:#1b0f0a}
+  .cC4 .b.el{background:#efe6da;color:#1b0f0a}
+  .cC4 .bar{border-color:rgba(27,15,10,.15);color:#9a8b7e}
+  .cC4 .under .l{color:var(--cream)}
+  .cC4 .chips button{background:transparent;color:var(--cream);border:1px solid rgba(246,239,227,.35)}
+  .cC4 .chips button:hover{background:rgba(246,239,227,.08);border-color:var(--cream)}
+
+  /* context: contact */
+  .contact{padding:80px 20px 60px;text-align:center;background:#0b0908}
+
+  /* comutatorul */
+  .sw{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:50;width:min(760px,calc(100% - 20px));background:rgba(20,16,14,.94);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:12px 14px;backdrop-filter:blur(10px);font-size:12px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+  .sw .row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 0}
+  .sw .lab{width:96px;color:var(--muted);flex-shrink:0}
+  .sw button{font:inherit;color:var(--cream);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:5px 11px;cursor:pointer}
+  .sw button.on{background:var(--grad);border-color:transparent;color:#1a0d07;font-weight:600}
+  .sw a{color:#ffcf8a;margin-left:auto;text-decoration:none}
+  @media (max-width:600px){.sw .lab{width:100%}.sw a{margin-left:0}}
+
+  @media (prefers-reduced-motion:reduce){.b,.dots i{animation:none}}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="ctx-l">finalul secțiunii de sus (cortina), cum e acum</div>
+  <section class="curtain ctx">
+    <p class="manifest">Salut, sunt Andrei. Pe TikTok îți arăt în 60 de secunde ce poate face AI-ul. Aici găsești <span class="serif gtxt">restul:</span> pașii compleți, prompturile și greșelile pe care le-am făcut eu, ca să nu le faci tu.</p>
+  </section>
+
+  <div id="banda"></div>
+
+  <section class="stub ctx">
+    <div class="eb">Ghiduri</div>
+    <h2 style="margin-top:14px">(aici încep ghidurile)</h2>
+    <p>Restul paginii rămâne cum e.</p>
+  </section>
+
+  <div class="ctx-l" id="la-chat">… · ultima carte de la Servicii, cum e acum</div>
+  <section class="serv ctx">
+    <div class="scard"><div><div class="n">03</div><h3>Sesiune 1 la 1<span class="kick gtxt">sau ghid personalizat</span></h3></div><div><p>Îți arăt cum să folosești AI-ul în munca ta. Live, pe ecran, sau într-un ghid scris doar pentru tine.</p></div></div>
+  </section>
+
+  <section class="faq" id="faq">
+    <div>
+      <div class="eb">Întrebări</div>
+      <h2 style="margin-top:14px">Ce mă întreabă <span class="serif gtxt">toată lumea.</span></h2>
+      <p class="lead">Apasă pe o întrebare și îți răspund pe loc. Dacă a ta nu e aici, scrie-mi.</p>
+      <a class="direct" href="#contact">Scrie-mi direct <span aria-hidden>→</span></a>
+    </div>
+    <div id="chat"></div>
+  </section>
+
+  <section class="contact ctx" id="contact">
+    <div class="ctx-l">urmează Contactul, cum e acum</div>
+    <h2>Hai să <span class="serif gtxt">vorbim.</span></h2>
+  </section>
+</div>
+
+<div class="sw" id="sw"></div>
+
+<script>
+/* ---------- textele ---------- */
+const BANDA = {
+  mare: ["Ghiduri gratuite", "Site-uri de la zero", "Automatizări", "Sesiuni 1 la 1", "AI pe înțeles"],
+  mic: ["pas cu pas", "cu prompturile mele", "tot gratuit", "testate de mine", "fără cont"],
+};
+// răspunsuri DE PROBĂ: Andrei le confirmă sau le rescrie
+const QA = [
+  ["Cât costă un site?", "Depinde de ce îți trebuie. Vorbim la telefon, îmi spui ce vrei, iar prețul îl știi înainte să încep. Nu lucrez cu prețuri din listă."],
+  ["Îmi trebuie cunoștințe tehnice?", "Nu. Îmi spui ce face afacerea ta și ce vrei să facă oamenii pe site. Partea tehnică e treaba mea."],
+  ["Ce fel de automatizări faci?", "Lucrurile care se repetă: confirmări trimise clienților, comenzi trecute în tabel, aceleași mesaje în fiecare zi. Le leg de aplicațiile pe care le folosești deja. Dacă nu știi încă ce ți-ar folosi, stabilim împreună, la o consultație."],
+  ["Cum arată o sesiune 1 la 1?", ""],
+  ["Ghidurile chiar sunt gratuite?", ""],
+  ["În cât timp îmi răspunzi?", "Îți scriu în 1–2 zile de când primesc formularul."],
+];
+// variante de ales (Andrei, 2026-11-08: răspunsul 4 nu-i place, la 5 apar și ghidurile premium)
+const VAR = {
+  r4: {
+    A: "Ne vedem online și lucrăm pe treburile tale reale: mesaje către clienți, oferte, postări. Pleci cu ele gata făcute cu AI.",
+    B: "Îmi spui dinainte ce vrei să înveți. Ne vedem online, cu ecranul partajat, și lucrăm direct pe calculatorul tău. La final știi să faci singur.",
+    C: "Îți arăt live, pe ecran, cum folosești AI-ul în munca ta. Dacă preferi să citești în ritmul tău, îți scriu un ghid doar pentru tine, cu pașii tăi.",
+    D: "Live, pe ecran, pe problemele tale. Tu întrebi, eu îți arăt cum se face cu AI, iar tu repeți până îți iese.",
+  },
+  r5: {
+    A: "Da, toate cele de acum. Le citești pe site, fără cont și fără card. Mai încolo apar și ghiduri premium, plătite, și o să vezi clar care sunt.",
+    B: "Cele de pe site, da: le citești fără cont și fără card. O să fac și ghiduri premium, plătite. Pe ele scrie clar asta, ca să nu fie surprize.",
+  },
+};
+
+const S = { banda: "C3", chat: "C4", tel: false, r4: "A", r5: "A", deschis: 1 };
+// A și B au ieșit (Andrei, 2026-11-08): rămâne C, plus variante în stilul lui
+const DESC = {
+  banda: { "0": "Acum (fără)", C: "C · ca înainte", C2: "C2 · marker", C3: "C3 · două hârtii", C4: "C4 · bandă cu desene" },
+  chat: { "0": "Acum (fără)", C: "C · ca înainte", C2: "C2 · bilețele", C3: "C3 · ca pe Instagram", C4: "C4 · telefon alb" },
+};
+
+/* ---------- banda ---------- */
+function bucata(lista, sep, cuGrad) {
+  return lista.map((t, i) => `<span>${cuGrad && i % 2 ? `<b>${t}</b>` : t}<i>${sep}</i></span>`).join("");
+}
+function randBanda() {
+  const el = document.getElementById("banda");
+  if (S.banda === "0") { el.innerHTML = `<div class="acum">(aici nu e nimic acum: după cortină vin direct ghidurile)</div>`; return; }
+  const mare = (sep) => bucata(BANDA.mare, sep, false);
+  const mic = (sep, g) => bucata(BANDA.mic, sep, g);
+  let html = "";
+  if (S.banda === "A") html = `<div class="tapes vA"><div class="strip s2" data-dir="1" data-v="0.5"><div class="track">${mic("●", true)}</div></div><div class="strip s1" data-dir="-1" data-v="0.7"><div class="track">${mare("✦")}</div></div></div>`;
+  if (S.banda === "B") html = `<div class="tapes vB"><div class="strip s2" data-dir="1" data-v="0.5"><div class="track">${mic("●", false)}</div></div><div class="strip s1" data-dir="-1" data-v="0.7"><div class="track">${mare("✦")}</div></div></div>`;
+  if (S.banda === "C") html = `<div class="tapes vC"><div class="bits"><em></em><em></em></div><div class="strip" data-dir="-1" data-v="0.55"><div class="track">${bucata(BANDA.mare.map(t => t.toLowerCase()).flatMap((t, i) => [t, BANDA.mic[i]]), "✶", true)}</div></div></div>`;
+  const RUPT = (d) => `<div class="strip rupt ${d.c}" data-dir="${d.dir}" data-v="${d.v}"><div class="track">${d.html}</div></div>`;
+  const elem = (lista, sep) => lista.map(t => `<span>${t}<i>${sep}</i></span>`).join("");
+  if (S.banda === "C2") html = `<div class="tapes vC vC2"><div class="bits"><em></em><em></em></div>${RUPT({ c: "", dir: -1, v: 0.55, html: elem([
+    "ghiduri <mark>gratuite</mark>", "site-uri de la zero", "<mark>pas cu pas</mark>", "automatizări", "cu prompturile mele", "sesiuni 1 la 1", "<mark>testate de mine</mark>", "AI pe înțeles"], "~") })}</div>`;
+  if (S.banda === "C3") html = `<div class="tapes vC3">${RUPT({ c: "kraft", dir: 1, v: 0.4, html: elem(BANDA.mic, "·") })}${RUPT({ c: "crem", dir: -1, v: 0.55, html: elem(BANDA.mare.map(t => t.toLowerCase()), "✶") })}</div>`;
+  if (S.banda === "C4") html = `<div class="tapes vC4">${RUPT({ c: "washi", dir: -1, v: 0.5, html: elem([
+    'ghiduri <u class="cerc">gratuite</u>', "site-uri de la zero", '<u class="val">pas cu pas</u>', "automatizări", 'testate de <u class="cerc">mine</u>', "sesiuni 1 la 1", '<u class="val">AI pe înțeles</u>', "fără cont"], "→") })}</div>`;
+  el.innerHTML = html;
+  el.querySelectorAll(".track").forEach(tr => {
+    const unu = tr.innerHTML;
+    tr.innerHTML = unu;
+    const w = Math.max(tr.scrollWidth, 1);
+    const n = Math.ceil((tr.parentElement.offsetWidth * 1.3) / w) + 1;
+    tr.innerHTML = unu.repeat(n * 2);
+    tr._jum = w * n; tr._x = 0;
+  });
+}
+const faraMiscare = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let ultimY = scrollY, viteza = 0, sens = 1;
+addEventListener("scroll", () => {
+  const d = scrollY - ultimY; ultimY = scrollY;
+  if (d) sens = Math.sign(d);
+  viteza = Math.min(viteza + Math.abs(d) * 0.12, 14);
+}, { passive: true });
+function bucla() {
+  viteza *= 0.92;
+  document.querySelectorAll(".strip").forEach(s => {
+    const tr = s.querySelector(".track"); if (!tr || !tr._jum) return;
+    tr._x -= (+s.dataset.v + viteza) * +s.dataset.dir * sens;
+    if (tr._x <= -tr._jum) tr._x += tr._jum;
+    if (tr._x > 0) tr._x -= tr._jum;
+    tr.style.transform = `translate3d(${tr._x}px,0,0)`;
+  });
+  requestAnimationFrame(bucla);
+}
+if (!faraMiscare) requestAnimationFrame(bucla);
+
+/* ---------- chatul ---------- */
+let folosite = [];
+function bula(cine, html) { return `<div class="b ${cine}">${html}</div>`; }
+function raspuns(t) { return S.chat === "B" ? `${t}<span class="semn">Andrei</span>` : t; }
+function randChat() {
+  const el = document.getElementById("chat");
+  document.getElementById("faq").style.display = S.chat === "0" ? "none" : "";
+  QA[3][1] = VAR.r4[S.r4]; QA[4][1] = VAR.r5[S.r5];
+  folosite = [S.deschis];
+  const start = bula("eu", QA[S.deschis][0]) + bula("el", raspuns(QA[S.deschis][1]));
+  const chips = `<div class="chips" id="chips"></div>`;
+  const reset = `<button class="reset" id="reset">de la capăt</button>`;
+  if (S.chat === "A") el.innerHTML = `<div class="cA"><div class="top"><img src="logo.png" alt=""><div><b>buildwithac.ai</b><small>Andrei</small></div></div><div class="msgs" id="msgs">${start}</div><div class="ask"><div class="l">Apasă pe o întrebare</div>${chips}${reset}</div></div>`;
+  if (S.chat === "B") el.innerHTML = `<div class="cB"><div class="tape"></div><div class="titl">întrebări primite ✎</div><div class="msgs" id="msgs">${start}</div>${chips}${reset}</div>`;
+  if (S.chat === "C") el.innerHTML = `<div class="cC"><div class="tape t1"></div><div class="tape t2"></div><div class="phone"><div class="isl"></div><div class="top"><img src="logo.png" alt=""><b>buildwithac.ai</b></div><div class="msgs" id="msgs">${start}</div><div class="bar">Mesaj…</div></div><div class="under"><div class="l">apasă pe o întrebare ↓</div>${chips}${reset}</div></div>`;
+  const tel = (cls, top, jos) => `<div class="cC ${cls}"><div class="tape t1"></div><div class="tape t2"></div><div class="phone"><div class="isl"></div>${top}<div class="msgs" id="msgs">${start}</div>${jos}</div>`;
+  const igTop = `<div class="top ig"><span class="back">‹</span><span class="ring"><img src="logo.png" alt=""></span><div><b>buildwithac.ai</b><small>Andrei</small></div></div>`;
+  if (S.chat === "C2") el.innerHTML = tel("cC2", `<div class="top"><img src="logo.png" alt=""><b>buildwithac.ai</b></div>`, `<div class="bar">Mesaj…</div></div><div class="under"><div class="l">alege un bilețel ↓</div>${chips}${reset}</div>`);
+  if (S.chat === "C3") el.innerHTML = tel("cC3", igTop, `<div class="qr">${chips}</div><div class="bar">Mesaj…</div></div><div class="under"><div class="l">apasă o întrebare din telefon ↑</div>${reset}</div>`);
+  if (S.chat === "C4") el.innerHTML = tel("cC4", igTop, `<div class="bar">Mesaj…</div></div><div class="under"><div class="l">întrebările care îmi vin cel mai des ↓</div>${chips}${reset}</div>`);
+  randChips();
+  document.getElementById("reset").onclick = randChat;
+}
+function randChips() {
+  const c = document.getElementById("chips");
+  c.innerHTML = QA.map((q, i) => folosite.includes(i) ? "" : `<button data-q="${i}">${q[0]}</button>`).join("");
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("#chips button"); if (!b) return;
+  const i = +b.dataset.q; folosite.push(i); randChips();
+  const m = document.getElementById("msgs");
+  m.insertAdjacentHTML("beforeend", bula("eu", QA[i][0]));
+  m.insertAdjacentHTML("beforeend", `<div class="b el" id="scrie"><span class="dots"><i></i><i></i><i></i></span></div>`);
+  m.scrollTop = m.scrollHeight;
+  setTimeout(() => {
+    const s = document.getElementById("scrie"); if (!s) return;
+    s.outerHTML = bula("el", raspuns(QA[i][1]));
+    m.scrollTop = m.scrollHeight;
+  }, faraMiscare ? 0 : 900);
+});
+
+/* ---------- comutatorul ---------- */
+function randSw() {
+  const rand = (k, lab, ancora) => `<div class="row"><span class="lab">${lab}</span>${Object.entries(DESC[k]).map(([v, t]) =>
+    `<button class="${S[k] === v ? "on" : ""}" data-k="${k}" data-v="${v}">${t}</button>`).join("")}<a href="#${ancora}">sari acolo ↓</a></div>`;
+  const rasp = (k, lab) => `<div class="row"><span class="lab">${lab}</span>${Object.keys(VAR[k]).map(v =>
+    `<button class="${S[k] === v ? "on" : ""}" data-r="${k}" data-v="${v}">${v}</button>`).join("")}<a href="#la-chat">sari acolo ↓</a></div>`;
+  document.getElementById("sw").innerHTML = rand("banda", "1 · Banda", "banda") + rand("chat", "3 · Chatul", "la-chat") +
+    rasp("r4", "Răspunsul 4") + rasp("r5", "Răspunsul 5") +
+    `<div class="row"><span class="lab">Vizualizare</span><button class="${S.tel ? "" : "on"}" data-t="0">Desktop</button><button class="${S.tel ? "on" : ""}" data-t="1">Telefon 390px</button></div>`;
+}
+document.getElementById("sw").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.r) { S[b.dataset.r] = b.dataset.v; S.deschis = b.dataset.r === "r4" ? 3 : 4; randChat(); }
+  else if (b.dataset.t !== undefined) { S.tel = b.dataset.t === "1"; document.body.classList.toggle("tel", S.tel); randBanda(); randChat(); }
+  else { S[b.dataset.k] = b.dataset.v; b.dataset.k === "banda" ? randBanda() : randChat(); }
+  randSw();
+});
+randSw(); randBanda(); randChat();
+document.fonts.ready.then(randBanda);
+</script>
+</body>
+</html>
