@@ -5,13 +5,17 @@ describe("dinParametri", () => {
   it("valorile necunoscute se ignoră; implicit „tot”, pagina 1", () => {
     expect(dinParametri({ stare: "xyz", pagina: "-3", perioada: "ieri2", sursa: "fax" })).toEqual({ perioada: "tot", pagina: 1 });
   });
+  it("un „om” care nu e id sau „liber” se ignoră", () => {
+    expect(dinParametri({ om: "abc" }).om).toBeUndefined();
+    expect(dinParametri({ om: "liber" }).om).toBe("liber");
+  });
   it("citește valorile bune", () => {
-    expect(dinParametri({ q: " Elena ", stare: "callback", sursa: "tally_site", serviciu: "1la1", om: "abc", scurtatura: "ale_mele", perioada: "7zile", pagina: "2" })).toEqual({
+    expect(dinParametri({ q: " Elena ", stare: "callback", sursa: "tally_site", serviciu: "1la1", om: "4f1c2b9e-1111-4a5b-9c2d-000000000001", scurtatura: "ale_mele", perioada: "7zile", pagina: "2" })).toEqual({
       q: "Elena",
       stare: "callback",
       sursa: "tally_site",
       serviciu: "1la1",
-      om: "abc",
+      om: "4f1c2b9e-1111-4a5b-9c2d-000000000001",
       scurtatura: "ale_mele",
       perioada: "7zile",
       pagina: 2,
