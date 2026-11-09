@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Aurora } from "@/components/layout/Aurora";
 
 // textele: Andrei, 2026-11-08 (prototip/banda-chat.html, chatul C4, răspunsul 4 = C, răspunsul 5 = A)
 export const INTREBARI: { q: string; r: string }[] = [
@@ -52,7 +53,8 @@ export function Intrebari() {
   };
 
   return (
-    <section className="intr" id="intrebari">
+    <section className="intr bgs" id="intrebari">
+      <Aurora />
       <div>
         <div className="eb">Întrebări</div>
         <h2>Ce mă întreabă <span className="serif gtxt">toată lumea.</span></h2>

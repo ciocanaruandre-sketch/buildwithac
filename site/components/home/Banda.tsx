@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 // varianta C3 din prototip/banda-chat.html (aleasă de Andrei, 2026-11-08): fâșie kraft sub fâșie crem, scris de mână
 const MARE = ["ghiduri gratuite", "site-uri de la zero", "automatizări", "sesiuni 1 la 1", "AI pe înțeles"];
+const TURE = 10000;
 const MIC = ["pas cu pas", "cu prompturile mele", "tot gratuit", "testate de mine", "fără cont"];
 
 function Fasie({ cls, cuvinte, sep, dir, viteza }: { cls: string; cuvinte: string[]; sep: string; dir: 1 | -1; viteza: number }) {
@@ -29,46 +30,69 @@ export function Banda() {
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const rad = radacina.current!;
+    // Mersul de bază e o animație a browserului (Web Animations), nu un calcul la fiecare cadru:
+    // așa o duce placa video și nu se sacadează cât telefonul încă încarcă pagina.
+    // JavaScript schimbă doar viteza, când omul derulează.
     const fasii = [...rad.querySelectorAll<HTMLElement>(".fasie")].map((f) => ({
       pista: f.querySelector<HTMLElement>(".pista")!,
       grup: f.querySelector<HTMLElement>(".grup")!,
       dir: Number(f.dataset.dir),
-      v: Number(f.dataset.v),
-      x: 0,
+      v: Number(f.dataset.v), // pixeli pe cadru, la 60 de cadre pe secundă
       w: 0,
+      anim: undefined as Animation | undefined,
     }));
+
+    let sens = 1, avant = 0;
+    const rata = (f: (typeof fasii)[number]) => (sens * (f.v + avant)) / f.v;
+
     // lățimea se schimbă când se încarcă fontul Caveat sau se rotește telefonul
-    const masoara = () => fasii.forEach((f) => (f.w = f.grup.offsetWidth));
+    const masoara = () =>
+      fasii.forEach((f) => {
+        const w = f.grup.offsetWidth;
+        if (!w || w === f.w) return;
+        const parcurs = f.anim ? Number(f.anim.currentTime ?? 0) / Number(f.anim.effect!.getTiming().duration) : 0;
+        f.anim?.cancel();
+        f.w = w;
+        const dus = f.dir === 1 ? [0, -w] : [-w, 0];
+        f.anim = f.pista.animate(
+          [{ transform: `translate3d(${dus[0]}px,0,0)` }, { transform: `translate3d(${dus[1]}px,0,0)` }],
+          { duration: (w / (f.v * 60)) * 1000, iterations: Infinity, easing: "linear" },
+        );
+        // pornește de la mii de ture: în sens invers (rată negativă) o animație fără sfârșit se oprește la zero
+        f.anim.currentTime = (TURE + (parcurs % 1)) * (w / (f.v * 60)) * 1000;
+        f.anim.playbackRate = rata(f);
+        if (!vizibila) f.anim.pause();
+      });
+    let vizibila = false;
     masoara();
     const ro = new ResizeObserver(masoara);
     fasii.forEach((f) => ro.observe(f.grup));
 
-    let cadru = 0, inainte = 0, ultimY = scrollY, avant = 0, sens = 1;
-    const laScroll = () => {
-      const d = scrollY - ultimY;
-      ultimY = scrollY;
-      if (d) sens = Math.sign(d);
-      avant = Math.min(avant + Math.abs(d) * 0.12, 14);
-    };
-    const bucla = (t: number) => {
-      // viteza nu depinde de rata ecranului (60 sau 120 de cadre pe secundă)
+    // la scroll banda se grăbește și ia sensul derulării, apoi încetinește la loc
+    let cadru = 0, inainte = 0, ultimY = scrollY;
+    const incetineste = (t: number) => {
       const k = inainte ? Math.min((t - inainte) / 16.67, 3) : 1;
       inainte = t;
       avant *= Math.pow(0.92, k);
-      for (const f of fasii) {
-        if (!f.w) continue;
-        f.x -= (f.v + avant) * f.dir * sens * k;
-        if (f.x <= -f.w) f.x += f.w;
-        if (f.x > 0) f.x -= f.w;
-        f.pista.style.transform = `translate3d(${f.x}px,0,0)`;
-      }
-      cadru = requestAnimationFrame(bucla);
+      if (avant < 0.02) avant = 0;
+      fasii.forEach((f) => f.anim?.updatePlaybackRate(rata(f)));
+      cadru = avant ? requestAnimationFrame(incetineste) : 0;
+      if (!cadru) inainte = 0;
     };
-    // bucla merge doar cât banda e lângă ecran
+    const laScroll = () => {
+      const d = scrollY - ultimY;
+      ultimY = scrollY;
+      if (!vizibila || !d) return;
+      sens = Math.sign(d);
+      avant = Math.min(avant + Math.abs(d) * 0.12, 14);
+      if (!cadru) cadru = requestAnimationFrame(incetineste);
+    };
+
+    // banda merge doar cât e lângă ecran
     const io = new IntersectionObserver(([i]) => {
-      cancelAnimationFrame(cadru);
-      inainte = 0;
-      if (i.isIntersecting) { ultimY = scrollY; cadru = requestAnimationFrame(bucla); }
+      vizibila = i.isIntersecting;
+      ultimY = scrollY;
+      fasii.forEach((f) => (vizibila ? f.anim?.play() : f.anim?.pause()));
     }, { rootMargin: "100px 0px" });
     io.observe(rad);
     addEventListener("scroll", laScroll, { passive: true });
@@ -77,6 +101,7 @@ export function Banda() {
       ro.disconnect();
       cancelAnimationFrame(cadru);
       removeEventListener("scroll", laScroll);
+      fasii.forEach((f) => f.anim?.cancel());
     };
   }, []);
 
