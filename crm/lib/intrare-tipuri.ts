@@ -9,6 +9,6 @@ export type CerereNoua = {
   sursa: Sursa;
   raspunsuri: { intrebare: string; raspuns: string }[];
   utm: Record<string, string>;
-  /** responseId-ul Tally: aceeași cerere retrimisă nu se scrie de două ori */
+  /** id-ul cererii la sursă (ex. formularul unei reclame): aceeași cerere retrimisă nu se scrie de două ori */
   idExtern: string | null;
 };

@@ -1,7 +1,7 @@
 /** Valorile sunt și numele enum-urilor din baza de date (supabase/migrations). Se schimbă împreună. */
 export const ROLURI = ["admin", "caller", "closer", "constructor"] as const;
 export const STARI = ["nou", "fara_raspuns", "a_raspuns", "callback", "programat", "oferta_trimisa", "client", "pierdut", "descalificat"] as const;
-export const SURSE = ["formular_site", "tally_site", "tally_automatizari", "tally_ghid", "cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"] as const;
+export const SURSE = ["formular_site", "reclama_meta", "reclama_tiktok", "cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"] as const;
 /** Aceleași chei ca SERVICII_CONTACT din site/lib/contact.ts. */
 export const SERVICII = ["site", "automatizari", "1la1", "altceva"] as const;
 
@@ -10,8 +10,8 @@ export type Stare = (typeof STARI)[number];
 export type Sursa = (typeof SURSE)[number];
 export type Serviciu = (typeof SERVICII)[number];
 
-/** Sursele pe care le alege omul când adaugă un lead de mână. */
-export const SURSE_MANUALE: Sursa[] = ["cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"];
+/** Sursele pe care le alege omul când adaugă un lead de mână (reclamele, până intră singure). */
+export const SURSE_MANUALE: Sursa[] = ["reclama_meta", "reclama_tiktok", "cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"];
 
 export const ETICHETE: { stare: Record<Stare, string>; sursa: Record<Sursa, string>; serviciu: Record<Serviciu, string>; rol: Record<Rol, string> } = {
   stare: {
@@ -27,9 +27,8 @@ export const ETICHETE: { stare: Record<Stare, string>; sursa: Record<Sursa, stri
   },
   sursa: {
     formular_site: "Formular site",
-    tally_site: "Tally Site",
-    tally_automatizari: "Tally Automatizări",
-    tally_ghid: "Tally Ghid",
+    reclama_meta: "Reclamă Meta",
+    reclama_tiktok: "Reclamă TikTok",
     cold_calling: "Cold calling",
     recomandare: "Recomandare",
     dm_instagram: "DM Instagram",

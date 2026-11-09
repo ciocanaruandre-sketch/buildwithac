@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { construiesteNotificare } from "@/lib/notificare";
 
-const lead = { id: "abc-123", nume: "Ion <script>alert(1)</script>", telefon: "0721 123 456", serviciu: "site" as const, sursa: "tally_site" as const };
+const lead = { id: "abc-123", nume: "Ion <script>alert(1)</script>", telefon: "0721 123 456", serviciu: "site" as const, sursa: "reclama_meta" as const };
 
 describe("construiesteNotificare", () => {
   it("escapează HTML-ul din nume", () => {
@@ -23,6 +23,6 @@ describe("construiesteNotificare", () => {
     expect(html).toContain("https://crm.buildwithac.ro/lead-uri/abc-123");
     expect(text).toContain("https://crm.buildwithac.ro/lead-uri/abc-123");
     expect(html).toContain('href="tel:+40721123456"');
-    expect(text).toContain("Tally Site");
+    expect(text).toContain("Reclamă Meta");
   });
 });

@@ -448,9 +448,8 @@ export type Database = {
         | "descalificat"
       sursa:
         | "formular_site"
-        | "tally_site"
-        | "tally_automatizari"
-        | "tally_ghid"
+        | "reclama_meta"
+        | "reclama_tiktok"
         | "cold_calling"
         | "recomandare"
         | "dm_instagram"
@@ -601,9 +600,8 @@ export const Constants = {
       ],
       sursa: [
         "formular_site",
-        "tally_site",
-        "tally_automatizari",
-        "tally_ghid",
+        "reclama_meta",
+        "reclama_tiktok",
         "cold_calling",
         "recomandare",
         "dm_instagram",

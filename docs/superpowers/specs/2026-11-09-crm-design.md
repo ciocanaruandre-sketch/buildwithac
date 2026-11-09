@@ -12,14 +12,14 @@ Un CRM făcut de la zero pentru buildwithac: locul în care intră lead-urile, �
 - **Contextul mai larg:** în proiectul `Portofoliu AC` vor sta, în timp, toate serviciile pentru clienți: site-urile, automatizările, organizarea sesiunilor 1 la 1, fiecare cu proiectul și skill-urile lui. CRM-ul e primul pas. Celelalte se gândesc separat, după. **[Andrei]**
 
 ### Drumul unui lead
-1. Omul completează un formular: cel de pe site, unul din cele 3 formulare Tally, mai târziu un formular din reclamă (Meta) sau Typeform. Sau Andrei îl adaugă de mână, după un cold call. **[Andrei]**
+1. Omul completează un formular: cel de pe site sau, mai târziu, un formular de tip Typeform dintr-o reclamă Meta sau TikTok. Sau Andrei îl adaugă de mână, după un cold call. **[Andrei]** Cele 3 formulare Tally **nu aduc lead-uri**: le primește clientul după ce semnează (schimbat 2026-11-09, după verificarea etapei 1). **[Andrei]**
 2. Lead-ul apare în CRM cu toate detaliile și răspunsurile din formular. Andrei primește un e-mail. **[Andrei]**
 3. Un caller își ia lead-ul, îl sună sau îi scrie, notează ce s-a întâmplat.
 4. Lead-ul devine **client** (sau **pierdut**, cu motiv).
 5. Clientul are fișa lui: proiectul, task-urile, materialele, conturile folosite, ce i s-a livrat, notițele, banii. **[Andrei]**
 
 ### Succes
-- Un lead completat pe site sau în Tally apare în CRM în câteva secunde, fără nicio mișcare din partea lui Andrei, și Andrei primește e-mailul.
+- Un lead completat pe site apare în CRM în câteva secunde, fără nicio mișcare din partea lui Andrei, și Andrei primește e-mailul.
 - Andrei știe în orice moment pe cine are de sunat azi și în ce stadiu e fiecare proiect, chiar și cu 2-3 proiecte în paralel. **[Andrei]**
 - Un caller nou primește o invitație, intră cu contul lui și vede exact ce trebuie, nimic mai mult.
 
@@ -80,11 +80,11 @@ Fiecare etapă se folosește singură înainte de următoarea. **[apelul meu, An
 1. **Conturi și roluri:** conectare, invitații pe e-mail, cele 4 roluri din §4, dezactivarea unui cont.
 2. **Intrarea lead-urilor, automat:**
    - din **formularul de contact de pe site** (`site/app/api/contact`, câmpuri: nume, telefon, serviciu, descriere). Formularul continuă să trimită și e-mailul la `contact@`, ca acum. Dacă CRM-ul nu răspunde, omul tot vede „Am primit” și e-mailul tot pleacă: **lead-ul nu se pierde niciodată din cauza CRM-ului**;
-   - din **cele 3 formulare Tally** (Site `tally.so/r/Qo1xzg`, Automatizări `/M1X8qg`, Ghid `/jeZGX9`), prin webhook (inclus în planul gratuit Tally, verificat pe 2026-11-09). Toate răspunsurile se păstrează și se afișează în fișă;
-   - **de unde vine exact:** formularul de pe site și formularele Tally păstrează de la început parametrii din link (`utm_source`, `utm_campaign`, `utm_content` etc.; în Tally, prin câmpuri ascunse), ca atunci când pornesc reclamele să se vadă din ce reclamă a venit fiecare lead și, mai târziu, câți bani a adus fiecare reclamă. Urmărirea începe doar de când e pusă, de aceea intră din etapa 1. **[apelul meu, ideea „Money Trail” de pe easygrow.ro]**
+   - ~~din cele 3 formulare Tally~~: scos pe 2026-11-09. Tally e pentru clienți, după semnare (unde ajung răspunsurile lor se decide la etapa 2). Până intră singure, lead-urile din reclame se adaugă de mână, cu sursa „Reclamă Meta” sau „Reclamă TikTok”. **[Andrei]**
+   - **de unde vine exact:** formularul de pe site păstrează de la început parametrii din link (`utm_source`, `utm_campaign`, `utm_content` etc.; la formularele din reclame, la fel, când le legăm), ca atunci când pornesc reclamele să se vadă din ce reclamă a venit fiecare lead și, mai târziu, câți bani a adus fiecare reclamă. Urmărirea începe doar de când e pusă, de aceea intră din etapa 1. **[apelul meu, ideea „Money Trail” de pe easygrow.ro]**
    - **un om care revine** (același telefon sau e-mail) nu se dublează. Dacă lead-ul e încă deschis, cererea nouă se leagă de el și apare în Parcurs. Dacă e deja client, cererea intră în fișa clientului (posibil proiect nou) și Andrei e anunțat. Dacă era pierdut, lead-ul se redeschide cu istoricul vechi, iar cele 90 de zile se numără de la cererea nouă. Dacă fusese deja șters, e lead nou. **[apelul meu]**
    - **dacă CRM-ul nu răspunde:** e-mailul la `contact@` pleacă oricum și spune clar că lead-ul n-a intrat în CRM, ca Andrei să-l adauge de mână. Nu se construiește o coadă cu reîncercări. **[apelul meu]** Pentru Tally, verifică dacă reîncearcă singur webhook-urile eșuate **[de verificat]**.
-   - **fără import:** cererile vechi (de pe `contact@` și din Tally) nu se aduc automat; Andrei le adaugă de mână dacă e nevoie. **[Andrei]**
+   - **fără import:** cererile vechi (de pe `contact@`) nu se aduc automat; Andrei le adaugă de mână dacă e nevoie. **[Andrei]**
 3. **Lead adăugat de mână**, cu sursa aleasă (Cold calling, Recomandare, DM Instagram, DM TikTok, Altceva). **[Andrei]**
 4. **Notificarea pe e-mail** la fiecare lead nou, către Andrei, cu nume, telefon, serviciu, sursă și link direct la fișă. **[Andrei]**
 5. **Lista lead-urilor** (pagina de lucru principală, după modelul paginii Calling din EasyGrow):
@@ -115,7 +115,7 @@ Fiecare etapă se folosește singură înainte de următoarea. **[apelul meu, An
 - **Încasări și comisioane pentru fiecare cont:** încasările pe proiect (avans, rest), comisionul fiecărui om. Procentele se setează de Admin pe serviciu și pe rol (exemplul lui Andrei: 30% la site, 40% la automatizare), stabilite mai târziu. **[Andrei]** Comisionul se calculează din banii încasați efectiv, nu din prețul promis. **[apelul meu]** Comisioanele pentru calleri/closeri: **[apelul meu, ghicit, de confirmat cu Andrei în etapa 3]**.
 - **Dashboard și KPI:** pâlnia (noi → răspuns → programate → clienți), „Următoarele de sunat”, timpul până la primul apel („speed to lead”), pe perioadă și pe om.
 - **Programări legate de calendarul extern** (Google Calendar sau Calendly, se alege atunci) și atribuirea automată la closerul liber.
-- **Lead-uri din reclamele Meta și din Typeform.**
+- **Lead-uri din reclamele Meta și TikTok** (formulare de tip Typeform), intrate singure. Sursele „Reclamă Meta” / „Reclamă TikTok” există deja din etapa 1. Poate veni mai devreme, când pornesc reclamele.
 - **Idei de pe easygrow.ro, de cântărit atunci** **[apelul meu, propuneri]**:
   - **reveniri automate:** lead-urile care au refuzat sau n-au venit la discuție reapar singure în lista de sunat după intervale fixe (EasyGrow: 7, 14, 21, 28, 60 de zile), în limita celor 90 de zile;
   - **plăți în rate** cu scadențe și alertă la întârziere; comisionul scade dacă banii se returnează;
@@ -138,7 +138,7 @@ Fiecare etapă se folosește singură înainte de următoarea. **[apelul meu, An
 
 - Structura tabelelor, numele câmpurilor, cum se fac migrațiile Supabase.
 - Cum se leagă formularul de pe site de CRM (endpoint în CRM cu un secret, sau scriere directă), cu condiția din §5.1.2: lead-ul nu se pierde dacă CRM-ul cade.
-- Verificarea semnăturii webhook-ului Tally.
+- ~~Verificarea semnăturii webhook-ului Tally.~~ (Tally scos din intrare)
 - Cum arată exact numărătoarea, filtrele și scurtăturile din lista de lead-uri, păstrând ideile din §5.
 - Testele (unitare + în browser), după obiceiul din `site/`.
 

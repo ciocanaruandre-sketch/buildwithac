@@ -57,17 +57,17 @@ const peste = (ore: number) => new Date(Date.now() + ore * 3_600_000).toISOStrin
 async function leaduri(ids: Record<string, string>) {
   const L: (LeadNou & { nr: number; descriere?: string })[] = [
     { nr: 1, nume: "Elena Marin · Cafeneaua Boabe", serviciu: "site", sursa: "formular_site", descriere: "Vreau un site simplu pentru cafenea, cu meniul și programul." },
-    { nr: 2, nume: "Cristian Popa · Salon Aura", serviciu: "automatizari", sursa: "tally_automatizari", stare: "fara_raspuns", incercari: 2, caller_id: ids.caller },
-    { nr: 3, nume: "Diana Georgescu · Clinica Zâmbet", serviciu: "site", sursa: "tally_site", stare: "callback", caller_id: ids.caller, callback_la: peste(20) },
-    { nr: 4, nume: "Bogdan Niculescu", serviciu: "1la1", sursa: "tally_ghid", stare: "a_raspuns", caller_id: ids.caller },
+    { nr: 2, nume: "Cristian Popa · Salon Aura", serviciu: "automatizari", sursa: "reclama_tiktok", stare: "fara_raspuns", incercari: 2, caller_id: ids.caller },
+    { nr: 3, nume: "Diana Georgescu · Clinica Zâmbet", serviciu: "site", sursa: "reclama_meta", stare: "callback", caller_id: ids.caller, callback_la: peste(20) },
+    { nr: 4, nume: "Bogdan Niculescu", serviciu: "1la1", sursa: "reclama_meta", stare: "a_raspuns", caller_id: ids.caller },
     { nr: 5, nume: "Alina Stoica · Imobiliare Nord", serviciu: "automatizari", sursa: "formular_site", stare: "programat", caller_id: ids.caller, closer_id: ids.closer },
     { nr: 6, nume: "Mihai Radu · Pizzeria Forno", serviciu: "site", sursa: "cold_calling", stare: "oferta_trimisa", caller_id: ids.caller2, closer_id: ids.closer, creat_de: ids.caller2 },
     { nr: 7, nume: "Ana Toma", serviciu: "altceva", sursa: "recomandare", caller_id: ids.caller2, creat_de: ids.caller2 },
     { nr: 8, nume: "George Ilie · Service Auto GI", serviciu: "automatizari", sursa: "dm_instagram", stare: "pierdut", motiv: "A ales pe altcineva, mai ieftin.", caller_id: ids.caller, closer_id: ids.closer, creat_de: ids.admin },
     { nr: 9, nume: "Ioana Matei", serviciu: "1la1", sursa: "dm_tiktok", stare: "descalificat", motiv: "Număr greșit.", caller_id: ids.caller2, creat_de: ids.admin },
     { nr: 10, nume: "Florin Dobre · Florăria Lalea", serviciu: "site", sursa: "altceva", creat_de: ids.admin },
-    { nr: 11, nume: "Raluca Enache · Studio Pilates", serviciu: "site", sursa: "tally_site" },
-    { nr: 12, nume: "Sorin Vasile · Brutăria de Colț", serviciu: "automatizari", sursa: "tally_automatizari", stare: "callback", caller_id: ids.caller, callback_la: peste(-3) },
+    { nr: 11, nume: "Raluca Enache · Studio Pilates", serviciu: "site", sursa: "reclama_meta" },
+    { nr: 12, nume: "Sorin Vasile · Brutăria de Colț", serviciu: "automatizari", sursa: "reclama_tiktok", stare: "callback", caller_id: ids.caller, callback_la: peste(-3) },
     { nr: 13, nume: "Teodora Lungu · Cabinet Vet", serviciu: "site", sursa: "formular_site", stare: "programat", caller_id: ids.caller, closer_id: ids.closer },
   ];
 

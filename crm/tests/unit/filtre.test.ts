@@ -10,10 +10,10 @@ describe("dinParametri", () => {
     expect(dinParametri({ om: "liber" }).om).toBe("liber");
   });
   it("citește valorile bune", () => {
-    expect(dinParametri({ q: " Elena ", stare: "callback", sursa: "tally_site", serviciu: "1la1", om: "4f1c2b9e-1111-4a5b-9c2d-000000000001", scurtatura: "ale_mele", perioada: "7zile", pagina: "2" })).toEqual({
+    expect(dinParametri({ q: " Elena ", stare: "callback", sursa: "reclama_meta", serviciu: "1la1", om: "4f1c2b9e-1111-4a5b-9c2d-000000000001", scurtatura: "ale_mele", perioada: "7zile", pagina: "2" })).toEqual({
       q: "Elena",
       stare: "callback",
-      sursa: "tally_site",
+      sursa: "reclama_meta",
       serviciu: "1la1",
       om: "4f1c2b9e-1111-4a5b-9c2d-000000000001",
       scurtatura: "ale_mele",

@@ -28,7 +28,7 @@ describe("tipuri", () => {
     expect([...SERVICII]).toEqual(chei);
   });
 
-  it("sursele manuale sunt cele 5 din spec", () => {
-    expect(SURSE_MANUALE).toEqual(["cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"]);
+  it("sursele manuale: reclamele și cele 5 din spec", () => {
+    expect(SURSE_MANUALE).toEqual(["reclama_meta", "reclama_tiktok", "cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"]);
   });
 });

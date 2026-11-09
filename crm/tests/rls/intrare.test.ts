@@ -1,7 +1,5 @@
-import { createHmac } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 import { POST as intrareSite } from "@/app/api/intrare/site/route";
-import { POST as intrareTally } from "@/app/api/intrare/tally/route";
 import { primesteCerere, type CerereNoua } from "@/lib/intrare";
 import { admin } from "./ajutor";
 
@@ -17,7 +15,7 @@ const cerere = (camp: Partial<CerereNoua> = {}): CerereNoua => ({
   telefon: null,
   email: null,
   serviciu: "site",
-  sursa: "tally_site",
+  sursa: "reclama_meta",
   raspunsuri: [{ intrebare: "Ce vrei?", raspuns: "Un site" }],
   utm: {},
   idExtern: null,
@@ -39,7 +37,7 @@ describe("primesteCerere", () => {
     expect(ev).toHaveLength(1);
   });
 
-  it("același responseId Tally de două ori → a doua oară „duplicat”, nimic scris", async () => {
+  it("același id extern de două ori → a doua oară „duplicat”, nimic scris", async () => {
     const idExtern = `rsp_${unic()}`;
     const email = `dublu${unic()}@exemplu.ro`;
     const a = await primesteCerere(cerere({ email, idExtern }), admin());
@@ -55,7 +53,7 @@ describe("primesteCerere", () => {
     const vechi = new Date(Date.now() - 40 * 86_400_000).toISOString();
     const { data: l } = await admin()
       .from("lead_uri")
-      .insert({ nume: "Revine", email, email_norm: email, serviciu: "site", sursa: "tally_site", stare: "pierdut", motiv: "Prea scump", intrat_la: vechi })
+      .insert({ nume: "Revine", email, email_norm: email, serviciu: "site", sursa: "reclama_meta", stare: "pierdut", motiv: "Prea scump", intrat_la: vechi })
       .select()
       .single();
     deSters.push(l!.id);
@@ -101,20 +99,5 @@ describe("rutele de intrare", () => {
       new Request("http://x/api/intrare/site", { method: "POST", headers: { Authorization: "Bearer secret-test-intrare" }, body: JSON.stringify({ nume: "x", serviciu: "nimic" }) }),
     );
     expect(r.status).toBe(400);
-  });
-
-  it("/api/intrare/tally cu semnătura greșită → 401", async () => {
-    process.env.TALLY_SECRET = "secret-tally";
-    const r = await intrareTally(new Request("http://x/api/intrare/tally", { method: "POST", headers: { "tally-signature": "abc" }, body: "{}" }));
-    expect(r.status).toBe(401);
-  });
-
-  it("/api/intrare/tally cu formular necunoscut → 200, fără lead", async () => {
-    process.env.TALLY_SECRET = "secret-tally";
-    const corp = JSON.stringify({ eventType: "FORM_RESPONSE", data: { formId: "necunoscut", responseId: "x", fields: [] } });
-    const sig = createHmac("sha256", "secret-tally").update(corp).digest("base64");
-    const r = await intrareTally(new Request("http://x/api/intrare/tally", { method: "POST", headers: { "tally-signature": sig }, body: corp }));
-    expect(r.status).toBe(200);
-    expect(await r.json()).toEqual({ ignorat: true });
   });
 });
