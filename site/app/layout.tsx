@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Unbounded, Inter, Instrument_Serif, Caveat, Anton, JetBrains_Mono } from "next/font/google";
+import { preload } from "react-dom";
+import "./fonturi.css";
 import "./globals.css";
 import "@/components/layout/cadru.css";
 import { Nav } from "@/components/layout/Nav";
@@ -8,12 +9,8 @@ import { LenisProvider } from "@/components/layout/LenisProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE } from "@/lib/config";
 
-const unbounded = Unbounded({ variable: "--nf-unbounded", subsets: ["latin", "latin-ext"], weight: ["600", "800"] });
-const inter = Inter({ variable: "--nf-inter", subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"] });
-const serif = Instrument_Serif({ preload: false, variable: "--nf-serif", subsets: ["latin", "latin-ext"], weight: "400", style: ["normal", "italic"] });
-const caveat = Caveat({ preload: false, variable: "--nf-caveat", subsets: ["latin", "latin-ext"], weight: ["600", "700"] });
-const anton = Anton({ preload: false, variable: "--nf-anton", subsets: ["latin", "latin-ext"], weight: "400" });
-const mono = JetBrains_Mono({ preload: false, variable: "--nf-mono", subsets: ["latin", "latin-ext"], weight: ["400", "500"] });
+// titlurile și textul se văd din primul ecran: le cerem devreme (un fișier acoperă toate grosimile)
+const PRIMELE = ["/fonts/unbounded-latin.woff2", "/fonts/inter-latin.woff2"];
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -23,9 +20,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  const fonturi = [unbounded, inter, serif, caveat, anton, mono].map((f) => f.variable).join(" ");
+  PRIMELE.forEach((f) => preload(f, { as: "font", type: "font/woff2", crossOrigin: "anonymous" }));
   return (
-    <html lang="ro" className={`${fonturi} antialiased`}>
+    <html lang="ro" className="antialiased">
       <body className="font-inter bg-ink text-cream min-h-full">
         <LenisProvider>
           <Nav />
