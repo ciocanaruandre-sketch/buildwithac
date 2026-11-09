@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { LenisProvider } from "@/components/layout/LenisProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE } from "@/lib/config";
+import { PastreazaUtm } from "@/components/PastreazaUtm";
 
 // titlurile și textul se văd din primul ecran: le cerem devreme (un fișier acoperă toate grosimile)
 const PRIMELE = ["/fonts/unbounded-latin.woff2", "/fonts/inter-latin.woff2"];
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
           <Footer />
         </LenisProvider>
+        <PastreazaUtm />
         <Analytics />
       </body>
     </html>

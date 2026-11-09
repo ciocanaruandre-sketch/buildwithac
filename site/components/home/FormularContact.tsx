@@ -6,6 +6,7 @@ import { SERVICII_CONTACT, verificaCerere, type CampContact, type CheieServiciu 
 import { SITE } from "@/lib/config";
 import { useHidratat } from "@/lib/hidratat";
 import { limitaTimp } from "@/lib/limita-timp";
+import { CHEIE_STOCARE_UTM } from "@/lib/utm";
 import "./formular-contact.css";
 
 const GRESELI: Record<CampContact, string> = {
@@ -16,6 +17,15 @@ const GRESELI: Record<CampContact, string> = {
 };
 
 /** Cardul „Vrei să colaborăm?” din secțiunea Contact. Cardurile de servicii aleg pastila prin evenimentul „contact:serviciu”. */
+/** Din ce link a venit omul (ținut minte de PastreazaUtm). Fără stocare → {}. */
+function utmPastrat(): unknown {
+  try {
+    return JSON.parse(sessionStorage.getItem(CHEIE_STOCARE_UTM) ?? "{}");
+  } catch {
+    return {};
+  }
+}
+
 export function FormularContact() {
   const [serviciu, setServiciu] = useState<CheieServiciu | null>(null);
   const [greseli, setGreseli] = useState<CampContact[]>([]);
@@ -44,7 +54,7 @@ export function FormularContact() {
     if (seTrimite.current) return;
     // citim din câmpuri, nu din stare: pe un telefon lent omul poate scrie înainte ca pagina să fie gata
     const f = new FormData(e.currentTarget);
-    const date = { nume: f.get("nume"), telefon: f.get("telefon"), serviciu, descriere: f.get("descriere") ?? "", website: f.get("website") ?? "" };
+    const date = { nume: f.get("nume"), telefon: f.get("telefon"), serviciu, descriere: f.get("descriere") ?? "", website: f.get("website") ?? "", utm: utmPastrat() };
     const verificata = verificaCerere(date);
     if ("greseli" in verificata) return arata(verificata.greseli);
     arata([]);

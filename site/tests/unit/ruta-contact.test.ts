@@ -1,10 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const trimiteCerere = vi.fn();
 vi.mock("@/lib/contact", async (original) => ({
   ...(await original<typeof import("@/lib/contact")>()),
   trimiteCerere: (...a: unknown[]) => trimiteCerere(...a),
 }));
+const trimiteLaCrm = vi.fn();
+vi.mock("@/lib/crm", () => ({ trimiteLaCrm: (...a: unknown[]) => trimiteLaCrm(...a) }));
 const { POST } = await import("@/app/api/contact/route");
 
 const DIN_SITE = { origin: "https://buildwithac.ro", host: "buildwithac.ro" };
@@ -65,5 +67,55 @@ describe("POST /api/contact", () => {
     const r = await POST(cerere(buna));
     expect(r.status).toBe(503);
     expect(await r.json()).toEqual({ stare: "indisponibil" });
+  });
+});
+
+describe("POST /api/contact cu CRM-ul", () => {
+  beforeEach(() => {
+    trimiteCerere.mockReset();
+    trimiteCerere.mockResolvedValue("ok");
+    trimiteLaCrm.mockReset();
+    process.env.CRM_SECRET_INTRARE = "secret";
+  });
+  afterEach(() => {
+    delete process.env.CRM_SECRET_INTRARE;
+  });
+
+  it("trimite întâi la CRM, cu utm-ul, apoi e-mailul cu linkul la fișă", async () => {
+    trimiteLaCrm.mockResolvedValue({ id: "lead-1" });
+    const r = await POST(cerere({ ...buna, utm: { utm_source: "meta" } }));
+    expect(r.status).toBe(200);
+    expect(trimiteLaCrm.mock.calls[0][0]).toEqual({ ...buna, utm: { utm_source: "meta" } });
+    expect(trimiteCerere.mock.calls[0][1]).toEqual({ cheie: process.env.RESEND_API_KEY, crm: { id: "lead-1" } });
+  });
+
+  it("CRM-ul nu răspunde, Resend merge → 200 ok, iar e-mailul are avertismentul", async () => {
+    trimiteLaCrm.mockResolvedValue(null);
+    const r = await POST(cerere(buna));
+    expect(r.status).toBe(200);
+    expect(await r.json()).toEqual({ stare: "ok" });
+    expect(trimiteCerere.mock.calls[0][1].crm).toBeNull();
+  });
+
+  it("CRM-ul merge, Resend cade → tot 200 ok (lead-ul nu e pierdut)", async () => {
+    trimiteLaCrm.mockResolvedValue({ id: "lead-2" });
+    trimiteCerere.mockResolvedValue("indisponibil");
+    const r = await POST(cerere(buna));
+    expect(r.status).toBe(200);
+    expect(await r.json()).toEqual({ stare: "ok" });
+  });
+
+  it("amândouă cad → 503", async () => {
+    trimiteLaCrm.mockResolvedValue(null);
+    trimiteCerere.mockResolvedValue("indisponibil");
+    const r = await POST(cerere(buna));
+    expect(r.status).toBe(503);
+  });
+
+  it("fără secretul CRM-ului, nu încearcă deloc CRM-ul", async () => {
+    delete process.env.CRM_SECRET_INTRARE;
+    await POST(cerere(buna));
+    expect(trimiteLaCrm).not.toHaveBeenCalled();
+    expect(trimiteCerere.mock.calls[0][1].crm).toBeUndefined();
   });
 });

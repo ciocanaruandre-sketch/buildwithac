@@ -25,6 +25,14 @@ describe("verificaCerere", () => {
     expect(greseli({ ...buna, nume })).toEqual(["nume"]);
   });
 
+  it("parametrii din link (utm) se păstrează curățați, iar unii greșiți nu strică cererea", () => {
+    const r = verificaCerere({ ...buna, utm: { utm_source: "meta", rau: "x" } });
+    expect(r).toEqual({ cerere: { ...buna, utm: { utm_source: "meta" } } });
+    expect(greseli({ ...buna, utm: 5 })).toEqual([]);
+    expect(greseli({ ...buna, utm: ["x"] })).toEqual([]);
+    expect(verificaCerere({ ...buna, utm: 5 })).toEqual({ cerere: buna });
+  });
+
   it("numele cu diacritice sau emoji trece", () => {
     expect(greseli({ ...buna, nume: "Ștefan 🙂" })).toEqual([]);
   });
@@ -83,6 +91,22 @@ describe("construiesteEmail", () => {
     const { html, text } = construiesteEmail(c, acum);
     expect(text).toContain("fără descriere");
     expect(html).toContain("fără descriere");
+  });
+
+  it("cu lead-ul în CRM, e-mailul are linkul la fișă", () => {
+    const { html, text } = construiesteEmail(c, acum, { id: "abc" });
+    expect(text).toContain("https://crm.buildwithac.ro/lead-uri/abc");
+    expect(html).toContain('href="https://crm.buildwithac.ro/lead-uri/abc"');
+  });
+
+  it("când CRM-ul n-a primit lead-ul, e-mailul o spune clar", () => {
+    const { html, text } = construiesteEmail(c, acum, null);
+    expect(text).toContain("ATENȚIE: lead-ul n-a intrat în CRM. Adaugă-l de mână.");
+    expect(html).toContain("n-a intrat în CRM");
+  });
+
+  it("fără CRM configurat, e-mailul nu pomenește CRM-ul", () => {
+    expect(construiesteEmail(c, acum).text).not.toContain("CRM");
   });
 
   it("ora e cea din București", () => {

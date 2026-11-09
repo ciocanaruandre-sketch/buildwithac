@@ -1,6 +1,8 @@
 export const SITE = {
   domeniu: "buildwithac.ro",
   url: "https://buildwithac.ro",
+  // CRM-ul (aplicația din crm/): formularul de contact îi trimite și lui lead-ul
+  crm: "https://crm.buildwithac.ro",
   emailContact: "contact@buildwithac.ro",
   emailFormular: "formular@buildwithac.ro",
   instagram: { handle: "@buildwithac.ai", url: "https://www.instagram.com/buildwithac.ai/" },
