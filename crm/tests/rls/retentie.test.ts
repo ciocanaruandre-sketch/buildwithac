@@ -35,10 +35,11 @@ describe("stergeVechi", () => {
 describe("copieSaptamanala", () => {
   it("trimite la Resend toate tabelele, ca atașament", async () => {
     const l = await leadDeTest();
-    lead_uri.push(l.id);
+    const expira = await leadDeTest({ stare: "callback", intrat_la: ziInUrma(85) });
+    lead_uri.push(l.id, expira.id);
     const vechi = process.env.RESEND_API_KEY;
     process.env.RESEND_API_KEY = "re_test";
-    let corp: { to: string[]; subject: string; attachments: { filename: string; content: string }[] } | undefined;
+    let corp: { to: string[]; subject: string; html: string; attachments: { filename: string; content: string }[] } | undefined;
     const f = (async (_url: string, init: RequestInit) => {
       corp = JSON.parse(init.body as string);
       return new Response("{}", { status: 200 });
@@ -54,6 +55,8 @@ describe("copieSaptamanala", () => {
     const json = JSON.parse(Buffer.from(corp!.attachments[0].content, "base64").toString("utf8"));
     expect(Object.keys(json.tabele).sort()).toEqual(["cereri", "clienti", "discutii", "evenimente", "lead_uri", "notite", "profiluri", "program_closer"]);
     expect(json.tabele.lead_uri.map((x: { id: string }) => x.id)).toContain(l.id);
+    expect(corp?.html).toContain(`/lead-uri/${expira.id}`);
+    expect(corp?.html).not.toContain(`/lead-uri/${l.id}`);
   });
 });
 

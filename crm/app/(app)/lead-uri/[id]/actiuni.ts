@@ -67,6 +67,8 @@ export async function mutaLead(id: string, camp: "caller_id" | "closer_id", la: 
   const db = await supabase();
   const schimbare: Schimbare = camp === "caller_id" ? { caller_id: la || null } : { closer_id: la || null };
   const { error } = await db.from("lead_uri").update(schimbare).eq("id", id);
+  // discuția programată trece și ea la closerul nou (trigger-ul discutii_dupa_lead)
+  if (error?.code === "23P01") return { ok: false, mesaj: "Closerul ales are deja o discuție la ora aceea. Reprogramează întâi discuția." };
   if (error) return { ok: false, mesaj: NEPERMIS };
   revalidatePath(`/lead-uri/${id}`);
   return { ok: true };

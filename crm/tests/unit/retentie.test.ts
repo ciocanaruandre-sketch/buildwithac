@@ -34,6 +34,17 @@ describe("construiesteCopia", () => {
     expect(construiesteCopia(tabele, new Date("2026-11-09T04:00:00Z"), 3).text).toContain("Am șters 3 lead-uri mai vechi de 90 de zile");
   });
 
+  it("arată lead-urile care se șterg în următoarele 7 zile, cu link la fișă", () => {
+    const acum = new Date("2026-11-09T04:00:00Z");
+    const expira = [{ id: "abc", nume: "Ion <Pop>", stare: "oferta_trimisa" as const, intrat_la: "2026-08-12T10:00:00Z" }];
+    const e = construiesteCopia(tabele, acum, 0, expira);
+    expect(e.text).toContain("Se șterg în următoarele 7 zile (1)");
+    expect(e.text).toContain("Ion <Pop> · Ofertă trimisă · se șterge pe 2026-11-11");
+    expect(e.text).toContain("https://crm.buildwithac.ro/lead-uri/abc");
+    expect(e.html).toContain("Ion &lt;Pop&gt;");
+    expect(construiesteCopia(tabele, acum, 0, []).text).not.toContain("Se șterg");
+  });
+
   it("fără ş/ţ cu sedilă", () => {
     const e = construiesteCopia(tabele, new Date("2026-11-09T04:00:00Z"), 2);
     expect(e.subiect + e.text).not.toMatch(/[şţŞŢ]/);
