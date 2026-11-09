@@ -22,6 +22,8 @@ export async function leadNou(camp: Partial<LeadNou> = {}) {
 }
 
 export async function stergeLead(id: string) {
+  // clientul făcut din lead rămâne după ștergere (lead_id devine null), deci îl ștergem întâi
+  await db().from("clienti").delete().eq("lead_id", id);
   await db().from("lead_uri").delete().eq("id", id);
 }
 
