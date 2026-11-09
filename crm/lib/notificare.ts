@@ -1,11 +1,11 @@
 import { CRM } from "@/lib/config";
 import type { Decizie } from "@/lib/decizie";
+import { escapa, trimiteEmail } from "@/lib/email";
 import { normalizeazaTelefon } from "@/lib/telefon";
 import { ETICHETE, type Serviciu, type Sursa } from "@/lib/tipuri";
 
 export type LeadNotificare = { id: string; nume: string; telefon: string | null; serviciu: Serviciu; sursa: Sursa };
 
-const escapa = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const unRand = (s: string) => s.replace(/\s*[\r\n]+\s*/g, " ").trim();
 
 const TITLU: Record<Decizie, string> = {
@@ -38,18 +38,6 @@ export function construiesteNotificare(l: LeadNotificare, decizie: Decizie): { s
 
 /** Trimite prin Resend la adresa lui Andrei. Eșecul nu oprește nimic: lead-ul e deja salvat. */
 export async function trimiteNotificare(l: LeadNotificare, decizie: Decizie, f: typeof fetch = fetch): Promise<boolean> {
-  const cheie = process.env.RESEND_API_KEY;
-  if (!cheie) return false;
   const { subiect, text, html } = construiesteNotificare(l, decizie);
-  try {
-    const r = await f("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${cheie}` },
-      body: JSON.stringify({ from: `CRM buildwithac <${CRM.emailExpeditor}>`, to: [CRM.emailAdmin], subject: subiect, text, html }),
-      signal: AbortSignal.timeout(5000),
-    });
-    return r.ok;
-  } catch {
-    return false;
-  }
+  return trimiteEmail({ catre: CRM.emailAdmin, subiect, text, html }, f);
 }

@@ -423,6 +423,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
       programeaza_discutie: {
         Args: { p_closer: string; p_incepe: string; p_lead: string }
         Returns: undefined
