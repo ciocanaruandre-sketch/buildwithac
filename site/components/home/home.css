@@ -201,3 +201,68 @@
 .cway .h { display: inline-block; margin-top: 18px; font-weight: 600; font-size: 15px; word-break: break-all; }
 .cway .arr { position: absolute; top: 30px; right: 30px; font-size: 22px; transition: transform .3s; }
 .cway:hover .arr { transform: translate(4px, -4px); }
+
+/* BANDA (C3 din prototip/banda-chat.html): fâșie kraft sub fâșie crem, hârtie ruptă, scris de mână */
+/* lipită peste îmbinarea dintre cortină și ghiduri, nu pe o fâșie neagră a ei (pe site, fâșia arăta ca o gaură între două fundaluri calde).
+   Nu ocupă loc în pagină (înălțime 0): scena fixată a ghidurilor rămâne exact unde era. */
+.banda { position: relative; z-index: 60; height: 0; pointer-events: none; }
+.banda-in { position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); overflow: hidden; padding: 30px 0; }
+.fasie { position: relative; width: 118%; margin-left: -9%; white-space: nowrap; overflow: hidden;
+  clip-path: polygon(0 6%,4% 0,9% 5%,15% 1%,21% 6%,27% 0,33% 4%,40% 1%,46% 6%,52% 0,58% 5%,64% 1%,70% 6%,76% 0,82% 5%,88% 1%,94% 6%,100% 2%,100% 95%,95% 100%,89% 94%,83% 99%,77% 95%,71% 100%,65% 94%,59% 99%,53% 95%,47% 100%,41% 94%,35% 99%,29% 95%,23% 100%,17% 94%,11% 99%,5% 95%,0 100%); }
+/* înălțimi fixe: altfel banda își schimbă înălțimea când vine fontul Caveat, iar ghidurile fixate de dedesubt sar */
+.fasie { display: flex; align-items: center; }
+.fasie .pista { display: inline-flex; will-change: transform; }
+.fasie .grup { display: inline-flex; flex-shrink: 0; }
+.fasie span { display: inline-flex; align-items: center; flex-shrink: 0; font-family: var(--nf-caveat), cursive; font-weight: 600; line-height: 1; }
+.fasie i { font-style: normal; }
+.fasie.kraft { transform: rotate(2.6deg); color: #3a2414; height: clamp(44px, 6.2vw, 76px);
+  background-image: radial-gradient(rgba(60,30,10,.12) 1px, transparent 1.4px), linear-gradient(#c49a6c, #b88b5b); background-size: 4px 4px, auto; }
+.fasie.kraft span { font-size: clamp(24px, 3.4vw, 44px); gap: clamp(14px, 2vw, 26px); padding-right: clamp(14px, 2vw, 26px); }
+.fasie.kraft i { opacity: .6; }
+.fasie.crem { z-index: 2; margin-top: clamp(-30px, -2.4vw, -14px); transform: rotate(-2.4deg); background: var(--color-cream); color: #1b0f0a; height: clamp(58px, 9vw, 116px); padding-top: clamp(4px, .4vw, 4px); box-shadow: 0 10px 24px rgba(0,0,0,.4); }
+.fasie.crem span { font-size: clamp(34px, 5.4vw, 72px); gap: clamp(18px, 2.6vw, 36px); padding-right: clamp(18px, 2.6vw, 36px); }
+.fasie.crem i { color: var(--color-red); font-size: .6em; }
+
+/* ÎNTREBĂRI (C4 din prototip/banda-chat.html): telefon alb, ca un Instagram luminos, lipit cu bandă adezivă */
+.intr { padding: 110px clamp(20px, 6vw, 90px) 120px; background: #0b0908; overflow-x: clip; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(30px, 6vw, 90px); align-items: center; }
+/* minmax(0,…): altfel un rând lung din telefon poate lăți coloana peste ecran */
+@media (max-width: 760px) { .intr { grid-template-columns: minmax(0, 1fr); } }
+.intr h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 4.4vw, 64px); letter-spacing: -.04em; line-height: 1.05; margin-top: 14px; }
+.intr h2 .serif { font-size: 1.12em; letter-spacing: 0; }
+.intr-lead { color: var(--color-muted); font-size: 15px; line-height: 1.55; margin-top: 16px; max-width: 420px; }
+.intr-direct { display: inline-block; margin-top: 22px; font-weight: 600; font-size: 15px; color: var(--color-cream); text-decoration: none; border-bottom: 1px solid rgba(242,106,33,.6); padding-bottom: 3px; transition: border-color .2s; }
+.intr-direct:hover { border-bottom-color: #f26a21; }
+.intr-direct:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 4px; border-radius: 4px; }
+.intr-tel { position: relative; justify-self: center; width: min(340px, 100%); }
+.intr-tel .banda-ad { position: absolute; z-index: 3; width: 96px; height: 26px; background: rgba(255,226,170,.9); }
+.intr-tel .b1 { top: -8px; left: -18px; transform: rotate(-24deg); }
+.intr-tel .b2 { top: 440px; right: -26px; transform: rotate(-18deg); }
+.intr .ecran { position: relative; border-radius: 44px; background: #fffaf2; border: 10px solid #e9dfd0; box-shadow: 0 0 0 1px rgba(0,0,0,.2), 0 40px 80px rgba(0,0,0,.65); overflow: hidden; transform: rotate(2.5deg); color: #1b0f0a; }
+.intr .insula { width: 90px; height: 24px; border-radius: 20px; background: #1b0f0a; margin: 8px auto 0; }
+.intr .antet { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid rgba(27,15,10,.08); }
+.intr .inapoi { font-size: 26px; line-height: 1; margin-right: 2px; }
+.intr .inel { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #ffb52e, #f26a21 45%, #e53222, #7a0e0e); display: inline-flex; }
+.intr .inel img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fffaf2; }
+.intr .antet b { display: block; font-size: 13px; }
+.intr .antet small { font-size: 11px; color: #8a7f77; }
+.intr .mesaje { height: 330px; padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; scrollbar-width: none; }
+.intr .mesaje::-webkit-scrollbar { display: none; }
+.intr .bula { max-width: 84%; padding: 11px 15px; font-size: 13.5px; line-height: 1.5; border-radius: 20px; animation: bula .35s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes bula { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+.intr .bula.eu { align-self: flex-end; background: linear-gradient(135deg, #f26a21, #e53222); color: #fff; border-bottom-right-radius: 6px; }
+.intr .bula.el { align-self: flex-start; background: #efe6da; border-bottom-left-radius: 6px; }
+.intr .puncte { display: inline-flex; gap: 4px; padding: 3px 0; }
+.intr .puncte i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .4; animation: puncte 1s infinite; }
+.intr .puncte i:nth-child(2) { animation-delay: .15s; }
+.intr .puncte i:nth-child(3) { animation-delay: .3s; }
+@keyframes puncte { 50% { opacity: 1; transform: translateY(-3px); } }
+.intr .camp { margin: 6px 12px 16px; border-radius: 999px; border: 1px solid rgba(27,15,10,.15); padding: 9px 14px; font-size: 12.5px; color: #9a8b7e; }
+.intr-sub { margin-top: 26px; }
+.intr-sub .hand { font-size: 24px; color: var(--color-cream); transform: rotate(-3deg); margin-bottom: 10px; }
+.intr .alegeri { display: flex; flex-wrap: wrap; gap: 8px; }
+.intr .alegeri button { font: inherit; font-size: 13px; color: var(--color-cream); background: transparent; border: 1px solid rgba(246,239,227,.35); border-radius: 999px; padding: 8px 13px; cursor: pointer; transition: transform .2s, background .2s, border-color .2s; }
+.intr .alegeri button:hover:not(:disabled) { transform: translateY(-2px); background: rgba(246,239,227,.08); border-color: var(--color-cream); }
+.intr .alegeri button:disabled { opacity: .5; cursor: default; }
+.intr .alegeri button:focus-visible, .intr .reia:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+.intr .reia { font: inherit; font-size: 12px; background: none; border: 0; color: var(--color-muted); cursor: pointer; text-decoration: underline; margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .intr .bula, .intr .puncte i { animation: none; } }

@@ -137,6 +137,8 @@ for (const [slug, tarzii, ultima] of [
   ["frizerie", ["17:00"], "17:00"],
 ] as const) {
   test(`${slug}: sâmbăta nu oferă ore după închidere`, async ({ page }) => {
+    // pagina oferă următoarele 5 zile fără duminică: în weekend, lista e luni–vineri și n-are sâmbătă; fixăm o miercuri
+    await page.clock.setFixedTime(new Date("2026-11-11T10:00:00"));
     await page.goto(`/concepte/${slug}`);
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.locator(".bara .btn", { hasText: "Programează-te" }).click();

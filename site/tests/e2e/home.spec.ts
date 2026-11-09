@@ -200,3 +200,57 @@ test("abonarea merge și pe iPhone-uri vechi (fără AbortSignal.timeout)", asyn
   await formular.getByRole("button", { name: "Mă abonez" }).click();
   await expect(page.locator(".mail")).toContainText("Gata! Verifică-ți e-mailul și confirmă abonarea.");
 });
+
+test.describe("banda", () => {
+  test("e decorativă și curge", async ({ page }) => {
+    await page.goto("/");
+    const banda = page.locator(".banda");
+    await expect(banda).toHaveAttribute("aria-hidden", "true");
+    await banda.scrollIntoViewIfNeeded();
+    const pista = page.locator(".fasie.crem .pista");
+    const inainte = await pista.evaluate((el) => getComputedStyle(el).transform);
+    await expect.poll(() => pista.evaluate((el) => getComputedStyle(el).transform)).not.toBe(inainte);
+  });
+
+  test.describe("reduce motion", () => {
+    test.use({ reducedMotion: "reduce" });
+    test("stă pe loc", async ({ page }) => {
+      await page.goto("/");
+      await page.locator(".banda").scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+      expect(await page.locator(".fasie.crem .pista").evaluate((el) => getComputedStyle(el).transform)).toBe("none");
+    });
+  });
+});
+
+test.describe("întrebări", () => {
+  test("o întrebare primește răspunsul, iese din listă, iar conversația se poate lua de la capăt", async ({ page }) => {
+    await page.goto("/");
+    // pagina e hidratată când butonul formularului devine activ (ca în contact.spec.ts); înainte, clicul se pierde
+    await expect(page.locator(".contact .fcard").getByRole("button", { name: "Trimite" })).toBeEnabled();
+    const sectiune = page.locator("#intrebari");
+    await expect(sectiune.locator(".bula")).toHaveCount(2);
+    await expect(sectiune.getByRole("button", { name: "de la capăt" })).toHaveCount(0);
+    await sectiune.getByRole("button", { name: "Cât costă un site?" }).click();
+    await expect(sectiune.locator(".bula.el").last()).toContainText("Nu lucrez cu prețuri din listă.");
+    await expect(sectiune.locator(".bula")).toHaveCount(4);
+    await expect(sectiune.getByRole("button", { name: "Cât costă un site?" })).toHaveCount(0);
+    await sectiune.getByRole("button", { name: "de la capăt" }).click();
+    await expect(sectiune.locator(".bula")).toHaveCount(2);
+    await expect(sectiune.getByRole("button", { name: "Cât costă un site?" })).toBeVisible();
+  });
+
+  test("„Scrie-mi direct” duce la formular", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("#intrebari").getByRole("link", { name: /Scrie-mi direct/ })).toHaveAttribute("href", "#formular");
+  });
+
+  test("telefonul nu lățește pagina", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("#intrebari .ecran").scrollIntoViewIfNeeded();
+    const latime = await page.evaluate(() => innerWidth);
+    const ecran = await page.locator("#intrebari .ecran").boundingBox();
+    expect(ecran!.x).toBeGreaterThanOrEqual(0);
+    expect(ecran!.x + ecran!.width).toBeLessThanOrEqual(latime);
+  });
+});

@@ -28,7 +28,7 @@ export function SectiuneGhiduri({ ghiduri }: { ghiduri: GhidCard[] }) {
       const st = gsap.to(tr, {
         x: () => -(tr.scrollWidth - innerWidth),
         ease: "none",
-        scrollTrigger: { trigger: radacina.current, start: "top top", end: () => "+=" + (tr.scrollWidth - innerWidth), pin: true, scrub: 1, invalidateOnRefresh: true },
+        scrollTrigger: { trigger: radacina.current, start: "top top", end: () => "+=" + (tr.scrollWidth - innerWidth), pin: true, anticipatePin: 1, scrub: 1, invalidateOnRefresh: true },
       }).scrollTrigger!;
       // cu Tab, pista nu se mișcă singură: derulăm pagina până unde animația aduce cardul în mijlocul ecranului
       const laFocus = (e: FocusEvent) => {
@@ -71,7 +71,8 @@ export function SectiuneGhiduri({ ghiduri }: { ghiduri: GhidCard[] }) {
           >
             <span className="tape" />
             <span className="ph">
-              <Image src={imagineGhid(g, g.imagine)} alt="" fill sizes={i === 0 ? "380px" : "300px"} />
+              {/* fără încărcare leneșă: cardurile din dreapta intră pe ecran din lateral, iar poza venea abia când ajungeai la ea */}
+              <Image src={imagineGhid(g, g.imagine)} alt="" fill sizes={i === 0 ? "380px" : "300px"} loading="eager" />
               <b>GHID · {g.durata.toUpperCase()}</b>
               {i === 0 && <b className="nou-et">Nou</b>}
             </span>

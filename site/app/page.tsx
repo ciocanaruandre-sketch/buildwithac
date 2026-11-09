@@ -1,6 +1,8 @@
 import "@/components/home/home.css";
 import { Hero } from "@/components/home/Hero";
 import { Cortina } from "@/components/home/Cortina";
+import { Banda } from "@/components/home/Banda";
+import { Intrebari } from "@/components/home/Intrebari";
 import { PentruCine } from "@/components/home/PentruCine";
 import { PereteClipuri } from "@/components/home/PereteClipuri";
 import { SectiuneEmail } from "@/components/home/SectiuneEmail";
@@ -16,6 +18,7 @@ export default function Acasa() {
     <main>
       <Hero />
       <Cortina />
+      <Banda />
       {/* în producție, până la primul ghid real, lista e goală */}
       {ghiduri.length > 0 && <SectiuneGhiduri ghiduri={ghiduri} />}
       <PentruCine />
@@ -23,6 +26,7 @@ export default function Acasa() {
       <SectiuneEmail />
       <Portofoliu />
       <Servicii />
+      <Intrebari />
       <Contact />
     </main>
   );
