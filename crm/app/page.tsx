@@ -1,7 +1,7 @@
-export default function Acasa() {
-  return (
-    <main className="p-7">
-      <h1 className="text-2xl font-bold">CRM buildwithac</h1>
-    </main>
-  );
+import { redirect } from "next/navigation";
+import { eu } from "@/lib/eu";
+
+export default async function Acasa() {
+  const om = await eu();
+  redirect(om.rol === "constructor" ? "/clienti" : "/lead-uri");
 }
