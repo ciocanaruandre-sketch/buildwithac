@@ -49,6 +49,17 @@ export async function adaugaNotita(id: string, text: string, linkVocal?: string)
   return { ok: true };
 }
 
+/** „Programează discuția”: totul într-o singură tranzacție, în baza de date (funcția programeaza_discutie). */
+export async function programeaza(id: string, closerId: string, incepe: string): Promise<Rezultat> {
+  await eu();
+  const db = await supabase();
+  const { error } = await db.rpc("programeaza_discutie", { p_lead: id, p_closer: closerId, p_incepe: incepe });
+  if (error?.code === "23P01") return { ok: false, mesaj: "Ora asta tocmai s-a ocupat. Alege alta." };
+  if (error) return { ok: false, mesaj: error.message || NEPERMIS };
+  revalidatePath(`/lead-uri/${id}`);
+  return { ok: true };
+}
+
 /** Doar Adminul: mută lead-ul la alt caller sau closer (sau îl lasă liber). */
 export async function mutaLead(id: string, camp: "caller_id" | "closer_id", la: string | null): Promise<Rezultat> {
   const om = await eu();

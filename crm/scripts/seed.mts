@@ -110,8 +110,28 @@ async function leaduri(ids: Record<string, string>) {
   }
 }
 
+async function program(ids: Record<string, string>) {
+  // closerul de test: luni–vineri, 10:00–18:00, discuții de 30 de minute
+  await db.from("program_closer").delete().eq("closer_id", ids.closer);
+  const zile = [1, 2, 3, 4, 5].map((zi) => ({ closer_id: ids.closer, zi, de_la: "10:00", pana_la: "18:00" }));
+  const p = await db.from("program_closer").insert(zile);
+  if (p.error) throw p.error;
+  await db.from("profiluri").update({ durata_discutie_min: 30 }).eq("id", ids.closer);
+
+  // o discuție viitoare pentru lead-ul 5 (programat), peste 3 zile la 14:00 ora României (12:00 UTC iarna)
+  const l5 = await db.from("lead_uri").select("id").eq("telefon_norm", norm(5)).single();
+  const are = await db.from("discutii").select("id").eq("lead_id", l5.data!.id).gt("incepe_la", new Date().toISOString());
+  if (!are.data?.length) {
+    const z = new Date(Date.now() + 3 * 86_400_000);
+    z.setUTCHours(12, 0, 0, 0);
+    const d = await db.from("discutii").insert({ lead_id: l5.data!.id, closer_id: ids.closer, incepe_la: z.toISOString(), sfarseste_la: new Date(z.getTime() + 30 * 60_000).toISOString() });
+    if (d.error && d.error.code !== "23P01") throw d.error;
+  }
+}
+
 const ids = await conturi();
 await leaduri(ids);
+await program(ids);
 const { count } = await db.from("lead_uri").select("id", { count: "exact", head: true });
 console.log(`Gata: ${Object.keys(ids).length} conturi de test, ${count} lead-uri.`);
 process.exit(0); // pe Windows, fără asta Node se plânge la ieșire (libuv)

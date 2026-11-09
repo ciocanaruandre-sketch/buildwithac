@@ -5,7 +5,7 @@ import { ButoaneRand } from "@/components/ButoaneRand";
 import { FormularNotita } from "@/components/FormularNotita";
 import { MutaLa } from "@/components/MutaLa";
 import { TaburiLead } from "@/components/TaburiLead";
-import { CULOARE_STARE, cand } from "@/lib/afisare";
+import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, type Eveniment } from "@/lib/parcurs";
 import { actiuniPermise } from "@/lib/stari";
@@ -59,7 +59,8 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
   const actiuni = actiuniPermise(l, om.rol, om.id);
   const utm = (cereri ?? []).map((c) => c.utm as Record<string, string>).find((u) => u && Object.keys(u).length);
 
-  const textDiscutie: string | null = null;
+  const { data: discutie } = await db.from("discutii").select("incepe_la, closer_id").eq("lead_id", id).gt("sfarseste_la", acum.toISOString()).order("incepe_la").limit(1).maybeSingle();
+  const textDiscutie = discutie ? `Discuție programată: ${candLung(discutie.incepe_la)} cu ${nume(discutie.closer_id)}` : null;
 
   const callerii = (oameni ?? []).filter((o) => o.activ && o.rol !== "constructor").map((o) => ({ id: o.id, nume: o.nume }));
   const closerii = (oameni ?? []).filter((o) => o.activ && (o.rol === "closer" || o.rol === "admin")).map((o) => ({ id: o.id, nume: o.nume }));

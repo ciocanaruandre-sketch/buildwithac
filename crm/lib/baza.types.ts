@@ -138,6 +138,58 @@ export type Database = {
           },
         ]
       }
+      discutii: {
+        Row: {
+          closer_id: string
+          creat_de: string | null
+          creat_la: string
+          id: string
+          incepe_la: string
+          lead_id: string
+          sfarseste_la: string
+        }
+        Insert: {
+          closer_id: string
+          creat_de?: string | null
+          creat_la?: string
+          id?: string
+          incepe_la: string
+          lead_id: string
+          sfarseste_la: string
+        }
+        Update: {
+          closer_id?: string
+          creat_de?: string | null
+          creat_la?: string
+          id?: string
+          incepe_la?: string
+          lead_id?: string
+          sfarseste_la?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discutii_closer_id_fkey"
+            columns: ["closer_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discutii_creat_de_fkey"
+            columns: ["creat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discutii_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "lead_uri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evenimente: {
         Row: {
           autor_id: string | null
@@ -334,12 +386,52 @@ export type Database = {
         }
         Relationships: []
       }
+      program_closer: {
+        Row: {
+          closer_id: string
+          de_la: string
+          id: string
+          pana_la: string
+          zi: number
+        }
+        Insert: {
+          closer_id: string
+          de_la: string
+          id?: string
+          pana_la: string
+          zi: number
+        }
+        Update: {
+          closer_id?: string
+          de_la?: string
+          id?: string
+          pana_la?: string
+          zi?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_closer_closer_id_fkey"
+            columns: ["closer_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      programeaza_discutie: {
+        Args: { p_closer: string; p_incepe: string; p_lead: string }
+        Returns: undefined
+      }
       rol_curent: { Args: never; Returns: Database["public"]["Enums"]["rol"] }
+      salveaza_program: {
+        Args: { p_closer: string; p_durata: number; p_zile: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       rol: "admin" | "caller" | "closer" | "constructor"
