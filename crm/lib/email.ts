@@ -1,6 +1,8 @@
 import { CRM } from "@/lib/config";
 
-export type Email = { catre: string; subiect: string; text: string; html: string };
+/** `continut` e în base64. */
+export type Atasament = { nume: string; continut: string };
+export type Email = { catre: string; subiect: string; text: string; html: string; atasamente?: Atasament[] };
 
 /** Un e-mail prin Resend. Fără cheie (pe test) sau la eroare întoarce false; nu aruncă. */
 export async function trimiteEmail(e: Email, f: typeof fetch = fetch): Promise<boolean> {
@@ -10,8 +12,15 @@ export async function trimiteEmail(e: Email, f: typeof fetch = fetch): Promise<b
     const r = await f("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${cheie}` },
-      body: JSON.stringify({ from: `CRM buildwithac <${CRM.emailExpeditor}>`, to: [e.catre], subject: e.subiect, text: e.text, html: e.html }),
-      signal: AbortSignal.timeout(5000),
+      body: JSON.stringify({
+        from: `CRM buildwithac <${CRM.emailExpeditor}>`,
+        to: [e.catre],
+        subject: e.subiect,
+        text: e.text,
+        html: e.html,
+        ...(e.atasamente?.length ? { attachments: e.atasamente.map((a) => ({ filename: a.nume, content: a.continut })) } : {}),
+      }),
+      signal: AbortSignal.timeout(e.atasamente?.length ? 30_000 : 5000),
     });
     return r.ok;
   } catch {
