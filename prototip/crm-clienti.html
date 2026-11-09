@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM: fișa clientului (schițe)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141417; --bg-2:#1c1c20; --bg-3:#26262b; --line:#2c2c32; --line-2:#3a3a40;
+  --ink:#f1f1f3; --ink-2:#b4b4bb; --ink-3:#8a8a92;
+  --amber:#ffb52e; --orange:#f26a21; --red:#e53222; --green:#4fbf8a; --blue:#6b9bd1;
+  --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222);
+  --r:3px;
+  --label:"Chakra Petch",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;min-height:100vh}
+.app{display:grid;grid-template-columns:216px 1fr;min-height:100vh;padding-bottom:64px}
+/* bara laterală */
+.side{border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:2px;background:#111114}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;font:700 15px var(--label);letter-spacing:.02em}
+.brand i{width:22px;height:22px;border-radius:var(--r);background:var(--grad);display:block}
+.brand small{display:block;font:500 10px var(--label);color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);color:var(--ink-2);font:500 13px var(--label);letter-spacing:.03em;text-transform:uppercase}
+.nav .dot{width:6px;height:6px;border:1px solid var(--ink-3);border-radius:1px}
+.nav.on{background:var(--bg-3);color:var(--ink);box-shadow:inset 2px 0 0 var(--amber)}
+.nav.on .dot{background:var(--amber);border-color:var(--amber)}
+.nav .n{margin-left:auto;font:400 11px var(--mono);color:var(--ink-3)}
+.side .sep{height:1px;background:var(--line);margin:10px 4px}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px 8px;border-top:1px solid var(--line)}
+.av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 11px var(--label);background:var(--bg-3);color:var(--ink-2);flex:none}
+.av.a{background:#3b2a12;color:var(--amber)}
+.me b{font:600 12px var(--label);display:block}.me span{font-size:11px;color:var(--ink-3)}
+/* comun */
+main{padding:22px 28px;min-width:0}
+.crumb{font:500 11px var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+.crumb a{color:var(--ink-3);text-decoration:none}
+h1{font:700 26px var(--label);letter-spacing:.01em}
+.lbl{font:600 10.5px var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--line-2);border-radius:var(--r);font:500 11px var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.chip.amber{border-color:#5a4214;color:var(--amber);background:#2a2010}
+.chip.green{border-color:#1f4a36;color:var(--green);background:#13261d}
+.chip.red{border-color:#5a1d16;color:#ff7a66;background:#2a1411}
+.chip.blue{border-color:#22384f;color:var(--blue);background:#141f2b}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg-2);color:var(--ink);font:600 12px var(--label);letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+.btn.pri{background:var(--amber);border-color:var(--amber);color:#1a1206}
+.panel{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r)}
+.panel-h{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+.panel-b{padding:12px 14px}
+.mono{font-family:var(--mono)}
+.muted{color:var(--ink-3)}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:6px 10px;font-size:13px}
+.kv dt{color:var(--ink-3)}
+.bar{height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grad)}
+/* task-uri */
+.task{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.box{width:15px;height:15px;border:1px solid var(--line-2);border-radius:2px;flex:none;margin-top:2px;display:grid;place-items:center;font-size:10px;color:#1a1206}
+.task.done .box{background:var(--green);border-color:var(--green)}
+.task.done .t{color:var(--ink-3);text-decoration:line-through}
+.task .t{flex:1}
+.task .meta{display:flex;gap:8px;align-items:center;font:400 11px var(--mono);color:var(--ink-3)}
+.task .late{color:#ff7a66}
+/* rânduri: materiale, conturi, livrat */
+.row{display:grid;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.row:last-child{border-bottom:0}
+.ico{width:28px;height:28px;border:1px solid var(--line-2);border-radius:var(--r);display:grid;place-items:center;font:600 9px var(--label);color:var(--ink-3);letter-spacing:.04em}
+.note{padding:10px 12px;border-left:2px solid var(--line-2);background:#18181c;margin-bottom:8px;font-size:13px}
+.note .w{font:400 11px var(--mono);color:var(--ink-3);margin-bottom:3px}
+.warn{display:flex;gap:8px;align-items:flex-start;padding:9px 12px;border:1px dashed #5a4214;border-radius:var(--r);color:var(--ink-2);font-size:12.5px;margin-top:10px}
+.warn b{color:var(--amber);font:600 11px var(--label);letter-spacing:.1em;text-transform:uppercase}
+/* parcurs */
+.tl{position:relative;padding-left:18px}
+.tl:before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:var(--line-2)}
+.ev{position:relative;padding:6px 0 10px;font-size:13px}
+.ev:before{content:"";position:absolute;left:-18px;top:11px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:1px solid var(--ink-3)}
+.ev.hot:before{border-color:var(--amber);background:var(--amber)}
+.ev .w{font:400 11px var(--mono);color:var(--ink-3)}
+/* stadii */
+.stages{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.st{padding:9px 10px 8px;border-top:3px solid var(--bg-3);font:600 11px var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.st small{display:block;font:400 10.5px var(--mono);letter-spacing:0;text-transform:none;margin-top:2px}
+.st.done{border-color:#7a5a20;color:var(--ink-2)}
+.st.now{border-color:var(--amber);color:var(--amber)}
+/* ======== VARIANTA A ======== */
+.a-head{display:flex;align-items:flex-start;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.a-head .big{width:48px;height:48px;border-radius:var(--r);display:grid;place-items:center;font:700 18px var(--label);background:#2a2010;color:var(--amber);border:1px solid #5a4214}
+.a-head .chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.a-head .acts{margin-left:auto;display:flex;gap:8px}
+.a-grid{display:grid;grid-template-columns:300px 1fr;gap:20px;margin-top:20px;align-items:start}
+.a-left .panel+.panel{margin-top:12px}
+.now-card{border:1px solid #5a4214;background:#1f1a10}
+.now-card .panel-b b{display:block;font:600 14px var(--label);margin:4px 0 2px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tab{padding:9px 14px;font:600 12px var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab .n{font:400 10.5px var(--mono);margin-left:5px;color:var(--ink-3)}
+.tab.on{color:var(--ink);border-color:var(--amber)}
+.tabpane{display:none}.tabpane.on{display:block}
+/* ======== VARIANTA B ======== */
+.b-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
+.b-head .chips{display:flex;gap:6px;margin-top:8px}
+.b-stage{margin-bottom:18px}
+.b-grid{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;align-items:start}
+.b-grid .tall{grid-row:span 2}
+/* ======== VARIANTA C ======== */
+.c-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.c-top .filters{display:flex;gap:6px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:10px;align-items:start}
+.col{background:#17171a;border:1px solid var(--line);border-radius:var(--r);padding:8px}
+.col-h{display:flex;justify-content:space-between;align-items:center;padding:4px 4px 10px}
+.col-h .lbl{color:var(--ink-2)}
+.card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px;cursor:pointer}
+.card.sel{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber)}
+.card b{font:600 13.5px var(--label);display:block;margin-bottom:4px}
+.card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.card .foot .mono{font-size:11px;color:var(--ink-3)}
+.card .av{width:22px;height:22px;font-size:9.5px}
+.c-wrap{position:relative}
+.drawer{position:fixed;top:0;right:0;bottom:56px;width:460px;background:#18181b;border-left:1px solid var(--line-2);box-shadow:-24px 0 48px rgba(0,0,0,.45);padding:20px 20px;overflow:auto}
+.drawer .x{position:absolute;right:16px;top:16px;color:var(--ink-3);font:400 18px var(--mono)}
+.drawer .stages{grid-template-columns:repeat(6,1fr)}
+.drawer .st{padding:7px 4px 6px;font-size:9.5px}
+/* comutatorul */
+.sw{position:fixed;left:0;right:0;bottom:0;height:56px;background:#0b0b0d;border-top:1px solid var(--line-2);display:flex;align-items:center;gap:8px;padding:0 18px;z-index:50}
+.sw .t{font:600 11px var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-right:8px}
+.sw button{background:transparent;border:1px solid var(--line-2);color:var(--ink-2);padding:8px 14px;border-radius:var(--r);font:600 12px var(--label);letter-spacing:.05em;cursor:pointer}
+.sw button.on{background:var(--amber);border-color:var(--amber);color:#1a1206}
+.sw button{white-space:nowrap}
+.sw .d{margin-left:auto;font-size:12.5px;color:var(--ink-2);max-width:560px;text-align:right}
+@media (max-width:1100px){.sw .d{display:none}}
+.v{display:none}.v.on{display:block}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i></i><div>buildwithac<small>CRM</small></div></div>
+    <a class="nav"><span class="dot"></span>Dashboard</a>
+    <a class="nav"><span class="dot"></span>Lead-uri<span class="n">14</span></a>
+    <a class="nav"><span class="dot"></span>Programări<span class="n">3</span></a>
+    <a class="nav on"><span class="dot"></span>Clienți<span class="n">3</span></a>
+    <a class="nav"><span class="dot"></span>Task-urile mele<span class="n">5</span></a>
+    <div class="sep"></div>
+    <a class="nav"><span class="dot"></span>KPI</a>
+    <a class="nav"><span class="dot"></span>Echipă</a>
+    <a class="nav"><span class="dot"></span>Setări</a>
+    <div class="me"><div class="av a">AC</div><div><b>Andrei</b><span>Admin</span></div></div>
+  </aside>
+
+  <main>
+
+  <!-- ===================== A: fișă cu tab-uri ===================== -->
+  <section class="v" id="vA">
+    <div class="crumb"><a>Clienți</a> / Cafeneaua Colț</div>
+    <div class="a-head">
+      <div class="big">CC</div>
+      <div>
+        <h1>Cafeneaua Colț</h1>
+        <div class="chips">
+          <span class="chip blue">Site de la zero</span>
+          <span class="chip amber">● Construcție</span>
+          <span class="chip">Client din 28 oct</span>
+        </div>
+      </div>
+      <div class="acts">
+        <button class="btn">+ Notiță</button>
+        <button class="btn pri">+ Task</button>
+      </div>
+    </div>
+
+    <div class="a-grid">
+      <div class="a-left">
+        <div class="panel now-card">
+          <div class="panel-b">
+            <div class="lbl" style="color:var(--amber)">Urmează</div>
+            <b>Pagina de meniu: pozele de la client</b>
+            <div class="muted" style="font-size:12.5px">Termen: joi, 13 nov · întârziat 0 zile</div>
+            <div style="margin-top:12px" class="bar"><i style="width:55%"></i></div>
+            <div class="mono muted" style="font-size:11px;margin-top:6px">6 din 11 task-uri gata</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><span class="lbl">Contact</span></div>
+          <div class="panel-b">
+            <dl class="kv">
+              <dt>Persoană</dt><dd>Ioana Marin</dd>
+              <dt>Telefon</dt><dd class="mono">0722 000 111</dd>
+              <dt>E-mail</dt><dd>ioana@exemplu.ro</dd>
+              <dt>WhatsApp</dt><dd><a style="color:var(--amber)">deschide →</a></dd>
+            </dl>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><span class="lbl">Proiectul</span></div>
+          <div class="panel-b">
+            <dl class="kv">
+              <dt>Serviciu</dt><dd>Site de la zero</dd>
+              <dt>Preț</dt><dd class="mono">2.400 lei</dd>
+              <dt>Plătit</dt><dd class="mono">1.200 lei <span class="chip" style="margin-left:4px">avans</span></dd>
+              <dt>Predare</dt><dd class="mono">28 nov</dd>
+              <dt>Lucrează</dt><dd>Andrei, Mihai</dd>
+              <dt>A venit din</dt><dd>Formular site</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="tabs" data-tabs>
+          <div class="tab on" data-t="t1">Task-uri<span class="n">11</span></div>
+          <div class="tab" data-t="t2">Materiale<span class="n">7</span></div>
+          <div class="tab" data-t="t3">Conturi<span class="n">4</span></div>
+          <div class="tab" data-t="t4">Livrat<span class="n">2</span></div>
+          <div class="tab" data-t="t5">Notițe<span class="n">3</span></div>
+          <div class="tab" data-t="t6">Parcurs</div>
+        </div>
+
+        <div class="tabpane on" id="t1">
+          <div class="task done"><div class="box">✓</div><div class="t">Discuția de pornire și formularul completat</div><div class="meta">Andrei · 28 oct</div></div>
+          <div class="task done"><div class="box">✓</div><div class="t">Domeniu cumpărat (cafeneauacolt.ro)</div><div class="meta">Andrei · 29 oct</div></div>
+          <div class="task done"><div class="box">✓</div><div class="t">Schița paginii principale, aprobată de client</div><div class="meta">Andrei · 3 nov</div></div>
+          <div class="task"><div class="box"></div><div class="t">Pagina de meniu: pozele de la client</div><div class="meta"><span class="av" style="width:20px;height:20px;font-size:9px">MI</span> 13 nov</div></div>
+          <div class="task"><div class="box"></div><div class="t">Rezervări prin WhatsApp pe pagina de contact</div><div class="meta">Andrei · 17 nov</div></div>
+          <div class="task"><div class="box"></div><div class="t">Google Business: legat de site</div><div class="meta late">Andrei · 7 nov · întârziat</div></div>
+        </div>
+
+        <div class="tabpane" id="t2">
+          <div class="row" style="grid-template-columns:28px 1fr 120px 90px"><div class="ico">ZIP</div><div>Logo și culori<div class="muted" style="font-size:12px">de la client, pe Drive</div></div><div class="muted">Ioana · 29 oct</div><a style="color:var(--amber)">deschide</a></div>
+          <div class="row" style="grid-template-columns:28px 1fr 120px 90px"><div class="ico">IMG</div><div>Poze meniu (24)</div><div class="muted">Ioana · 6 nov</div><a style="color:var(--amber)">deschide</a></div>
+          <div class="row" style="grid-template-columns:28px 1fr 120px 90px"><div class="ico">DOC</div><div>Textele paginilor</div><div class="muted">Andrei · 4 nov</div><a style="color:var(--amber)">deschide</a></div>
+          <div class="row" style="grid-template-columns:28px 1fr 120px 90px"><div class="ico">URL</div><div>Răspunsurile din formularul Tally</div><div class="muted">27 oct</div><a style="color:var(--amber)">deschide</a></div>
+        </div>
+
+        <div class="tabpane" id="t3">
+          <div class="row" style="grid-template-columns:1fr 150px 130px 110px"><div class="lbl" style="font-size:9.5px">Serviciu</div><div class="lbl" style="font-size:9.5px">Cont</div><div class="lbl" style="font-size:9.5px">Al cui</div><div class="lbl" style="font-size:9.5px">Parola</div></div>
+          <div class="row" style="grid-template-columns:1fr 150px 130px 110px"><div>Vercel (site-ul)</div><div class="mono" style="font-size:12px">cafeneaua-colt</div><div><span class="chip green">al clientului</span></div><div class="muted">la client</div></div>
+          <div class="row" style="grid-template-columns:1fr 150px 130px 110px"><div>Domeniu (ROTLD)</div><div class="mono" style="font-size:12px">cafeneauacolt.ro</div><div><span class="chip green">al clientului</span></div><div class="muted">la client</div></div>
+          <div class="row" style="grid-template-columns:1fr 150px 130px 110px"><div>GitHub</div><div class="mono" style="font-size:12px">buildwithac/colt</div><div><span class="chip amber">al meu</span></div><div class="muted">la mine</div></div>
+          <div class="row" style="grid-template-columns:1fr 150px 130px 110px"><div>Google Business</div><div class="mono" style="font-size:12px">acces de editor</div><div><span class="chip green">al clientului</span></div><div class="muted">—</div></div>
+          <div class="warn"><b>Parolele</b> nu stau în CRM. Aici scrii doar ce cont e, al cui e și unde e parola.</div>
+        </div>
+
+        <div class="tabpane" id="t4">
+          <div class="row" style="grid-template-columns:28px 1fr 120px 90px"><div class="ico">URL</div><div>Schița paginii principale (v2)<div class="muted" style="font-size:12px">aprobată: „e super, mergem așa”</div></div><div class="muted">3 nov</div><span class="chip green">aprobat</span></div>
+          <div class="row" style="grid-template-columns:28px 1fr 120px 90px"><div class="ico">URL</div><div>Previzualizare site (în lucru)</div><div class="muted">8 nov</div><span class="chip amber">trimis</span></div>
+        </div>
+
+        <div class="tabpane" id="t5">
+          <div class="note"><div class="w">Andrei · 6 nov</div>Vrea meniul pe categorii, nu o listă lungă. Prețurile le schimbă des: să le poată edita singură.</div>
+          <div class="note"><div class="w">Mihai · 4 nov</div>Pozele vechi sunt mici. Am cerut altele, făcute cu telefonul, la lumina zilei.</div>
+        </div>
+
+        <div class="tabpane" id="t6">
+          <div class="tl">
+            <div class="ev"><div class="w">27 oct · 21:14</div>Lead nou din formularul de pe site</div>
+            <div class="ev"><div class="w">28 oct · 11:02</div>Sunat de Andrei · discuție programată</div>
+            <div class="ev hot"><div class="w">28 oct · 17:40</div>Devenit client · Site de la zero · 2.400 lei</div>
+            <div class="ev"><div class="w">3 nov · 10:15</div>Stadiu: Schiță → Construcție</div>
+            <div class="ev"><div class="w">4 nov · 09:30</div>Mihai adăugat în proiect de Andrei</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== B: totul pe o pagină ===================== -->
+  <section class="v" id="vB">
+    <div class="crumb"><a>Clienți</a> / Cafeneaua Colț</div>
+    <div class="b-head">
+      <div>
+        <h1>Cafeneaua Colț</h1>
+        <div class="chips">
+          <span class="chip blue">Site de la zero</span>
+          <span class="chip">Ioana Marin · 0722 000 111</span>
+          <span class="chip">2.400 lei · 1.200 plătiți</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px"><button class="btn">WhatsApp</button><button class="btn">+ Notiță</button><button class="btn pri">+ Task</button></div>
+    </div>
+
+    <div class="panel b-stage">
+      <div class="panel-b">
+        <div class="stages">
+          <div class="st done">Discuție<small>28 oct</small></div>
+          <div class="st done">Schiță<small>3 nov</small></div>
+          <div class="st now">Construcție<small>de 6 zile</small></div>
+          <div class="st">Revizii<small>—</small></div>
+          <div class="st">Livrat<small>28 nov</small></div>
+          <div class="st">Mentenanță<small>—</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-grid">
+      <div class="panel tall">
+        <div class="panel-h"><span class="lbl">Task-uri</span><span class="mono muted" style="font-size:11px">6 / 11</span></div>
+        <div class="panel-b">
+          <div class="bar" style="margin-bottom:8px"><i style="width:55%"></i></div>
+          <div class="task"><div class="box"></div><div class="t">Google Business: legat de site</div><div class="meta late">7 nov</div></div>
+          <div class="task"><div class="box"></div><div class="t">Pagina de meniu: pozele de la client</div><div class="meta">MI · 13 nov</div></div>
+          <div class="task"><div class="box"></div><div class="t">Rezervări prin WhatsApp</div><div class="meta">17 nov</div></div>
+          <div class="task"><div class="box"></div><div class="t">Pagina „Despre noi”</div><div class="meta">20 nov</div></div>
+          <div class="task"><div class="box"></div><div class="t">Verificat pe telefon de client</div><div class="meta">25 nov</div></div>
+          <div class="task done"><div class="box">✓</div><div class="t">Schița paginii principale, aprobată</div><div class="meta">3 nov</div></div>
+          <div class="task done"><div class="box">✓</div><div class="t">Domeniu cumpărat</div><div class="meta">29 oct</div></div>
+          <div class="muted" style="font-size:12px;padding-top:8px">+ încă 4 gata</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><span class="lbl">Materiale</span><span class="mono muted" style="font-size:11px">7</span></div>
+        <div class="panel-b">
+          <div class="row" style="grid-template-columns:28px 1fr"><div class="ico">ZIP</div><div>Logo și culori <span class="muted">· client</span></div></div>
+          <div class="row" style="grid-template-columns:28px 1fr"><div class="ico">IMG</div><div>Poze meniu (24) <span class="muted">· client</span></div></div>
+          <div class="row" style="grid-template-columns:28px 1fr"><div class="ico">DOC</div><div>Textele paginilor</div></div>
+          <div class="row" style="grid-template-columns:28px 1fr"><div class="ico">URL</div><div>Răspunsuri Tally</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><span class="lbl">Conturi</span><span class="mono muted" style="font-size:11px">4</span></div>
+        <div class="panel-b">
+          <div class="row" style="grid-template-columns:1fr auto"><div>Vercel <span class="mono muted" style="font-size:11.5px">cafeneaua-colt</span></div><span class="chip green">client</span></div>
+          <div class="row" style="grid-template-columns:1fr auto"><div>Domeniu <span class="mono muted" style="font-size:11.5px">ROTLD</span></div><span class="chip green">client</span></div>
+          <div class="row" style="grid-template-columns:1fr auto"><div>GitHub <span class="mono muted" style="font-size:11.5px">buildwithac/colt</span></div><span class="chip amber">eu</span></div>
+          <div class="row" style="grid-template-columns:1fr auto"><div>Google Business</div><span class="chip green">client</span></div>
+          <div class="muted" style="font-size:11.5px;margin-top:8px">Fără parole aici: doar ce cont e și al cui.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><span class="lbl">Livrat</span><span class="mono muted" style="font-size:11px">2</span></div>
+        <div class="panel-b">
+          <div class="row" style="grid-template-columns:1fr auto"><div>Schița paginii principale (v2)</div><span class="chip green">aprobat</span></div>
+          <div class="row" style="grid-template-columns:1fr auto"><div>Previzualizare site</div><span class="chip amber">trimis</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><span class="lbl">Notițe</span><span class="mono muted" style="font-size:11px">3</span></div>
+        <div class="panel-b">
+          <div class="note"><div class="w">Andrei · 6 nov</div>Meniul pe categorii; prețurile să le poată edita singură.</div>
+          <div class="note"><div class="w">Mihai · 4 nov</div>Pozele vechi sunt mici, am cerut altele.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== C: tabla proiectelor + sertar ===================== -->
+  <section class="v" id="vC">
+    <div class="c-top">
+      <div><div class="crumb">Clienți</div><h1>Proiectele în lucru</h1></div>
+      <div class="filters"><span class="chip amber">Toate</span><span class="chip">Site-uri</span><span class="chip">Automatizări</span><span class="chip">Sesiuni 1 la 1</span><span class="chip">Doar ale mele</span></div>
+    </div>
+    <div class="board" style="margin-right:470px">
+      <div class="col">
+        <div class="col-h"><span class="lbl">Discuție</span><span class="mono muted" style="font-size:11px">1</span></div>
+        <div class="card"><b>Salon Ilinca</b><span class="chip blue">Automatizare</span><div class="muted" style="font-size:12px;margin-top:8px">Programări din Instagram în calendar</div><div class="foot"><span class="mono">ofertă trimisă</span><span class="av a">AC</span></div></div>
+      </div>
+      <div class="col">
+        <div class="col-h"><span class="lbl">Schiță</span><span class="mono muted" style="font-size:11px">0</span></div>
+      </div>
+      <div class="col">
+        <div class="col-h"><span class="lbl">Construcție</span><span class="mono muted" style="font-size:11px">2</span></div>
+        <div class="card sel"><b>Cafeneaua Colț</b><span class="chip blue">Site</span><div class="bar" style="margin-top:10px"><i style="width:55%"></i></div><div class="foot"><span class="mono">6/11 · 28 nov</span><span style="display:flex;gap:2px"><span class="av a">AC</span><span class="av">MI</span></span></div></div>
+        <div class="card"><b>Clinica Zâmbet</b><span class="chip blue">Site</span><div class="bar" style="margin-top:10px"><i style="width:20%"></i></div><div class="foot"><span class="mono" style="color:#ff7a66">2/10 · 1 întârziat</span><span class="av a">AC</span></div></div>
+      </div>
+      <div class="col">
+        <div class="col-h"><span class="lbl">Revizii</span><span class="mono muted" style="font-size:11px">0</span></div>
+      </div>
+      <div class="col">
+        <div class="col-h"><span class="lbl">Livrat</span><span class="mono muted" style="font-size:11px">1</span></div>
+        <div class="card"><b>Radu, consultant</b><span class="chip blue">Sesiune 1 la 1</span><div class="foot"><span class="mono">ghid trimis · 2 nov</span><span class="av a">AC</span></div></div>
+      </div>
+    </div>
+
+    <div class="drawer">
+      <span class="x">×</span>
+      <div class="lbl">Client · Site de la zero</div>
+      <h1 style="font-size:22px;margin:4px 0 10px">Cafeneaua Colț</h1>
+      <div class="stages" style="margin-bottom:14px">
+        <div class="st done">Disc.</div><div class="st done">Schiță</div><div class="st now">Constr.</div><div class="st">Revizii</div><div class="st">Livrat</div><div class="st">Mentenanță</div>
+      </div>
+      <dl class="kv" style="margin-bottom:14px">
+        <dt>Contact</dt><dd>Ioana Marin · <span class="mono">0722 000 111</span></dd>
+        <dt>Bani</dt><dd class="mono">2.400 lei · 1.200 plătiți</dd>
+        <dt>Predare</dt><dd class="mono">28 nov</dd>
+      </dl>
+      <div class="tabs" data-tabs>
+        <div class="tab on" data-t="d1">Task-uri</div>
+        <div class="tab" data-t="d2">Materiale</div>
+        <div class="tab" data-t="d3">Conturi</div>
+        <div class="tab" data-t="d4">Notițe</div>
+      </div>
+      <div class="tabpane on" id="d1">
+        <div class="task"><div class="box"></div><div class="t">Google Business: legat de site</div><div class="meta late">7 nov</div></div>
+        <div class="task"><div class="box"></div><div class="t">Pagina de meniu: pozele</div><div class="meta">13 nov</div></div>
+        <div class="task"><div class="box"></div><div class="t">Rezervări prin WhatsApp</div><div class="meta">17 nov</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Schița aprobată</div><div class="meta">3 nov</div></div>
+      </div>
+      <div class="tabpane" id="d2">
+        <div class="row" style="grid-template-columns:28px 1fr"><div class="ico">ZIP</div><div>Logo și culori</div></div>
+        <div class="row" style="grid-template-columns:28px 1fr"><div class="ico">IMG</div><div>Poze meniu (24)</div></div>
+      </div>
+      <div class="tabpane" id="d3">
+        <div class="row" style="grid-template-columns:1fr auto"><div>Vercel</div><span class="chip green">client</span></div>
+        <div class="row" style="grid-template-columns:1fr auto"><div>GitHub</div><span class="chip amber">eu</span></div>
+      </div>
+      <div class="tabpane" id="d4">
+        <div class="note"><div class="w">Andrei · 6 nov</div>Meniul pe categorii.</div>
+      </div>
+      <button class="btn" style="margin-top:14px;width:100%;justify-content:center">Deschide fișa întreagă →</button>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<div class="sw">
+  <span class="t">Varianta</span>
+  <button data-v="A">A · Fișă cu tab-uri</button>
+  <button data-v="B">B · Totul pe o pagină</button>
+  <button data-v="C">C · Tabla proiectelor</button>
+  <span class="d" id="desc"></span>
+</div>
+
+<script>
+const desc={
+  A:"Ca fișa lead-ului din EasyGrow: în stânga ce urmează și datele, în dreapta câte un tab pentru task-uri, materiale, conturi, livrat, notițe și parcurs.",
+  B:"Stadiul proiectului sus, pe toată lățimea, și toate secțiunile vizibile deodată, fără să dai click pe tab-uri.",
+  C:"Vezi toate proiectele pe stadii, ca pe o tablă. Click pe un proiect și fișa se deschide în dreapta."
+};
+function show(v){
+  document.querySelectorAll('.v').forEach(s=>s.classList.toggle('on',s.id==='v'+v));
+  document.querySelectorAll('.sw button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  document.getElementById('desc').textContent=desc[v];
+  try{history.replaceState(null,'','#'+v)}catch(e){}
+}
+document.querySelectorAll('.sw button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+document.querySelectorAll('[data-tabs]').forEach(bar=>{
+  bar.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+    bar.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+    const scope=bar.parentElement;
+    scope.querySelectorAll(':scope > .tabpane').forEach(p=>p.classList.toggle('on',p.id===t.dataset.t));
+  });
+});
+document.querySelectorAll('.task').forEach(t=>t.onclick=()=>{t.classList.toggle('done');t.querySelector('.box').textContent=t.classList.contains('done')?'✓':''});
+document.querySelectorAll('.card').forEach(c=>c.onclick=()=>{document.querySelectorAll('.card').forEach(x=>x.classList.toggle('sel',x===c))});
+show((location.hash||'#A').slice(1));
+</script>
+</body>
+</html>
