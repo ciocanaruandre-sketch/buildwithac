@@ -43,6 +43,15 @@ test("confidențialitate: formularul de contact, Resend, iCloud și cele 90 de z
   await expect(main).toContainText("90 de zile");
 });
 
+test("confidențialitate: CRM-ul, Supabase în UE și ștergerea automată", async ({ page }) => {
+  await page.goto("/confidentialitate");
+  const main = page.locator("main");
+  await expect(main).toContainText("Supabase");
+  await expect(main).toContainText("Irlanda");
+  await expect(main).toContainText("Din CRM se șterg singure");
+  await expect(main).toContainText("copie de siguranță a CRM-ului");
+});
+
 test("confidențialitate: rezumatul de sus pomenește formularul de contact", async ({ page }) => {
   await page.goto("/confidentialitate");
   const rezumat = page.locator("main p", { hasText: "Pe scurt" });
