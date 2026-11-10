@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM: tema finală (variante)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== variabilele fiecărei variante ===== */
+body.vA{
+  --bg:#141417; --panel:#1c1c20; --panel-2:#232328; --line:rgba(255,255,255,.07);
+  --ink:#f1f1f3; --ink-2:#b4b4bb; --ink-3:#8a8a92;
+  --glass:rgba(30,30,34,.55); --glass-bd:rgba(255,255,255,.07); --glass-hi:rgba(255,255,255,.10);
+  --edge-a:rgba(255,255,255,.22); --edge-b:rgba(255,255,255,.05); --blur:28px; --shadow:rgba(0,0,0,.35);
+  --wall-1:#ffb52e; --wall-2:#e53222; --wall-3:#7a0e0e; --wall-op:.10;
+  --r:16px; --r-sm:10px; --r-xl:22px;
+  --sel:rgba(255,255,255,.08); --seg:rgba(255,255,255,.05); --thumb:rgba(255,255,255,.12); --btn:rgba(255,255,255,.07);
+  --amber-t:#ffb52e; --green:#4fbf8a; --red-t:#ff7a66; --blue:#6b9bd1; --urm:rgba(255,181,46,.07); --urm-bd:rgba(255,181,46,.22);
+}
+body.vB{
+  --bg:#0d0b0a; --panel:rgba(34,27,24,.40); --panel-2:rgba(255,255,255,.05); --line:rgba(255,255,255,.08);
+  --ink:#f6f2ee; --ink-2:#c6beb7; --ink-3:#92897f;
+  --glass:rgba(44,34,29,.36); --glass-bd:rgba(255,255,255,.10); --glass-hi:rgba(255,255,255,.20);
+  --edge-a:rgba(255,255,255,.38); --edge-b:rgba(255,255,255,.10); --blur:36px; --shadow:rgba(0,0,0,.40);
+  --wall-1:#ffb52e; --wall-2:#f26a21; --wall-3:#7a0e0e; --wall-op:.30;
+  --r:22px; --r-sm:12px; --r-xl:28px;
+  --sel:rgba(255,255,255,.12); --seg:rgba(255,255,255,.06); --thumb:rgba(255,255,255,.18); --btn:rgba(255,255,255,.09);
+  --amber-t:#ffc65c; --green:#5fd39a; --red-t:#ff8a75; --blue:#8bb6e6; --urm:rgba(255,181,46,.10); --urm-bd:rgba(255,181,46,.30);
+}
+body.vC{
+  --bg:#000; --panel:#1c1c1e; --panel-2:#2c2c2e; --line:rgba(84,84,88,.45);
+  --ink:#fff; --ink-2:#aeaeb2; --ink-3:#8e8e93;
+  --glass:rgba(28,28,30,.62); --glass-bd:rgba(255,255,255,.08); --glass-hi:rgba(255,255,255,.12);
+  --edge-a:rgba(255,255,255,.24); --edge-b:rgba(255,255,255,.04); --blur:30px; --shadow:rgba(0,0,0,.5);
+  --wall-1:#ffb52e; --wall-2:#000; --wall-3:#000; --wall-op:.08;
+  --r:14px; --r-sm:10px; --r-xl:24px;
+  --sel:rgba(255,255,255,.10); --seg:rgba(118,118,128,.24); --thumb:#636366; --btn:rgba(118,118,128,.24);
+  --amber-t:#ffb52e; --green:#30d158; --red-t:#ff453a; --blue:#0a84ff; --urm:#1c1c1e; --urm-bd:transparent;
+}
+body.vD{
+  --bg:#f2f2f7; --panel:#fff; --panel-2:#f5f5f7; --line:rgba(0,0,0,.08);
+  --ink:#1d1d1f; --ink-2:#48484d; --ink-3:#86868b;
+  --glass:rgba(255,255,255,.55); --glass-bd:rgba(255,255,255,.75); --glass-hi:rgba(255,255,255,.95);
+  --edge-a:rgba(255,255,255,1); --edge-b:rgba(0,0,0,.05); --blur:30px; --shadow:rgba(0,0,0,.08);
+  --wall-1:#ffb52e; --wall-2:#f26a21; --wall-3:#ffd2b8; --wall-op:.30;
+  --r:16px; --r-sm:10px; --r-xl:22px;
+  --sel:rgba(0,0,0,.06); --seg:rgba(0,0,0,.05); --thumb:#fff; --btn:rgba(0,0,0,.05);
+  --amber-t:#b36a00; --green:#1f9d55; --red-t:#d70015; --blue:#0066cc; --urm:#fff8ec; --urm-bd:#f6dcae;
+}
+:root{--amber:#ffb52e; --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222); --mono:"JetBrains Mono",ui-monospace,monospace}
+
+/* ===== baza ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;min-height:100vh;transition:background .3s}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:12px}
+.muted{color:var(--ink-3)}
+
+/* fundalul: pete moi în culorile logo-ului */
+.wall{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.wall i{position:absolute;border-radius:50%;filter:blur(100px);opacity:var(--wall-op);transition:opacity .3s,background .3s}
+.wall .w1{width:640px;height:640px;left:-140px;top:-200px;background:var(--wall-1)}
+.wall .w2{width:560px;height:560px;right:-160px;top:28%;background:var(--wall-2)}
+.wall .w3{width:760px;height:520px;left:28%;bottom:-300px;background:var(--wall-3)}
+
+/* sticla */
+.glass{position:relative;background:var(--glass);-webkit-backdrop-filter:blur(var(--blur)) saturate(170%);backdrop-filter:blur(var(--blur)) saturate(170%);border:1px solid var(--glass-bd);box-shadow:inset 0 1px 0 var(--glass-hi),0 14px 40px var(--shadow)}
+.glass::before,.vB .panel::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(140deg,var(--edge-a),transparent 32%,transparent 66%,var(--edge-b));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+
+/* ===== aranjarea ===== */
+.app{position:relative;z-index:1;padding:12px 24px 110px 268px}
+.side{position:fixed;left:12px;top:12px;bottom:12px;width:236px;border-radius:var(--r-xl);padding:16px 10px 10px;display:flex;flex-direction:column;gap:2px;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 10px 18px;font:650 15px Inter;letter-spacing:-.01em}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--grad);display:block;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.brand small{display:block;font:500 11.5px Inter;color:var(--ink-3);letter-spacing:0}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);font:500 13.5px Inter}
+.nav svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.nav.on{background:var(--sel);color:var(--ink)}
+.nav.on svg{stroke:var(--amber-t);opacity:1}
+.nav .n{margin-left:auto;font-size:12px;color:var(--ink-3)}
+.side .sep{height:1px;background:var(--line);margin:10px 8px}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r-sm);background:var(--sel)}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:600 11px Inter;background:var(--btn);color:var(--ink-2);flex:none}
+.av.a{background:var(--grad);color:#1a1206}
+.av.s{width:22px;height:22px;font-size:9.5px}
+.me b{font:600 13px Inter;display:block}.me span{font-size:12px;color:var(--ink-3)}
+
+main{max-width:1160px;margin:0 auto}
+.top{position:sticky;top:12px;z-index:5;display:flex;align-items:center;gap:10px;padding:7px 7px 7px 18px;border-radius:999px;margin-bottom:26px}
+.crumb{font:500 13.5px Inter;color:var(--ink-3);white-space:nowrap}
+.crumb b{color:var(--ink);font-weight:600}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;width:300px;padding:8px 14px;border-radius:999px;background:var(--seg);color:var(--ink-3);font-size:13px}
+.search svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.search kbd{margin-left:auto;font:500 11px Inter;padding:1px 6px;border-radius:6px;background:var(--btn);color:var(--ink-3)}
+
+/* elemente comune */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;background:var(--btn);color:var(--ink);font:550 13px Inter;border:0;cursor:pointer;white-space:nowrap}
+.btn.pri{background:var(--amber);color:#1a1206;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 4px 14px rgba(255,181,46,.25)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font:500 12px Inter;white-space:nowrap;background:var(--btn);color:var(--ink-2)}
+.chip.c{background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.amber{--c:var(--amber-t)}.green{--c:var(--green)}.red{--c:var(--red-t)}.blue{--c:var(--blue)}
+.chip .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+.lbl{font:600 12.5px Inter;color:var(--ink-3)}
+.panel{position:relative;background:var(--panel);border-radius:var(--r);border:1px solid var(--line)}
+.vB .panel{-webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);border-color:rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 30px rgba(0,0,0,.25)}
+.vC .panel{border:0}
+.vD .panel{border:0;box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 18px rgba(0,0,0,.04)}
+.panel-h{padding:14px 16px 4px}
+.panel-b{padding:10px 16px 14px}
+.bar{height:6px;background:var(--seg);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grad);border-radius:99px}
+
+/* capul fișei */
+.head{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.big{width:60px;height:60px;border-radius:18px;display:grid;place-items:center;font:650 21px Inter;letter-spacing:-.02em;background:color-mix(in srgb,var(--amber) 16%,transparent);color:var(--amber-t)}
+h1{font:700 30px/1.15 Inter;letter-spacing:-.025em}
+.head .chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.head .acts{margin-left:auto;display:flex;gap:8px}
+
+.grid{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:18px;align-items:start}
+.grid>div{min-width:0}
+.task .meta{white-space:nowrap}
+@media (max-width:1180px){.search{width:auto}.search span{display:none}.seg button{padding:7px 11px}}
+.left{display:flex;flex-direction:column;gap:14px}
+@media (max-width:1180px){.grid{grid-template-columns:270px minmax(0,1fr)}}
+.urm{background:var(--urm);border:1px solid var(--urm-bd)}
+.vB .urm{background:rgba(255,181,46,.10)}
+.urm .lbl{color:var(--amber-t)}
+.urm b{display:block;font:600 15.5px/1.3 Inter;letter-spacing:-.01em;margin:6px 0 3px}
+
+/* rânduri ca în Setări */
+.kv{display:flex;flex-direction:column}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.kv div:last-child{border-bottom:0}
+.kv dt{color:var(--ink-3)}
+.kv dd{text-align:right}
+.kv a{color:var(--amber-t)}
+
+/* stadiile */
+.stages{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:4px 0 8px}
+.stages i{height:6px;border-radius:99px;background:var(--seg)}
+.stages i.done{background:color-mix(in srgb,var(--amber) 45%,transparent)}
+.stages i.now{background:var(--amber)}
+
+/* tab-urile: control segmentat */
+.seg{display:inline-flex;max-width:100%;overflow-x:auto;scrollbar-width:none;gap:2px;padding:3px;border-radius:999px;background:var(--seg);margin-bottom:14px}
+.seg button{white-space:nowrap;flex:none}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:550 13px Inter;padding:7px 15px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.seg button .n{font-size:11.5px;color:var(--ink-3)}
+.seg button.on{background:var(--thumb);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-hi)}
+.vD .seg button.on{box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.pane{display:none}.pane.on{display:block}
+
+/* task-uri */
+.task{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.box{width:20px;height:20px;border-radius:50%;border:1.6px solid var(--ink-3);flex:none;display:grid;place-items:center;font-size:11px;color:#fff}
+.task.done .box{background:var(--green);border-color:var(--green)}
+.task.done .t{color:var(--ink-3);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--ink-3) 60%,transparent)}
+.task .t{flex:1}
+.task .meta{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-3)}
+.task .late{color:var(--red-t)}
+.grp{padding:16px 16px 6px;font:600 12.5px Inter;color:var(--ink-3)}
+
+/* materiale, conturi, livrat */
+.row{display:grid;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:13.5px}
+.row:last-child{border-bottom:0}
+.ico{width:34px;height:34px;border-radius:10px;background:var(--btn);display:grid;place-items:center;font:600 10px Inter;color:var(--ink-2)}
+.row .go{color:var(--amber-t);font-weight:500}
+.warn{margin:6px 16px 14px;padding:11px 14px;border-radius:var(--r-sm);background:color-mix(in srgb,var(--amber) 9%,transparent);color:var(--ink-2);font-size:13px}
+.warn b{color:var(--amber-t)}
+.note{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13.5px}
+.note:last-child{border-bottom:0}
+.note .w{font-size:12px;color:var(--ink-3);margin-bottom:3px}
+.tl{padding:14px 16px 6px 34px;position:relative}
+.tl:before{content:"";position:absolute;left:21px;top:22px;bottom:22px;width:2px;border-radius:2px;background:var(--seg)}
+.ev{position:relative;padding:4px 0 14px;font-size:13.5px}
+.ev:before{content:"";position:absolute;left:-17px;top:8px;width:10px;height:10px;border-radius:50%;background:var(--panel-2);border:2px solid var(--ink-3)}
+.ev.hot:before{border-color:var(--amber);background:var(--amber)}
+.ev .w{font-size:12px;color:var(--ink-3)}
+
+/* comutatorul */
+.sw{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 32px)}
+.sw .bt{display:flex;gap:4px;padding:5px;border-radius:999px}
+.sw button{border:0;background:transparent;color:var(--ink-2);font:600 13px Inter;padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.sw button.on{background:var(--amber);color:#1a1206}
+.sw .d{padding:7px 14px;border-radius:999px;font-size:12.5px;color:var(--ink-2);text-align:center;max-width:760px}
+</style>
+</head>
+<body class="vA">
+
+<div class="wall"><i class="w1"></i><i class="w2"></i><i class="w3"></i></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 13h5l1 3h6l1-3h5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-team" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+</svg>
+
+<aside class="side glass">
+  <div class="brand"><i></i><div>buildwithac<small>CRM</small></div></div>
+  <a class="nav"><svg><use href="#i-chart"/></svg>Dashboard</a>
+  <a class="nav"><svg><use href="#i-inbox"/></svg>Lead-uri<span class="n">14</span></a>
+  <a class="nav on"><svg><use href="#i-users"/></svg>Clienți<span class="n">3</span></a>
+  <a class="nav"><svg><use href="#i-check"/></svg>Task-urile mele<span class="n">5</span></a>
+  <a class="nav"><svg><use href="#i-cal"/></svg>Program</a>
+  <div class="sep"></div>
+  <a class="nav"><svg><use href="#i-team"/></svg>Echipa</a>
+  <div class="me"><div class="av a">AC</div><div><b>Andrei</b><span>Admin</span></div></div>
+</aside>
+
+<div class="app">
+<main>
+  <div class="top glass">
+    <div class="crumb">Clienți &nbsp;›&nbsp; <b>Cafeneaua Colț</b></div>
+    <div class="search"><svg><use href="#i-search"/></svg><span>Caută clienți, lead-uri…</span><kbd>Ctrl K</kbd></div>
+    <button class="btn">+ Notiță</button>
+    <button class="btn pri">+ Task</button>
+  </div>
+
+  <div class="head">
+    <div class="big">CC</div>
+    <div>
+      <h1>Cafeneaua Colț</h1>
+      <div class="chips">
+        <span class="chip c blue">Site de la zero</span>
+        <span class="chip c amber"><span class="d"></span>Construcție</span>
+        <span class="chip">Client din 28 oct</span>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn">+ Proiect nou</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="left">
+      <div class="panel urm">
+        <div class="panel-b" style="padding-top:14px">
+          <div class="lbl">Urmează</div>
+          <b>Pagina de meniu: pozele de la client</b>
+          <div class="muted" style="font-size:13px">Joi, 13 nov · Mihai</div>
+          <div style="margin-top:14px" class="bar"><i style="width:55%"></i></div>
+          <div class="muted num" style="font-size:12.5px;margin-top:7px">6 din 11 task-uri gata</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h lbl">Contact</div>
+        <div class="panel-b">
+          <dl class="kv">
+            <div><dt>Persoană</dt><dd>Ioana Marin</dd></div>
+            <div><dt>Telefon</dt><dd class="num">0722 000 111</dd></div>
+            <div><dt>E-mail</dt><dd>ioana@exemplu.ro</dd></div>
+            <div><dt>WhatsApp</dt><dd><a>Deschide</a></dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h lbl">Proiectul</div>
+        <div class="panel-b">
+          <div class="stages"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i><i></i></div>
+          <div class="muted" style="font-size:12.5px;margin-bottom:6px">Construcție · stadiul 3 din 6</div>
+          <dl class="kv">
+            <div><dt>Preț</dt><dd class="num">2.400 lei</dd></div>
+            <div><dt>Încasat</dt><dd class="num">1.200 lei <span class="chip" style="margin-left:4px;padding:2px 8px">avans</span></dd></div>
+            <div><dt>Predare</dt><dd class="num">28 nov</dd></div>
+            <div><dt>Lucrează</dt><dd>Andrei, Mihai</dd></div>
+            <div><dt>A venit din</dt><dd>Formular site</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="seg" data-tabs>
+        <button class="on" data-t="t1">Task-uri<span class="n">11</span></button>
+        <button data-t="t2">Materiale<span class="n">4</span></button>
+        <button data-t="t3">Conturi<span class="n">4</span></button>
+        <button data-t="t4">Livrat<span class="n">2</span></button>
+        <button data-t="t5">Notițe<span class="n">3</span></button>
+        <button data-t="t6">Parcurs</button>
+      </div>
+
+      <div class="pane panel on" id="t1">
+        <div class="grp">De făcut</div>
+        <div class="task"><div class="box"></div><div class="t">Google Business: legat de site</div><div class="meta late">Andrei · 7 nov · întârziat</div></div>
+        <div class="task"><div class="box"></div><div class="t">Pagina de meniu: pozele de la client</div><div class="meta"><span class="av s">MI</span> 13 nov</div></div>
+        <div class="task"><div class="box"></div><div class="t">Rezervări prin WhatsApp pe pagina de contact</div><div class="meta">Andrei · 17 nov</div></div>
+        <div class="task"><div class="box"></div><div class="t">Pagina „Despre noi”, cu pozele din local</div><div class="meta"><span class="av s">MI</span> 19 nov</div></div>
+        <div class="task"><div class="box"></div><div class="t">Testat pe telefon: iPhone și Android</div><div class="meta">Andrei · 24 nov</div></div>
+        <div class="grp">Gata</div>
+        <div class="task done"><div class="box">✓</div><div class="t">Discuția de pornire și formularul completat</div><div class="meta">Andrei · 28 oct</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Domeniu cumpărat (cafeneauacolt.ro)</div><div class="meta">Andrei · 29 oct</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Logo și culorile primite de la client</div><div class="meta">Andrei · 30 oct</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Schița paginii principale, aprobată de client</div><div class="meta">Andrei · 3 nov</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Textele paginilor scrise</div><div class="meta">Andrei · 4 nov</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Site-ul pus pe Vercel, cu domeniul</div><div class="meta"><span class="av s">MI</span> 6 nov</div></div>
+      </div>
+
+      <div class="pane panel" id="t2">
+        <div class="row" style="grid-template-columns:34px 1fr 130px 80px"><div class="ico">ZIP</div><div>Logo și culori<div class="muted" style="font-size:12.5px">de la client, pe Drive</div></div><div class="muted">Ioana · 29 oct</div><a class="go">Deschide</a></div>
+        <div class="row" style="grid-template-columns:34px 1fr 130px 80px"><div class="ico">IMG</div><div>Poze meniu (24)</div><div class="muted">Ioana · 6 nov</div><a class="go">Deschide</a></div>
+        <div class="row" style="grid-template-columns:34px 1fr 130px 80px"><div class="ico">DOC</div><div>Textele paginilor</div><div class="muted">Andrei · 4 nov</div><a class="go">Deschide</a></div>
+        <div class="row" style="grid-template-columns:34px 1fr 130px 80px"><div class="ico">URL</div><div>Răspunsurile din formular</div><div class="muted">27 oct</div><a class="go">Deschide</a></div>
+      </div>
+
+      <div class="pane panel" id="t3">
+        <div class="row" style="grid-template-columns:1fr 170px 130px 100px"><div class="lbl">Serviciu</div><div class="lbl">Cont</div><div class="lbl">Al cui</div><div class="lbl">Parola</div></div>
+        <div class="row" style="grid-template-columns:1fr 170px 130px 100px"><div>Vercel (site-ul)</div><div class="mono">cafeneaua-colt</div><div><span class="chip c green">al clientului</span></div><div class="muted">la client</div></div>
+        <div class="row" style="grid-template-columns:1fr 170px 130px 100px"><div>Domeniu (ROTLD)</div><div class="mono">cafeneauacolt.ro</div><div><span class="chip c green">al clientului</span></div><div class="muted">la client</div></div>
+        <div class="row" style="grid-template-columns:1fr 170px 130px 100px"><div>GitHub</div><div class="mono">buildwithac/colt</div><div><span class="chip c amber">al meu</span></div><div class="muted">la mine</div></div>
+        <div class="row" style="grid-template-columns:1fr 170px 130px 100px"><div>Google Business</div><div class="mono">acces de editor</div><div><span class="chip c green">al clientului</span></div><div class="muted">—</div></div>
+        <div class="warn"><b>Parolele nu stau în CRM.</b> Aici scrii doar ce cont e, al cui e și unde e parola.</div>
+      </div>
+
+      <div class="pane panel" id="t4">
+        <div class="row" style="grid-template-columns:34px 1fr 90px 100px"><div class="ico">URL</div><div>Schița paginii principale (v2)<div class="muted" style="font-size:12.5px">„E super, mergem așa”</div></div><div class="muted">3 nov</div><span class="chip c green">aprobat</span></div>
+        <div class="row" style="grid-template-columns:34px 1fr 90px 100px"><div class="ico">URL</div><div>Previzualizare site (în lucru)</div><div class="muted">8 nov</div><span class="chip c amber">trimis</span></div>
+      </div>
+
+      <div class="pane panel" id="t5">
+        <div class="note"><div class="w">Andrei · 6 nov</div>Vrea meniul pe categorii, nu o listă lungă. Prețurile le schimbă des: să le poată edita singură.</div>
+        <div class="note"><div class="w">Mihai · 4 nov</div>Pozele vechi sunt mici. Am cerut altele, făcute cu telefonul, la lumina zilei.</div>
+        <div class="note"><div class="w">Andrei · 28 oct</div>Deschide la 7:30. Vrea programul vizibil sus, pe telefon.</div>
+      </div>
+
+      <div class="pane panel" id="t6">
+        <div class="tl">
+          <div class="ev"><div class="w">27 oct · 21:14</div>Lead nou din formularul de pe site</div>
+          <div class="ev"><div class="w">28 oct · 11:02</div>Sunat de Andrei · discuție programată</div>
+          <div class="ev hot"><div class="w">28 oct · 17:40</div>Devenit client · Site de la zero · 2.400 lei</div>
+          <div class="ev"><div class="w">3 nov · 10:15</div>Stadiu: Schiță → Construcție</div>
+          <div class="ev"><div class="w">4 nov · 09:30</div>Mihai adăugat în proiect de Andrei</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<div class="sw">
+  <div class="d glass" id="desc"></div>
+  <div class="bt glass">
+    <button data-v="A">A · Grafit</button>
+    <button data-v="B">B · Sticlă peste tot</button>
+    <button data-v="C">C · Negru Pro</button>
+    <button data-v="D">D · Deschis</button>
+  </div>
+</div>
+
+<script>
+const desc = {
+  A: "Grafit, ca acum, cu colțuri rotunjite. Sticla doar pe ce plutește: bara laterală, bara de sus, comutatorul.",
+  B: "Fundal cald, mai vizibil, și panourile tot din sticlă. Cel mai aproape de macOS Tahoe, dar cel mai încărcat.",
+  C: "Negru adânc, ca iPhone-ul în modul întunecat, cu listele grupate ca în Setări. Sticla doar pe ce plutește.",
+  D: "Ca macOS pe alb. Sticla pe bara laterală și pe bara de sus; auriul din text e mai închis, ca să se citească."
+};
+const butoane = document.querySelectorAll(".sw button");
+function arata(v) {
+  document.body.className = "v" + v;
+  butoane.forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  document.getElementById("desc").textContent = desc[v] + " Derulează: sticla de sus se vede când trece fișa pe sub ea.";
+  history.replaceState(null, "", "#" + v);
+}
+butoane.forEach(b => b.onclick = () => arata(b.dataset.v));
+arata(/^#[ABCD]$/.test(location.hash) ? location.hash[1] : "A");
+
+document.querySelectorAll("[data-tabs] button").forEach(t => t.onclick = () => {
+  document.querySelectorAll("[data-tabs] button").forEach(x => x.classList.toggle("on", x === t));
+  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id === t.dataset.t));
+});
+</script>
+</body>
+</html>
