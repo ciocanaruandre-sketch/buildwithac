@@ -102,3 +102,22 @@ test("constructorul vede textul de așteptare și niciun client", async ({ page 
   await expect(page.getByText("Aici apar clienții la care lucrezi, după ce te pune Andrei pe un proiect.")).toBeVisible();
   await expect(page.getByRole("table")).toHaveCount(0);
 });
+
+test("adminul șterge un lead din fișă, după confirmare; callerul n-are butonul", async ({ page }) => {
+  const l = await leadNou();
+  deSters.push(l.id);
+  await intraCa(page, "caller");
+  await page.goto(`/lead-uri/${l.id}`);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Șterge lead-ul" })).toHaveCount(0);
+
+  await page.context().clearCookies();
+  await intraCa(page, "admin");
+  await page.goto(`/lead-uri/${l.id}`);
+  await page.getByRole("button", { name: "Șterge lead-ul" }).click();
+  await expect(page.getByText("Nu se poate anula.")).toBeVisible();
+  await page.getByRole("button", { name: "Da, șterge-l" }).click();
+  await expect(page).toHaveURL(/\/lead-uri$/);
+  const { data } = await db().from("lead_uri").select("id").eq("id", l.id).maybeSingle();
+  expect(data).toBeNull();
+});

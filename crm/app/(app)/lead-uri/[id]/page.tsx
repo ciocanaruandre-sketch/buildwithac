@@ -4,6 +4,7 @@ import { ButoaneActiuni } from "@/components/ButoaneActiuni";
 import { ButoaneRand } from "@/components/ButoaneRand";
 import { FormularNotita } from "@/components/FormularNotita";
 import { MutaLa } from "@/components/MutaLa";
+import { StergeLead } from "@/components/StergeLead";
 import { TaburiLead } from "@/components/TaburiLead";
 import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
@@ -115,6 +116,8 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
               {kv("Closer", om.rol === "admin" ? <MutaLa id={l.id} camp="closer_id" eticheta="Mută closerul la" actual={l.closer_id} oameni={closerii} /> : nume(l.closer_id))}
             </dl>
           </div>
+
+          {om.rol === "admin" && l.stare !== "client" && <StergeLead id={l.id} />}
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">

@@ -73,3 +73,17 @@ export async function mutaLead(id: string, camp: "caller_id" | "closer_id", la: 
   revalidatePath(`/lead-uri/${id}`);
   return { ok: true };
 }
+
+/** Șterge definitiv un lead, cu cererile, notițele, parcursul și discuțiile lui. Doar Adminul (și RLS verifică la fel). */
+export async function stergeLead(id: string): Promise<Rezultat> {
+  const om = await eu();
+  if (om.rol !== "admin") return { ok: false, mesaj: NEPERMIS };
+  const db = await supabase();
+  const { data: l } = await db.from("lead_uri").select("stare").eq("id", id).maybeSingle();
+  if (!l) return { ok: false, mesaj: "Lead-ul nu mai există." };
+  if (l.stare === "client") return { ok: false, mesaj: "E client: nu se șterge de aici." };
+  const { data: sterse, error } = await db.from("lead_uri").delete().eq("id", id).select("id");
+  if (error || !sterse?.length) return { ok: false, mesaj: "Lead-ul n-a putut fi șters. Încearcă din nou." };
+  revalidatePath("/lead-uri");
+  return { ok: true };
+}
