@@ -96,11 +96,12 @@ test("closerul marchează „Client” → lead-ul apare în Clienți", async ({
   await expect(page).toHaveURL(new RegExp(`/lead-uri/${l.id}$`));
 });
 
-test("constructorul vede textul de așteptare și niciun client", async ({ page }) => {
+test("constructorul vede doar clienții la care lucrează (din seed: Laura Ene), nu și pe ceilalți", async ({ page }) => {
   await intraCa(page, "constructor");
   await page.goto("/clienti");
-  await expect(page.getByText("Aici apar clienții la care lucrezi, după ce te pune Andrei pe un proiect.")).toBeVisible();
-  await expect(page.getByRole("table")).toHaveCount(0);
+  await expect(page.getByRole("row").filter({ hasText: "Laura Ene" })).toHaveCount(1);
+  await expect(page.getByText("Andreea Pop")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Lead-uri" })).toHaveCount(0);
 });
 
 test("adminul șterge un lead din fișă, după confirmare; callerul n-are butonul", async ({ page }) => {

@@ -104,9 +104,9 @@ export function Taskuri({ proiectId, taskuri, oameni }: { proiectId: string; tas
                 </button>
               </li>
             ) : (
-              <li key={t.id} className="flex items-center gap-3 border-b border-line py-2 text-[13px] last:border-0">
+              <li key={t.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2 text-[13px] last:border-0">
                 <BifaTask key={`${t.id}|${t.gata}`} id={t.id} titlu={t.titlu} gata={t.gata} />
-                <span className={`min-w-0 flex-1 ${t.gata ? "text-ink-3 line-through" : ""}`}>{t.titlu}</span>
+                <span className={`min-w-[160px] flex-1 ${t.gata ? "text-ink-3 line-through" : ""}`}>{t.titlu}</span>
                 <span className={`flex-none font-mono text-[11px] ${t.intarziat ? "text-[#ff7a66]" : "text-ink-3"}`}>
                   {[t.cine, t.cand, t.intarziat ? "întârziat" : ""].filter(Boolean).join(" · ")}
                 </span>

@@ -41,8 +41,8 @@ export function Livrari({ proiectId, livrari }: { proiectId: string; livrari: Li
       ) : (
         <ul className="flex flex-col">
           {livrari.map((l) => (
-            <li key={l.id} className="flex items-center gap-3 border-b border-line py-2.5 text-[13px] last:border-0">
-              <div className="min-w-0 flex-1">
+            <li key={l.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2.5 text-[13px] last:border-0">
+              <div className="min-w-[160px] flex-1">
                 {l.link ? (
                   <a href={l.link} target="_blank" rel="noreferrer" className="font-medium hover:text-amber">
                     {l.titlu}

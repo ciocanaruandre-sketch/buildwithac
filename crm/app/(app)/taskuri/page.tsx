@@ -41,9 +41,9 @@ export default async function TaskurileMele() {
               </h2>
               <ul className="flex flex-col">
                 {grupa.taskuri.map((t) => (
-                  <li key={t.id} className="flex items-center gap-3 border-b border-line py-2 text-[13px] last:border-0">
+                  <li key={t.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2 text-[13px] last:border-0">
                     <BifaTask id={t.id} titlu={t.titlu} gata={false} />
-                    <span className="min-w-0 flex-1">{t.titlu}</span>
+                    <span className="min-w-[160px] flex-1">{t.titlu}</span>
                     {t.termen && <span className={`flex-none font-mono text-[11px] ${grupa.rosu ? "text-[#ff7a66]" : "text-ink-3"}`}>{termenScurt(t.termen)}</span>}
                     <Link href={{ pathname: `/clienti/${t.proiecte.client_id}`, query: { proiect: t.proiect_id } }} className="flex-none text-[12px] text-ink-2 hover:text-amber">
                       {t.proiecte.clienti.nume} · {t.proiecte.titlu}
