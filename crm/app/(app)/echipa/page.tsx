@@ -15,11 +15,15 @@ export default async function Echipa() {
   const aIntrat = new Set((conturi?.users ?? []).filter((u) => u.last_sign_in_at).map((u) => u.id));
   const deschise = await Promise.all(
     (oameni ?? []).map(async (o) => {
-      const { count } = await db.from("lead_uri").select("id", { count: "exact", head: true }).or(`caller_id.eq.${o.id},closer_id.eq.${o.id}`).not("stare", "in", INCHISE);
+      // constructorul n-are lead-uri: la el se numără task-urile neterminate
+      const { count } =
+        o.rol === "constructor"
+          ? await db.from("taskuri").select("id", { count: "exact", head: true }).eq("om_id", o.id).eq("gata", false)
+          : await db.from("lead_uri").select("id", { count: "exact", head: true }).or(`caller_id.eq.${o.id},closer_id.eq.${o.id}`).not("stare", "in", INCHISE);
       return count ?? 0;
     }),
   );
-  const activi = (oameni ?? []).filter((o) => o.activ && o.rol !== "constructor");
+  const activi = (oameni ?? []).filter((o) => o.activ);
 
   return (
     <>
@@ -36,7 +40,7 @@ export default async function Echipa() {
         <table className="w-full min-w-[900px] border-collapse text-[13px]">
           <thead>
             <tr className="border-b border-line text-left">
-              {["Nume", "Stare", "Lead-uri deschise", "Rol și cont"].map((t) => (
+              {["Nume", "Stare", "Lead-uri / task-uri deschise", "Rol și cont"].map((t) => (
                 <th key={t} className="lbl px-3.5 py-2.5 font-semibold">{t}</th>
               ))}
             </tr>

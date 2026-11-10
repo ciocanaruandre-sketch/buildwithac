@@ -1,5 +1,5 @@
 import { cand, candLung } from "@/lib/afisare";
-import { ETICHETE, type Stare, type Sursa } from "@/lib/tipuri";
+import { ETICHETE, type Stadiu, type Stare, type StareLivrare, type Sursa } from "@/lib/tipuri";
 
 export type Eveniment = { tip: string; detalii: Record<string, unknown>; la: string; autor_id: string | null };
 
@@ -25,6 +25,31 @@ export function descrieEveniment(e: Eveniment, nume: (id: unknown) => string): s
       return `Redeschis: a revenit cu o cerere nouă · ${ETICHETE.sursa[d.sursa as Sursa] ?? ""}`;
     case "programat":
       return `Discuție programată cu ${nume(d.closer)}: ${candLung(String(d.la))}`;
+    default:
+      return e.tip;
+  }
+}
+
+/** Un eveniment din parcursul unui proiect (tabelul evenimente_proiect), ca o frază scurtă. */
+export function descrieEvenimentProiect(e: Eveniment, nume: (id: unknown) => string): string {
+  const d = e.detalii;
+  switch (e.tip) {
+    case "proiect_creat":
+      return `Proiect nou: ${String(d.titlu ?? "")}`;
+    case "stadiu":
+      return `Stadiu: ${ETICHETE.stadiu[d.de as Stadiu]} → ${ETICHETE.stadiu[d.in as Stadiu]}`;
+    case "om_adaugat":
+      return `${nume(d.om)} adăugat în proiect`;
+    case "om_scos":
+      return `${nume(d.om)} scos din proiect`;
+    case "inchis":
+      return "Proiect închis";
+    case "redeschis":
+      return "Proiect redeschis";
+    case "livrat":
+      return `Trimis clientului: ${String(d.titlu ?? "")}`;
+    case "livrare_stare":
+      return `${String(d.titlu ?? "")}: ${ETICHETE.livrare[d.in as StareLivrare] ?? ""}`;
     default:
       return e.tip;
   }

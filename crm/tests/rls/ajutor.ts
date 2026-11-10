@@ -41,6 +41,39 @@ export async function leadDeTest(camp: Partial<Database["public"]["Tables"]["lea
   return data;
 }
 
+/** Șterge lead-ul și, dacă a ajuns client, clientul făcut din el (altfel rămâne orfan, cu lead_id null). */
 export async function sterge(id: string) {
+  await admin().from("clienti").delete().eq("lead_id", id);
   await admin().from("lead_uri").delete().eq("id", id);
+}
+
+/** Un lead trecut în „client” (trigger-ul face clientul și primul proiect). */
+export async function clientDeTest(camp: Partial<Database["public"]["Tables"]["lead_uri"]["Insert"]> = {}) {
+  const lead = await leadDeTest({ stare: "programat", ...camp });
+  const s = await admin().from("lead_uri").update({ stare: "client" }).eq("id", lead.id);
+  if (s.error) throw s.error;
+  const c = await admin().from("clienti").select("id").eq("lead_id", lead.id).single();
+  if (c.error) throw c.error;
+  const p = await admin().from("proiecte").select("id").eq("client_id", c.data.id).single();
+  if (p.error) throw p.error;
+  return { lead, clientId: c.data.id, proiectId: p.data.id };
+}
+
+/** Același lucru, cu numele pe care îl caută testele de clienți. */
+export const stergeClient = sterge;
+
+const temporari: string[] = [];
+/** Un cont temporar (fără parolă), ca testele să nu atingă datele conturilor din seed. */
+export async function omTemporar(rol: "caller" | "closer" | "constructor", activ = true): Promise<string> {
+  const email = `temp${Date.now()}${temporari.length}@test.buildwithac.ro`;
+  const { data, error } = await admin().auth.admin.createUser({ email, email_confirm: true });
+  if (error) throw error;
+  temporari.push(data.user.id);
+  const p = await admin().from("profiluri").insert({ id: data.user.id, nume: `Temp ${rol}`, email, rol, activ });
+  if (p.error) throw p.error;
+  return data.user.id;
+}
+
+export async function stergeTemporari() {
+  for (const id of temporari.splice(0)) await admin().auth.admin.deleteUser(id);
 }

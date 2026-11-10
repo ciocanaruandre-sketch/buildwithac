@@ -1,12 +1,12 @@
 // Problemele găsite la verificarea finală a ramurii: fiecare test le reproduce.
 import { afterAll, describe, expect, it } from "vitest";
 import { primesteCerere } from "@/lib/intrare";
-import { admin, conecteazaCa, idDe, leadDeTest } from "./ajutor";
+import { admin, conecteazaCa, idDe, leadDeTest, sterge } from "./ajutor";
 
 const lead_uri: string[] = [];
 const oameni: string[] = [];
 afterAll(async () => {
-  for (const id of lead_uri) await admin().from("lead_uri").delete().eq("id", id);
+  for (const id of lead_uri) await sterge(id);
   for (const id of oameni) await admin().auth.admin.deleteUser(id);
 });
 

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ETICHETE, ROLURI, SERVICII, STARI, SURSE, SURSE_MANUALE } from "@/lib/tipuri";
+import { AL_CUI, ETICHETE, ROLURI, SERVICII, STADII, STARI, STARI_LIVRARE, SURSE, SURSE_MANUALE, UNDE_PAROLA } from "@/lib/tipuri";
 
 describe("tipuri", () => {
   const grupuri = [
@@ -9,6 +9,10 @@ describe("tipuri", () => {
     ["sursa", SURSE],
     ["serviciu", SERVICII],
     ["rol", ROLURI],
+    ["stadiu", STADII],
+    ["livrare", STARI_LIVRARE],
+    ["alCui", AL_CUI],
+    ["undeParola", UNDE_PAROLA],
   ] as const;
 
   it.each(grupuri)("fiecare %s are etichetă nevidă, cu ș/ț cu virgulă", (grup, chei) => {
@@ -26,6 +30,11 @@ describe("tipuri", () => {
     const chei = [...bloc.matchAll(/cheie: "([^"]+)"/g)].map((m) => m[1]);
     expect(chei.length).toBeGreaterThan(0);
     expect([...SERVICII]).toEqual(chei);
+  });
+
+  it("stadiile au exact etichetele din listă, în ordinea din design", () => {
+    expect(Object.keys(ETICHETE.stadiu)).toEqual([...STADII]);
+    expect(STADII.map((s) => ETICHETE.stadiu[s])).toEqual(["Discuție", "Schiță", "Construcție", "Revizii", "Livrat", "Mentenanță"]);
   });
 
   it("sursele manuale: reclamele și cele 5 din spec", () => {

@@ -1,23 +1,12 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { admin, conecteazaCa, idDe, leadDeTest } from "./ajutor";
+import { admin, conecteazaCa, idDe, leadDeTest, omTemporar, stergeTemporari, sterge } from "./ajutor";
 
 // conturi temporare: nu atingem lead-urile conturilor din seed
-const oameni: string[] = [];
 const lead_uri: string[] = [];
 afterAll(async () => {
-  for (const id of lead_uri) await admin().from("lead_uri").delete().eq("id", id);
-  for (const id of oameni) await admin().auth.admin.deleteUser(id);
+  for (const id of lead_uri) await sterge(id);
+  await stergeTemporari();
 });
-
-async function omTemporar(rol: "caller" | "closer", activ = true) {
-  const email = `temp${Date.now()}${oameni.length}@test.buildwithac.ro`;
-  const { data, error } = await admin().auth.admin.createUser({ email, email_confirm: true });
-  if (error) throw error;
-  oameni.push(data.user.id);
-  const p = await admin().from("profiluri").insert({ id: data.user.id, nume: `Temp ${rol}`, email, rol, activ });
-  if (p.error) throw p.error;
-  return data.user.id;
-}
 
 describe("echipa", () => {
   it("callerul nu poate schimba profilurile (0 rânduri)", async () => {

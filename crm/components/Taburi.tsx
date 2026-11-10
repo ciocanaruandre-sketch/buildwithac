@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-/** Tab-urile din dreapta fișei. Conținutul vine gata randat de pe server. */
-export function TaburiLead({ taburi }: { taburi: { cheie: string; eticheta: string; numar?: number; continut: React.ReactNode }[] }) {
+/** Tab-urile din dreapta unei fișe (lead sau client). Conținutul vine gata randat de pe server. */
+export function Taburi({ taburi }: { taburi: { cheie: string; eticheta: string; numar?: number; continut: React.ReactNode }[] }) {
   const [activ, setActiv] = useState(taburi[0]?.cheie);
   return (
     <div className="panel">

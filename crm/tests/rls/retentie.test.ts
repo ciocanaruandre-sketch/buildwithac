@@ -1,11 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { GET as zilnic } from "@/app/api/cron/zilnic/route";
 import { copieSaptamanala, stergeVechi } from "@/lib/retentie";
-import { admin, leadDeTest } from "./ajutor";
+import { admin, clientDeTest, idDe, leadDeTest, sterge } from "./ajutor";
 
 const lead_uri: string[] = [];
 afterAll(async () => {
-  for (const id of lead_uri) await admin().from("lead_uri").delete().eq("id", id);
+  for (const id of lead_uri) await sterge(id);
 });
 
 const ziInUrma = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();
@@ -53,10 +53,40 @@ describe("copieSaptamanala", () => {
     expect(corp?.subject).toMatch(/^Copia CRM-ului, \d{4}-\d{2}-\d{2}$/);
     expect(corp?.attachments[0].filename).toMatch(/^crm-\d{4}-\d{2}-\d{2}\.json$/);
     const json = JSON.parse(Buffer.from(corp!.attachments[0].content, "base64").toString("utf8"));
-    expect(Object.keys(json.tabele).sort()).toEqual(["cereri", "clienti", "discutii", "evenimente", "lead_uri", "notite", "profiluri", "program_closer"]);
+    expect(Object.keys(json.tabele).sort()).toEqual([
+      "cereri", "clienti", "conturi", "discutii", "evenimente", "evenimente_proiect", "lead_uri", "livrari",
+      "materiale", "notite", "notite_proiect", "profiluri", "program_closer", "proiect_oameni", "proiecte", "taskuri",
+    ]);
     expect(json.tabele.lead_uri.map((x: { id: string }) => x.id)).toContain(l.id);
     expect(corp?.html).toContain(`/lead-uri/${expira.id}`);
     expect(corp?.html).not.toContain(`/lead-uri/${l.id}`);
+  });
+
+  it("clientul cu toate proiectele închise de peste un an apare în e-mail, cu link la fișa lui; cel cu un proiect deschis, nu", async () => {
+    const vechi = await clientDeTest();
+    const activ = await clientDeTest();
+    lead_uri.push(vechi.lead.id, activ.lead.id);
+    await admin().from("proiecte").update({ inchis_la: ziInUrma(400) }).eq("id", vechi.proiectId);
+    await admin().from("proiect_oameni").insert({ proiect_id: activ.proiectId, om_id: await idDe("constructor") });
+
+    const cheie = process.env.RESEND_API_KEY;
+    process.env.RESEND_API_KEY = "re_test";
+    let corp: { html: string; attachments: { content: string }[] } | undefined;
+    const f = (async (_url: string, init: RequestInit) => {
+      corp = JSON.parse(init.body as string);
+      return new Response("{}", { status: 200 });
+    }) as typeof fetch;
+    try {
+      expect(await copieSaptamanala(admin(), f)).toBe(true);
+    } finally {
+      if (cheie === undefined) delete process.env.RESEND_API_KEY;
+      else process.env.RESEND_API_KEY = cheie;
+    }
+    expect(corp?.html).toContain(`/clienti/${vechi.clientId}`);
+    expect(corp?.html).not.toContain(`/clienti/${activ.clientId}`);
+    // proiect_oameni n-are coloana „id”: copia trebuie să-l citească oricum
+    const json = JSON.parse(Buffer.from(corp!.attachments[0].content, "base64").toString("utf8"));
+    expect(json.tabele.proiect_oameni.some((r: { proiect_id: string }) => r.proiect_id === activ.proiectId)).toBe(true);
   });
 });
 

@@ -138,6 +138,54 @@ export type Database = {
           },
         ]
       }
+      conturi: {
+        Row: {
+          adaugat_de: string | null
+          adaugat_la: string
+          al_cui: Database["public"]["Enums"]["al_cui"]
+          cont: string
+          id: string
+          proiect_id: string
+          serviciu: string
+          unde_parola: Database["public"]["Enums"]["unde_parola"]
+        }
+        Insert: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          al_cui: Database["public"]["Enums"]["al_cui"]
+          cont: string
+          id?: string
+          proiect_id: string
+          serviciu: string
+          unde_parola?: Database["public"]["Enums"]["unde_parola"]
+        }
+        Update: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          al_cui?: Database["public"]["Enums"]["al_cui"]
+          cont?: string
+          id?: string
+          proiect_id?: string
+          serviciu?: string
+          unde_parola?: Database["public"]["Enums"]["unde_parola"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conturi_adaugat_de_fkey"
+            columns: ["adaugat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conturi_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discutii: {
         Row: {
           closer_id: string
@@ -232,6 +280,48 @@ export type Database = {
           },
         ]
       }
+      evenimente_proiect: {
+        Row: {
+          autor_id: string | null
+          detalii: Json
+          id: number
+          la: string
+          proiect_id: string
+          tip: string
+        }
+        Insert: {
+          autor_id?: string | null
+          detalii?: Json
+          id?: never
+          la?: string
+          proiect_id: string
+          tip: string
+        }
+        Update: {
+          autor_id?: string | null
+          detalii?: Json
+          id?: never
+          la?: string
+          proiect_id?: string
+          tip?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evenimente_proiect_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evenimente_proiect_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_uri: {
         Row: {
           callback_la: string | null
@@ -314,6 +404,105 @@ export type Database = {
           },
         ]
       }
+      livrari: {
+        Row: {
+          adaugat_de: string | null
+          adaugat_la: string
+          id: string
+          link: string | null
+          nota: string | null
+          proiect_id: string
+          stare: Database["public"]["Enums"]["stare_livrare"]
+          titlu: string
+        }
+        Insert: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          id?: string
+          link?: string | null
+          nota?: string | null
+          proiect_id: string
+          stare?: Database["public"]["Enums"]["stare_livrare"]
+          titlu: string
+        }
+        Update: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          id?: string
+          link?: string | null
+          nota?: string | null
+          proiect_id?: string
+          stare?: Database["public"]["Enums"]["stare_livrare"]
+          titlu?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "livrari_adaugat_de_fkey"
+            columns: ["adaugat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "livrari_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materiale: {
+        Row: {
+          adaugat_de: string | null
+          adaugat_la: string
+          cale: string | null
+          id: string
+          marime: number | null
+          nota: string | null
+          proiect_id: string
+          titlu: string
+          url: string | null
+        }
+        Insert: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          cale?: string | null
+          id?: string
+          marime?: number | null
+          nota?: string | null
+          proiect_id: string
+          titlu: string
+          url?: string | null
+        }
+        Update: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          cale?: string | null
+          id?: string
+          marime?: number | null
+          nota?: string | null
+          proiect_id?: string
+          titlu?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiale_adaugat_de_fkey"
+            columns: ["adaugat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiale_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notite: {
         Row: {
           autor_id: string | null
@@ -352,6 +541,45 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "lead_uri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notite_proiect: {
+        Row: {
+          autor_id: string | null
+          id: string
+          la: string
+          proiect_id: string
+          text: string
+        }
+        Insert: {
+          autor_id?: string | null
+          id?: string
+          la?: string
+          proiect_id: string
+          text: string
+        }
+        Update: {
+          autor_id?: string | null
+          id?: string
+          la?: string
+          proiect_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notite_proiect_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notite_proiect_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
             referencedColumns: ["id"]
           },
         ]
@@ -418,25 +646,200 @@ export type Database = {
           },
         ]
       }
+      proiect_oameni: {
+        Row: {
+          adaugat_la: string
+          om_id: string
+          procent: number | null
+          proiect_id: string
+        }
+        Insert: {
+          adaugat_la?: string
+          om_id: string
+          procent?: number | null
+          proiect_id: string
+        }
+        Update: {
+          adaugat_la?: string
+          om_id?: string
+          procent?: number | null
+          proiect_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proiect_oameni_om_id_fkey"
+            columns: ["om_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proiect_oameni_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proiecte: {
+        Row: {
+          client_id: string
+          creat_de: string | null
+          creat_la: string
+          id: string
+          incasat_lei: number
+          inchis_la: string | null
+          pret_lei: number | null
+          serviciu: Database["public"]["Enums"]["serviciu"]
+          stadiu: Database["public"]["Enums"]["stadiu"]
+          termen: string | null
+          titlu: string
+        }
+        Insert: {
+          client_id: string
+          creat_de?: string | null
+          creat_la?: string
+          id?: string
+          incasat_lei?: number
+          inchis_la?: string | null
+          pret_lei?: number | null
+          serviciu: Database["public"]["Enums"]["serviciu"]
+          stadiu?: Database["public"]["Enums"]["stadiu"]
+          termen?: string | null
+          titlu: string
+        }
+        Update: {
+          client_id?: string
+          creat_de?: string | null
+          creat_la?: string
+          id?: string
+          incasat_lei?: number
+          inchis_la?: string | null
+          pret_lei?: number | null
+          serviciu?: Database["public"]["Enums"]["serviciu"]
+          stadiu?: Database["public"]["Enums"]["stadiu"]
+          termen?: string | null
+          titlu?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proiecte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proiecte_creat_de_fkey"
+            columns: ["creat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      taskuri: {
+        Row: {
+          creat_de: string | null
+          creat_la: string
+          gata: boolean
+          gata_la: string | null
+          id: string
+          om_id: string | null
+          proiect_id: string
+          termen: string | null
+          titlu: string
+        }
+        Insert: {
+          creat_de?: string | null
+          creat_la?: string
+          gata?: boolean
+          gata_la?: string | null
+          id?: string
+          om_id?: string | null
+          proiect_id: string
+          termen?: string | null
+          titlu: string
+        }
+        Update: {
+          creat_de?: string | null
+          creat_la?: string
+          gata?: boolean
+          gata_la?: string | null
+          id?: string
+          om_id?: string | null
+          proiect_id?: string
+          termen?: string | null
+          titlu?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taskuri_creat_de_fkey"
+            columns: ["creat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "taskuri_om_id_fkey"
+            columns: ["om_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "taskuri_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      cale_fisier_valida: { Args: { cale: string }; Returns: boolean }
+      e_coleg: { Args: { alt: string }; Returns: boolean }
+      lucreaza_la: { Args: { p: string }; Returns: boolean }
       muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
+      muta_taskuri: { Args: { de: string; la: string }; Returns: number }
+      oameni_proiect: {
+        Args: { p: string }
+        Returns: {
+          om_id: string
+        }[]
+      }
       programeaza_discutie: {
         Args: { p_closer: string; p_incepe: string; p_lead: string }
         Returns: undefined
       }
+      proiect_din_cale: { Args: { cale: string }; Returns: string }
       rol_curent: { Args: never; Returns: Database["public"]["Enums"]["rol"] }
       salveaza_program: {
         Args: { p_closer: string; p_durata: number; p_zile: Json }
         Returns: undefined
       }
+      sterge_client: { Args: { c: string }; Returns: boolean }
+      titlu_implicit: {
+        Args: { s: Database["public"]["Enums"]["serviciu"] }
+        Returns: string
+      }
     }
     Enums: {
+      al_cui: "client" | "firma"
       rol: "admin" | "caller" | "closer" | "constructor"
       serviciu: "site" | "automatizari" | "1la1" | "altceva"
+      stadiu:
+        | "discutie"
+        | "schita"
+        | "constructie"
+        | "revizii"
+        | "livrat"
+        | "mentenanta"
       stare:
         | "nou"
         | "fara_raspuns"
@@ -447,6 +850,7 @@ export type Database = {
         | "client"
         | "pierdut"
         | "descalificat"
+      stare_livrare: "trimis" | "aprobat" | "de_refacut"
       sursa:
         | "formular_site"
         | "reclama_meta"
@@ -456,6 +860,7 @@ export type Database = {
         | "dm_instagram"
         | "dm_tiktok"
         | "altceva"
+      unde_parola: "la_client" | "la_firma" | "manager_parole" | "nu_e_cazul"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -586,8 +991,17 @@ export const Constants = {
   },
   public: {
     Enums: {
+      al_cui: ["client", "firma"],
       rol: ["admin", "caller", "closer", "constructor"],
       serviciu: ["site", "automatizari", "1la1", "altceva"],
+      stadiu: [
+        "discutie",
+        "schita",
+        "constructie",
+        "revizii",
+        "livrat",
+        "mentenanta",
+      ],
       stare: [
         "nou",
         "fara_raspuns",
@@ -599,6 +1013,7 @@ export const Constants = {
         "pierdut",
         "descalificat",
       ],
+      stare_livrare: ["trimis", "aprobat", "de_refacut"],
       sursa: [
         "formular_site",
         "reclama_meta",
@@ -609,6 +1024,7 @@ export const Constants = {
         "dm_tiktok",
         "altceva",
       ],
+      unde_parola: ["la_client", "la_firma", "manager_parole", "nu_e_cazul"],
     },
   },
 } as const
