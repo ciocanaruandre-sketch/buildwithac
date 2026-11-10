@@ -12,6 +12,7 @@ import { Taskuri } from "@/components/fisa/Taskuri";
 import { Taburi } from "@/components/Taburi";
 import { cand, termenLung, termenScurt, ziScurta } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
+import { desfaCalea, etichetaFisier, marimeCitibila } from "@/lib/fisiere";
 import { descrieEveniment, descrieEvenimentProiect, type Eveniment } from "@/lib/parcurs";
 import { comision, lei, ordoneazaTaskuri, progres, textIntarziere, urmatorulTask, zileIntarziere } from "@/lib/proiecte";
 import { supabase } from "@/lib/supabase/server";
@@ -104,11 +105,13 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
     id: m.id,
     titlu: m.titlu,
     nota: m.nota,
-    eticheta: "URL",
-    href: m.url ?? "#",
+    eticheta: m.cale ? etichetaFisier(desfaCalea(m.cale)?.nume ?? "") : "URL",
+    // fișierul se descarcă prin ruta noastră (link semnat de 60 s); link-ul se deschide direct
+    href: m.cale ? `/materiale/${m.id}` : m.url ?? "#",
+    eFisier: Boolean(m.cale),
     cine: m.adaugat_de ? nume(m.adaugat_de) : "cineva",
     cand: ziScurta(m.adaugat_la),
-    marime: null,
+    marime: m.cale && m.marime !== null ? marimeCitibila(m.marime) : null,
   }));
 
   const parcurs = [

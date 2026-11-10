@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eu } from "@/lib/eu";
 import { mesajDinBaza } from "@/lib/erori";
+import { BUCKET, MARIME_MAXIMA, desfaCalea, numeCurat } from "@/lib/fisiere";
 import { supabase } from "@/lib/supabase/server";
 import { AL_CUI, STARI_LIVRARE, UNDE_PAROLA, type AlCui, type StareLivrare, type UndeParola } from "@/lib/tipuri";
 
@@ -123,6 +124,58 @@ export async function adaugaLink(proiectId: string, d: { titlu: string; url: str
   return { ok: true };
 }
 
+const PREA_MARE = "Fișierul are peste 25 MB. Pune-l pe Drive și adaugă link-ul.";
+const N_A_AJUNS = "Fișierul n-a ajuns. Încearcă din nou.";
+
+/**
+ * Pasul 1 al încărcării: verifică mărimea și face un link semnat de urcare, cu sesiunea omului
+ * (regula din Storage hotărăște dacă are voie). Fișierul urcă apoi direct din browser în Supabase.
+ */
+export async function pregatesteIncarcare(proiectId: string, nume: string, marime: number): Promise<{ ok: true; cale: string; token: string } | { ok: false; mesaj: string }> {
+  await eu();
+  if (!UUID.test(proiectId)) return { ok: false, mesaj: NEPERMIS };
+  if (!Number.isInteger(marime) || marime <= 0) return { ok: false, mesaj: "Fișierul e gol." };
+  if (marime > MARIME_MAXIMA) return { ok: false, mesaj: PREA_MARE };
+  const cale = `${proiectId}/${crypto.randomUUID()}/${numeCurat(nume)}`;
+  const db = await supabase();
+  const { data, error } = await db.storage.from(BUCKET).createSignedUploadUrl(cale);
+  if (error || !data) return { ok: false, mesaj: NEPERMIS };
+  return { ok: true, cale, token: data.token };
+}
+
+/** Pasul 3: fișierul e în bucket; îl trecem la Materiale. Dacă rândul nu se poate scrie, fișierul se șterge. */
+export async function confirmaFisier(proiectId: string, d: { titlu: string; cale: string; nota: string }): Promise<Rezultat> {
+  await eu();
+  const cale = desfaCalea(d.cale);
+  if (!UUID.test(proiectId) || !cale || cale.proiectId !== proiectId) return { ok: false, mesaj: NEPERMIS };
+  const db = await supabase();
+  // mărimea o luăm din bucket, nu din ce spune browserul
+  const { data: fisiere } = await db.storage.from(BUCKET).list(cale.dosar);
+  const fisier = fisiere?.find((f) => f.name === cale.nume);
+  if (!fisier) return { ok: false, mesaj: N_A_AJUNS };
+  const marime = typeof fisier.metadata?.size === "number" ? fisier.metadata.size : null;
+
+  const titlu = d.titlu.trim().slice(0, 200) || cale.nume;
+  const nota = d.nota.trim().slice(0, 500) || null;
+  const { error } = await db.from("materiale").insert({ proiect_id: proiectId, titlu, cale: d.cale, marime, nota });
+  if (error) {
+    await db.storage.from(BUCKET).remove([d.cale]);
+    return { ok: false, mesaj: mesajDinBaza(error, N_A_AJUNS) };
+  }
+  improspateaza();
+  return { ok: true };
+}
+
+/** Șterge materialul; dacă e un fișier, întâi fișierul din bucket (ca să nu rămână orfan). */
 export async function stergeMaterial(id: string): Promise<Rezultat> {
+  await eu();
+  if (!UUID.test(id)) return { ok: false, mesaj: NEPERMIS };
+  const db = await supabase();
+  const { data: m } = await db.from("materiale").select("cale").eq("id", id).maybeSingle();
+  if (!m) return { ok: false, mesaj: NEPERMIS };
+  if (m.cale) {
+    const { error } = await db.storage.from(BUCKET).remove([m.cale]);
+    if (error) return { ok: false, mesaj: "Fișierul n-a putut fi șters. Încearcă din nou." };
+  }
   return sterge("materiale", id);
 }
