@@ -13,7 +13,7 @@ export default async function LeadNou() {
       <p className="mb-4 text-[13px] text-ink-2">
         {om.rol === "admin" ? "Pentru oamenii care n-au trecut prin formulare." : "Pentru oamenii care n-au trecut prin formulare. Lead-ul devine al tău."}
       </p>
-      <FormularLead admin={om.rol === "admin"} productie={process.env.CRM_MEDIU === "productie"} />
+      <FormularLead admin={om.rol === "admin"} />
     </>
   );
 }

@@ -22,7 +22,10 @@ test("callerul adaugă un lead „Cold calling” și ajunge pe fișa lui", asyn
   await page.getByLabel("Telefon").fill(tel.scris);
   await page.getByLabel("Serviciu").selectOption({ label: "Site" });
   await page.getByLabel("Sursă").selectOption({ label: "Cold calling" });
-  await page.getByLabel("Notiță").fill("Sunat de pe Google Maps, vrea ofertă.");
+  await page.getByLabel("Notiță").fill("Vrea ofertă, revin joi.");
+  await page.getByRole("button", { name: "Adaugă lead-ul" }).click();
+  await expect(page.getByText("Scrie de unde ai numărul.")).toBeVisible();
+  await page.getByLabel("De unde ai numărul").fill("Google Maps");
   await page.getByRole("button", { name: "Adaugă lead-ul" }).click();
 
   await expect(page).toHaveURL(/\/lead-uri\/[0-9a-f-]{36}$/);
@@ -34,7 +37,8 @@ test("callerul adaugă un lead „Cold calling” și ajunge pe fișa lui", asyn
   expect(data).toEqual({ caller_id: caller, creat_de: caller, telefon_norm: tel.norm, sursa: "cold_calling" });
   await expect(page.getByTestId("parcurs").getByText("A intrat în CRM · Cold calling")).toBeVisible();
   await page.getByRole("tab", { name: "Notițe" }).click();
-  await expect(page.getByTestId("notite").getByText("Sunat de pe Google Maps, vrea ofertă.")).toBeVisible();
+  await expect(page.getByTestId("notite").getByText("Vrea ofertă, revin joi.")).toBeVisible();
+  await expect(page.getByTestId("notite").getByText("Numărul e de pe: Google Maps")).toBeVisible();
 });
 
 test("același telefon încă o dată → „Omul ăsta e deja în CRM.”, cu link la fișă", async ({ page }) => {

@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase/server";
 import { normalizeazaEmail, normalizeazaTelefon } from "@/lib/telefon";
 import { SERVICII, SURSE_MANUALE, type Serviciu, type Sursa } from "@/lib/tipuri";
 
-export type LeadDeMana = { nume: string; telefon?: string; email?: string; serviciu: Serviciu | ""; sursa: Sursa | ""; nota?: string; liber?: boolean };
+export type LeadDeMana = { nume: string; telefon?: string; email?: string; serviciu: Serviciu | ""; sursa: Sursa | ""; sursaNumar?: string; nota?: string; liber?: boolean };
 export type RezultatLead = { ok: true; id: string } | { ok: false; mesaj: string; idExistent?: string };
 
 const UNIC = "23505";
@@ -34,6 +34,9 @@ export async function adaugaLead(d: LeadDeMana): Promise<RezultatLead> {
   if (!serviciu.success) return { ok: false, mesaj: "Alege serviciul." };
   const sursa = z.enum(SURSE_MANUALE as [Sursa, ...Sursa[]]).safeParse(d.sursa);
   if (!sursa.success) return { ok: false, mesaj: "Alege sursa." };
+  // la cold calling omul n-a cerut nimic: trebuie să pot spune oricând de unde am numărul
+  const sursaNumar = d.sursaNumar?.trim() ?? "";
+  if (sursa.data === "cold_calling" && !sursaNumar) return { ok: false, mesaj: "Scrie de unde ai numărul." };
 
   const db = await supabase();
   const { data, error } = await db
@@ -62,8 +65,8 @@ export async function adaugaLead(d: LeadDeMana): Promise<RezultatLead> {
   }
   if (error || !data) return { ok: false, mesaj: "Lead-ul n-a putut fi salvat. Încearcă din nou." };
 
-  const nota = d.nota?.trim();
-  if (nota) await db.from("notite").insert({ lead_id: data.id, autor_id: om.id, text: nota.slice(0, 5000) });
+  const notite = [sursa.data === "cold_calling" ? `Numărul e de pe: ${sursaNumar.slice(0, 300)}` : "", d.nota?.trim().slice(0, 5000) ?? ""].filter(Boolean);
+  for (const text of notite) await db.from("notite").insert({ lead_id: data.id, autor_id: om.id, text });
 
   // Andrei e anunțat când adaugă altcineva; când adaugă el, știe deja
   if (om.rol !== "admin") await trimiteNotificare({ id: data.id, nume, telefon, serviciu: serviciu.data, sursa: sursa.data }, "lead_nou");

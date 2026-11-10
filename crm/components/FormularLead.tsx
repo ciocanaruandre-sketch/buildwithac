@@ -7,9 +7,9 @@ import { adaugaLead, type LeadDeMana } from "@/app/(app)/lead-uri/nou/actiuni";
 import { ETICHETE, SERVICII, SURSE_MANUALE } from "@/lib/tipuri";
 
 /** Formularul „Lead de mână”. Câmpurile rămân completate dacă ceva nu merge. */
-export function FormularLead({ admin, productie }: { admin: boolean; productie: boolean }) {
+export function FormularLead({ admin }: { admin: boolean }) {
   const router = useRouter();
-  const [d, setD] = useState<LeadDeMana>({ nume: "", telefon: "", email: "", serviciu: "", sursa: "", nota: "", liber: false });
+  const [d, setD] = useState<LeadDeMana>({ nume: "", telefon: "", email: "", serviciu: "", sursa: "", sursaNumar: "", nota: "", liber: false });
   const [eroare, setEroare] = useState<{ mesaj: string; idExistent?: string } | null>(null);
   const [lucreaza, porneste] = useTransition();
   const schimba = <K extends keyof LeadDeMana>(k: K, v: LeadDeMana[K]) => setD((x) => ({ ...x, [k]: v }));
@@ -60,10 +60,16 @@ export function FormularLead({ admin, productie }: { admin: boolean; productie: 
           </select>
         </label>
       </div>
-      {productie && d.sursa === "cold_calling" && (
-        <p role="note" className="rounded-r border border-[#5a4214] bg-[#2a2010] px-3 py-2 text-[13px] text-amber">
-          Cold calling: verifică întâi regulile cu Andrei. Verificarea legală nu e gata.
-        </p>
+      {d.sursa === "cold_calling" && (
+        <>
+          <label className="flex flex-col gap-1.5">
+            <span className="lbl">De unde ai numărul</span>
+            <input className="camp" value={d.sursaNumar} onChange={(e) => schimba("sursaNumar", e.target.value)} placeholder="Google Maps, site-ul firmei" maxLength={300} />
+          </label>
+          <p role="note" className="rounded-r border border-[#5a4214] bg-[#2a2010] px-3 py-2 text-[13px] text-amber">
+            Suni doar numere publicate de firmă. Spui cine ești și de unde ai numărul. La primul „nu”, nu mai suni.
+          </p>
+        </>
       )}
       <label className="flex flex-col gap-1.5">
         <span className="lbl">Notiță (opțional)</span>
