@@ -4,11 +4,13 @@ import { eu } from "@/lib/eu";
 import { ETICHETE, type Rol } from "@/lib/tipuri";
 
 function legaturiPentru(rol: Rol): Legatura[] {
-  if (rol === "constructor") return [{ href: "/clienti", eticheta: "Clienți" }];
+  const taskuri = { href: "/taskuri", eticheta: "Task-urile mele" };
+  if (rol === "constructor") return [{ href: "/clienti", eticheta: "Clienți" }, taskuri];
   const l: Legatura[] = [
     { href: "/lead-uri", eticheta: "Lead-uri" },
     { href: "/clienti", eticheta: "Clienți" },
   ];
+  if (rol === "admin") l.push(taskuri);
   if (rol === "closer" || rol === "admin") l.push({ href: "/program", eticheta: "Program" });
   if (rol === "admin") l.push({ href: "/echipa", eticheta: "Echipa" });
   return l;

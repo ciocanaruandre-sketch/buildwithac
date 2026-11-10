@@ -4,11 +4,12 @@ import { ContactClient } from "@/components/fisa/ContactClient";
 import { DateProiect } from "@/components/fisa/DateProiect";
 import { OameniProiect } from "@/components/fisa/OameniProiect";
 import { Stadiu } from "@/components/fisa/Stadiu";
+import { Taskuri } from "@/components/fisa/Taskuri";
 import { Taburi } from "@/components/Taburi";
-import { cand, termenLung, ziScurta } from "@/lib/afisare";
+import { cand, termenLung, termenScurt, ziScurta } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, descrieEvenimentProiect, type Eveniment } from "@/lib/parcurs";
-import { comision, lei, progres, textIntarziere, urmatorulTask, zileIntarziere } from "@/lib/proiecte";
+import { comision, lei, ordoneazaTaskuri, progres, textIntarziere, urmatorulTask, zileIntarziere } from "@/lib/proiecte";
 import { supabase } from "@/lib/supabase/server";
 import { linkWhatsApp, normalizeazaTelefon } from "@/lib/telefon";
 import { ziuaRomaniei } from "@/lib/timp";
@@ -74,6 +75,22 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
   const procentulMeu = (randuri ?? []).find((r) => r.om_id === om.id)?.procent ?? null;
   const comisionulMeu = comision(p.incasat_lei, procentulMeu);
   const poateStadiu = !p.inchis_la || eAdmin;
+
+  // task-urile se dau Adminilor și oamenilor de pe proiect (la fel verifică și baza de date)
+  const potPrimiTask = (profiluri ?? [])
+    .filter((o) => o.activ && (o.rol === "admin" || peProiect.includes(o.id)))
+    .map((o) => ({ id: o.id, nume: o.nume }))
+    .sort((a, b) => a.nume.localeCompare(b.nume, "ro"));
+  const taskuriAfisate = ordoneazaTaskuri(t).map((x) => ({
+    id: x.id,
+    titlu: x.titlu,
+    om_id: x.om_id,
+    termen: x.termen,
+    gata: x.gata,
+    cine: x.om_id ? nume(x.om_id) : "",
+    cand: x.termen ? termenScurt(x.termen) : "",
+    intarziat: !x.gata && zileIntarziere(x.termen, azi) > 0,
+  }));
 
   const parcurs = [
     ...(evProiect ?? []).map((e) => ({ la: e.la, autor_id: e.autor_id, text: descrieEvenimentProiect(e as Eveniment, nume) })),
@@ -202,6 +219,12 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
           <Taburi
             key={p.id}
             taburi={[
+              {
+                cheie: "taskuri",
+                eticheta: "Task-uri",
+                numar: t.length,
+                continut: <Taskuri proiectId={p.id} taskuri={taskuriAfisate} oameni={potPrimiTask} />,
+              },
               {
                 cheie: "parcurs",
                 eticheta: "Parcurs",

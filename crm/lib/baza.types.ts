@@ -619,6 +619,7 @@ export type Database = {
       e_coleg: { Args: { alt: string }; Returns: boolean }
       lucreaza_la: { Args: { p: string }; Returns: boolean }
       muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
+      muta_taskuri: { Args: { de: string; la: string }; Returns: number }
       oameni_proiect: {
         Args: { p: string }
         Returns: {
