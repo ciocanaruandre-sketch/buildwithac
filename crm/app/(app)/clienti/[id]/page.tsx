@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactClient } from "@/components/fisa/ContactClient";
 import { DateProiect } from "@/components/fisa/DateProiect";
+import { Livrari } from "@/components/fisa/Livrari";
+import { Notite } from "@/components/fisa/Notite";
 import { OameniProiect } from "@/components/fisa/OameniProiect";
 import { Stadiu } from "@/components/fisa/Stadiu";
 import { Taskuri } from "@/components/fisa/Taskuri";
@@ -55,12 +57,14 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
     );
   }
 
-  const [{ data: taskuri }, { data: evProiect }, { data: randuri }, { data: colegi }] = await Promise.all([
+  const [{ data: taskuri }, { data: evProiect }, { data: randuri }, { data: colegi }, { data: notite }, { data: livrari }] = await Promise.all([
     db.from("taskuri").select("id, titlu, om_id, termen, gata, gata_la, creat_la").eq("proiect_id", p.id),
     db.from("evenimente_proiect").select("tip, detalii, la, autor_id").eq("proiect_id", p.id),
     // Adminul le vede pe toate; constructorul doar rândul lui, cu procentul lui
     db.from("proiect_oameni").select("om_id, procent").eq("proiect_id", p.id),
     db.rpc("oameni_proiect", { p: p.id }),
+    db.from("notite_proiect").select("id, autor_id, text, la").eq("proiect_id", p.id).order("la", { ascending: false }),
+    db.from("livrari").select("id, titlu, link, nota, stare, adaugat_la").eq("proiect_id", p.id).order("adaugat_la", { ascending: false }),
   ]);
   const evLead = eAdmin && c.lead_id ? (await db.from("evenimente").select("tip, detalii, la, autor_id").eq("lead_id", c.lead_id)).data ?? [] : [];
 
@@ -224,6 +228,24 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                 eticheta: "Task-uri",
                 numar: t.length,
                 continut: <Taskuri proiectId={p.id} taskuri={taskuriAfisate} oameni={potPrimiTask} />,
+              },
+              {
+                cheie: "livrat",
+                eticheta: "Livrat",
+                numar: livrari?.length ?? 0,
+                continut: <Livrari proiectId={p.id} livrari={(livrari ?? []).map((l) => ({ id: l.id, titlu: l.titlu, link: l.link, nota: l.nota, stare: l.stare, cand: ziScurta(l.adaugat_la) }))} />,
+              },
+              {
+                cheie: "notite",
+                eticheta: "Notițe",
+                numar: notite?.length ?? 0,
+                continut: (
+                  <Notite
+                    proiectId={p.id}
+                    poateSterge={eAdmin}
+                    notite={(notite ?? []).map((n) => ({ id: n.id, autor: n.autor_id ? nume(n.autor_id) : "cineva", cand: cand(n.la, acum), text: n.text }))}
+                  />
+                ),
               },
               {
                 cheie: "parcurs",
