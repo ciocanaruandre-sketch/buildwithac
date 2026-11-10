@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 import { admin, clientDeTest, conecteazaCa, idDe, stergeClient, stergeTemporari } from "./ajutor";
 
@@ -123,7 +124,7 @@ describe("conturile și materialele", () => {
     const p = await proiect(true);
     const c = await conecteazaCa("constructor");
     expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Nimic" })).error?.code).toBe("23514");
-    expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Amândouă", url: "https://exemplu.ro", cale: `${p}/x/y.txt` })).error?.code).toBe("23514");
+    expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Amândouă", url: "https://exemplu.ro", cale: `${p}/${randomUUID()}/y.txt` })).error?.code).toBe("23514");
     expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Link rău", url: "javascript:alert(1)" })).error?.code).toBe("23514");
   });
 

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
-import { stergeFisiereleProiectului } from "@/lib/fisiere-bucket";
+import { curataFisiereOrfane, stergeFisiereleProiectului } from "@/lib/fisiere-bucket";
 import { admin, clientDeTest, conecteazaCa, idDe, stergeClient } from "./ajutor";
 
 const lead_uri: string[] = [];
@@ -53,6 +53,48 @@ describe("ștergerea unui client", () => {
     expect((await admin().from("clienti").select("id").eq("id", c.clientId)).data).toHaveLength(1);
   });
 
+  it("sterge_client cerut de constructor sau caller nu șterge nimic, nici lead-ul", async () => {
+    const c = await clientPlin();
+    for (const cont of ["constructor", "caller"] as const) {
+      const r = await (await conecteazaCa(cont)).rpc("sterge_client", { c: c.clientId });
+      expect(r.data, cont).not.toBe(true);
+    }
+    expect((await admin().from("clienti").select("id").eq("id", c.clientId)).data).toHaveLength(1);
+    expect((await admin().from("lead_uri").select("id").eq("id", c.lead.id)).data).toHaveLength(1);
+  });
+
+  it("sterge_client pe un client care nu există → false", async () => {
+    const r = await (await conecteazaCa("admin")).rpc("sterge_client", { c: randomUUID() });
+    expect(r.error).toBeNull();
+    expect(r.data).toBe(false);
+  });
+
+  it("stergeFisiereleProiectului golește și fișierele puse pe alt drum decât cel fix", async () => {
+    const c = await clientPlin();
+    for (const cale of [`${c.proiectId}/direct.txt`, `${c.proiectId}/${randomUUID()}/a/adanc.txt`]) {
+      fisiere.push(cale);
+      const { error } = await admin().storage.from("materiale").upload(cale, Buffer.from("x"), { contentType: "text/plain" });
+      if (error) throw error;
+    }
+    await fisier(c.proiectId, "normal.txt");
+    expect(await stergeFisiereleProiectului(await conecteazaCa("admin"), c.proiectId)).toBe(true);
+    expect((await admin().storage.from("materiale").list(c.proiectId)).data ?? []).toEqual([]);
+  });
+
+  it("curataFisiereOrfane golește dosarele proiectelor care nu mai există și le lasă pe celelalte", async () => {
+    const orfan = randomUUID(); // un proiect care nu există (ca după „Șterge clientul”)
+    const cale = `${orfan}/${randomUUID()}/ramas.txt`;
+    fisiere.push(cale);
+    const pus = await admin().storage.from("materiale").upload(cale, Buffer.from("x"), { contentType: "text/plain" });
+    if (pus.error) throw pus.error;
+    const viu = await clientPlin();
+    const alViului = await fisier(viu.proiectId, "ramane.txt");
+
+    expect(await curataFisiereOrfane(admin())).toBeGreaterThanOrEqual(1);
+    expect((await admin().storage.from("materiale").list(orfan)).data ?? []).toEqual([]);
+    expect((await admin().storage.from("materiale").download(alViului)).error).toBeNull();
+  });
+
   it("Adminul șterge lead-ul și clientul: nu rămâne nimic din fișă", async () => {
     const c = await clientPlin();
     for (const t of TABELE) {
@@ -60,10 +102,10 @@ describe("ștergerea unui client", () => {
       expect(data?.length, `înainte: ${t}`).toBeGreaterThan(0);
     }
     const a = await conecteazaCa("admin");
-    const lead = await a.from("lead_uri").delete().eq("id", c.lead.id).select("id");
-    expect(lead.data).toHaveLength(1);
-    const client = await a.from("clienti").delete().eq("id", c.clientId).select("id");
-    expect(client.data).toHaveLength(1);
+    const sters = await a.rpc("sterge_client", { c: c.clientId });
+    expect(sters.error).toBeNull();
+    expect(sters.data).toBe(true);
+    expect((await admin().from("clienti").select("id").eq("id", c.clientId)).data).toEqual([]);
 
     expect((await admin().from("proiecte").select("id").eq("client_id", c.clientId)).data).toEqual([]);
     for (const t of TABELE) {

@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { curataFisiereOrfane } from "@/lib/fisiere-bucket";
 import { copieSaptamanala, eLuni, stergeVechi } from "@/lib/retentie";
 import { admin } from "@/lib/supabase/admin";
 
@@ -22,9 +23,14 @@ export async function GET(cerere: Request) {
   const db = admin();
   try {
     const sterse = await stergeVechi(db, acum);
+    // fișierele rămase de la clienții șterși; o eroare aici nu oprește copia de luni
+    const orfane = await curataFisiereOrfane(db).catch((e) => {
+      console.error("cron zilnic: fișierele orfane", e);
+      return null;
+    });
     const copie = eLuni(acum) ? await copieSaptamanala(db, fetch, { acum, sterse }) : null;
     if (copie === false) console.error("cron zilnic: copia de luni n-a plecat");
-    return Response.json({ sterse, copie });
+    return Response.json({ sterse, orfane, copie });
   } catch (e) {
     console.error("cron zilnic:", e);
     return Response.json({ eroare: "baza" }, { status: 500 });

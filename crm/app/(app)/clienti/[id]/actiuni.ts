@@ -151,15 +151,13 @@ export async function stergeClient(clientId: string): Promise<Rezultat> {
   const { data: proiecte, error: eProiecte } = await db.from("proiecte").select("id").eq("client_id", clientId);
   if (eProiecte) return { ok: false, mesaj: NESALVAT };
 
+  // lead-ul și clientul pleacă împreună sau deloc (o singură tranzacție în baza de date)
+  const { data: sters, error } = await db.rpc("sterge_client", { c: clientId });
+  if (error || !sters) return { ok: false, mesaj: "Clientul n-a putut fi șters. Încearcă din nou." };
+  // apoi fișierele; dacă pică ceva aici, jobul zilnic golește dosarele proiectelor care nu mai există
   for (const p of proiecte) {
-    if (!(await stergeFisiereleProiectului(db, p.id))) return { ok: false, mesaj: "Fișierele n-au putut fi șterse. Încearcă din nou." };
+    if (!(await stergeFisiereleProiectului(db, p.id))) console.error(`stergeClient: fișierele proiectului ${p.id} rămân pentru jobul zilnic`);
   }
-  if (c.lead_id) {
-    const { error } = await db.from("lead_uri").delete().eq("id", c.lead_id);
-    if (error) return { ok: false, mesaj: "Lead-ul clientului n-a putut fi șters. Încearcă din nou." };
-  }
-  const { data: sters, error } = await db.from("clienti").delete().eq("id", clientId).select("id");
-  if (error || !sters.length) return { ok: false, mesaj: "Clientul n-a putut fi șters. Încearcă din nou." };
   revalidatePath("/clienti", "layout");
   revalidatePath("/lead-uri");
   return { ok: true };

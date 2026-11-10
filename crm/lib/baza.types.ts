@@ -802,6 +802,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cale_fisier_valida: { Args: { cale: string }; Returns: boolean }
       e_coleg: { Args: { alt: string }; Returns: boolean }
       lucreaza_la: { Args: { p: string }; Returns: boolean }
       muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
@@ -816,11 +817,13 @@ export type Database = {
         Args: { p_closer: string; p_incepe: string; p_lead: string }
         Returns: undefined
       }
+      proiect_din_cale: { Args: { cale: string }; Returns: string }
       rol_curent: { Args: never; Returns: Database["public"]["Enums"]["rol"] }
       salveaza_program: {
         Args: { p_closer: string; p_durata: number; p_zile: Json }
         Returns: undefined
       }
+      sterge_client: { Args: { c: string }; Returns: boolean }
       titlu_implicit: {
         Args: { s: Database["public"]["Enums"]["serviciu"] }
         Returns: string
