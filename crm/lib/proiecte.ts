@@ -59,3 +59,29 @@ export function lei(n: number | null): string {
   if (n === null) return "—";
   return `${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".")} lei`;
 }
+
+/** „întârziat o zi”, „întârziat 3 zile”, „întârziat 20 de zile”; gol când nu e întârziat. */
+export function textIntarziere(zile: number): string {
+  if (zile <= 0) return "";
+  if (zile === 1) return "întârziat o zi";
+  const rest = zile % 100;
+  return `întârziat ${zile}${rest === 0 || rest >= 20 ? " de" : ""} zile`;
+}
+
+/** O sumă scrisă de om, în lei întregi: „2.400” → 2400. Gol → null. Orice altceva → „gresit”. */
+export function citesteLei(s: string): number | null | "gresit" {
+  const curat = s.replace(/[\s.]/g, "");
+  if (!curat) return null;
+  if (!/^\d{1,8}$/.test(curat)) return "gresit";
+  const n = Number(curat);
+  return n <= 10_000_000 ? n : "gresit";
+}
+
+/** Un procent scris de om: „33,5” → 33.5. Gol → null (nestabilit). În afara 0–100 sau cu peste două zecimale → „gresit”. */
+export function citesteProcent(s: string): number | null | "gresit" {
+  const curat = s.replace(/[\s%]/g, "").replace(",", ".");
+  if (!curat) return null;
+  if (!/^\d{1,3}(\.\d{1,2})?$/.test(curat)) return "gresit";
+  const n = Number(curat);
+  return n <= 100 ? n : "gresit";
+}

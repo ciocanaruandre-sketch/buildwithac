@@ -1,10 +1,10 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { admin, conecteazaCa, idDe, leadDeTest, omTemporar, stergeTemporari } from "./ajutor";
+import { admin, conecteazaCa, idDe, leadDeTest, omTemporar, stergeTemporari, sterge } from "./ajutor";
 
 // conturi temporare: nu atingem lead-urile conturilor din seed
 const lead_uri: string[] = [];
 afterAll(async () => {
-  for (const id of lead_uri) await admin().from("lead_uri").delete().eq("id", id);
+  for (const id of lead_uri) await sterge(id);
   await stergeTemporari();
 });
 

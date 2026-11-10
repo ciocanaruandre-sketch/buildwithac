@@ -1,0 +1,14 @@
+import { describe, expect, it } from "vitest";
+import { termenLung, ziScurta } from "@/lib/afisare";
+
+describe("zilele din fișa clientului", () => {
+  it("ziScurta: ziua din România a unui moment", () => {
+    expect(ziScurta("2026-10-28T15:40:00Z")).toBe("28 oct.");
+    // 23:30 UTC e deja a doua zi în România
+    expect(ziScurta("2026-10-28T23:30:00Z")).toBe("29 oct.");
+  });
+  it("termenLung: un termen (YYYY-MM-DD) rămâne în ziua lui", () => {
+    expect(termenLung("2026-11-13")).toBe("vineri, 13 nov.");
+    expect(termenLung("2026-10-25")).toBe("duminică, 25 oct.");
+  });
+});

@@ -1,11 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { GET as zilnic } from "@/app/api/cron/zilnic/route";
 import { copieSaptamanala, stergeVechi } from "@/lib/retentie";
-import { admin, leadDeTest } from "./ajutor";
+import { admin, leadDeTest, sterge } from "./ajutor";
 
 const lead_uri: string[] = [];
 afterAll(async () => {
-  for (const id of lead_uri) await admin().from("lead_uri").delete().eq("id", id);
+  for (const id of lead_uri) await sterge(id);
 });
 
 const ziInUrma = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();

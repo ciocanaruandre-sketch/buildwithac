@@ -41,7 +41,9 @@ export async function leadDeTest(camp: Partial<Database["public"]["Tables"]["lea
   return data;
 }
 
+/** Șterge lead-ul și, dacă a ajuns client, clientul făcut din el (altfel rămâne orfan, cu lead_id null). */
 export async function sterge(id: string) {
+  await admin().from("clienti").delete().eq("lead_id", id);
   await admin().from("lead_uri").delete().eq("id", id);
 }
 
@@ -57,11 +59,8 @@ export async function clientDeTest(camp: Partial<Database["public"]["Tables"]["l
   return { lead, clientId: c.data.id, proiectId: p.data.id };
 }
 
-/** Șterge clientul făcut din lead (cu proiectele lui), apoi lead-ul. */
-export async function stergeClient(leadId: string) {
-  await admin().from("clienti").delete().eq("lead_id", leadId);
-  await admin().from("lead_uri").delete().eq("id", leadId);
-}
+/** Același lucru, cu numele pe care îl caută testele de clienți. */
+export const stergeClient = sterge;
 
 const temporari: string[] = [];
 /** Un cont temporar (fără parolă), ca testele să nu atingă datele conturilor din seed. */

@@ -1,11 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { POST as intrareSite } from "@/app/api/intrare/site/route";
 import { primesteCerere, type CerereNoua } from "@/lib/intrare";
-import { admin } from "./ajutor";
+import { admin, sterge } from "./ajutor";
 
 const deSters: string[] = [];
 afterAll(async () => {
-  for (const id of deSters) await admin().from("lead_uri").delete().eq("id", id);
+  for (const id of deSters) await sterge(id);
 });
 
 let n = 0;

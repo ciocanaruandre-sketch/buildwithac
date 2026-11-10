@@ -5,7 +5,7 @@ import { ButoaneRand } from "@/components/ButoaneRand";
 import { FormularNotita } from "@/components/FormularNotita";
 import { MutaLa } from "@/components/MutaLa";
 import { StergeLead } from "@/components/StergeLead";
-import { TaburiLead } from "@/components/TaburiLead";
+import { Taburi } from "@/components/Taburi";
 import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, type Eveniment } from "@/lib/parcurs";
@@ -32,7 +32,7 @@ function urmeaza(l: Lead, acum: Date, discutie: string | null): string {
     case "oferta_trimisa":
       return "Așteaptă răspunsul la ofertă.";
     case "client":
-      return "E client. Fișa completă vine în etapa 2.";
+      return "E client.";
     case "pierdut":
     case "descalificat":
       return `${ETICHETE.stare[l.stare]}${l.motiv ? `: ${l.motiv}` : ""}.`;
@@ -63,6 +63,9 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
   const { data: discutie } = await db.from("discutii").select("incepe_la, closer_id").eq("lead_id", id).gt("sfarseste_la", acum.toISOString()).order("incepe_la").limit(1).maybeSingle();
   const textDiscutie = discutie ? `Discuție programată: ${candLung(discutie.incepe_la)} cu ${nume(discutie.closer_id)}` : null;
 
+  // fișa clientului o deschide doar Adminul (și constructorii de pe proiect, care nu ajung aici)
+  const clientId = l.stare === "client" && om.rol === "admin" ? (await db.from("clienti").select("id").eq("lead_id", id).maybeSingle()).data?.id : undefined;
+
   const callerii = (oameni ?? []).filter((o) => o.activ && o.rol !== "constructor").map((o) => ({ id: o.id, nume: o.nume }));
   const closerii = (oameni ?? []).filter((o) => o.activ && (o.rol === "closer" || o.rol === "admin")).map((o) => ({ id: o.id, nume: o.nume }));
 
@@ -88,6 +91,11 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
           <div className="panel p-3.5" data-testid="urmeaza">
             <p className="lbl mb-1.5">Acum / Urmează</p>
             <p className="text-[15px] font-medium">{urmeaza(l, acum, textDiscutie)}</p>
+            {clientId && (
+              <Link href={`/clienti/${clientId}`} className="mt-1.5 inline-block text-[13px] text-amber">
+                Deschide fișa clientului →
+              </Link>
+            )}
           </div>
 
           <div className="panel p-3.5">
@@ -122,7 +130,7 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
 
         <div className="flex min-w-0 flex-col gap-4">
           <ButoaneActiuni id={l.id} actiuni={actiuni} />
-          <TaburiLead
+          <Taburi
             taburi={[
               {
                 cheie: "parcurs",

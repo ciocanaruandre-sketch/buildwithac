@@ -31,3 +31,28 @@ export async function idDe(cont: string) {
   const { data } = await db().from("profiluri").select("id").eq("email", `${cont}@test.buildwithac.ro`).single();
   return data!.id;
 }
+
+/** Un client nou: lead trecut în „client” (trigger-ul face clientul și primul proiect). `stergeLead(leadId)` îl curăță. */
+export async function clientNou(camp: Partial<LeadNou> = {}) {
+  const lead = await leadNou({ stare: "programat", ...camp });
+  const s = await db().from("lead_uri").update({ stare: "client" }).eq("id", lead.id);
+  if (s.error) throw s.error;
+  const c = await db().from("clienti").select("id").eq("lead_id", lead.id).single();
+  if (c.error) throw c.error;
+  const p = await db().from("proiecte").select("id").eq("client_id", c.data.id).single();
+  if (p.error) throw p.error;
+  return { leadId: lead.id, clientId: c.data.id, proiectId: p.data.id, nume: lead.nume };
+}
+
+/** Pune un om pe proiect (cu cheia de serviciu). */
+export async function punePeProiect(proiectId: string, cont: string, procent: number | null = null) {
+  const { error } = await db().from("proiect_oameni").insert({ proiect_id: proiectId, om_id: await idDe(cont), procent });
+  if (error) throw error;
+}
+
+/** Ziua din România peste `n` zile, ca „2026-11-20” (pentru câmpurile de dată). */
+export function ziPeste(n: number): string {
+  const azi = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Bucharest", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  const [a, l, z] = azi.split("-").map(Number);
+  return new Date(Date.UTC(a, l - 1, z + n)).toISOString().slice(0, 10);
+}

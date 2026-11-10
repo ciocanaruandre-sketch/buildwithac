@@ -130,7 +130,11 @@ async function program(ids: Record<string, string>) {
 }
 
 // ce au lăsat în urmă testele care au picat la jumătate
-for (const prefix of ["E2E %", "Test RLS%", "Test Intrare%", "Din site%", "Revine%"]) await db.from("lead_uri").delete().like("nume", prefix);
+// clientul făcut dintr-un lead rămâne după ștergerea lead-ului (lead_id devine null), deci îl ștergem întâi
+for (const prefix of ["E2E %", "Test RLS%", "Test Intrare%", "Din site%", "Revine%"]) {
+  await db.from("clienti").delete().like("nume", prefix);
+  await db.from("lead_uri").delete().like("nume", prefix);
+}
 
 const ids = await conturi();
 await leaduri(ids);
