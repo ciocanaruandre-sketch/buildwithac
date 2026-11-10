@@ -5,15 +5,19 @@ export const SURSE = ["formular_site", "reclama_meta", "reclama_tiktok", "cold_c
 /** Aceleași chei ca SERVICII_CONTACT din site/lib/contact.ts. */
 export const SERVICII = ["site", "automatizari", "1la1", "altceva"] as const;
 
+/** Stadiile unui proiect, în ordine. */
+export const STADII = ["discutie", "schita", "constructie", "revizii", "livrat", "mentenanta"] as const;
+
 export type Rol = (typeof ROLURI)[number];
 export type Stare = (typeof STARI)[number];
 export type Sursa = (typeof SURSE)[number];
 export type Serviciu = (typeof SERVICII)[number];
+export type Stadiu = (typeof STADII)[number];
 
 /** Sursele pe care le alege omul când adaugă un lead de mână (reclamele, până intră singure). */
 export const SURSE_MANUALE: Sursa[] = ["reclama_meta", "reclama_tiktok", "cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"];
 
-export const ETICHETE: { stare: Record<Stare, string>; sursa: Record<Sursa, string>; serviciu: Record<Serviciu, string>; rol: Record<Rol, string> } = {
+export const ETICHETE: { stare: Record<Stare, string>; sursa: Record<Sursa, string>; serviciu: Record<Serviciu, string>; rol: Record<Rol, string>; stadiu: Record<Stadiu, string> } = {
   stare: {
     nou: "Nou",
     fara_raspuns: "Fără răspuns",
@@ -42,4 +46,5 @@ export const ETICHETE: { stare: Record<Stare, string>; sursa: Record<Sursa, stri
     altceva: "Altceva",
   },
   rol: { admin: "Admin", caller: "Caller", closer: "Closer", constructor: "Constructor" },
+  stadiu: { discutie: "Discuție", schita: "Schiță", constructie: "Construcție", revizii: "Revizii", livrat: "Livrat", mentenanta: "Mentenanță" },
 };
