@@ -74,3 +74,60 @@ test("link care nu e http(s) → mesaj, nimic adăugat", async ({ page }) => {
   const { data } = await db().from("livrari").select("id").eq("proiect_id", c.proiectId);
   expect(data).toEqual([]);
 });
+
+test("conturile: rândul apare, iar avertismentul despre parole e mereu pe ecran", async ({ page }) => {
+  const c = await client();
+  await intraCa(page, "admin");
+  await page.goto(`/clienti/${c.clientId}`);
+  await page.getByRole("tab", { name: "Conturi" }).click();
+  const conturi = page.getByTestId("conturi");
+  await expect(conturi.getByText("Parolele nu stau în CRM. Aici scrii doar ce cont e, al cui e și unde e parola.")).toBeVisible();
+  await conturi.getByLabel("Serviciu").fill("Domeniu (ROTLD)");
+  await conturi.getByLabel("Cont", { exact: true }).fill("cafeneauacolt.ro");
+  await conturi.getByLabel("Al cui").selectOption({ label: "al clientului" });
+  await conturi.getByLabel("Unde e parola").selectOption({ label: "la client" });
+  await conturi.getByRole("button", { name: "Adaugă contul" }).click();
+
+  const rand = conturi.getByRole("row").filter({ hasText: "Domeniu (ROTLD)" });
+  await expect(rand).toContainText("cafeneauacolt.ro");
+  await expect(rand).toContainText("al clientului");
+  await expect(rand).toContainText("la client");
+  await expect(conturi.getByText("Parolele nu stau în CRM.")).toBeVisible();
+  const { data } = await db().from("conturi").select("serviciu, cont, al_cui, unde_parola").eq("proiect_id", c.proiectId);
+  expect(data).toEqual([{ serviciu: "Domeniu (ROTLD)", cont: "cafeneauacolt.ro", al_cui: "client", unde_parola: "la_client" }]);
+});
+
+test("materialele: un link se adaugă, se deschide în filă nouă și se șterge", async ({ page }) => {
+  const c = await client();
+  await intraCa(page, "constructor");
+  await page.goto(`/clienti/${c.clientId}`);
+  await page.getByRole("tab", { name: "Materiale" }).click();
+  const materiale = page.getByTestId("materiale");
+  await materiale.getByLabel("Titlu").fill("Logo și culori");
+  await materiale.getByLabel("Link").fill("https://drive.google.com/drive/folders/exemplu");
+  await materiale.getByLabel("Notă").fill("de la client, pe Drive");
+  await materiale.getByRole("button", { name: "Adaugă link-ul" }).click();
+
+  const rand = materiale.getByRole("listitem").filter({ hasText: "Logo și culori" });
+  await expect(rand).toContainText("de la client, pe Drive");
+  await expect(rand).toContainText("Radu Stan");
+  const deschide = rand.getByRole("link", { name: "deschide" });
+  await expect(deschide).toHaveAttribute("href", "https://drive.google.com/drive/folders/exemplu");
+  await expect(deschide).toHaveAttribute("target", "_blank");
+
+  await rand.getByRole("button", { name: "Șterge" }).click();
+  await rand.getByRole("button", { name: "Sigur?" }).click();
+  await expect(materiale.getByText("Logo și culori")).toHaveCount(0);
+});
+
+test("material cu link greșit → mesaj", async ({ page }) => {
+  const c = await client();
+  await intraCa(page, "admin");
+  await page.goto(`/clienti/${c.clientId}`);
+  await page.getByRole("tab", { name: "Materiale" }).click();
+  const materiale = page.getByTestId("materiale");
+  await materiale.getByLabel("Titlu").fill("Poze");
+  await materiale.getByLabel("Link").fill("drive.google.com/x");
+  await materiale.getByRole("button", { name: "Adaugă link-ul" }).click();
+  await expect(materiale.getByText("Linkul trebuie să înceapă cu https://")).toBeVisible();
+});

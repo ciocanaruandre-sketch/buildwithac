@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ETICHETE, ROLURI, SERVICII, STADII, STARI, STARI_LIVRARE, SURSE, SURSE_MANUALE } from "@/lib/tipuri";
+import { AL_CUI, ETICHETE, ROLURI, SERVICII, STADII, STARI, STARI_LIVRARE, SURSE, SURSE_MANUALE, UNDE_PAROLA } from "@/lib/tipuri";
 
 describe("tipuri", () => {
   const grupuri = [
@@ -11,6 +11,8 @@ describe("tipuri", () => {
     ["rol", ROLURI],
     ["stadiu", STADII],
     ["livrare", STARI_LIVRARE],
+    ["alCui", AL_CUI],
+    ["undeParola", UNDE_PAROLA],
   ] as const;
 
   it.each(grupuri)("fiecare %s are etichetă nevidă, cu ș/ț cu virgulă", (grup, chei) => {

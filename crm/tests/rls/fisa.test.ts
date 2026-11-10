@@ -91,3 +91,47 @@ describe("livrările", () => {
     expect(error?.code).toBe("23514");
   });
 });
+
+describe("conturile și materialele", () => {
+  it("constructorul din afara proiectului nu le vede și nu adaugă", async () => {
+    const p = await proiect(false);
+    await admin().from("conturi").insert({ proiect_id: p, serviciu: "Vercel", cont: "cafeneaua-colt", al_cui: "client" });
+    await admin().from("materiale").insert({ proiect_id: p, titlu: "Logo", url: "https://exemplu.ro/logo" });
+    const c = await conecteazaCa("constructor");
+    expect((await c.from("conturi").select("id").eq("proiect_id", p)).data).toEqual([]);
+    expect((await c.from("materiale").select("id").eq("proiect_id", p)).data).toEqual([]);
+    expect((await c.from("conturi").insert({ proiect_id: p, serviciu: "GitHub", cont: "x", al_cui: "firma" })).error).not.toBeNull();
+    expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Al meu", url: "https://exemplu.ro" })).error).not.toBeNull();
+  });
+
+  it("constructorul de pe proiect adaugă și șterge; nu schimbă (greșeala se șterge și se scrie din nou)", async () => {
+    const p = await proiect(true);
+    const c = await conecteazaCa("constructor");
+    const cont = await c.from("conturi").insert({ proiect_id: p, serviciu: "Domeniu (ROTLD)", cont: "cafeneauacolt.ro", al_cui: "client", unde_parola: "la_client" }).select("id, adaugat_de").single();
+    expect(cont.error).toBeNull();
+    expect(cont.data?.adaugat_de).toBe(await idDe("constructor"));
+    const mat = await c.from("materiale").insert({ proiect_id: p, titlu: "Logo și culori", url: "https://drive.google.com/x", nota: "de la client" }).select("id").single();
+    expect(mat.error).toBeNull();
+
+    expect((await c.from("conturi").update({ cont: "altul" }).eq("id", cont.data!.id).select("id")).data ?? []).toHaveLength(0);
+    expect((await c.from("materiale").update({ titlu: "Altul" }).eq("id", mat.data!.id).select("id")).data ?? []).toHaveLength(0);
+    expect((await c.from("conturi").delete().eq("id", cont.data!.id).select("id")).data).toHaveLength(1);
+    expect((await c.from("materiale").delete().eq("id", mat.data!.id).select("id")).data).toHaveLength(1);
+  });
+
+  it("un material e ori link, ori fișier: nici fără amândouă, nici cu amândouă", async () => {
+    const p = await proiect(true);
+    const c = await conecteazaCa("constructor");
+    expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Nimic" })).error?.code).toBe("23514");
+    expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Amândouă", url: "https://exemplu.ro", cale: `${p}/x/y.txt` })).error?.code).toBe("23514");
+    expect((await c.from("materiale").insert({ proiect_id: p, titlu: "Link rău", url: "javascript:alert(1)" })).error?.code).toBe("23514");
+  });
+
+  it("„unde e parola” e doar din listă: nu încape o parolă acolo", async () => {
+    const p = await proiect(true);
+    const c = await conecteazaCa("constructor");
+    // @ts-expect-error valoare din afara listei, ca un om care încearcă să scrie parola
+    const { error } = await c.from("conturi").insert({ proiect_id: p, serviciu: "Vercel", cont: "x", al_cui: "client", unde_parola: "parola123" });
+    expect(error?.code).toBe("22P02");
+  });
+});

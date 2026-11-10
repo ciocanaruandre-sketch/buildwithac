@@ -138,6 +138,54 @@ export type Database = {
           },
         ]
       }
+      conturi: {
+        Row: {
+          adaugat_de: string | null
+          adaugat_la: string
+          al_cui: Database["public"]["Enums"]["al_cui"]
+          cont: string
+          id: string
+          proiect_id: string
+          serviciu: string
+          unde_parola: Database["public"]["Enums"]["unde_parola"]
+        }
+        Insert: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          al_cui: Database["public"]["Enums"]["al_cui"]
+          cont: string
+          id?: string
+          proiect_id: string
+          serviciu: string
+          unde_parola?: Database["public"]["Enums"]["unde_parola"]
+        }
+        Update: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          al_cui?: Database["public"]["Enums"]["al_cui"]
+          cont?: string
+          id?: string
+          proiect_id?: string
+          serviciu?: string
+          unde_parola?: Database["public"]["Enums"]["unde_parola"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conturi_adaugat_de_fkey"
+            columns: ["adaugat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conturi_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discutii: {
         Row: {
           closer_id: string
@@ -397,6 +445,57 @@ export type Database = {
           },
           {
             foreignKeyName: "livrari_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materiale: {
+        Row: {
+          adaugat_de: string | null
+          adaugat_la: string
+          cale: string | null
+          id: string
+          marime: number | null
+          nota: string | null
+          proiect_id: string
+          titlu: string
+          url: string | null
+        }
+        Insert: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          cale?: string | null
+          id?: string
+          marime?: number | null
+          nota?: string | null
+          proiect_id: string
+          titlu: string
+          url?: string | null
+        }
+        Update: {
+          adaugat_de?: string | null
+          adaugat_la?: string
+          cale?: string | null
+          id?: string
+          marime?: number | null
+          nota?: string | null
+          proiect_id?: string
+          titlu?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiale_adaugat_de_fkey"
+            columns: ["adaugat_de"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiale_proiect_id_fkey"
             columns: ["proiect_id"]
             isOneToOne: false
             referencedRelation: "proiecte"
@@ -728,6 +827,7 @@ export type Database = {
       }
     }
     Enums: {
+      al_cui: "client" | "firma"
       rol: "admin" | "caller" | "closer" | "constructor"
       serviciu: "site" | "automatizari" | "1la1" | "altceva"
       stadiu:
@@ -757,6 +857,7 @@ export type Database = {
         | "dm_instagram"
         | "dm_tiktok"
         | "altceva"
+      unde_parola: "la_client" | "la_firma" | "manager_parole" | "nu_e_cazul"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -887,6 +988,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      al_cui: ["client", "firma"],
       rol: ["admin", "caller", "closer", "constructor"],
       serviciu: ["site", "automatizari", "1la1", "altceva"],
       stadiu: [
@@ -919,6 +1021,7 @@ export const Constants = {
         "dm_tiktok",
         "altceva",
       ],
+      unde_parola: ["la_client", "la_firma", "manager_parole", "nu_e_cazul"],
     },
   },
 } as const

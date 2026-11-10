@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactClient } from "@/components/fisa/ContactClient";
+import { Conturi } from "@/components/fisa/Conturi";
 import { DateProiect } from "@/components/fisa/DateProiect";
 import { Livrari } from "@/components/fisa/Livrari";
+import { Materiale } from "@/components/fisa/Materiale";
 import { Notite } from "@/components/fisa/Notite";
 import { OameniProiect } from "@/components/fisa/OameniProiect";
 import { Stadiu } from "@/components/fisa/Stadiu";
@@ -57,7 +59,7 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
     );
   }
 
-  const [{ data: taskuri }, { data: evProiect }, { data: randuri }, { data: colegi }, { data: notite }, { data: livrari }] = await Promise.all([
+  const [{ data: taskuri }, { data: evProiect }, { data: randuri }, { data: colegi }, { data: notite }, { data: livrari }, { data: conturi }, { data: materiale }] = await Promise.all([
     db.from("taskuri").select("id, titlu, om_id, termen, gata, gata_la, creat_la").eq("proiect_id", p.id),
     db.from("evenimente_proiect").select("tip, detalii, la, autor_id").eq("proiect_id", p.id),
     // Adminul le vede pe toate; constructorul doar rândul lui, cu procentul lui
@@ -65,6 +67,8 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
     db.rpc("oameni_proiect", { p: p.id }),
     db.from("notite_proiect").select("id, autor_id, text, la").eq("proiect_id", p.id).order("la", { ascending: false }),
     db.from("livrari").select("id, titlu, link, nota, stare, adaugat_la").eq("proiect_id", p.id).order("adaugat_la", { ascending: false }),
+    db.from("conturi").select("id, serviciu, cont, al_cui, unde_parola").eq("proiect_id", p.id).order("adaugat_la"),
+    db.from("materiale").select("id, titlu, nota, url, cale, marime, adaugat_de, adaugat_la").eq("proiect_id", p.id).order("adaugat_la", { ascending: false }),
   ]);
   const evLead = eAdmin && c.lead_id ? (await db.from("evenimente").select("tip, detalii, la, autor_id").eq("lead_id", c.lead_id)).data ?? [] : [];
 
@@ -94,6 +98,17 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
     cine: x.om_id ? nume(x.om_id) : "",
     cand: x.termen ? termenScurt(x.termen) : "",
     intarziat: !x.gata && zileIntarziere(x.termen, azi) > 0,
+  }));
+
+  const materialeAfisate = (materiale ?? []).map((m) => ({
+    id: m.id,
+    titlu: m.titlu,
+    nota: m.nota,
+    eticheta: "URL",
+    href: m.url ?? "#",
+    cine: m.adaugat_de ? nume(m.adaugat_de) : "cineva",
+    cand: ziScurta(m.adaugat_la),
+    marime: null,
   }));
 
   const parcurs = [
@@ -228,6 +243,18 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                 eticheta: "Task-uri",
                 numar: t.length,
                 continut: <Taskuri proiectId={p.id} taskuri={taskuriAfisate} oameni={potPrimiTask} />,
+              },
+              {
+                cheie: "materiale",
+                eticheta: "Materiale",
+                numar: materiale?.length ?? 0,
+                continut: <Materiale proiectId={p.id} materiale={materialeAfisate} />,
+              },
+              {
+                cheie: "conturi",
+                eticheta: "Conturi",
+                numar: conturi?.length ?? 0,
+                continut: <Conturi proiectId={p.id} conturi={conturi ?? []} />,
               },
               {
                 cheie: "livrat",
