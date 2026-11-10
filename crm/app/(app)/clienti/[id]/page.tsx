@@ -6,8 +6,11 @@ import { DateProiect } from "@/components/fisa/DateProiect";
 import { Livrari } from "@/components/fisa/Livrari";
 import { Materiale } from "@/components/fisa/Materiale";
 import { Notite } from "@/components/fisa/Notite";
+import { InchideProiect } from "@/components/fisa/InchideProiect";
 import { OameniProiect } from "@/components/fisa/OameniProiect";
+import { ProiectNou } from "@/components/fisa/ProiectNou";
 import { Stadiu } from "@/components/fisa/Stadiu";
+import { StergeClient } from "@/components/fisa/StergeClient";
 import { Taskuri } from "@/components/fisa/Taskuri";
 import { Taburi } from "@/components/Taburi";
 import { cand, termenLung, termenScurt, ziScurta } from "@/lib/afisare";
@@ -119,6 +122,11 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
     ...evLead.map((e) => ({ la: e.la, autor_id: e.autor_id, text: descrieEveniment(e as Eveniment, nume) })),
   ].sort((a, b) => b.la.localeCompare(a.la));
 
+  // clientul a trimis iar formularul de pe site: cererea e mai nouă decât cel mai nou proiect (doar Adminul vede cererile)
+  const ultimaCerere = eAdmin && c.lead_id ? (await db.from("cereri").select("primita_la").eq("lead_id", c.lead_id).order("primita_la", { ascending: false }).limit(1).maybeSingle()).data?.primita_la : undefined;
+  const celMaiNouProiect = toate.reduce((max, x) => (x.creat_la > max ? x.creat_la : max), "");
+  const cerereNoua = ultimaCerere && new Date(ultimaCerere) > new Date(celMaiNouProiect) ? ultimaCerere : null;
+
   const telefonNorm = c.telefon ? normalizeazaTelefon(c.telefon) : null;
   const kv = (e: string, v: React.ReactNode, testid?: string) => (
     <>
@@ -134,11 +142,21 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
         <h1 className="text-[26px] font-bold">{c.nume}</h1>
         <span className="chip blue">{p.titlu}</span>
         <span data-testid="stadiu" className="chip amber">{ETICHETE.stadiu[p.stadiu]}</span>
-        {p.inchis_la && <span className="chip red">Închis</span>}
+        {p.inchis_la && <span data-testid="inchis" className="chip red">Închis</span>}
         <span className="chip">Client din {ziScurta(c.creat_la)}</span>
       </div>
 
-      {toate.length > 1 && (
+      {cerereNoua && c.lead_id && (
+        <div data-testid="cerere-noua" className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-r border border-[#5a4214] bg-[#2a2010] px-3.5 py-2.5 text-[13px]">
+          <b className="text-amber">Cerere nouă · {cand(cerereNoua, acum)}.</b>
+          <span className="text-ink-2">Clientul a trimis iar formularul. Răspunsurile sunt în fișa de lead; dacă e alt proiect, adaugă-l cu „+ Proiect nou”.</span>
+          <Link href={`/lead-uri/${c.lead_id}`} className="text-amber">
+            Fișa de lead →
+          </Link>
+        </div>
+      )}
+
+      {(toate.length > 1 || eAdmin) && (
         <nav aria-label="Proiecte" className="mb-4 flex flex-wrap items-center gap-2">
           <span className="lbl">Proiecte</span>
           {toate.map((x) => (
@@ -152,6 +170,7 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
               {x.inchis_la ? " · închis" : ""}
             </Link>
           ))}
+          {eAdmin && <ProiectNou clientId={c.id} />}
         </nav>
       )}
 
@@ -233,8 +252,15 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                 )}
               {kv("A venit din", ETICHETE.sursa[c.sursa])}
             </dl>
-            {eAdmin && <DateProiect key={`${p.id}|${p.titlu}|${p.pret_lei}|${p.incasat_lei}|${p.termen}`} proiectId={p.id} titlu={p.titlu} pretLei={p.pret_lei} incasatLei={p.incasat_lei} termen={p.termen} />}
+            {eAdmin && (
+              <div className="flex flex-wrap items-start gap-x-2">
+                <DateProiect key={`${p.id}|${p.titlu}|${p.pret_lei}|${p.incasat_lei}|${p.termen}`} proiectId={p.id} titlu={p.titlu} pretLei={p.pret_lei} incasatLei={p.incasat_lei} termen={p.termen} />
+                <InchideProiect proiectId={p.id} inchis={Boolean(p.inchis_la)} />
+              </div>
+            )}
           </div>
+
+          {eAdmin && <StergeClient clientId={c.id} />}
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">

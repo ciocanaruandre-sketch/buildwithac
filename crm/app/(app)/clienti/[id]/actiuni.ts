@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { eu } from "@/lib/eu";
 import { mesajDinBaza } from "@/lib/erori";
+import { stergeFisiereleProiectului } from "@/lib/fisiere-bucket";
 import { citesteLei, citesteProcent } from "@/lib/proiecte";
 import { supabase } from "@/lib/supabase/server";
-import { STADII, type Stadiu } from "@/lib/tipuri";
+import { SERVICII, STADII, type Serviciu, type Stadiu } from "@/lib/tipuri";
 
 export type Rezultat = { ok: true } | { ok: false; mesaj: string };
 
@@ -103,5 +104,63 @@ export async function salveazaContact(clientId: string, d: { nume: string; telef
   if (error) return { ok: false, mesaj: mesajDinBaza(error, NESALVAT) };
   if (!data.length) return { ok: false, mesaj: NEPERMIS };
   improspateaza(clientId);
+  return { ok: true };
+}
+
+/** Doar Adminul: încă un proiect pentru același client (site acum, automatizare peste trei luni). Pornește în „Discuție”. */
+export async function adaugaProiect(clientId: string, d: { titlu: string; serviciu: Serviciu }): Promise<{ ok: true; id: string } | { ok: false; mesaj: string }> {
+  const om = await eu();
+  if (om.rol !== "admin" || !UUID.test(clientId)) return { ok: false, mesaj: NEPERMIS };
+  const titlu = d.titlu.trim();
+  if (!titlu || titlu.length > 120) return { ok: false, mesaj: "Scrie titlul proiectului (cel mult 120 de caractere)." };
+  if (!SERVICII.includes(d.serviciu)) return { ok: false, mesaj: "Alege serviciul." };
+  const db = await supabase();
+  const { data, error } = await db.from("proiecte").insert({ client_id: clientId, titlu, serviciu: d.serviciu, creat_de: om.id }).select("id").single();
+  if (error) return { ok: false, mesaj: mesajDinBaza(error, NESALVAT) };
+  improspateaza(clientId);
+  return { ok: true, id: data.id };
+}
+
+/** Doar Adminul: colaborarea pe proiect s-a terminat (sau s-a reluat). De la închidere se numără anul de păstrare. */
+export async function inchideProiect(proiectId: string, inchis: boolean): Promise<Rezultat> {
+  const om = await eu();
+  if (om.rol !== "admin" || !UUID.test(proiectId)) return { ok: false, mesaj: NEPERMIS };
+  const db = await supabase();
+  const { data, error } = await db
+    .from("proiecte")
+    .update({ inchis_la: inchis ? new Date().toISOString() : null })
+    .eq("id", proiectId)
+    .select("client_id");
+  if (error) return { ok: false, mesaj: mesajDinBaza(error, NESALVAT) };
+  if (!data.length) return { ok: false, mesaj: NEPERMIS };
+  improspateaza(data[0].client_id);
+  return { ok: true };
+}
+
+/**
+ * Doar Adminul: șterge definitiv clientul. Ordinea contează:
+ * 1) fișierele din Storage (dacă nu pleacă, nu ștergem nimic); 2) lead-ul din care a venit
+ * (altfel rămâne pe veci în starea „client”, pe care jobul de 90 de zile n-o atinge); 3) clientul, cu tot ce ține de el.
+ */
+export async function stergeClient(clientId: string): Promise<Rezultat> {
+  const om = await eu();
+  if (om.rol !== "admin" || !UUID.test(clientId)) return { ok: false, mesaj: NEPERMIS };
+  const db = await supabase();
+  const { data: c } = await db.from("clienti").select("id, lead_id").eq("id", clientId).maybeSingle();
+  if (!c) return { ok: false, mesaj: "Clientul nu mai există." };
+  const { data: proiecte, error: eProiecte } = await db.from("proiecte").select("id").eq("client_id", clientId);
+  if (eProiecte) return { ok: false, mesaj: NESALVAT };
+
+  for (const p of proiecte) {
+    if (!(await stergeFisiereleProiectului(db, p.id))) return { ok: false, mesaj: "Fișierele n-au putut fi șterse. Încearcă din nou." };
+  }
+  if (c.lead_id) {
+    const { error } = await db.from("lead_uri").delete().eq("id", c.lead_id);
+    if (error) return { ok: false, mesaj: "Lead-ul clientului n-a putut fi șters. Încearcă din nou." };
+  }
+  const { data: sters, error } = await db.from("clienti").delete().eq("id", clientId).select("id");
+  if (error || !sters.length) return { ok: false, mesaj: "Clientul n-a putut fi șters. Încearcă din nou." };
+  revalidatePath("/clienti", "layout");
+  revalidatePath("/lead-uri");
   return { ok: true };
 }

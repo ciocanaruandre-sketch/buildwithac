@@ -28,7 +28,7 @@ export function DateProiect({ proiectId, titlu, pretLei, incasatLei, termen }: {
   );
 
   return (
-    <div className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
+    <div className="mt-3 flex w-full flex-col gap-2 border-t border-line pt-3">
       {camp("Titlu", "titlu")}
       {camp("Preț (lei)", "pretLei")}
       {camp("Încasat (lei)", "incasatLei")}

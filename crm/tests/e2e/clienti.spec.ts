@@ -118,3 +118,92 @@ test("din fișa de lead a unui client, adminul ajunge la fișa clientului", asyn
   await page.getByRole("link", { name: "Deschide fișa clientului →" }).click();
   await expect(page).toHaveURL(new RegExp(`/clienti/${c.clientId}$`));
 });
+
+test("adminul adaugă al doilea proiect: două pastile, două rânduri în listă", async ({ page }) => {
+  const c = await client();
+  await intraCa(page, "admin");
+  await page.goto(`/clienti/${c.clientId}`);
+  await page.getByRole("button", { name: "+ Proiect nou" }).click();
+  await page.getByLabel("Titlul proiectului nou").fill("Automatizare rezervări");
+  await page.getByLabel("Serviciul proiectului nou").selectOption({ label: "Automatizări" });
+  await page.getByRole("button", { name: "Adaugă proiectul" }).click();
+
+  await expect(page).toHaveURL(/\?proiect=[0-9a-f-]{36}$/);
+  const proiecte = page.getByRole("navigation", { name: "Proiecte" });
+  await expect(proiecte.getByRole("link")).toHaveCount(2);
+  await expect(proiecte.getByRole("link", { name: "Automatizare rezervări" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("stadiu")).toHaveText("Discuție");
+  await expect(page.getByTestId("proiect")).toContainText("Automatizări");
+
+  await page.goto("/clienti");
+  await expect(page.getByRole("row").filter({ hasText: c.nume })).toHaveCount(2);
+});
+
+test("„Închide proiectul”: pastila „Închis”, iar constructorul nu mai schimbă stadiul; „Redeschide” îl aduce înapoi", async ({ page }) => {
+  const c = await client();
+  await punePeProiect(c.proiectId, "constructor");
+  await intraCa(page, "admin");
+  await page.goto(`/clienti/${c.clientId}`);
+  await page.getByRole("button", { name: "Închide proiectul" }).click();
+  await expect(page.getByTestId("inchis")).toHaveText("Închis");
+  await page.getByRole("tab", { name: "Parcurs" }).click();
+  await expect(page.getByTestId("parcurs")).toContainText("Proiect închis");
+
+  await page.context().clearCookies();
+  await intraCa(page, "constructor");
+  await page.goto(`/clienti/${c.clientId}`);
+  await expect(page.getByTestId("inchis")).toHaveText("Închis");
+  await expect(page.getByLabel("Stadiu")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Redeschide proiectul" })).toHaveCount(0);
+
+  await page.context().clearCookies();
+  await intraCa(page, "admin");
+  await page.goto(`/clienti/${c.clientId}`);
+  await page.getByRole("button", { name: "Redeschide proiectul" }).click();
+  await expect(page.getByTestId("inchis")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Închide proiectul" })).toBeVisible();
+});
+
+test("„Șterge clientul”: pleacă clientul, lead-ul din care a venit și fișierele lui", async ({ page }) => {
+  const c = await client();
+  const cale = `${c.proiectId}/22222222-2222-4222-8222-222222222222/poze.txt`;
+  await db().storage.from("materiale").upload(cale, Buffer.from("poze"), { contentType: "text/plain" });
+  await db().from("materiale").insert({ proiect_id: c.proiectId, titlu: "poze.txt", cale, marime: 4 });
+  await intraCa(page, "admin");
+  await page.goto(`/clienti/${c.clientId}`);
+  await page.getByRole("button", { name: "Șterge clientul" }).click();
+  await expect(page.getByText("Ștergi definitiv clientul, cu proiectele, task-urile, notițele și fișierele lui. Nu se poate anula.")).toBeVisible();
+  await page.getByRole("button", { name: "Da, șterge-l" }).click();
+
+  await expect(page).toHaveURL(/\/clienti$/);
+  await expect(page.getByText(c.nume)).toHaveCount(0);
+  expect((await db().from("clienti").select("id").eq("id", c.clientId)).data).toEqual([]);
+  expect((await db().from("lead_uri").select("id").eq("id", c.leadId)).data).toEqual([]);
+  expect((await db().storage.from("materiale").list(c.proiectId)).data ?? []).toEqual([]);
+});
+
+test("constructorul n-are „Șterge clientul”, „Închide proiectul” și nici „+ Proiect nou”", async ({ page }) => {
+  const c = await client();
+  await punePeProiect(c.proiectId, "constructor");
+  await intraCa(page, "constructor");
+  await page.goto(`/clienti/${c.clientId}`);
+  await expect(page.getByTestId("proiect")).toBeVisible();
+  for (const nume of ["Șterge clientul", "Închide proiectul", "+ Proiect nou"]) await expect(page.getByRole("button", { name: nume })).toHaveCount(0);
+});
+
+test("clientul trimite iar formularul: banda „Cerere nouă” apare până se face un proiect nou", async ({ page }) => {
+  const c = await client();
+  await db().from("cereri").insert({ lead_id: c.leadId, sursa: "formular_site", raspunsuri: [{ intrebare: "Descriere", raspuns: "Vreau și o automatizare." }] });
+  await intraCa(page, "admin");
+  await page.goto(`/clienti/${c.clientId}`);
+  const banda = page.getByTestId("cerere-noua");
+  await expect(banda).toContainText("Cerere nouă");
+  await expect(banda.getByRole("link", { name: "Fișa de lead →" })).toHaveAttribute("href", `/lead-uri/${c.leadId}`);
+
+  await page.getByRole("button", { name: "+ Proiect nou" }).click();
+  await page.getByLabel("Titlul proiectului nou").fill("Automatizare");
+  await page.getByLabel("Serviciul proiectului nou").selectOption({ label: "Automatizări" });
+  await page.getByRole("button", { name: "Adaugă proiectul" }).click();
+  await expect(page).toHaveURL(/\?proiect=/);
+  await expect(page.getByTestId("cerere-noua")).toHaveCount(0);
+});
