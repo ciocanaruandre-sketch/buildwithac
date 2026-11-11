@@ -36,7 +36,7 @@ export function Stadiu({ proiectId, stadiu, poate }: { proiectId: string; stadiu
           <option key={s} value={s}>{ETICHETE.stadiu[s]}</option>
         ))}
       </select>
-      {mesaj && <span role="alert" className="mt-1 block text-[12px] text-[#ff7a66]">{mesaj}</span>}
+      {mesaj && <span role="alert" className="mt-1 block text-[12px] text-red-t">{mesaj}</span>}
     </>
   );
 }

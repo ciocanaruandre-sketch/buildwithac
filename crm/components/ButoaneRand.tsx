@@ -49,7 +49,7 @@ export function ButoaneRand({ id, telefon, telefonNorm, liber }: { id: string; t
         </button>
       )}
       {mesaj && (
-        <span role="alert" className="text-[12px] text-[#ff7a66]">
+        <span role="alert" className="text-[12px] text-red-t">
           {mesaj}
         </span>
       )}

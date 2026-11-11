@@ -101,7 +101,7 @@ export function ButoaneActiuni({ id, actiuni }: { id: string; actiuni: Actiune[]
       )}
 
       {mesaj && (
-        <p role="alert" className="mt-2 text-[13px] text-[#ff7a66]">
+        <p role="alert" className="mt-2 text-[13px] text-red-t">
           {mesaj}
         </p>
       )}

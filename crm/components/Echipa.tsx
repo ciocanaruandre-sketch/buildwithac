@@ -11,7 +11,7 @@ type Raspuns = { ok: boolean; mesaj?: string; link?: string } | null;
 function Mesaj({ r }: { r: Raspuns }) {
   if (!r?.mesaj) return null;
   return (
-    <div role={r.ok ? "status" : "alert"} className={`text-[13px] ${r.ok ? "text-ink-2" : "text-[#ff7a66]"}`}>
+    <div role={r.ok ? "status" : "alert"} className={`text-[13px] ${r.ok ? "text-ink-2" : "text-red-t"}`}>
       {r.mesaj}
       {r.link && <input readOnly aria-label="Linkul de invitație" value={r.link} onFocus={(e) => e.target.select()} className="camp mt-1.5 font-mono !text-[12px]" />}
     </div>
@@ -113,7 +113,7 @@ export function ActiuniOm({ om, activ, invitat, deschise, ceilalti }: { om: Om; 
         )}
         {activ && sigur && (
           <>
-            <button type="button" className="btn !border-[#5a1d16] !text-[#ff7a66]" disabled={lucreaza} onClick={() => fa(() => seteazaActiv(om.id, false))}>
+            <button type="button" className="btn pericol" disabled={lucreaza} onClick={() => fa(() => seteazaActiv(om.id, false))}>
               Da, oprește-l
             </button>
             <button type="button" className="btn" onClick={() => setSigur(false)}>

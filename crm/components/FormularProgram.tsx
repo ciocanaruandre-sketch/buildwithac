@@ -53,7 +53,7 @@ export function FormularProgram({ closerId, program, durata }: { closerId: strin
         Salvează programul
       </button>
       {mesaj && (
-        <p role={mesaj.ok ? "status" : "alert"} className={`mt-2 text-[13px] ${mesaj.ok ? "text-green" : "text-[#ff7a66]"}`}>
+        <p role={mesaj.ok ? "status" : "alert"} className={`mt-2 text-[13px] ${mesaj.ok ? "text-green" : "text-red-t"}`}>
           {mesaj.text}
         </p>
       )}

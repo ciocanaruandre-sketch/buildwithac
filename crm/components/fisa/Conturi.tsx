@@ -78,7 +78,7 @@ export function Conturi({ proiectId, conturi }: { proiectId: string; conturi: Co
         </div>
       )}
 
-      <p className="mt-3 rounded-r border border-[#5a4214] bg-[#2a2010] px-3 py-2.5 text-[13px] text-ink-2">
+      <p className="mt-3 alerta px-3 py-2.5 text-[13px] text-ink-2">
         <b className="text-amber">Parolele</b> nu stau în CRM. Aici scrii doar ce cont e, al cui e și unde e parola.
       </p>
     </div>

@@ -147,7 +147,7 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.serviciu[l.serviciu]}</td>
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.sursa[l.sursa]}</td>
                   <td className="px-3.5 py-2.5"><span className={`chip ${CULOARE_STARE[l.stare]}`}>{ETICHETE.stare[l.stare]}</span></td>
-                  <td className={`px-3.5 py-2.5 font-mono text-[12px] ${intarziat ? "text-[#ff7a66]" : "text-ink-2"}`}>{l.stare === "callback" && l.callback_la ? cand(l.callback_la, acum) : "—"}</td>
+                  <td className={`px-3.5 py-2.5 font-mono text-[12px] ${intarziat ? "text-red-t" : "text-ink-2"}`}>{l.stare === "callback" && l.callback_la ? cand(l.callback_la, acum) : "—"}</td>
                   <td className="px-3.5 py-2.5 font-mono text-[12px] text-ink-3">{cand(l.intrat_la, acum)}</td>
                   <td className="px-3.5 py-2.5 text-ink-2">{l.caller_id ? numeOm.get(l.caller_id) ?? "—" : <span className="text-ink-3">liber</span>}</td>
                   <td className="px-3.5 py-2">

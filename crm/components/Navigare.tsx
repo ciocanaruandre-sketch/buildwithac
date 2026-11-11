@@ -17,7 +17,7 @@ export function Navigare({ legaturi }: { legaturi: Legatura[] }) {
             key={l.href}
             href={l.href}
             aria-current={activ ? "page" : undefined}
-            className={`flex items-center gap-2.5 rounded-r px-2.5 py-2 font-label text-[13px] font-medium uppercase tracking-[.03em] ${
+            className={`flex items-center gap-2.5 rounded-r px-2.5 py-2 text-[13px] font-medium ${
               activ ? "bg-bg-3 text-ink shadow-[inset_2px_0_0_var(--amber)]" : "text-ink-2 hover:text-ink"
             }`}
           >

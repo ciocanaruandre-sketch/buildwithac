@@ -33,7 +33,7 @@ export function FormularNotita({ id }: { id: string }) {
           Adaugă notița
         </button>
       </div>
-      {mesaj && <p role="alert" className="text-[13px] text-[#ff7a66]">{mesaj}</p>}
+      {mesaj && <p role="alert" className="text-[13px] text-red-t">{mesaj}</p>}
     </div>
   );
 }

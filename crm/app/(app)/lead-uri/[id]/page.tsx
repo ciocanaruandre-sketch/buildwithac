@@ -181,7 +181,7 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                   <div data-testid="notite">
                     {(actiuni.length > 0 || om.rol === "admin") && <FormularNotita id={l.id} />}
                     {(notite ?? []).map((n) => (
-                      <div key={n.id} className="mb-2 border-l-2 border-line-2 bg-[#18181c] px-3 py-2.5 text-[13px]">
+                      <div key={n.id} className="mb-2 border-l-2 border-line-2 bg-bg-3 px-3 py-2.5 text-[13px]">
                         <p className="mb-1 font-mono text-[11px] text-ink-3">
                           <span>{nume(n.autor_id)}</span> · {cand(n.la, acum)}
                         </p>

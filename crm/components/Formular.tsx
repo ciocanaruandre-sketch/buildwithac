@@ -16,7 +16,7 @@ export function Formular({ actiune, campuri, buton }: { actiune: (s: StareFormul
           <input className="camp" name={c.nume} type={c.tip} autoComplete={c.autocomplete} required />
         </label>
       ))}
-      {stare?.eroare && <p role="alert" className="text-[13px] text-[#ff7a66]">{stare.eroare}</p>}
+      {stare?.eroare && <p role="alert" className="text-[13px] text-red-t">{stare.eroare}</p>}
       {stare?.mesaj && <p role="status" className="text-[13px] text-ink-2">{stare.mesaj}</p>}
       <button className="btn pri mt-1 justify-center" disabled={lucreaza}>{lucreaza ? "…" : buton}</button>
     </form>

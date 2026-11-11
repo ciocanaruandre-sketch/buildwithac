@@ -147,7 +147,7 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
       </div>
 
       {cerereNoua && c.lead_id && (
-        <div data-testid="cerere-noua" className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-r border border-[#5a4214] bg-[#2a2010] px-3.5 py-2.5 text-[13px]">
+        <div data-testid="cerere-noua" className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 alerta px-3.5 py-2.5 text-[13px]">
           <b className="text-amber">Cerere nouă · {cand(cerereNoua, acum)}.</b>
           <span className="text-ink-2">Clientul a trimis iar formularul. Răspunsurile sunt în fișa de lead; dacă e alt proiect, adaugă-l cu „+ Proiect nou”.</span>
           <Link href={`/lead-uri/${c.lead_id}`} className="text-amber">
@@ -183,7 +183,7 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                 <p className="text-[15px] font-medium">{urmator.titlu}</p>
                 <p className="text-[12.5px] text-ink-3">
                   {urmator.termen ? `Termen: ${termenLung(urmator.termen)}` : "Fără termen"}
-                  {intarziat && <span className="text-[#ff7a66]"> · {intarziat}</span>}
+                  {intarziat && <span className="text-red-t"> · {intarziat}</span>}
                 </p>
               </>
             ) : (

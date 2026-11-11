@@ -32,7 +32,7 @@ export function ContactClient({ clientId, nume, telefon, email }: { clientId: st
       {camp("Nume", "nume")}
       {camp("Telefon", "telefon")}
       {camp("E-mail", "email")}
-      {mesaj && <p role="alert" className="text-[13px] text-[#ff7a66]">{mesaj}</p>}
+      {mesaj && <p role="alert" className="text-[13px] text-red-t">{mesaj}</p>}
       <div className="flex gap-2">
         <button
           type="button"

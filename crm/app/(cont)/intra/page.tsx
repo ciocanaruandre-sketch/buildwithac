@@ -19,7 +19,7 @@ export default async function Intra({ searchParams }: PageProps<"/intra">) {
     <>
       <h1 className="mb-4 text-xl font-bold">Intră</h1>
       {oprit && (
-        <p role="alert" className="mb-3 text-[13px] text-[#ff7a66]">
+        <p role="alert" className="mb-3 text-[13px] text-red-t">
           Contul tău e oprit. Vorbește cu Andrei.
         </p>
       )}

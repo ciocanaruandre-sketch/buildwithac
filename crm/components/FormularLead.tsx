@@ -66,7 +66,7 @@ export function FormularLead({ admin }: { admin: boolean }) {
             <span className="lbl">De unde ai numărul</span>
             <input className="camp" value={d.sursaNumar} onChange={(e) => schimba("sursaNumar", e.target.value)} placeholder="Google Maps, site-ul firmei" maxLength={300} />
           </label>
-          <p role="note" className="rounded-r border border-[#5a4214] bg-[#2a2010] px-3 py-2 text-[13px] text-amber">
+          <p role="note" className="alerta px-3 py-2 text-[13px] text-amber">
             Suni doar numere publicate de firmă. Spui cine ești și de unde ai numărul. La primul „nu”, nu mai suni.
           </p>
         </>
@@ -82,7 +82,7 @@ export function FormularLead({ admin }: { admin: boolean }) {
         </label>
       )}
       {eroare && (
-        <p role="alert" className="text-[13px] text-[#ff7a66]">
+        <p role="alert" className="text-[13px] text-red-t">
           {eroare.mesaj}{" "}
           {eroare.idExistent && (
             <Link href={`/lead-uri/${eroare.idExistent}`} className="text-amber underline underline-offset-2">

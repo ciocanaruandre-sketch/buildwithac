@@ -96,7 +96,7 @@ async function Proiecte({ om }: { om: Eu }) {
                     </span>
                   </div>
                 </td>
-                <td className={`px-3.5 py-2.5 font-mono text-[12px] ${trecut ? "text-[#ff7a66]" : "text-ink-2"}`}>{p.termen ? termenScurt(p.termen) : "—"}</td>
+                <td className={`px-3.5 py-2.5 font-mono text-[12px] ${trecut ? "text-red-t" : "text-ink-2"}`}>{p.termen ? termenScurt(p.termen) : "—"}</td>
                 <td className="px-3.5 py-2.5 text-ink-2">{lucreaza(p.id)}</td>
                 <td className="px-3.5 py-2.5 font-mono text-[12px] text-ink-3">{ziScurta(p.clienti.creat_la)}</td>
               </tr>

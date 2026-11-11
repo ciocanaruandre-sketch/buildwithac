@@ -28,23 +28,23 @@ export default async function LayoutAplicatie({ children }: { children: React.Re
   const om = await eu();
   return (
     <div className="min-h-screen md:grid md:grid-cols-[216px_1fr]">
-      <aside className="flex flex-col gap-0.5 border-line bg-bg-side px-3 py-[18px] md:sticky md:top-0 md:h-screen md:border-r">
+      <aside className="flex flex-col gap-0.5 border-line bg-bg-2 px-3 py-[18px] md:sticky md:top-0 md:h-screen md:border-r">
         <div className="flex items-center gap-2.5 px-2 pt-1 pb-[18px]">
           <i className="block h-[22px] w-[22px] rounded-r" style={{ background: "var(--grad)" }} />
           <div>
-            <b className="block font-label text-[15px] font-bold tracking-wide">buildwithac</b>
+            <b className="block text-[15px] font-bold">buildwithac</b>
             <small className="lbl block">CRM</small>
           </div>
         </div>
         <Navigare legaturi={legaturiPentru(om.rol)} />
         <div className="mt-auto flex items-center gap-2.5 border-t border-line px-2 pt-2.5">
-          <span className="grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-[#3b2a12] font-label text-[11px] font-semibold text-amber">{initiale(om.nume)}</span>
+          <span className="grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-amber/15 text-[11px] font-semibold text-amber">{initiale(om.nume)}</span>
           <div className="min-w-0 flex-1">
-            <b className="block truncate font-label text-[12px] font-semibold">{om.nume}</b>
+            <b className="block truncate text-[12px] font-semibold">{om.nume}</b>
             <span className="text-[11px] text-ink-3">{ETICHETE.rol[om.rol]}</span>
           </div>
           <form action={iesi}>
-            <button className="font-label text-[11px] uppercase tracking-wider text-ink-3 hover:text-ink">Ieși</button>
+            <button className="text-[12px] text-ink-3 hover:text-ink">Ieși</button>
           </form>
         </div>
       </aside>

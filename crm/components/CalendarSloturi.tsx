@@ -23,7 +23,7 @@ export function CalendarSloturi({ leadId, closerId, zile }: { leadId: string; cl
   return (
     <>
       {mesaj && (
-        <p role="alert" className="mb-3 text-[13px] text-[#ff7a66]">
+        <p role="alert" className="mb-3 text-[13px] text-red-t">
           {mesaj}
         </p>
       )}

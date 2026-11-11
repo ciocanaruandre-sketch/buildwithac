@@ -82,7 +82,7 @@ export function Taskuri({ proiectId, taskuri, oameni }: { proiectId: string; tas
           Adaugă task-ul
         </button>
       </div>
-      {mesaj && <p role="alert" className="mb-3 text-[13px] text-[#ff7a66]">{mesaj}</p>}
+      {mesaj && <p role="alert" className="mb-3 text-[13px] text-red-t">{mesaj}</p>}
 
       {taskuri.length === 0 ? (
         <p className="text-[13px] text-ink-3">Niciun task încă. Scrie-l pe primul mai sus.</p>
@@ -107,14 +107,14 @@ export function Taskuri({ proiectId, taskuri, oameni }: { proiectId: string; tas
               <li key={t.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2 text-[13px] last:border-0">
                 <BifaTask key={`${t.id}|${t.gata}`} id={t.id} titlu={t.titlu} gata={t.gata} />
                 <span className={`min-w-[160px] flex-1 ${t.gata ? "text-ink-3 line-through" : ""}`}>{t.titlu}</span>
-                <span className={`flex-none font-mono text-[11px] ${t.intarziat ? "text-[#ff7a66]" : "text-ink-3"}`}>
+                <span className={`flex-none font-mono text-[11px] ${t.intarziat ? "text-red-t" : "text-ink-3"}`}>
                   {[t.cine, t.cand, t.intarziat ? "întârziat" : ""].filter(Boolean).join(" · ")}
                 </span>
                 <button type="button" className="btn flex-none !px-2 !py-1 text-[11px]" disabled={lucreaza} onClick={() => setSchimb({ id: t.id, d: { titlu: t.titlu, omId: t.om_id ?? "", termen: t.termen ?? "" } })}>
                   Schimbă
                 </button>
                 {deSters === t.id ? (
-                  <button type="button" className="btn flex-none !border-[#7a2a20] !px-2 !py-1 text-[11px] !text-[#ff7a66]" disabled={lucreaza} onClick={() => fa(() => stergeTask(t.id), () => setDeSters(null))}>
+                  <button type="button" className="btn mic pericol flex-none" disabled={lucreaza} onClick={() => fa(() => stergeTask(t.id), () => setDeSters(null))}>
                     Sigur?
                   </button>
                 ) : (
