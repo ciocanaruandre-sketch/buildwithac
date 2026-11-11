@@ -44,7 +44,7 @@ export default async function TaskurileMele() {
                     <BifaTask id={t.id} titlu={t.titlu} gata={false} />
                     <span className="min-w-[160px] flex-1">{t.titlu}</span>
                     {t.termen && <span className={`num flex-none text-[12px] ${grupa.rosu ? "text-red-t" : "text-ink-3"}`}>{termenScurt(t.termen)}</span>}
-                    <Link href={{ pathname: `/clienti/${t.proiecte.client_id}`, query: { proiect: t.proiect_id } }} className="flex-none text-[12px] text-ink-2 hover:text-amber">
+                    <Link href={{ pathname: `/clienti/${t.proiecte.client_id}`, query: { proiect: t.proiect_id } }} className="min-w-0 max-w-full truncate text-[12px] text-ink-2 hover:text-amber">
                       {t.proiecte.clienti.nume} · {t.proiecte.titlu}
                     </Link>
                   </li>

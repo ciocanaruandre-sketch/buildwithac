@@ -240,6 +240,19 @@ export async function golesteTot(): Promise<void> {
   await curataFisiereOrfane(db);
 }
 
+/** Șterge conturile temporare lăsate de teste (`…@test.buildwithac.ro`); echipa de test/demo are alte adrese. */
+export async function stergeConturiTemporare(): Promise<number> {
+  const { data, error } = await db.auth.admin.listUsers({ perPage: 1000 });
+  if (error) throw error;
+  const echipa = new Set(Object.values(ECHIPA_TEST).map((c) => c.email));
+  const temporare = data.users.filter((u) => u.email?.endsWith("@test.buildwithac.ro") && !echipa.has(u.email));
+  for (const u of temporare) {
+    const r = await db.auth.admin.deleteUser(u.id);
+    if (r.error) throw r.error;
+  }
+  return temporare.length;
+}
+
 /** Câte conturi, lead-uri și proiecte sunt acum, pentru mesajul de la final. */
 export async function numara(ids: Ids) {
   const { count: leaduri } = await db.from("lead_uri").select("id", { count: "exact", head: true });

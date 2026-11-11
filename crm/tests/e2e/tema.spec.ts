@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { intraCa } from "./ajutor";
-import { clientNou, stergeLead } from "./date";
+import { clientNou, db, idDe, stergeLead } from "./date";
 
 test("pe laptop, bara laterală arată legătura activă", async ({ page }) => {
   await intraCa(page, "admin");
@@ -82,6 +82,23 @@ test("bifa rotundă a unui task se poate apăsa", async ({ page }) => {
     await expect(bifa).toBeChecked();
     const titlu = taskuri.getByRole("listitem").filter({ hasText: "Bifa rotundă de probă" }).getByText("Bifa rotundă de probă", { exact: true });
     await expect(titlu).toHaveCSS("text-decoration-line", "line-through");
+  } finally {
+    await stergeLead(c.leadId);
+  }
+});
+
+test("Task-urile mele, la 390px: clientul și proiectul lung nu fac scroll orizontal", async ({ page }) => {
+  const c = await clientNou({ nume: "E2E Clientă cu un nume lung · Agenția de Turism și Evenimente" });
+  try {
+    await db().from("proiecte").update({ titlu: "Automatizare pentru ofertele trimise clienților" }).eq("id", c.proiectId);
+    const t = await db().from("taskuri").insert({ proiect_id: c.proiectId, titlu: "Task de probă cu proiect lung", om_id: await idDe("admin") });
+    if (t.error) throw t.error;
+    await page.setViewportSize({ width: 390, height: 844 });
+    await intraCa(page, "admin");
+    await page.goto("/taskuri");
+    await expect(page.getByText("Task de probă cu proiect lung")).toBeVisible();
+    const lat = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(lat).toBeLessThanOrEqual(390);
   } finally {
     await stergeLead(c.leadId);
   }

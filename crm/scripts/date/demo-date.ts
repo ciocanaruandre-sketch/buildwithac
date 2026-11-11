@@ -1,7 +1,7 @@
 // Firma demo: datele, ca funcții pure (fără Supabase, fără Date.now()). Le scrie `scripts/demo.mts`.
 // Totul e inventat: nume, firme, telefoane 0700 100 …, link-uri spre domenii de exemplu.
 import type { ContTest } from "../../lib/echipa-test";
-import type { Serviciu, Stare, Sursa } from "../../lib/tipuri";
+import type { Serviciu, Stadiu, Stare, StareLivrare, Sursa, UndeParola } from "../../lib/tipuri";
 
 export type Optiuni = { acum: Date; singur: boolean };
 
@@ -173,13 +173,14 @@ function parcursPentru(r: Rand): EvenimentDemo[] {
 
   // programarea: o zi după primul telefon (sau aceeași zi, dacă e foarte nou)
   const t1 = max1(t0 - 1);
-  p.push({ tip: "programat", autor: c, acumZile: t1, detalii: { closer: IOANA } });
+  // discuția are loc trei zile mai târziu (dacă a avut deja loc, Parcursul îi arată ziua)
+  const t2 = max1(t1 - 3);
+  p.push({ tip: "programat", autor: c, acumZile: t1, detalii: r.stare === "programat" ? { closer: IOANA } : { closer: IOANA, discutieAcumZile: t2 } });
   stare("a_raspuns", "programat", t1, c);
   p.push({ tip: "closer", autor: c, acumZile: t1, detalii: { de: null, in: IOANA } });
   if (r.stare === "programat") return p;
 
   // discuția a avut loc; apoi oferta și răspunsul clientului
-  const t2 = max1(t1 - 3);
   if (r.stare === "pierdut" && r.nr === 44) {
     stare("programat", "pierdut", t2, IOANA, r.motiv);
     return p;
@@ -277,6 +278,18 @@ function ziuaBucuresti(t: Date) {
   return { an: Number(p.year), luna: Number(p.month) - 1, zi: Number(p.day) };
 }
 
+/**
+ * Momentul de acum `acumZile` zile, mutat în orele de lucru: ziua e cea de acum `floor(acumZile)` zile,
+ * iar ora merge de la 18:00 (zecimale 0) spre 09:00 (zecimale aproape de 1), ca ce e mai vechi să fie mai devreme.
+ */
+export function laOra(acum: Date, acumZile: number): Date {
+  const zile = Math.floor(acumZile);
+  const minute = Math.round((acumZile - zile) * 540);
+  const z = ziuaBucuresti(acum);
+  const d = new Date(Date.UTC(z.an, z.luna, z.zi - Math.max(1, zile), 12));
+  return laBucuresti(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 18, -minute);
+}
+
 /** Orele discuțiilor (nu 14:00: acolo e discuția din datele de test). */
 const ORE: [number, number][] = [
   [10, 0],
@@ -300,5 +313,285 @@ export function discutiiDemo(o: Optiuni, leaduri: LeadDemo[]): { nr: number; inc
     const [ora, min] = ORE[i % ORE.length];
     const z = zile[i];
     return { nr: l.nr, incepe: laBucuresti(z.an, z.luna, z.zi, ora, min), minute: 30 as const };
+  });
+}
+
+/** Data calendaristică de la București, peste `n` zile (YYYY-MM-DD), pentru termene. */
+export function ziDupa(acum: Date, n: number): string {
+  const z = ziuaBucuresti(acum);
+  return new Date(Date.UTC(z.an, z.luna, z.zi + n, 12)).toISOString().slice(0, 10);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Clienții și proiectele lor
+
+export type ProiectDemo = {
+  titlu: string;
+  serviciu: Serviciu;
+  stadiu: Stadiu;
+  pret: number;
+  incasat: number;
+  termenPesteZile: number | null;
+  /** Când a pornit proiectul (primul proiect pornește odată cu clientul). */
+  creatAcumZile: number;
+  inchisAcumZile?: number;
+  procentRadu?: number;
+  taskuri: { titlu: string; om: ContTest; termenPesteZile: number; gata: boolean }[];
+  materiale: { titlu: string; url: string; nota?: string; om: ContTest }[];
+  conturi: { serviciu: string; cont: string; al_cui: "client" | "firma"; unde_parola: UndeParola }[];
+  livrari: { titlu: string; link: string; nota?: string; stare: StareLivrare; acumZile: number }[];
+  notite: { autor: ContTest; text: string; acumZile: number }[];
+  /** Parcursul proiectului, de la cel mai vechi la cel mai nou (oamenii din `detalii.om` sunt chei de cont). */
+  parcurs: EvenimentDemo[];
+};
+
+export type ClientDemo = { nrLead: number; clientDinAcumZile: number; proiecte: ProiectDemo[] };
+
+type ProiectScris = Omit<ProiectDemo, "creatAcumZile" | "parcurs" | "livrari" | "notite"> & {
+  pornitAcumZile?: number;
+  livrari: Omit<ProiectDemo["livrari"][number], "acumZile">[];
+  notite: [ContTest, string][];
+};
+
+const RADU: ContTest = "constructor";
+const drive = (x: string) => `https://drive.google.com/drive/folders/exemplu-${x}`;
+const doc = (x: string) => `https://docs.google.com/document/d/exemplu-${x}`;
+
+const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
+  {
+    nrLead: 39, // Elisabeta Marin · Patiseria Dulce Colț
+    proiecte: [
+      {
+        titlu: "Site cu comenzi pentru evenimente",
+        serviciu: "site",
+        stadiu: "schita",
+        pret: 2600,
+        incasat: 1300,
+        termenPesteZile: 16,
+        procentRadu: 30,
+        taskuri: [
+          { titlu: "Discuția de pornire", om: "admin", termenPesteZile: -22, gata: true },
+          { titlu: "Lista de produse și prețuri, de la client", om: "admin", termenPesteZile: -10, gata: true },
+          { titlu: "Schița paginii principale, varianta 2", om: RADU, termenPesteZile: 0, gata: false },
+          { titlu: "Pozele prăjiturilor, făcute la lumina zilei", om: "admin", termenPesteZile: -3, gata: false },
+          { titlu: "Formularul de comandă pentru evenimente", om: RADU, termenPesteZile: 6, gata: false },
+        ],
+        materiale: [
+          { titlu: "Logo (vectorial)", url: drive("logo-patiserie"), om: "admin" },
+          { titlu: "Lista de prețuri", url: doc("preturi-patiserie"), om: "admin" },
+          { titlu: "Poze din vitrină", url: drive("poze-vitrina"), nota: "prea întunecate, am cerut altele", om: RADU },
+        ],
+        conturi: [
+          { serviciu: "Domeniu", cont: "dulcecolt.ro", al_cui: "client", unde_parola: "la_client" },
+          { serviciu: "Vercel (site-ul)", cont: "patiseria-dulce-colt", al_cui: "firma", unde_parola: "la_firma" },
+          { serviciu: "Instagram", cont: "@dulcecolt", al_cui: "client", unde_parola: "nu_e_cazul" },
+        ],
+        livrari: [{ titlu: "Schița paginii principale (v1)", link: "https://dulce-colt.exemplu.ro/schita-v1", nota: "vrea culori mai calde, fără negru", stare: "de_refacut" }],
+        notite: [
+          ["admin", "Comenzile mari vin pe WhatsApp. Formularul trimite tot acolo, nu pe e-mail."],
+          [RADU, "Fac schița 2 în crem și roz pudrat, cum a cerut."],
+        ],
+      },
+    ],
+  },
+  {
+    nrLead: 40, // Cornel Radu · Clinica Kineto Plus
+    proiecte: [
+      {
+        titlu: "Programări și reamintiri pe WhatsApp",
+        serviciu: "automatizari",
+        stadiu: "constructie",
+        pret: 3800,
+        incasat: 1900,
+        termenPesteZile: 9,
+        procentRadu: 40,
+        taskuri: [
+          { titlu: "Fluxul programărilor, desenat și aprobat", om: "admin", termenPesteZile: -28, gata: true },
+          { titlu: "Contul WhatsApp Business al clinicii, verificat", om: "admin", termenPesteZile: -20, gata: true },
+          { titlu: "Legătura cu calendarul terapeuților", om: RADU, termenPesteZile: -2, gata: false },
+          { titlu: "Mesajul de reamintire, cu o zi înainte", om: RADU, termenPesteZile: 4, gata: false },
+          { titlu: "Proba cu cinci pacienți care au zis da", om: "admin", termenPesteZile: 8, gata: false },
+          { titlu: "Recepția: 30 de minute de lămuriri", om: "admin", termenPesteZile: 12, gata: false },
+        ],
+        materiale: [
+          { titlu: "Programul terapeuților", url: "https://docs.google.com/spreadsheets/d/exemplu-program-kineto", om: "admin" },
+          { titlu: "Textele mesajelor, aprobate", url: doc("mesaje-kineto"), om: RADU },
+        ],
+        conturi: [
+          { serviciu: "WhatsApp Business", cont: "numărul clinicii", al_cui: "client", unde_parola: "la_client" },
+          { serviciu: "Make (automatizarea)", cont: "kineto-plus", al_cui: "firma", unde_parola: "manager_parole" },
+          { serviciu: "Google Calendar", cont: "calendarul clinicii", al_cui: "client", unde_parola: "la_client" },
+        ],
+        livrari: [
+          { titlu: "Schema fluxului de programare", link: "https://kineto.exemplu.ro/schema", nota: "„Exact așa vrem.”", stare: "aprobat" },
+          { titlu: "Mesajele de reamintire (3 variante)", link: doc("variante-mesaje"), stare: "trimis" },
+        ],
+        notite: [
+          [RADU, "Terapeuții au ture diferite. Pun întâi tura, apoi orele libere."],
+          ["admin", "Mesajele pleacă doar pacienților care au zis da la reamintiri."],
+        ],
+      },
+    ],
+  },
+  {
+    nrLead: 41, // Delia Pop · Agenția de Turism Hoinar
+    proiecte: [
+      {
+        titlu: "Site cu ofertele agenției",
+        serviciu: "site",
+        stadiu: "revizii",
+        pret: 3200,
+        incasat: 2400,
+        termenPesteZile: 5,
+        procentRadu: 30,
+        taskuri: [
+          { titlu: "Structura site-ului, aprobată", om: "admin", termenPesteZile: -40, gata: true },
+          { titlu: "Paginile de oferte", om: RADU, termenPesteZile: -18, gata: true },
+          { titlu: "Formularul de cerere de ofertă", om: RADU, termenPesteZile: -9, gata: true },
+          { titlu: "Corecturile din prima rundă", om: RADU, termenPesteZile: 2, gata: false },
+          { titlu: "Textul pentru „Despre noi”, de la client", om: "admin", termenPesteZile: -1, gata: false },
+          { titlu: "Publicarea pe domeniu", om: "admin", termenPesteZile: 5, gata: false },
+        ],
+        materiale: [
+          { titlu: "Pozele din excursii", url: drive("poze-hoinar"), nota: "le micșorez înainte să le urc", om: RADU },
+          { titlu: "Ofertele de iarnă (PDF)", url: drive("oferte-iarna"), om: "admin" },
+        ],
+        conturi: [
+          { serviciu: "Domeniu", cont: "hoinar-turism.ro", al_cui: "client", unde_parola: "la_client" },
+          { serviciu: "Vercel (site-ul)", cont: "hoinar", al_cui: "firma", unde_parola: "la_firma" },
+          { serviciu: "GitHub", cont: "buildwithac/hoinar", al_cui: "firma", unde_parola: "la_firma" },
+        ],
+        livrari: [
+          { titlu: "Schița site-ului (v2)", link: "https://hoinar.exemplu.ro/schita-v2", stare: "aprobat" },
+          { titlu: "Previzualizarea site-ului", link: "https://hoinar.exemplu.ro", nota: "a trimis corecturile pe WhatsApp", stare: "trimis" },
+        ],
+        notite: [
+          ["admin", "Vrea ofertele pe sezoane: iarnă, vară, city break."],
+          [RADU, "Pozele mari din excursii le micșorez, altfel site-ul merge greu pe telefon."],
+        ],
+      },
+      {
+        titlu: "Automatizare pentru ofertele trimise clienților",
+        serviciu: "automatizari",
+        stadiu: "discutie",
+        pret: 1800,
+        incasat: 0,
+        termenPesteZile: null,
+        pornitAcumZile: 6,
+        taskuri: [
+          { titlu: "Discuția: ce oferte trimite și cât de des", om: "admin", termenPesteZile: 2, gata: false },
+          { titlu: "Exemple de oferte trimise anul trecut", om: "admin", termenPesteZile: -1, gata: false },
+          { titlu: "Propunerea de preț", om: "admin", termenPesteZile: 5, gata: false },
+        ],
+        materiale: [{ titlu: "Oferte trimise (exemple)", url: drive("oferte-hoinar"), om: "admin" }],
+        conturi: [],
+        livrari: [],
+        notite: [["admin", "Acum scrie fiecare ofertă de mână, în Word. Durează cam o oră pe ofertă."]],
+      },
+    ],
+  },
+  {
+    nrLead: 42, // Aurelian Stoica
+    proiecte: [
+      {
+        titlu: "Sesiuni 1 la 1: AI pentru magazinul online",
+        serviciu: "1la1",
+        stadiu: "livrat",
+        pret: 900,
+        incasat: 900,
+        termenPesteZile: -20,
+        taskuri: [
+          { titlu: "Sesiunea 1: descrieri de produse cu ChatGPT", om: "admin", termenPesteZile: -45, gata: true },
+          { titlu: "Sesiunea 2: poze de produs cu AI", om: "admin", termenPesteZile: -38, gata: true },
+          { titlu: "Sesiunea 3: răspunsuri automate la mesaje", om: "admin", termenPesteZile: -31, gata: true },
+          { titlu: "Rezumatul și prompturile, trimise", om: "admin", termenPesteZile: -29, gata: true },
+        ],
+        materiale: [
+          { titlu: "Înregistrările sesiunilor", url: drive("sesiuni-aurelian"), om: "admin" },
+          { titlu: "Prompturile folosite", url: doc("prompturi-aurelian"), om: "admin" },
+        ],
+        conturi: [],
+        livrari: [{ titlu: "Rezumatul celor 3 sesiuni", link: doc("rezumat-sesiuni"), nota: "„Mi-a prins bine partea cu descrierile.”", stare: "aprobat" }],
+        notite: [["admin", "Își scrie singur descrierile acum. A întrebat de încă o sesiune, despre reclame."]],
+      },
+    ],
+  },
+  {
+    nrLead: 43, // Teodor Câmpeanu · Ferma Câmpeanu
+    proiecte: [
+      {
+        titlu: "Formular de comenzi și tabel de stoc",
+        serviciu: "altceva",
+        stadiu: "mentenanta",
+        pret: 1500,
+        incasat: 1500,
+        termenPesteZile: -42,
+        inchisAcumZile: 40,
+        taskuri: [
+          { titlu: "Formularul de comandă pentru coșuri", om: "admin", termenPesteZile: -55, gata: true },
+          { titlu: "Tabelul de stoc, legat de formular", om: "admin", termenPesteZile: -48, gata: true },
+          { titlu: "Familia știe să adauge produse", om: "admin", termenPesteZile: -43, gata: true },
+        ],
+        materiale: [{ titlu: "Produsele de sezon", url: "https://docs.google.com/spreadsheets/d/exemplu-produse-ferma", om: "admin" }],
+        conturi: [
+          { serviciu: "Google Forms", cont: "contul fermei", al_cui: "client", unde_parola: "la_client" },
+          { serviciu: "Google Sheets", cont: "tabelul de stoc", al_cui: "client", unde_parola: "la_client" },
+        ],
+        livrari: [
+          { titlu: "Formularul de comandă", link: "https://ferma.exemplu.ro/comanda", stare: "aprobat" },
+          { titlu: "Tabelul de stoc", link: doc("stoc-ferma"), stare: "aprobat" },
+        ],
+        notite: [["admin", "Colaborarea s-a încheiat. Dacă vrea și magazin online la primăvară, îl sun eu."]],
+      },
+    ],
+  },
+];
+
+const STADII_ORDINE: Stadiu[] = ["discutie", "schita", "constructie", "revizii", "livrat", "mentenanta"];
+
+/** Zilele unui proiect: pornirea, oamenii, stadiile pe rând, ce s-a trimis și închiderea. */
+function completeazaProiect(p: ProiectScris, pornit: number): ProiectDemo {
+  const sfarsit = p.inchisAcumZile !== undefined ? p.inchisAcumZile + 1 : 2;
+  const k = STADII_ORDINE.indexOf(p.stadiu);
+  const parcurs: EvenimentDemo[] = [{ tip: "proiect_creat", autor: "admin", acumZile: pornit, detalii: { titlu: p.titlu, serviciu: p.serviciu } }];
+  if (p.procentRadu !== undefined) parcurs.push({ tip: "om_adaugat", autor: "admin", acumZile: max1(pornit - 0.1), detalii: { om: RADU } });
+  const pas = k > 0 ? (pornit - sfarsit) / k : 0;
+  for (let i = 1; i <= k; i++) parcurs.push({ tip: "stadiu", autor: "admin", acumZile: max1(pornit - pas * i), detalii: { de: STADII_ORDINE[i - 1], in: STADII_ORDINE[i] } });
+
+  // ce s-a trimis: spre final, la două zile unul de altul; răspunsul clientului vine a doua zi
+  const livrari = p.livrari.map((l, j) => ({ ...l, acumZile: max1(sfarsit + 1.5 + (p.livrari.length - 1 - j) * 2) }));
+  for (const l of livrari) {
+    parcurs.push({ tip: "livrat", autor: "admin", acumZile: l.acumZile, detalii: { titlu: l.titlu } });
+    if (l.stare !== "trimis") parcurs.push({ tip: "livrare_stare", autor: "admin", acumZile: max1(l.acumZile - 1), detalii: { titlu: l.titlu, in: l.stare } });
+  }
+  if (p.inchisAcumZile !== undefined) parcurs.push({ tip: "inchis", autor: "admin", acumZile: p.inchisAcumZile });
+  parcurs.sort((a, b) => b.acumZile - a.acumZile);
+
+  const notite = p.notite.map(([autor, text], j) => ({ autor, text, acumZile: max1(sfarsit + (p.notite.length - j) * 1.3) }));
+  const rest: Partial<ProiectScris> = { ...p };
+  delete rest.pornitAcumZile;
+  return { ...(rest as ProiectScris), creatAcumZile: pornit, livrari, notite, parcurs };
+}
+
+/** Cei 5 clienți demo, din lead-urile demo cu starea „client”. Cu `singur`, doar Adminul e pe proiecte. */
+export function clientiDemo(o: Optiuni): ClientDemo[] {
+  const leaduri = leaduriDemo({ ...o, singur: false });
+  const om = (c: ContTest): ContTest => (o.singur ? "admin" : c);
+  return CLIENTI.map((c) => {
+    const lead = leaduri.find((l) => l.nr === c.nrLead)!;
+    const clientDin = lead.parcurs.find((e) => e.tip === "stare" && e.detalii?.in === "client")!.acumZile;
+    const proiecte = c.proiecte.map((p) => completeazaProiect(p, p.pornitAcumZile ?? max1(clientDin - 0.05)));
+    return {
+      nrLead: c.nrLead,
+      clientDinAcumZile: clientDin,
+      proiecte: proiecte.map((p) => ({
+        ...p,
+        procentRadu: o.singur ? undefined : p.procentRadu,
+        taskuri: p.taskuri.map((t) => ({ ...t, om: om(t.om) })),
+        materiale: p.materiale.map((m) => ({ ...m, om: om(m.om) })),
+        notite: p.notite.map((n) => ({ ...n, autor: om(n.autor) })),
+        parcurs: o.singur ? p.parcurs.filter((e) => e.tip !== "om_adaugat") : p.parcurs,
+      })),
+    };
   });
 }
