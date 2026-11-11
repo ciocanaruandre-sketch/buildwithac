@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./tema.css";
 
 export const metadata: Metadata = {
   title: "CRM buildwithac",
   robots: { index: false, follow: false },
 };
+
+export const viewport: Viewport = { viewportFit: "cover", themeColor: "#141417" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
