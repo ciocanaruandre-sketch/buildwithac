@@ -76,3 +76,40 @@ export function cautareTelefon(q: string): string | null {
   else if (cifre.startsWith("0")) cifre = "40" + cifre.slice(1);
   return cifre;
 }
+
+/** Literele românești și perechile lor: oricare dintre ele găsește oricare. */
+const LITERE: Record<string, string> = { a: "aăâAĂÂ", ă: "aăâAĂÂ", â: "aăâAĂÂ", i: "iîIÎ", î: "iîIÎ", s: "sșşSȘŞ", ș: "sșşSȘŞ", ş: "sșşSȘŞ", t: "tțţTȚŢ", ț: "tțţTȚŢ", ţ: "tțţTȚŢ" };
+
+/** Ce scrie omul în căutare → cuvintele (fiecare trebuie să fie în nume) și bucata de telefon. */
+export function cautare(q: string): { cuvinte: string[]; telefon: string | null } {
+  const cuvinte = q
+    .replace(/[,()%*\\"·:]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 6);
+  return { cuvinte, telefon: cautareTelefon(q) };
+}
+
+/** Condiția PostgREST (`.or(...)`) pentru căutare: toate cuvintele în nume, sau e-mailul, sau bucata de telefon. */
+export function filtruCautare(q: string): string {
+  const { cuvinte, telefon } = cautare(q);
+  // valorile între ghilimele: în ele, „\” și „"” se scapă cu „\”
+  const nume = cuvinte.map((c) => `nume.imatch."${tiparCuvant(c).replace(/[\\"]/g, "\\$&")}"`);
+  const conditii: string[] = [];
+  if (nume.length === 1) conditii.push(nume[0]);
+  else if (nume.length > 1) conditii.push(`and(${nume.join(",")})`);
+  conditii.push(`email_norm.ilike.%${cuvinte.join(" ").toLowerCase()}%`);
+  if (telefon) conditii.push(`telefon_norm.like.%${telefon}%`);
+  return conditii.join(",");
+}
+
+/** Un cuvânt → expresie regulată (Postgres `~*`) care nu ține cont de diacritice și de majuscule. */
+export function tiparCuvant(cuvant: string): string {
+  return [...cuvant]
+    .map((c) => {
+      const grup = LITERE[c.toLowerCase()];
+      if (grup) return `[${grup}]`;
+      return c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    })
+    .join("");
+}

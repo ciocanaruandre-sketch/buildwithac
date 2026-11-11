@@ -20,3 +20,33 @@ test("pe telefon, legăturile sunt jos și nu acoperă pagina", async ({ page })
   const ultim = await page.locator("main > *").last().boundingBox();
   expect(ultim!.y + ultim!.height).toBeLessThanOrEqual(cutie.y + 1);
 });
+
+test("căsuța din bara de sus găsește lead-ul după cuvânt și după bucăți de telefon", async ({ page }) => {
+  await intraCa(page, "caller");
+  const caseta = page.getByRole("searchbox", { name: "Caută lead-uri" });
+  await caseta.fill("cafeneaua");
+  await caseta.press("Enter");
+  await expect(page).toHaveURL(/\/lead-uri\?q=cafeneaua/);
+  await expect(page.getByRole("link", { name: "Elena Marin · Cafeneaua Boabe" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Cristian Popa · Salon Aura" })).toHaveCount(0);
+  await page.getByRole("searchbox", { name: "Caută lead-uri" }).fill("000 001");
+  await page.getByRole("searchbox", { name: "Caută lead-uri" }).press("Enter");
+  await expect(page).toHaveURL(/q=000\+001/);
+  await expect(page.getByRole("link", { name: "Elena Marin · Cafeneaua Boabe" })).toBeVisible();
+});
+
+test("Ctrl K duce cursorul în căutare; pe telefon, căsuța se deschide din lupă", async ({ page }) => {
+  await intraCa(page, "caller");
+  await page.keyboard.press("Control+k");
+  await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toBeFocused();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toBeHidden();
+  await page.getByRole("button", { name: "Caută lead-uri" }).click();
+  await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toBeFocused();
+});
+
+test("constructorul nu are căutarea de lead-uri", async ({ page }) => {
+  await intraCa(page, "constructor");
+  await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toHaveCount(0);
+});

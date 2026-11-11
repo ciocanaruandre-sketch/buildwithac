@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { BaraSus } from "@/components/BaraSus";
 import { ButoaneRand } from "@/components/ButoaneRand";
 import { CULOARE_STARE, cand } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
-import { ETICHETE_PERIOADA, ETICHETE_SCURTATURA, PERIOADE, SCURTATURI, cautareTelefon, dinParametri, intervalPerioada, spreParametri } from "@/lib/filtre";
+import { ETICHETE_PERIOADA, ETICHETE_SCURTATURA, PERIOADE, SCURTATURI, dinParametri, filtruCautare, intervalPerioada, spreParametri } from "@/lib/filtre";
 import { supabase } from "@/lib/supabase/server";
 import { laOraRomaniei, ziuaPeste, ziuaRomaniei } from "@/lib/timp";
 import { ETICHETE, SERVICII, STARI, SURSE, type Stare } from "@/lib/tipuri";
@@ -23,13 +24,7 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
   const numarate = await Promise.all(NUMARATE.map((s) => db.from("lead_uri").select("id", { count: "exact", head: true }).eq("stare", s)));
 
   let q = db.from("lead_uri").select("id, nume, telefon, telefon_norm, email, serviciu, sursa, stare, callback_la, intrat_la, caller_id, closer_id", { count: "exact" });
-  if (f.q) {
-    const curat = f.q.replace(/[,()%*\\]/g, " ").trim();
-    const tel = cautareTelefon(f.q);
-    const conditii = [`nume.ilike.%${curat}%`, `email_norm.ilike.%${curat.toLowerCase()}%`];
-    if (tel) conditii.push(`telefon_norm.like.%${tel}%`);
-    q = q.or(conditii.join(","));
-  }
+  if (f.q) q = q.or(filtruCautare(f.q));
   const { de, pana } = intervalPerioada(f.perioada, acum);
   if (de) q = q.gte("intrat_la", de.toISOString());
   if (pana) q = q.lt("intrat_la", pana.toISOString());
@@ -53,15 +48,12 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="lbl mb-1.5">CRM</p>
-          <h1 className="text-[26px] font-bold">Lead-uri</h1>
-        </div>
+      <BaraSus cale={[{ eticheta: "Lead-uri" }]}>
         <Link href="/lead-uri/nou" className="btn pri">
           + Lead de mână
         </Link>
-      </div>
+      </BaraSus>
+      <h1 className="mb-4 text-[30px] leading-tight">Lead-uri</h1>
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {NUMARATE.map((s, i) => (
