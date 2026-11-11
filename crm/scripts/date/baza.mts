@@ -5,6 +5,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../lib/baza.types";
 import { ECHIPA_TEST, REF_TEST, eBazaDeTest, type ContTest } from "../../lib/echipa-test";
 import { curataFisiereOrfane } from "../../lib/fisiere-bucket";
+import { laOraRomaniei } from "./demo-date";
 
 // .env.local nu suprascrie variabilele deja puse în terminal
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
@@ -127,12 +128,11 @@ export async function program(ids: Record<ContTest, string>) {
   if (p.error) throw p.error;
   await db.from("profiluri").update({ durata_discutie_min: 30 }).eq("id", ids.closer);
 
-  // o discuție viitoare pentru lead-ul 5 (programat), peste 3 zile la 14:00 ora României (12:00 UTC iarna)
+  // o discuție viitoare pentru lead-ul 5 (programat), peste 3 zile la 14:00 ora României (și vara, și iarna)
   const l5 = await db.from("lead_uri").select("id").eq("telefon_norm", norm(5)).single();
   const are = await db.from("discutii").select("id").eq("lead_id", l5.data!.id).gt("incepe_la", new Date().toISOString());
   if (!are.data?.length) {
-    const z = new Date(Date.now() + 3 * 86_400_000);
-    z.setUTCHours(12, 0, 0, 0);
+    const z = laOraRomaniei(new Date(Date.now() + 3 * 86_400_000), 14, 0);
     const d = await db.from("discutii").insert({ lead_id: l5.data!.id, closer_id: ids.closer, incepe_la: z.toISOString(), sfarseste_la: new Date(z.getTime() + 30 * 60_000).toISOString() });
     if (d.error && d.error.code !== "23P01") throw d.error;
   }
@@ -234,6 +234,7 @@ export async function curataUrme() {
  * Conturile și programul closerului rămân.
  */
 export async function golesteTot(): Promise<void> {
+  cereBazaDeTest();
   verifica(await db.from("clienti").delete().not("id", "is", null));
   verifica(await db.from("lead_uri").delete().not("id", "is", null));
   // fără clienți nu mai există proiecte, deci toate dosarele din bucket sunt orfane
@@ -242,6 +243,7 @@ export async function golesteTot(): Promise<void> {
 
 /** Șterge conturile temporare lăsate de teste (`…@test.buildwithac.ro`); echipa de test/demo are alte adrese. */
 export async function stergeConturiTemporare(): Promise<number> {
+  cereBazaDeTest();
   const { data, error } = await db.auth.admin.listUsers({ perPage: 1000 });
   if (error) throw error;
   const echipa = new Set(Object.values(ECHIPA_TEST).map((c) => c.email));

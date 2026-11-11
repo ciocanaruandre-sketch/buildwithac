@@ -98,7 +98,15 @@ describe("tiparCuvant", () => {
 describe("filtruCautare", () => {
   it("toate cuvintele în nume, sau e-mailul, sau telefonul", () => {
     expect(filtruCautare("ana ion")).toBe('and(nume.imatch."[aăâAĂÂ]n[aăâAĂÂ]",nume.imatch."[iîIÎ]on"),email_norm.ilike.%ana ion%');
-    expect(filtruCautare("0722 000")).toBe('and(nume.imatch."0722",nume.imatch."000"),email_norm.ilike.%0722 000%,telefon_norm.like.%40722000%');
+    expect(filtruCautare("0722 000")).toBe('and(nume.imatch."0722",nume.imatch."000"),email_norm.ilike.%0722 000%,telefon_norm.like.%40722000%,telefon_norm.like.%0722000%');
+  });
+  it("o bucată din mijlocul numărului care începe cu 0 se caută și așa cum e scrisă", () => {
+    expect(filtruCautare("012 345")).toContain("telefon_norm.like.%012345%");
+    expect(filtruCautare("+40 721")).not.toContain("telefon_norm.like.%40721%,telefon_norm.like.%40721%");
+  });
+  it("doar semne → nu găsește nimic", () => {
+    expect(filtruCautare("()")).toBe("id.is.null");
+    expect(filtruCautare(" · : ")).toBe("id.is.null");
   });
   it("un singur cuvânt, fără telefon", () => {
     expect(filtruCautare("Elena")).toBe('nume.imatch."Elen[aăâAĂÂ]",email_norm.ilike.%elena%');

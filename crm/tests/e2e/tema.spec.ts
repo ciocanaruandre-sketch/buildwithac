@@ -47,6 +47,18 @@ test("Ctrl K duce cursorul în căutare; pe telefon, căsuța se deschide din lu
   await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toBeFocused();
 });
 
+test("pe telefon, o căutare activă nu acoperă „+ Lead de mână”, iar căsuța se închide cu ×", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await intraCa(page, "caller");
+  await page.goto("/lead-uri?q=laura");
+  await expect(page.getByRole("link", { name: "+ Lead de mână" })).toBeVisible();
+  await page.getByRole("button", { name: "Caută lead-uri" }).click();
+  await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toHaveValue("laura");
+  await page.getByRole("button", { name: "Închide căutarea" }).click();
+  await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toBeHidden();
+  await expect(page.getByRole("link", { name: "+ Lead de mână" })).toBeVisible();
+});
+
 test("constructorul nu are căutarea de lead-uri", async ({ page }) => {
   await intraCa(page, "constructor");
   await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toHaveCount(0);

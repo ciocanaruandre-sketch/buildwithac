@@ -13,10 +13,13 @@ const ids = await conturi();
 // firma demo întâi: leaduri() pune datele de test cu data de acum, deci acestea stau primele în listă
 const demo = await scrieLeaduriDemo(o, ids);
 const proiecteDemo = await scrieClientiDemo(o, ids);
-await leaduri(ids);
-await program(ids);
+// datele de test (pentru e2e) sunt împărțite pe echipă: cu --singur nu se pun, ca echipa să nu apară nicăieri
+if (!o.singur) {
+  await leaduri(ids);
+  await program(ids);
+}
 await programDemo(o, ids);
-await fise(ids);
+if (!o.singur) await fise(ids);
 const n = await numara(ids);
 console.log(`Gata: firma demo${o.singur ? " (singur)" : ""}, ${demo.length} lead-uri demo, ${proiecteDemo} proiecte demo; în total ${n.leaduri} lead-uri, ${n.proiecte} proiecte, ${n.conturi} conturi.`);
 process.exit(0); // pe Windows, fără asta Node se plânge la ieșire (libuv)

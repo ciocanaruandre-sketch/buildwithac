@@ -2,7 +2,7 @@
 import type { Json } from "../../lib/baza.types";
 import type { ContTest } from "../../lib/echipa-test";
 import { client, db, verifica, type Ids } from "./baza.mjs";
-import { clientiDemo, discutiiDemo, leaduriDemo, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laOra, type Optiuni, ziDupa } from "./demo-date";
+import { clientiDemo, discutiiDemo, leaduriDemo, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, ziDupa } from "./demo-date";
 
 const DE_MANA = ["recomandare", "cold_calling", "dm_instagram", "dm_tiktok", "altceva"];
 
@@ -19,14 +19,13 @@ function detalii(e: EvenimentDemo, ids: Ids, extra: { discutie?: string; callbac
 
 /** Lead-urile demo: lead, cerere, Parcurs, notițe, discuții. Întoarce lead-urile scrise (cu id-ul lor). */
 export async function scrieLeaduriDemo(o: Optiuni, ids: Ids): Promise<(LeadDemo & { id: string })[]> {
-  const acum = o.acum.getTime();
   const la = (z: number) => laOra(o.acum, z).toISOString();
   const leaduri = leaduriDemo(o);
   const discutii = new Map(discutiiDemo(o, leaduri).map((d) => [d.nr, d]));
   const scrise: (LeadDemo & { id: string })[] = [];
 
   for (const l of leaduri) {
-    const callback = l.callbackPesteOre === undefined ? null : new Date(acum + l.callbackPesteOre * 3_600_000).toISOString();
+    const callback = l.callbackPesteOre === undefined ? null : laCallback(o.acum, l.callbackPesteOre).toISOString();
     // cheile se dau toate, explicit (o cheie lipsă ar ajunge null, nu valoarea implicită)
     const ins = await db
       .from("lead_uri")

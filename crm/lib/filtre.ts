@@ -98,9 +98,15 @@ export function filtruCautare(q: string): string {
   const conditii: string[] = [];
   if (nume.length === 1) conditii.push(nume[0]);
   else if (nume.length > 1) conditii.push(`and(${nume.join(",")})`);
-  conditii.push(`email_norm.ilike.%${cuvinte.join(" ").toLowerCase()}%`);
-  if (telefon) conditii.push(`telefon_norm.like.%${telefon}%`);
-  return conditii.join(",");
+  if (cuvinte.length) conditii.push(`email_norm.ilike.%${cuvinte.join(" ").toLowerCase()}%`);
+  if (telefon) {
+    conditii.push(`telefon_norm.like.%${telefon}%`);
+    // „012 345” din mijlocul numărului: cifrele așa cum au fost scrise, fără „40” în față
+    const brute = q.replace(/\D/g, "");
+    if (brute !== telefon) conditii.push(`telefon_norm.like.%${brute}%`);
+  }
+  // doar semne, nimic de căutat: nu găsește nimic (altfel ar găsi toate lead-urile cu e-mail)
+  return conditii.length ? conditii.join(",") : "id.is.null";
 }
 
 /** Un cuvânt → expresie regulată (Postgres `~*`) care nu ține cont de diacritice și de majuscule. */

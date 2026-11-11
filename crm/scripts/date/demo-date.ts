@@ -223,6 +223,14 @@ function utmPentru(r: Rand): LeadDemo["utm"] {
   return undefined;
 }
 
+/** Notițele care vorbesc cu echipa, spuse de un om care lucrează singur. */
+const TEXT_SINGUR: Record<string, string> = {
+  "Interesată. Trimit numărul la Ioana să-i propună o discuție.": "Interesată. Îi propun o discuție săptămâna asta.",
+  "Are lista de pacienți în Excel. Ioana, întreab-o cât de des o completează.": "Are lista de pacienți în Excel. La discuție, o întreb cât de des o completează.",
+  "Foarte grăbit. Ioana, du-te direct la preț și termen.": "Foarte grăbit. La discuție, merg direct la preț și termen.",
+  "Știe exact ce vrea. Ioana, are bugetul aprobat.": "Știe exact ce vrea. Are bugetul aprobat.",
+};
+
 /** Cele 48 de lead-uri ale firmei demo. Cu `singur`, toți oamenii devin Adminul. */
 export function leaduriDemo(o: Optiuni): LeadDemo[] {
   const om = (c: ContTest | undefined) => (c && o.singur ? "admin" : c);
@@ -244,7 +252,7 @@ export function leaduriDemo(o: Optiuni): LeadDemo[] {
       incercari: r.incercari,
       raspunsuri: raspunsuriPentru(r),
       utm: utmPentru(r),
-      notite: notite.map((n) => ({ ...n, autor: om(n.autor)! })),
+      notite: notite.map((n) => ({ ...n, autor: om(n.autor)!, text: (o.singur && TEXT_SINGUR[n.text]) || n.text })),
       parcurs: parcurs.map((e) => ({
         ...e,
         autor: om(e.autor),
@@ -288,6 +296,26 @@ export function laOra(acum: Date, acumZile: number): Date {
   const z = ziuaBucuresti(acum);
   const d = new Date(Date.UTC(z.an, z.luna, z.zi - Math.max(1, zile), 12));
   return laBucuresti(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 18, -minute);
+}
+
+/** Ziua lui `t` (la București), la ora `ora:min` a României. */
+export function laOraRomaniei(t: Date, ora: number, min: number): Date {
+  const z = ziuaBucuresti(t);
+  return laBucuresti(z.an, z.luna, z.zi, ora, min);
+}
+
+/**
+ * Callback-ul de peste `ore` ore (negativ = întârziat), mutat în orele de lucru (09:30–17:00, ora României),
+ * fără să treacă de partea cealaltă a lui „acum”: un callback întârziat rămâne întârziat, unul viitor rămâne viitor.
+ */
+export function laCallback(acum: Date, ore: number): Date {
+  const t = new Date(acum.getTime() + ore * 3_600_000);
+  const z = ziuaBucuresti(t);
+  const ora = Math.floor(((t.getTime() / 60_000 + decalaj(t.getTime())) / 60) % 24);
+  let d = ora < 9 ? laBucuresti(z.an, z.luna, z.zi, 9, 30) : ora >= 17 ? laBucuresti(z.an, z.luna, z.zi, 17, 0) : t;
+  if (ore < 0 && d.getTime() >= acum.getTime()) d = laBucuresti(z.an, z.luna, z.zi - 1, 17, 0);
+  if (ore > 0 && d.getTime() <= acum.getTime()) d = laBucuresti(z.an, z.luna, z.zi + 1, 9, 30);
+  return d;
 }
 
 /** Orele discuțiilor (nu 14:00: acolo e discuția din datele de test). */

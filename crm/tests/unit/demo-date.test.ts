@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clientiDemo, discutiiDemo, laOra, leaduriDemo, telefonDemo, telefonNormDemo } from "../../scripts/date/demo-date";
+import { clientiDemo, discutiiDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, telefonDemo, telefonNormDemo } from "../../scripts/date/demo-date";
 
 const acum = new Date("2026-11-12T09:00:00Z"); // o miercuri
 const L = leaduriDemo({ acum, singur: false });
@@ -47,6 +47,14 @@ describe("firma demo: lead-urile", () => {
     const S = leaduriDemo({ acum, singur: true });
     expect(S.every((l) => (l.caller ?? "admin") === "admin" && (l.closer ?? "admin") === "admin")).toBe(true);
     expect(S.every((l) => l.notite.every((n) => n.autor === "admin") && l.parcurs.every((p) => (p.autor ?? "admin") === "admin"))).toBe(true);
+  });
+
+  it("singur: notițele nu pomenesc echipa", () => {
+    const S = leaduriDemo({ acum, singur: true });
+    const texte = S.flatMap((l) => l.notite.map((n) => n.text));
+    expect(texte.filter((t) => /\b(Ioana|Mara|Vlad|Radu)\b/.test(t))).toEqual([]);
+    const P = clientiDemo({ acum, singur: true }).flatMap((c) => c.proiecte.flatMap((p) => p.notite.map((n) => n.text)));
+    expect(P.filter((t) => /\b(Ioana|Mara|Vlad|Radu)\b/.test(t))).toEqual([]);
   });
 
   it("telefoanele nu se ciocnesc cu seed-ul și cu e2e", () => {
@@ -131,6 +139,22 @@ describe("firma demo: orele", () => {
       expect(d.getTime()).toBeLessThan(acum.getTime());
     }
   });
+  it("callback-urile cad în orele de lucru, oricând ar rula demo-ul", () => {
+    for (const ruleaza of ["2026-11-12T19:00:00Z", "2026-11-12T05:30:00Z", "2026-07-14T18:30:00Z", "2026-11-12T10:00:00Z"]) {
+      for (const ore of [5, 22, -2, 47, -20]) {
+        const d = laCallback(new Date(ruleaza), ore);
+        expect(ora(d)).toBeGreaterThanOrEqual(9);
+        expect(ora(d)).toBeLessThan(18);
+        expect(Math.sign(d.getTime() - new Date(ruleaza).getTime())).toBe(Math.sign(ore));
+      }
+    }
+  });
+
+  it("14:00 ora României e 14:00 și vara, și iarna", () => {
+    expect(laOraRomaniei(new Date("2026-07-14T08:00:00Z"), 14, 0).toISOString()).toBe("2026-07-14T11:00:00.000Z");
+    expect(laOraRomaniei(new Date("2026-11-12T08:00:00Z"), 14, 0).toISOString()).toBe("2026-11-12T12:00:00.000Z");
+  });
+
   it("ce e mai vechi rămâne mai devreme", () => {
     const z = [80, 33.12, 12.6, 3.05, 2.95, 2.1, 1.4, 1.08, 1];
     const t = z.map((x) => laOra(acum, x).getTime());
