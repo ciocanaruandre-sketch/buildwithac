@@ -12,6 +12,7 @@
     "sb": "node scripts/sb.mjs",
     "test:rls": "vitest run -c vitest.rls.config.ts",
     "seed": "tsx scripts/seed.mts",
+    "demo": "tsx scripts/demo.mts",
     "tipuri": "node scripts/sb.mjs gen types typescript --remote > lib/baza.types.ts",
     "tsc": "next typegen && tsc --noEmit -p ."
   },
