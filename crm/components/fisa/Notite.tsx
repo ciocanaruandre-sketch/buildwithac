@@ -28,9 +28,9 @@ export function Notite({ proiectId, notite, poateSterge }: { proiectId: string; 
 
       {notite.length === 0 && <p className="text-[13px] text-ink-3">Nicio notiță încă.</p>}
       {notite.map((n) => (
-        <div key={n.id} className="mb-2 flex items-start gap-3 border-l-2 border-line-2 bg-bg-3 px-3 py-2.5 text-[13px]">
+        <div key={n.id} className="flex items-start gap-3 border-b border-line py-3 text-[13.5px] last:border-0">
           <div className="min-w-0 flex-1">
-            <p className="mb-1 font-mono text-[11px] text-ink-3">
+            <p className="mb-1 text-[12px] text-ink-3">
               <span>{n.autor}</span> · {n.cand}
             </p>
             <p className="whitespace-pre-wrap">{n.text}</p>

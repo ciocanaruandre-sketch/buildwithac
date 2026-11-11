@@ -144,6 +144,20 @@ h1, h2, h3 { font-family: var(--text); font-weight: 700; letter-spacing: -.025em
   .kv dt { color: var(--ink-3); flex: none; }
   .kv dd { min-width: 0; text-align: right; overflow-wrap: anywhere; }
 
+  /* Orele libere din calendar: pastile; cea aleasă e aurie plină. */
+  .chip.slot { padding: 6px 12px; font-size: 13px; color: var(--ink); border: 0; }
+  .chip.slot:hover:not(:disabled) { background: var(--thumb); }
+  .chip.slot.ales { background: var(--amber); color: var(--pe-auriu); }
+  .chip.slot:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  /* Comutatorul ca pe iPhone: un checkbox adevărat, desenat ca pastilă de 36×22, verde când e bifat. */
+  .comutator { appearance: none; position: relative; flex: none; width: 36px; height: 22px; margin: 0; border-radius: 999px; background: var(--thumb); cursor: pointer; transition: background .15s; }
+  .comutator::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); transition: transform .15s; }
+  .comutator:checked { background: var(--green); }
+  .comutator:checked::after { transform: translateX(14px); }
+  .comutator:disabled { opacity: .5; cursor: default; }
+  .comutator:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
   .alerta { background: var(--urm); border: 1px solid var(--urm-bd); border-radius: var(--r); }
   .alerta .lbl { color: var(--amber); }
 

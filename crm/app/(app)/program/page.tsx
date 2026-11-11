@@ -1,3 +1,4 @@
+import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { FormularProgram } from "@/components/FormularProgram";
 import { cerRol } from "@/lib/eu";
@@ -16,8 +17,8 @@ export default async function Program({ searchParams }: PageProps<"/program">) {
 
   return (
     <>
-      <p className="lbl mb-1.5">CRM</p>
-      <h1 className="mb-2 text-[26px] font-bold">{id === om.id ? "Programul meu" : `Programul lui ${ales?.nume}`}</h1>
+      <BaraSus cale={[{ eticheta: "Program" }]} />
+      <h1 className="mb-2 text-[26px] leading-tight sm:text-[30px]">{id === om.id ? "Programul meu" : `Programul lui ${ales?.nume}`}</h1>
       <p className="mb-4 max-w-xl text-[13px] text-ink-2">Zilele și orele în care poți ține discuții. Callerii văd doar orele libere din intervalele astea, ora României.</p>
       {om.rol === "admin" && (
         <div className="mb-4 flex flex-wrap gap-2">

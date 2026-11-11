@@ -1,3 +1,4 @@
+import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ButoaneActiuni } from "@/components/ButoaneActiuni";
@@ -70,27 +71,25 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
   const closerii = (oameni ?? []).filter((o) => o.activ && (o.rol === "closer" || o.rol === "admin")).map((o) => ({ id: o.id, nume: o.nume }));
 
   const kv = (e: string, v: React.ReactNode) => (
-    <>
-      <dt className="text-ink-3">{e}</dt>
-      <dd className="min-w-0 break-words">{v}</dd>
-    </>
+    <div>
+      <dt>{e}</dt>
+      <dd>{v}</dd>
+    </div>
   );
 
   return (
     <>
-      <p className="lbl mb-1.5">
-        <Link href="/lead-uri" className="hover:text-ink">Lead-uri</Link> / fișa
-      </p>
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <h1 className="text-[26px] font-bold">{l.nume}</h1>
+      <BaraSus cale={[{ eticheta: "Lead-uri", href: "/lead-uri" }, { eticheta: l.nume }]} />
+      <div className="mb-[22px] flex flex-wrap items-center gap-3">
+        <h1 className="text-[26px] leading-tight sm:text-[30px]">{l.nume}</h1>
         <span data-testid="stare" className={`chip ${CULOARE_STARE[l.stare]}`}>{ETICHETE.stare[l.stare]}</span>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <div className="flex flex-col gap-4">
-          <div className="panel p-3.5" data-testid="urmeaza">
-            <p className="lbl mb-1.5">Acum / Urmează</p>
-            <p className="text-[15px] font-medium">{urmeaza(l, acum, textDiscutie)}</p>
+      <div className="grid items-start gap-[18px] lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-3.5">
+          <div className="panel alerta px-4 py-3.5" data-testid="urmeaza">
+            <p className="lbl">Acum / Urmează</p>
+            <p className="mt-1.5 text-[15.5px] leading-snug font-semibold tracking-[-.01em]">{urmeaza(l, acum, textDiscutie)}</p>
             {clientId && (
               <Link href={`/clienti/${clientId}`} className="mt-1.5 inline-block text-[13px] text-amber">
                 Deschide fișa clientului →
@@ -98,28 +97,28 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
             )}
           </div>
 
-          <div className="panel p-3.5">
-            <p className="lbl mb-2">Contact</p>
-            <dl className="mb-3 grid grid-cols-[88px_1fr] gap-x-2.5 gap-y-1.5 text-[13px]">
-              {kv("Telefon", <span className="font-mono">{l.telefon ?? "—"}</span>)}
+          <div className="panel px-4 pt-3.5 pb-3.5">
+            <p className="lbl">Contact</p>
+            <dl className="kv mb-3">
+              {kv("Telefon", <span className="num">{l.telefon ?? "—"}</span>)}
               {kv("E-mail", l.email ?? "—")}
             </dl>
             <ButoaneRand id={l.id} telefon={l.telefon} telefonNorm={l.telefon_norm} liber={!l.caller_id && actiuni.includes("ia_lead")} />
           </div>
 
-          <div className="panel p-3.5">
-            <p className="lbl mb-2">De unde vine</p>
-            <dl className="grid grid-cols-[88px_1fr] gap-x-2.5 gap-y-1.5 text-[13px]">
+          <div className="panel px-4 pt-3.5 pb-2">
+            <p className="lbl">De unde vine</p>
+            <dl className="kv">
               {kv("Serviciu", ETICHETE.serviciu[l.serviciu])}
               {kv("Sursă", ETICHETE.sursa[l.sursa])}
               {utm && kv("Reclamă", <span className="font-mono text-[12px]">{Object.entries(utm).map(([k, v]) => `${k.replace("utm_", "")}: ${v}`).join(" · ")}</span>)}
-              {kv("Intrat", <span className="font-mono text-[12px]">{cand(l.intrat_la, acum)}</span>)}
+              {kv("Intrat", <span className="num">{cand(l.intrat_la, acum)}</span>)}
             </dl>
           </div>
 
-          <div className="panel p-3.5">
-            <p className="lbl mb-2">Oameni</p>
-            <dl className="grid grid-cols-[88px_1fr] items-center gap-x-2.5 gap-y-2 text-[13px]">
+          <div className="panel px-4 pt-3.5 pb-2">
+            <p className="lbl">Oameni</p>
+            <dl className="kv">
               {kv("Caller", om.rol === "admin" ? <MutaLa id={l.id} camp="caller_id" eticheta="Mută callerul la" actual={l.caller_id} oameni={callerii} /> : nume(l.caller_id))}
               {kv("Closer", om.rol === "admin" ? <MutaLa id={l.id} camp="closer_id" eticheta="Mută closerul la" actual={l.closer_id} oameni={closerii} /> : nume(l.closer_id))}
             </dl>
@@ -137,13 +136,18 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                 eticheta: "Parcurs",
                 numar: evenimente?.length ?? 0,
                 continut: (
-                  <ol data-testid="parcurs" className="relative flex flex-col gap-2.5 pl-[18px] before:absolute before:top-1.5 before:bottom-1.5 before:left-1 before:w-px before:bg-line-2">
+                  <ol data-testid="parcurs" className="relative flex flex-col pl-[22px] before:absolute before:top-2 before:bottom-5 before:left-[5px] before:w-0.5 before:rounded-full before:bg-seg">
                     {(evenimente ?? []).map((e, i) => (
-                      <li key={i} className="relative text-[13px] before:absolute before:top-[5px] before:-left-[18px] before:h-[9px] before:w-[9px] before:rounded-full before:border before:border-ink-3 before:bg-bg">
-                        <p>{descrieEveniment(e as Eveniment, nume)}</p>
-                        <p className="font-mono text-[11px] text-ink-3">
+                      <li
+                        key={i}
+                        className={`relative pt-1 pb-3.5 text-[13.5px] before:absolute before:top-2 before:-left-[22px] before:h-3 before:w-3 before:rounded-full before:border-2 ${
+                          i === 0 ? "before:border-amber before:bg-amber" : "before:border-ink-3 before:bg-bg-3"
+                        }`}
+                      >
+                        <p className="text-[12px] text-ink-3">
                           {cand(e.la, acum)} · {e.autor_id ? nume(e.autor_id) : "automat"}
                         </p>
+                        <p>{descrieEveniment(e as Eveniment, nume)}</p>
                       </li>
                     ))}
                   </ol>
@@ -158,7 +162,7 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                     {(cereri ?? []).map((c) => (
                       <div key={c.id}>
                         <p className="lbl mb-2">{ETICHETE.sursa[c.sursa]} · {cand(c.primita_la, acum)}</p>
-                        <dl className="flex flex-col gap-2 text-[13px]">
+                        <dl className="flex flex-col gap-2 text-[13.5px]">
                           {(c.raspunsuri as { intrebare: string; raspuns: string }[]).map((r, i) => (
                             <div key={i}>
                               <dt className="text-ink-3">{r.intrebare}</dt>
@@ -181,8 +185,8 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                   <div data-testid="notite">
                     {(actiuni.length > 0 || om.rol === "admin") && <FormularNotita id={l.id} />}
                     {(notite ?? []).map((n) => (
-                      <div key={n.id} className="mb-2 border-l-2 border-line-2 bg-bg-3 px-3 py-2.5 text-[13px]">
-                        <p className="mb-1 font-mono text-[11px] text-ink-3">
+                      <div key={n.id} className="border-b border-line py-3 text-[13.5px] last:border-0">
+                        <p className="mb-1 text-[12px] text-ink-3">
                           <span>{nume(n.autor_id)}</span> · {cand(n.la, acum)}
                         </p>
                         <p className="whitespace-pre-wrap">{n.text}</p>
@@ -200,7 +204,7 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                 cheie: "detalii",
                 eticheta: "Detalii",
                 continut: (
-                  <dl className="grid grid-cols-[140px_1fr] gap-x-2.5 gap-y-1.5 text-[13px]">
+                  <dl className="kv">
                     {kv("Nume", l.nume)}
                     {kv("Telefon", l.telefon ?? "—")}
                     {kv("E-mail", l.email ?? "—")}

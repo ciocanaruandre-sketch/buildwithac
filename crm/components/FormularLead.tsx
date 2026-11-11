@@ -76,8 +76,8 @@ export function FormularLead({ admin }: { admin: boolean }) {
         <textarea className="camp min-h-20" value={d.nota} onChange={(e) => schimba("nota", e.target.value)} placeholder="Ce ați vorbit, când să revii" />
       </label>
       {admin && (
-        <label className="flex items-center gap-2 text-[13px] text-ink-2">
-          <input type="checkbox" checked={d.liber} onChange={(e) => schimba("liber", e.target.checked)} className="accent-[var(--amber)]" />
+        <label className="flex items-center gap-2.5 text-[13.5px] text-ink-2">
+          <input type="checkbox" checked={d.liber} onChange={(e) => schimba("liber", e.target.checked)} className="comutator" />
           Las-l liber (îl ia un caller din listă)
         </label>
       )}

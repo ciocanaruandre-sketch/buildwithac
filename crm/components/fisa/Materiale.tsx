@@ -93,7 +93,7 @@ export function Materiale({ proiectId, materiale }: { proiectId: string; materia
                 <span className="font-medium break-words">{m.titlu}</span>
                 {m.nota && <p className="text-[12px] text-ink-3">{m.nota}</p>}
               </div>
-              {m.marime && <span className="flex-none font-mono text-[11px] text-ink-3">{m.marime}</span>}
+              {m.marime && <span className="flex-none num text-[12px] text-ink-3">{m.marime}</span>}
               <span className="flex-none text-[12px] text-ink-3">
                 {m.cine} · {m.cand}
               </span>

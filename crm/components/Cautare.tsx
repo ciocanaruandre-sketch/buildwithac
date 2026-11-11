@@ -48,7 +48,7 @@ export function Cautare() {
       <form
         role="search"
         action="/lead-uri"
-        className={`${deschis ? "flex" : "hidden"} order-last w-full items-center gap-2 rounded-full bg-seg px-3.5 py-2 text-ink-3 focus-within:shadow-[0_0_0_1px_var(--amber)] md:order-none md:flex md:w-[300px] lg:w-[300px]`}
+        className={`${deschis ? "flex" : "hidden"} items-center gap-2 rounded-full px-3.5 py-2 text-ink-3 focus-within:shadow-[0_0_0_1px_var(--amber)] max-md:absolute max-md:inset-[5px] max-md:z-10 max-md:bg-bg-3 md:flex md:w-[300px] md:bg-seg`}
       >
         <Iconita nume="cauta" className="h-[15px] w-[15px] flex-none" />
         {filtre.map(([k, v]) => (

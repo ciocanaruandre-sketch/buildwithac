@@ -1,3 +1,4 @@
+import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { cand, termenScurt, ziScurta } from "@/lib/afisare";
 import { eu, type Eu } from "@/lib/eu";
@@ -7,10 +8,10 @@ import { ziuaRomaniei } from "@/lib/timp";
 import { ETICHETE, STADII } from "@/lib/tipuri";
 
 const titlu = (
-  <div className="mb-4">
-    <p className="lbl mb-1.5">CRM</p>
-    <h1 className="text-[26px] font-bold">Clienți</h1>
-  </div>
+  <>
+    <BaraSus cale={[{ eticheta: "Clienți" }]} />
+    <h1 className="mb-4 text-[26px] leading-tight sm:text-[30px]">Clienți</h1>
+  </>
 );
 
 const gol = (text: string) => <p className="panel px-4 py-6 text-[14px] text-ink-2">{text}</p>;
@@ -80,7 +81,7 @@ async function Proiecte({ om }: { om: Eu }) {
                   <Link href={{ pathname: `/clienti/${p.client_id}`, query: { proiect: p.id } }} className="font-medium hover:text-amber">
                     {p.clienti.nume}
                   </Link>
-                  <span className="block font-mono text-[11px] text-ink-3">{p.clienti.telefon ?? p.clienti.email}</span>
+                  <span className="block num text-[12px] text-ink-3">{p.clienti.telefon ?? p.clienti.email}</span>
                 </td>
                 <td className="px-3.5 py-2.5 text-ink-2">{p.titlu}</td>
                 <td className="px-3.5 py-2.5">
@@ -91,14 +92,14 @@ async function Proiecte({ om }: { om: Eu }) {
                     <div className="h-1.5 w-[88px] overflow-hidden rounded-full bg-bg-3">
                       <i className="block h-full" style={{ width: `${pr.procent}%`, background: "var(--grad)" }} />
                     </div>
-                    <span className="font-mono text-[11px] text-ink-3">
+                    <span className="num text-[12px] text-ink-3">
                       {pr.gata}/{pr.total}
                     </span>
                   </div>
                 </td>
-                <td className={`px-3.5 py-2.5 font-mono text-[12px] ${trecut ? "text-red-t" : "text-ink-2"}`}>{p.termen ? termenScurt(p.termen) : "—"}</td>
+                <td className={`px-3.5 py-2.5 num text-[12.5px] ${trecut ? "text-red-t" : "text-ink-2"}`}>{p.termen ? termenScurt(p.termen) : "—"}</td>
                 <td className="px-3.5 py-2.5 text-ink-2">{lucreaza(p.id)}</td>
-                <td className="px-3.5 py-2.5 font-mono text-[12px] text-ink-3">{ziScurta(p.clienti.creat_la)}</td>
+                <td className="px-3.5 py-2.5 num text-[12.5px] text-ink-3">{ziScurta(p.clienti.creat_la)}</td>
               </tr>
             );
           })}
@@ -140,13 +141,13 @@ async function ClientiiMei() {
                 ) : (
                   <span className="font-medium">{c.nume}</span>
                 )}
-                <span className="block font-mono text-[11px] text-ink-3">{c.telefon ?? c.email}</span>
+                <span className="block num text-[12px] text-ink-3">{c.telefon ?? c.email}</span>
               </td>
               <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.serviciu[c.serviciu]}</td>
               <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.sursa[c.sursa]}</td>
               <td className="px-3.5 py-2.5 text-ink-2">{nume(c.caller_id)}</td>
               <td className="px-3.5 py-2.5 text-ink-2">{nume(c.closer_id)}</td>
-              <td className="px-3.5 py-2.5 font-mono text-[12px] text-ink-3">{cand(c.creat_la, acum)}</td>
+              <td className="px-3.5 py-2.5 num text-[12.5px] text-ink-3">{cand(c.creat_la, acum)}</td>
             </tr>
           ))}
         </tbody>

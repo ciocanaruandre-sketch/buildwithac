@@ -1,3 +1,4 @@
+import { BaraSus } from "@/components/BaraSus";
 import { ActiuniOm, FormularInvitatie } from "@/components/Echipa";
 import { cerRol } from "@/lib/eu";
 import { admin } from "@/lib/supabase/admin";
@@ -27,10 +28,8 @@ export default async function Echipa() {
 
   return (
     <>
-      <div className="mb-4">
-        <p className="lbl mb-1.5">CRM</p>
-        <h1 className="text-[26px] font-bold">Echipa</h1>
-      </div>
+      <BaraSus cale={[{ eticheta: "Echipa" }]} />
+      <h1 className="mb-4 text-[26px] leading-tight sm:text-[30px]">Echipa</h1>
 
       <div className="mb-4">
         <FormularInvitatie />
@@ -56,7 +55,7 @@ export default async function Echipa() {
                     <span className="block font-mono text-[11px] text-ink-3">{o.email}</span>
                   </td>
                   <td className="px-3.5 py-3"><span className={`chip ${stare.c}`}>{stare.t}</span></td>
-                  <td className="px-3.5 py-3 font-mono text-ink-2">{deschise[i]}</td>
+                  <td className="num px-3.5 py-3 text-ink-2">{deschise[i]}</td>
                   <td className="px-3.5 py-2.5">
                     {o.id === eu.id || o.rol === "admin" ? (
                       <span className="text-ink-2">{ETICHETE.rol[o.rol]}{o.id === eu.id ? " (tu)" : ""}</span>

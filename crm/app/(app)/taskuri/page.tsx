@@ -1,3 +1,4 @@
+import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { BifaTask } from "@/components/fisa/Taskuri";
 import { termenScurt } from "@/lib/afisare";
@@ -25,10 +26,8 @@ export default async function TaskurileMele() {
 
   return (
     <>
-      <div className="mb-4">
-        <p className="lbl mb-1.5">CRM</p>
-        <h1 className="text-[26px] font-bold">Task-urile mele</h1>
-      </div>
+      <BaraSus cale={[{ eticheta: "Task-urile mele" }]} />
+      <h1 className="mb-4 text-[26px] leading-tight sm:text-[30px]">Task-urile mele</h1>
 
       {grupe.length === 0 ? (
         <p className="panel px-4 py-6 text-[14px] text-ink-2">Niciun task pe numele tău.</p>
@@ -37,14 +36,14 @@ export default async function TaskurileMele() {
           {grupe.map((grupa) => (
             <section key={grupa.titlu} aria-label={grupa.titlu} className="panel p-3.5">
               <h2 className={`lbl mb-2 ${grupa.rosu ? "!text-red-t" : ""}`}>
-                {grupa.titlu} <span className="ml-1 font-mono font-normal">{grupa.taskuri.length}</span>
+                {grupa.titlu} <span className="num ml-1 font-normal">{grupa.taskuri.length}</span>
               </h2>
               <ul className="flex flex-col">
                 {grupa.taskuri.map((t) => (
                   <li key={t.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2 text-[13px] last:border-0">
                     <BifaTask id={t.id} titlu={t.titlu} gata={false} />
                     <span className="min-w-[160px] flex-1">{t.titlu}</span>
-                    {t.termen && <span className={`flex-none font-mono text-[11px] ${grupa.rosu ? "text-red-t" : "text-ink-3"}`}>{termenScurt(t.termen)}</span>}
+                    {t.termen && <span className={`num flex-none text-[12px] ${grupa.rosu ? "text-red-t" : "text-ink-3"}`}>{termenScurt(t.termen)}</span>}
                     <Link href={{ pathname: `/clienti/${t.proiecte.client_id}`, query: { proiect: t.proiect_id } }} className="flex-none text-[12px] text-ink-2 hover:text-amber">
                       {t.proiecte.clienti.nume} · {t.proiecte.titlu}
                     </Link>

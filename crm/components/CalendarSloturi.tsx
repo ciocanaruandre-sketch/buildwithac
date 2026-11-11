@@ -9,14 +9,18 @@ export function CalendarSloturi({ leadId, closerId, zile }: { leadId: string; cl
   const router = useRouter();
   const [mesaj, setMesaj] = useState<string | null>(null);
   const [lucreaza, porneste] = useTransition();
+  const [ales, setAles] = useState<string | null>(null);
 
-  const alege = (la: string) =>
+  const alege = (la: string) => {
+    setAles(la);
     porneste(async () => {
       const r = await programeaza(leadId, closerId, la);
       if (r.ok) return router.push(`/lead-uri/${leadId}`);
       setMesaj(r.mesaj);
+      setAles(null);
       router.refresh();
     });
+  };
 
   if (!zile.length) return <p className="text-[13px] text-ink-3">Closerul n-are ore libere în următoarele 14 zile. Alege alt closer sau roagă-l să-și completeze programul.</p>;
 
@@ -29,11 +33,11 @@ export function CalendarSloturi({ leadId, closerId, zile }: { leadId: string; cl
       )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {zile.map((z) => (
-          <div key={z.zi} className="panel p-3">
+          <div key={z.zi} className="panel p-3.5">
             <p className="lbl mb-2">{z.zi}</p>
             <div className="flex flex-wrap gap-1.5">
               {z.sloturi.map((s) => (
-                <button key={s.la} type="button" data-testid="slot" data-la={s.la} className="btn !px-2 !py-1 font-mono text-[12px]" disabled={lucreaza} onClick={() => alege(s.la)}>
+                <button key={s.la} type="button" data-testid="slot" data-la={s.la} aria-pressed={ales === s.la} className={`chip slot num cursor-pointer ${ales === s.la ? "ales" : ""}`} disabled={lucreaza} onClick={() => alege(s.la)}>
                   {s.ora}
                 </button>
               ))}
