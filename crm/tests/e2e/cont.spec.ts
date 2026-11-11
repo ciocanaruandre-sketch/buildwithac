@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { ECHIPA_TEST } from "../../lib/echipa-test";
 import { intraCa } from "./ajutor";
 
 test("fără sesiune, lista duce la conectare", async ({ page }) => {
@@ -8,7 +9,7 @@ test("fără sesiune, lista duce la conectare", async ({ page }) => {
 
 test("parola greșită spune clar ce s-a întâmplat", async ({ page }) => {
   await page.goto("/intra");
-  await page.getByLabel("E-mail").fill("caller@test.buildwithac.ro");
+  await page.getByLabel("E-mail").fill(ECHIPA_TEST.caller.email);
   await page.getByLabel("Parola").fill("gresita-de-tot");
   await page.getByRole("button", { name: "Intră" }).click();
   await expect(page.getByText("E-mailul sau parola nu se potrivesc.")).toBeVisible();

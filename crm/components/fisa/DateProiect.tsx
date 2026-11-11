@@ -33,7 +33,7 @@ export function DateProiect({ proiectId, titlu, pretLei, incasatLei, termen }: {
       {camp("Preț (lei)", "pretLei")}
       {camp("Încasat (lei)", "incasatLei")}
       {camp("Termen de predare", "termen", "date")}
-      {mesaj && <p role="alert" className="text-[13px] text-[#ff7a66]">{mesaj}</p>}
+      {mesaj && <p role="alert" className="text-[13px] text-red-t">{mesaj}</p>}
       <div className="flex gap-2">
         <button
           type="button"

@@ -1,26 +1,45 @@
 @import "tailwindcss";
 @import "./fonturi.css";
 
-/* Tema CRM-ului, din prototip/crm-clienti.html (baza craftedbyvlad + auriul logo-ului).
-   Tema finală („mai iPhone”, colțuri rotunjite) se reglează aici, dintr-un singur loc. */
+/* Tema CRM-ului: varianta A „Grafit” din prototip/crm-tema.html#A.
+   Totul se reglează de aici: componentele folosesc doar variabilele și clasele de mai jos. */
 :root {
   --bg: #141417;
   --bg-2: #1c1c20;
-  --bg-3: #26262b;
-  --bg-side: #111114;
-  --line: #2c2c32;
-  --line-2: #3a3a40;
+  --bg-3: #232328;
+  --line: rgba(255, 255, 255, .07);
+  --line-2: rgba(255, 255, 255, .12);
   --ink: #f1f1f3;
   --ink-2: #b4b4bb;
   --ink-3: #8a8a92;
+  --glass: rgba(30, 30, 34, .55);
+  --glass-bd: rgba(255, 255, 255, .07);
+  --glass-hi: rgba(255, 255, 255, .10);
+  --edge-a: rgba(255, 255, 255, .22);
+  --edge-b: rgba(255, 255, 255, .05);
+  --blur: 28px;
+  --shadow: rgba(0, 0, 0, .35);
+  --wall-1: #ffb52e;
+  --wall-2: #e53222;
+  --wall-3: #7a0e0e;
+  --wall-op: .10;
+  --r: 10px;
+  --r-panou: 16px;
+  --r-xl: 22px;
+  --sel: rgba(255, 255, 255, .08);
+  --seg: rgba(255, 255, 255, .05);
+  --thumb: rgba(255, 255, 255, .12);
+  --btn: rgba(255, 255, 255, .07);
   --amber: #ffb52e;
   --orange: #f26a21;
   --red: #e53222;
   --green: #4fbf8a;
+  --red-t: #ff7a66;
   --blue: #6b9bd1;
+  --urm: rgba(255, 181, 46, .07);
+  --urm-bd: rgba(255, 181, 46, .22);
+  --pe-auriu: #1a1206;
   --grad: linear-gradient(90deg, #ffb52e, #f26a21 45%, #e53222);
-  --r: 3px;
-  --label: "Chakra Petch", system-ui, sans-serif;
   --text: "Inter", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
 }
@@ -29,7 +48,6 @@
   --color-bg: var(--bg);
   --color-bg-2: var(--bg-2);
   --color-bg-3: var(--bg-3);
-  --color-bg-side: var(--bg-side);
   --color-line: var(--line);
   --color-line-2: var(--line-2);
   --color-ink: var(--ink);
@@ -38,34 +56,119 @@
   --color-amber: var(--amber);
   --color-orange: var(--orange);
   --color-red: var(--red);
+  --color-red-t: var(--red-t);
   --color-green: var(--green);
   --color-blue: var(--blue);
+  --color-sel: var(--sel);
+  --color-seg: var(--seg);
   --radius-r: var(--r);
-  --font-label: var(--label);
+  --radius-panou: var(--r-panou);
+  --radius-xl2: var(--r-xl);
   --font-sans: var(--text);
   --font-mono: var(--mono);
 }
+
+:root { color-scheme: dark; }
 
 body {
   background: var(--bg);
   color: var(--ink);
   font: 14px/1.45 var(--text);
+  font-feature-settings: "cv11", "ss01";
   min-height: 100vh;
 }
 
-h1, h2, h3 { font-family: var(--label); }
+h1, h2, h3 { font-family: var(--text); font-weight: 700; letter-spacing: -.025em; }
+
+/* Fundalul: pete moi în culorile logo-ului. Degradeuri radiale, fără filter: blur (pe iPhone, blurul mare dă negru). */
+.perete { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.perete i { position: absolute; border-radius: 50%; opacity: var(--wall-op); }
+.perete .w1 { width: 640px; height: 640px; left: -140px; top: -200px; background: radial-gradient(closest-side, var(--wall-1), transparent); }
+.perete .w2 { width: 560px; height: 560px; right: -160px; top: 28%; background: radial-gradient(closest-side, var(--wall-2), transparent); }
+.perete .w3 { width: 760px; height: 520px; left: 28%; bottom: -300px; background: radial-gradient(closest-side, var(--wall-3), transparent); }
 
 @layer components {
-  .lbl { font: 600 10.5px var(--label); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
-  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border: 1px solid var(--line-2); border-radius: var(--r); font: 500 11px var(--label); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
-  .chip.amber { border-color: #5a4214; color: var(--amber); background: #2a2010; }
-  .chip.green { border-color: #1f4a36; color: var(--green); background: #13261d; }
-  .chip.red { border-color: #5a1d16; color: #ff7a66; background: #2a1411; }
-  .chip.blue { border-color: #22384f; color: var(--blue); background: #141f2b; }
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--line-2); border-radius: var(--r); background: var(--bg-2); color: var(--ink); font: 600 12px var(--label); letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+  .num { font-variant-numeric: tabular-nums; }
+  .lbl { font: 600 12.5px var(--text); color: var(--ink-3); }
+  .eroare { color: var(--red-t); }
+
+  .panel { position: relative; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-panou); }
+
+  /* Sticla: doar pe ce plutește (barele, ferestrele, meniurile). */
+  .sticla {
+    position: relative;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(170%);
+    backdrop-filter: blur(var(--blur)) saturate(170%);
+    border: 1px solid var(--glass-bd);
+    box-shadow: inset 0 1px 0 var(--glass-hi), 0 14px 40px var(--shadow);
+  }
+  .sticla::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(140deg, var(--edge-a), transparent 32%, transparent 66%, var(--edge-b));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 15px; border: 0; border-radius: 999px; background: var(--btn); color: var(--ink); font: 550 13px var(--text); white-space: nowrap; cursor: pointer; }
+  .btn:hover { background: var(--thumb); }
   .btn:disabled { opacity: .5; cursor: default; }
-  .btn.pri { background: var(--amber); border-color: var(--amber); color: #1a1206; }
-  .panel { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r); }
-  .camp { width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--line-2); border-radius: var(--r); color: var(--ink); font: 14px var(--text); }
-  .camp:focus { outline: 1px solid var(--amber); border-color: var(--amber); }
+  .btn.pri { background: var(--amber); color: var(--pe-auriu); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 4px 14px rgba(255, 181, 46, .25); }
+  .btn.pri:hover { background: var(--amber); filter: brightness(1.06); }
+  .btn.mic { padding: 4px 10px; font-size: 12px; }
+  .btn.pericol { background: color-mix(in srgb, var(--red-t) 15%, transparent); color: var(--red-t); }
+  .btn.pericol:hover { background: color-mix(in srgb, var(--red-t) 24%, transparent); }
+
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--btn); color: var(--ink-2); font: 500 12px var(--text); white-space: nowrap; }
+  .chip.amber { background: color-mix(in srgb, var(--amber) 15%, transparent); color: var(--amber); }
+  .chip.green { background: color-mix(in srgb, var(--green) 15%, transparent); color: var(--green); }
+  .chip.red { background: color-mix(in srgb, var(--red-t) 15%, transparent); color: var(--red-t); }
+  .chip.blue { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }
+
+  /* Controlul segmentat (tab-urile): pastilă, tab-ul ales e „degetul” mai deschis. Se derulează în interior pe ecrane mici. */
+  .seg { display: flex; width: max-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; gap: 2px; padding: 3px; border-radius: 999px; background: var(--seg); }
+  .seg::-webkit-scrollbar { display: none; }
+  .seg [role="tab"] { flex: none; display: flex; align-items: center; gap: 6px; padding: 7px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2); font: 550 13px var(--text); white-space: nowrap; cursor: pointer; }
+  .seg [role="tab"]:hover { color: var(--ink); }
+  .seg [role="tab"][aria-selected="true"] { background: var(--thumb); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .18), inset 0 1px 0 var(--glass-hi); }
+
+  /* Rânduri ca în Setări: eticheta la stânga, valoarea la dreapta. */
+  .kv > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .kv > div:last-child { border-bottom: 0; }
+  .kv dt { color: var(--ink-3); flex: none; }
+  .kv dd { min-width: 0; text-align: right; overflow-wrap: anywhere; }
+
+  /* Orele libere din calendar: pastile; cea aleasă e aurie plină. */
+  .chip.slot { padding: 6px 12px; font-size: 13px; color: var(--ink); border: 0; }
+  .chip.slot:hover:not(:disabled) { background: var(--thumb); }
+  .chip.slot.ales { background: var(--amber); color: var(--pe-auriu); }
+  .chip.slot:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .chip.slot:disabled:not(.ales) { opacity: .5; cursor: default; }
+
+  /* Comutatorul ca pe iPhone: un checkbox adevărat, desenat ca pastilă de 36×22, verde când e bifat. */
+  .comutator { appearance: none; position: relative; flex: none; width: 36px; height: 22px; margin: 0; border-radius: 999px; background: var(--thumb); cursor: pointer; transition: background .15s; }
+  .comutator::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); transition: transform .15s; }
+  .comutator:checked { background: var(--green); }
+  .comutator:checked::after { transform: translateX(14px); }
+  .comutator:disabled { opacity: .5; cursor: default; }
+  .comutator:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .alerta { background: var(--urm); border: 1px solid var(--urm-bd); border-radius: var(--r); }
+  .alerta .lbl { color: var(--amber); }
+
+  .camp { width: 100%; padding: 8px 12px; background: var(--seg); border: 1px solid var(--line-2); border-radius: var(--r); color: var(--ink); font: 14px var(--text); }
+  .camp::placeholder { color: var(--ink-3); }
+  .camp option { background: var(--bg-2); color: var(--ink); }
+  .camp:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
+
+  .btn:focus-visible, a.chip:focus-visible, .camp:focus-visible, [role="tab"]:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
 }

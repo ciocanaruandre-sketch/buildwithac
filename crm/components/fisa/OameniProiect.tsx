@@ -29,7 +29,7 @@ export function OameniProiect({ proiectId, oameni, deAdaugat }: { proiectId: str
       {oameni.map((o) => (
         <div key={o.id} className="flex items-center gap-2">
           <span className="min-w-0 flex-1 truncate">
-            {o.nume} <span className="font-mono text-[11px] text-ink-3">{o.procent === null ? "fără procent" : `${String(o.procent).replace(".", ",")}%`}</span>
+            {o.nume} <span className="num text-[12px] text-ink-3">{o.procent === null ? "fără procent" : `${String(o.procent).replace(".", ",")}%`}</span>
           </span>
           <button type="button" className="btn !px-2 !py-1 text-[11px]" disabled={lucreaza} onClick={() => fa(() => scoateOm(proiectId, o.id))}>
             Scoate
@@ -63,7 +63,7 @@ export function OameniProiect({ proiectId, oameni, deAdaugat }: { proiectId: str
           </button>
         </div>
       )}
-      {mesaj && <span role="alert" className="text-[12px] text-[#ff7a66]">{mesaj}</span>}
+      {mesaj && <span role="alert" className="text-[12px] text-red-t">{mesaj}</span>}
     </div>
   );
 }

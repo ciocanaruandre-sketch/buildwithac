@@ -21,13 +21,13 @@ export function useActiune() {
   return { fa, mesaj, lucreaza };
 }
 
-export const Mesaj = ({ text }: { text: string | null }) => (text ? <p role="alert" className="text-[13px] text-[#ff7a66]">{text}</p> : null);
+export const Mesaj = ({ text }: { text: string | null }) => (text ? <p role="alert" className="text-[13px] text-red-t">{text}</p> : null);
 
 /** „Șterge”, în doi pași: al doilea click („Sigur?”) șterge. */
 export function ButonSterge({ sterge, oprit }: { sterge: () => void; oprit: boolean }) {
   const [sigur, setSigur] = useState(false);
   return sigur ? (
-    <button type="button" className="btn flex-none !border-[#7a2a20] !px-2 !py-1 text-[11px] !text-[#ff7a66]" disabled={oprit} onClick={sterge} onBlur={() => setSigur(false)}>
+    <button type="button" className="btn mic pericol flex-none" disabled={oprit} onClick={sterge} onBlur={() => setSigur(false)}>
       Sigur?
     </button>
   ) : (

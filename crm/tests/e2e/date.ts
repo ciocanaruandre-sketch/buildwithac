@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../../lib/baza.types";
+import { ECHIPA_TEST, type ContTest } from "../../lib/echipa-test";
 
 type LeadNou = Database["public"]["Tables"]["lead_uri"]["Insert"];
 
@@ -27,8 +28,8 @@ export async function stergeLead(id: string) {
   await db().from("lead_uri").delete().eq("id", id);
 }
 
-export async function idDe(cont: string) {
-  const { data } = await db().from("profiluri").select("id").eq("email", `${cont}@test.buildwithac.ro`).single();
+export async function idDe(cont: ContTest) {
+  const { data } = await db().from("profiluri").select("id").eq("email", ECHIPA_TEST[cont].email).single();
   return data!.id;
 }
 
@@ -45,7 +46,7 @@ export async function clientNou(camp: Partial<LeadNou> = {}) {
 }
 
 /** Pune un om pe proiect (cu cheia de serviciu). */
-export async function punePeProiect(proiectId: string, cont: string, procent: number | null = null) {
+export async function punePeProiect(proiectId: string, cont: ContTest, procent: number | null = null) {
   const { error } = await db().from("proiect_oameni").insert({ proiect_id: proiectId, om_id: await idDe(cont), procent });
   if (error) throw error;
 }

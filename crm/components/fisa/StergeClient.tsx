@@ -25,7 +25,7 @@ export function StergeClient({ clientId }: { clientId: string }) {
         <>
           <p className="mb-2.5 text-[13px] text-ink-2">Ștergi definitiv clientul, cu proiectele, task-urile, notițele și fișierele lui. Nu se poate anula.</p>
           <div className="flex gap-2">
-            <button type="button" className="btn !border-[#7a2a20] !text-[#ff7a66]" disabled={lucreaza} onClick={sterge}>
+            <button type="button" className="btn pericol" disabled={lucreaza} onClick={sterge}>
               {lucreaza ? "…" : "Da, șterge-l"}
             </button>
             <button type="button" className="btn" disabled={lucreaza} onClick={() => setSigur(false)}>
@@ -38,7 +38,7 @@ export function StergeClient({ clientId }: { clientId: string }) {
           Șterge clientul
         </button>
       )}
-      {mesaj && <p role="alert" className="mt-2 text-[13px] text-[#ff7a66]">{mesaj}</p>}
+      {mesaj && <p role="alert" className="mt-2 text-[13px] text-red-t">{mesaj}</p>}
     </div>
   );
 }

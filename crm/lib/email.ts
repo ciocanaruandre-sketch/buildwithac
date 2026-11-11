@@ -1,13 +1,14 @@
 import { CRM } from "@/lib/config";
+import { eAdresaFaraCasuta } from "@/lib/echipa-test";
 
 /** `continut` e în base64. */
 export type Atasament = { nume: string; continut: string };
 export type Email = { catre: string; subiect: string; text: string; html: string; atasamente?: Atasament[] };
 
-/** Un e-mail prin Resend. Fără cheie (pe test) sau la eroare întoarce false; nu aruncă. */
+/** Un e-mail prin Resend. Fără cheie (pe test), spre o adresă fără căsuță sau la eroare întoarce false; nu aruncă. */
 export async function trimiteEmail(e: Email, f: typeof fetch = fetch): Promise<boolean> {
   const cheie = process.env.RESEND_API_KEY;
-  if (!cheie) return false;
+  if (!cheie || eAdresaFaraCasuta(e.catre)) return false;
   try {
     const r = await f("https://api.resend.com/emails", {
       method: "POST",

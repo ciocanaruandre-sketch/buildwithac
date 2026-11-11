@@ -49,7 +49,7 @@ export function ProiectNou({ clientId }: { clientId: string }) {
       <button type="button" className="btn !px-2 !py-1 text-[11px]" disabled={lucreaza} onClick={() => setDeschis(false)}>
         Renunță
       </button>
-      {mesaj && <span role="alert" className="text-[12px] text-[#ff7a66]">{mesaj}</span>}
+      {mesaj && <span role="alert" className="text-[12px] text-red-t">{mesaj}</span>}
     </span>
   );
 }

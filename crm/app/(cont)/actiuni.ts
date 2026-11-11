@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { eAdresaFaraCasuta } from "@/lib/echipa-test";
 import { supabase } from "@/lib/supabase/server";
 
 export type StareFormular = { eroare?: string; mesaj?: string } | undefined;
@@ -30,7 +31,8 @@ export async function cereParolaNoua(_: StareFormular, f: FormData): Promise<Sta
   const db = await supabase();
   const h = await headers();
   const origine = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
-  await db.auth.resetPasswordForEmail(email, { redirectTo: `${origine}/parola` });
+  // spre adresele echipei de test/demo nu pleacă nimic (n-au căsuță)
+  if (!eAdresaFaraCasuta(email)) await db.auth.resetPasswordForEmail(email, { redirectTo: `${origine}/parola` });
   // același mesaj, fie că adresa are cont, fie că nu
   return { mesaj: "Dacă adresa are cont, ți-am trimis un link pentru parola nouă." };
 }

@@ -1,54 +1,76 @@
 import { iesi } from "@/app/(cont)/actiuni";
+import { Iconita } from "@/components/Iconite";
 import { Navigare, type Legatura } from "@/components/Navigare";
+import { initiale } from "@/lib/afisare";
 import { eu } from "@/lib/eu";
 import { ETICHETE, type Rol } from "@/lib/tipuri";
 
 function legaturiPentru(rol: Rol): Legatura[] {
-  const taskuri = { href: "/taskuri", eticheta: "Task-urile mele" };
-  if (rol === "constructor") return [{ href: "/clienti", eticheta: "Clienți" }, taskuri];
-  const l: Legatura[] = [
-    { href: "/lead-uri", eticheta: "Lead-uri" },
-    { href: "/clienti", eticheta: "Clienți" },
-  ];
+  const taskuri: Legatura = { href: "/taskuri", eticheta: "Task-urile mele", iconita: "taskuri" };
+  const clienti: Legatura = { href: "/clienti", eticheta: "Clienți", iconita: "clienti" };
+  if (rol === "constructor") return [clienti, taskuri];
+  const l: Legatura[] = [{ href: "/lead-uri", eticheta: "Lead-uri", iconita: "lead-uri" }, clienti];
   if (rol === "admin") l.push(taskuri);
-  if (rol === "closer" || rol === "admin") l.push({ href: "/program", eticheta: "Program" });
-  if (rol === "admin") l.push({ href: "/echipa", eticheta: "Echipa" });
+  if (rol === "closer" || rol === "admin") l.push({ href: "/program", eticheta: "Program", iconita: "program" });
+  if (rol === "admin") l.push({ href: "/echipa", eticheta: "Echipa", iconita: "echipa" });
   return l;
 }
 
-const initiale = (nume: string) =>
-  nume
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase();
+function Logo() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <i className="block h-[26px] w-[26px] rounded-[8px] shadow-[inset_0_1px_0_rgba(255,255,255,.4)]" style={{ background: "var(--grad)" }} />
+      <div className="text-[15px] leading-tight font-semibold tracking-[-.01em]">
+        buildwithac
+        <small className="block text-[11.5px] font-medium tracking-normal text-ink-3">CRM</small>
+      </div>
+    </div>
+  );
+}
 
 export default async function LayoutAplicatie({ children }: { children: React.ReactNode }) {
   const om = await eu();
+  const legaturi = legaturiPentru(om.rol);
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[216px_1fr]">
-      <aside className="flex flex-col gap-0.5 border-line bg-bg-side px-3 py-[18px] md:sticky md:top-0 md:h-screen md:border-r">
-        <div className="flex items-center gap-2.5 px-2 pt-1 pb-[18px]">
-          <i className="block h-[22px] w-[22px] rounded-r" style={{ background: "var(--grad)" }} />
-          <div>
-            <b className="block font-label text-[15px] font-bold tracking-wide">buildwithac</b>
-            <small className="lbl block">CRM</small>
-          </div>
+    <div className="min-h-screen">
+      <aside className="sticla fixed top-3 bottom-3 left-3 z-20 hidden w-[236px] flex-col gap-0.5 rounded-xl2 px-2.5 pt-4 pb-2.5 md:flex">
+        <div className="px-2.5 pt-0.5 pb-[18px]">
+          <Logo />
         </div>
-        <Navigare legaturi={legaturiPentru(om.rol)} />
-        <div className="mt-auto flex items-center gap-2.5 border-t border-line px-2 pt-2.5">
-          <span className="grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-[#3b2a12] font-label text-[11px] font-semibold text-amber">{initiale(om.nume)}</span>
+        <Navigare legaturi={legaturi} unde="laterala" />
+        <div className="mt-auto flex items-center gap-2.5 rounded-r bg-sel p-2.5">
+          <span
+            className={`grid h-7 w-7 flex-none place-items-center rounded-full text-[11px] font-semibold ${om.rol === "admin" ? "text-[var(--pe-auriu)]" : "bg-[var(--btn)] text-ink-2"}`}
+            style={om.rol === "admin" ? { background: "var(--grad)" } : undefined}
+          >
+            {initiale(om.nume)}
+          </span>
           <div className="min-w-0 flex-1">
-            <b className="block truncate font-label text-[12px] font-semibold">{om.nume}</b>
-            <span className="text-[11px] text-ink-3">{ETICHETE.rol[om.rol]}</span>
+            <b className="block truncate text-[13px] font-semibold">{om.nume}</b>
+            <span className="text-[12px] text-ink-3">{ETICHETE.rol[om.rol]}</span>
           </div>
           <form action={iesi}>
-            <button className="font-label text-[11px] uppercase tracking-wider text-ink-3 hover:text-ink">Ieși</button>
+            <button aria-label="Ieși" title="Ieși" className="grid h-8 w-8 place-items-center rounded-full text-ink-3 hover:bg-[var(--btn)] hover:text-ink">
+              <Iconita nume="iesi" className="h-[17px] w-[17px]" />
+            </button>
           </form>
         </div>
       </aside>
-      <main className="min-w-0 px-4 py-[22px] md:px-7">{children}</main>
+
+      <header className="flex items-center justify-between px-4 pt-4 pb-1 md:hidden">
+        <Logo />
+        <form action={iesi}>
+          <button className="btn mic">Ieși</button>
+        </form>
+      </header>
+
+      <div className="md:pl-[256px]">
+        <main className="mx-auto min-w-0 max-w-[1160px] px-4 pt-2 pb-[calc(84px+env(safe-area-inset-bottom))] md:px-6 md:pt-3 md:pb-10">
+          {children}
+        </main>
+      </div>
+
+      <Navigare legaturi={legaturi} unde="jos" />
     </div>
   );
 }

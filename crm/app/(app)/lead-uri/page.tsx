@@ -1,13 +1,14 @@
 import Link from "next/link";
+import { BaraSus } from "@/components/BaraSus";
 import { ButoaneRand } from "@/components/ButoaneRand";
 import { CULOARE_STARE, cand } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
-import { ETICHETE_PERIOADA, ETICHETE_SCURTATURA, PERIOADE, SCURTATURI, cautareTelefon, dinParametri, intervalPerioada, spreParametri } from "@/lib/filtre";
+import { ETICHETE_PERIOADA, ETICHETE_SCURTATURA, PERIOADE, SCURTATURI, dinParametri, filtruCautare, intervalPerioada, spreParametri } from "@/lib/filtre";
 import { supabase } from "@/lib/supabase/server";
 import { laOraRomaniei, ziuaPeste, ziuaRomaniei } from "@/lib/timp";
 import { ETICHETE, SERVICII, STARI, SURSE, type Stare } from "@/lib/tipuri";
 
-const PE_PAGINA = 50;
+const PE_PAGINA = 25;
 const NUMARATE: Stare[] = ["nou", "fara_raspuns", "callback", "programat", "oferta_trimisa"];
 
 export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) {
@@ -23,13 +24,7 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
   const numarate = await Promise.all(NUMARATE.map((s) => db.from("lead_uri").select("id", { count: "exact", head: true }).eq("stare", s)));
 
   let q = db.from("lead_uri").select("id, nume, telefon, telefon_norm, email, serviciu, sursa, stare, callback_la, intrat_la, caller_id, closer_id", { count: "exact" });
-  if (f.q) {
-    const curat = f.q.replace(/[,()%*\\]/g, " ").trim();
-    const tel = cautareTelefon(f.q);
-    const conditii = [`nume.ilike.%${curat}%`, `email_norm.ilike.%${curat.toLowerCase()}%`];
-    if (tel) conditii.push(`telefon_norm.like.%${tel}%`);
-    q = q.or(conditii.join(","));
-  }
+  if (f.q) q = q.or(filtruCautare(f.q));
   const { de, pana } = intervalPerioada(f.perioada, acum);
   if (de) q = q.gte("intrat_la", de.toISOString());
   if (pana) q = q.lt("intrat_la", pana.toISOString());
@@ -53,32 +48,29 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="lbl mb-1.5">CRM</p>
-          <h1 className="text-[26px] font-bold">Lead-uri</h1>
-        </div>
+      <BaraSus cale={[{ eticheta: "Lead-uri" }]}>
         <Link href="/lead-uri/nou" className="btn pri">
           + Lead de mână
         </Link>
-      </div>
+      </BaraSus>
+      <h1 className="mb-4 text-[30px] leading-tight">Lead-uri</h1>
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {NUMARATE.map((s, i) => (
           <Link
             key={s}
             href={`/lead-uri${spreParametri({ perioada: "tot", pagina: 1 }, { stare: f.stare === s ? undefined : s })}`}
-            className={`panel px-3.5 py-3 ${f.stare === s ? "!border-amber" : ""}`}
+            className={`panel px-4 py-3 ${f.stare === s ? "!border-amber" : "hover:border-line-2"}`}
             aria-label={`${ETICHETE.stare[s]} ${numarate[i].count ?? 0}`}
           >
             <span className="lbl block">{ETICHETE.stare[s]}</span>
-            <b className="font-mono text-[22px] font-medium">{numarate[i].count ?? 0}</b>
+            <b className="num mt-0.5 block text-[22px] font-semibold tracking-[-.02em]">{numarate[i].count ?? 0}</b>
           </Link>
         ))}
       </div>
 
       <form className="mb-3 flex flex-wrap gap-2" action="/lead-uri">
-        <input className="camp !w-full sm:!w-64" name="q" defaultValue={f.q} placeholder="Nume, telefon sau e-mail" aria-label="Caută" />
+        {f.q && <input type="hidden" name="q" value={f.q} />}
         <select className="camp !w-auto" name="perioada" defaultValue={f.perioada} aria-label="Perioada">
           {PERIOADE.map((p) => (
             <option key={p} value={p}>{ETICHETE_PERIOADA[p]}</option>
@@ -127,11 +119,11 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
       </div>
 
       <div className="panel overflow-x-auto">
-        <table className="w-full min-w-[980px] border-collapse text-[13px]">
+        <table className="w-full min-w-[980px] border-collapse text-[13.5px]">
           <thead>
             <tr className="border-b border-line text-left">
               {["Nume", "Serviciu", "Sursă", "Stare", "Callback", "Intrat", "Caller", ""].map((t) => (
-                <th key={t} className="lbl px-3.5 py-2.5 font-semibold">{t}</th>
+                <th key={t} className="lbl px-3.5 py-3 text-left">{t}</th>
               ))}
             </tr>
           </thead>
@@ -142,13 +134,13 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
                 <tr key={l.id} className="border-b border-line last:border-0">
                   <td className="px-3.5 py-2.5">
                     <Link href={`/lead-uri/${l.id}`} className="font-medium hover:text-amber">{l.nume}</Link>
-                    <span className="block font-mono text-[11px] text-ink-3">{l.telefon ?? l.email}</span>
+                    <span className="num block text-[12px] text-ink-3">{l.telefon ?? l.email}</span>
                   </td>
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.serviciu[l.serviciu]}</td>
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.sursa[l.sursa]}</td>
                   <td className="px-3.5 py-2.5"><span className={`chip ${CULOARE_STARE[l.stare]}`}>{ETICHETE.stare[l.stare]}</span></td>
-                  <td className={`px-3.5 py-2.5 font-mono text-[12px] ${intarziat ? "text-[#ff7a66]" : "text-ink-2"}`}>{l.stare === "callback" && l.callback_la ? cand(l.callback_la, acum) : "—"}</td>
-                  <td className="px-3.5 py-2.5 font-mono text-[12px] text-ink-3">{cand(l.intrat_la, acum)}</td>
+                  <td className={`num px-3.5 py-2.5 text-[12.5px] ${intarziat ? "text-red-t" : "text-ink-2"}`}>{l.stare === "callback" && l.callback_la ? cand(l.callback_la, acum) : "—"}</td>
+                  <td className="num px-3.5 py-2.5 text-[12.5px] text-ink-3">{cand(l.intrat_la, acum)}</td>
                   <td className="px-3.5 py-2.5 text-ink-2">{l.caller_id ? numeOm.get(l.caller_id) ?? "—" : <span className="text-ink-3">liber</span>}</td>
                   <td className="px-3.5 py-2">
                     <ButoaneRand id={l.id} telefon={l.telefon} telefonNorm={l.telefon_norm} liber={!l.caller_id} />
@@ -166,7 +158,7 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
       </div>
 
       {total > PE_PAGINA && (
-        <div className="mt-3 flex items-center gap-2 font-mono text-[12px] text-ink-3">
+        <div className="num mt-3 flex items-center gap-2 text-[12.5px] text-ink-3">
           {f.pagina > 1 && <Link className="btn" href={`/lead-uri${spreParametri(f, { pagina: f.pagina - 1 })}`}>Înapoi</Link>}
           <span>
             {start + 1}–{Math.min(start + PE_PAGINA, total)} din {total}

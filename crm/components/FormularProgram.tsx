@@ -30,14 +30,14 @@ export function FormularProgram({ closerId, program, durata }: { closerId: strin
     <div className="panel max-w-xl p-4">
       <div className="flex flex-col gap-2">
         {randuri.map((r, i) => (
-          <div key={ZILE[i]} className="flex flex-wrap items-center gap-2">
-            <label className="flex w-32 items-center gap-2 text-[13px]">
-              <input type="checkbox" checked={r.activ} onChange={(e) => schimba(i, { activ: e.target.checked })} aria-label={ZILE[i]} />
+          <div key={ZILE[i]} className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-line pb-2.5 last:border-0 last:pb-0">
+            <label className="flex w-full items-center gap-2.5 text-[13.5px] sm:w-36">
+              <input type="checkbox" className="comutator" checked={r.activ} onChange={(e) => schimba(i, { activ: e.target.checked })} aria-label={ZILE[i]} />
               {ZILE[i]}
             </label>
-            <input type="time" className="camp !w-auto" value={r.de_la} disabled={!r.activ} onChange={(e) => schimba(i, { de_la: e.target.value })} aria-label={`${ZILE[i]}, de la`} />
+            <input type="time" className="camp min-w-0 flex-1 sm:!w-auto sm:flex-none" value={r.de_la} disabled={!r.activ} onChange={(e) => schimba(i, { de_la: e.target.value })} aria-label={`${ZILE[i]}, de la`} />
             <span className="text-ink-3">–</span>
-            <input type="time" className="camp !w-auto" value={r.pana_la} disabled={!r.activ} onChange={(e) => schimba(i, { pana_la: e.target.value })} aria-label={`${ZILE[i]}, până la`} />
+            <input type="time" className="camp min-w-0 flex-1 sm:!w-auto sm:flex-none" value={r.pana_la} disabled={!r.activ} onChange={(e) => schimba(i, { pana_la: e.target.value })} aria-label={`${ZILE[i]}, până la`} />
           </div>
         ))}
       </div>
@@ -53,7 +53,7 @@ export function FormularProgram({ closerId, program, durata }: { closerId: strin
         Salvează programul
       </button>
       {mesaj && (
-        <p role={mesaj.ok ? "status" : "alert"} className={`mt-2 text-[13px] ${mesaj.ok ? "text-green" : "text-[#ff7a66]"}`}>
+        <p role={mesaj.ok ? "status" : "alert"} className={`mt-2 text-[13px] ${mesaj.ok ? "text-green" : "text-red-t"}`}>
           {mesaj.text}
         </p>
       )}

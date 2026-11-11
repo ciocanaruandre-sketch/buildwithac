@@ -24,12 +24,12 @@ export const candLung = (d: Date | string) => {
 
 /** Culoarea pastilei de stare (clasele .chip din tema.css). */
 export const CULOARE_STARE: Record<Stare, "" | "amber" | "green" | "red" | "blue"> = {
-  nou: "amber",
+  nou: "blue",
   fara_raspuns: "",
-  a_raspuns: "blue",
-  callback: "amber",
-  programat: "blue",
-  oferta_trimisa: "blue",
+  a_raspuns: "",
+  callback: "",
+  programat: "amber",
+  oferta_trimisa: "amber",
   client: "green",
   pierdut: "red",
   descalificat: "red",
@@ -45,3 +45,13 @@ const ZI_TERMEN_SCURT = new Intl.DateTimeFormat("ro-RO", { timeZone: "UTC", day:
 export const termenLung = (zi: string) => ZI_TERMEN.format(new Date(`${zi}T00:00:00Z`));
 /** „13 nov.”, pentru liste. */
 export const termenScurt = (zi: string) => ZI_TERMEN_SCURT.format(new Date(`${zi}T00:00:00Z`));
+
+/** Inițialele pentru avatar: „Radu Stan” → „RS”; la „Laura Ene · Atelier Ceramică” contează firma → „AC”. */
+export const initiale = (nume: string) =>
+  (nume.split("·").pop() ?? nume)
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0] ?? "")
+    .join("")
+    .toUpperCase();

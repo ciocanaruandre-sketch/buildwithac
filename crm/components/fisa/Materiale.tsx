@@ -88,12 +88,12 @@ export function Materiale({ proiectId, materiale }: { proiectId: string; materia
         <ul className="flex flex-col">
           {materiale.map((m) => (
             <li key={m.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2.5 text-[13px] last:border-0">
-              <span className="grid h-7 w-9 flex-none place-items-center rounded-r border border-line-2 font-label text-[9.5px] font-semibold tracking-wider text-ink-3">{m.eticheta}</span>
+              <span className="grid h-7 w-9 flex-none place-items-center rounded-r border border-line-2 text-[10.5px] font-semibold text-ink-3">{m.eticheta}</span>
               <div className="min-w-[160px] flex-1">
                 <span className="font-medium break-words">{m.titlu}</span>
                 {m.nota && <p className="text-[12px] text-ink-3">{m.nota}</p>}
               </div>
-              {m.marime && <span className="flex-none font-mono text-[11px] text-ink-3">{m.marime}</span>}
+              {m.marime && <span className="flex-none num text-[12px] text-ink-3">{m.marime}</span>}
               <span className="flex-none text-[12px] text-ink-3">
                 {m.cine} · {m.cand}
               </span>

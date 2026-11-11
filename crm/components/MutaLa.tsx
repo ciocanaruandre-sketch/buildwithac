@@ -32,7 +32,7 @@ export function MutaLa({ id, camp, eticheta, actual, oameni }: { id: string; cam
       >
         Mută
       </button>
-      {mesaj && <span role="alert" className="text-[12px] text-[#ff7a66]">{mesaj}</span>}
+      {mesaj && <span role="alert" className="text-[12px] text-red-t">{mesaj}</span>}
     </div>
   );
 }

@@ -25,7 +25,7 @@ export function StergeLead({ id }: { id: string }) {
         <>
           <p className="mb-2.5 text-[13px] text-ink-2">Se șterge definitiv, cu notițele și parcursul lui. Nu se poate anula.</p>
           <div className="flex gap-2">
-            <button type="button" className="btn !border-[#7a2a20] !text-[#ff7a66]" disabled={lucreaza} onClick={sterge}>
+            <button type="button" className="btn pericol" disabled={lucreaza} onClick={sterge}>
               {lucreaza ? "…" : "Da, șterge-l"}
             </button>
             <button type="button" className="btn" disabled={lucreaza} onClick={() => setSigur(false)}>Renunță</button>
@@ -34,7 +34,7 @@ export function StergeLead({ id }: { id: string }) {
       ) : (
         <button type="button" className="btn" onClick={() => setSigur(true)}>Șterge lead-ul</button>
       )}
-      {mesaj && <p role="alert" className="mt-2 text-[13px] text-[#ff7a66]">{mesaj}</p>}
+      {mesaj && <p role="alert" className="mt-2 text-[13px] text-red-t">{mesaj}</p>}
     </div>
   );
 }

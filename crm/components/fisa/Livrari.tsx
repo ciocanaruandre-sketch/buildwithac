@@ -52,7 +52,7 @@ export function Livrari({ proiectId, livrari }: { proiectId: string; livrari: Li
                 )}
                 {l.nota && <p className="text-[12px] text-ink-3">{l.nota}</p>}
               </div>
-              <span className="flex-none font-mono text-[11px] text-ink-3">{l.cand}</span>
+              <span className="flex-none num text-[12px] text-ink-3">{l.cand}</span>
               <span data-testid="stare-livrare" className={`chip flex-none ${CULOARE[l.stare]}`}>{ETICHETE.livrare[l.stare]}</span>
               <select
                 className="camp !w-auto flex-none !py-1 text-[12px]"

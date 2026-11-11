@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cautareTelefon, dinParametri, intervalPerioada, spreParametri } from "@/lib/filtre";
+import { cautare, cautareTelefon, dinParametri, filtruCautare, intervalPerioada, spreParametri, tiparCuvant } from "@/lib/filtre";
 
 describe("dinParametri", () => {
   it("valorile necunoscute se ignoră; implicit „tot”, pagina 1", () => {
@@ -60,5 +60,55 @@ describe("cautareTelefon", () => {
   it("prea puține cifre sau text → null", () => {
     expect(cautareTelefon("07")).toBeNull();
     expect(cautareTelefon("Elena")).toBeNull();
+  });
+});
+
+describe("cautare", () => {
+  it("împarte în cuvinte, fără semnele care strică filtrul", () => {
+    expect(cautare("florarie iris").cuvinte).toEqual(["florarie", "iris"]);
+    expect(cautare("  Elena · (Boabe), ").cuvinte).toEqual(["Elena", "Boabe"]);
+  });
+  it("cu cel puțin 3 cifre caută și după telefon, oricum ar fi scris", () => {
+    expect(cautare("+40 722 000").telefon).toBe("40722000");
+    expect(cautare("0722 000").telefon).toBe("40722000");
+    expect(cautare("722000").telefon).toBe("722000");
+  });
+  it("prea puține cifre → fără telefon", () => {
+    expect(cautare("ab").telefon).toBeNull();
+  });
+});
+
+describe("tiparCuvant", () => {
+  const gaseste = (cuvant: string, nume: string) => new RegExp(tiparCuvant(cuvant), "i").test(nume);
+  it("nu ține cont de diacritice și de majuscule", () => {
+    expect(gaseste("floraria", "Florăria Iris")).toBe(true);
+    expect(gaseste("FLORĂRIA", "florăria iris")).toBe(true);
+    expect(gaseste("stan", "Radu Ștan")).toBe(true);
+    expect(gaseste("ceramica", "Atelier Ceramică")).toBe(true);
+  });
+  it("nu găsește ce nu e acolo", () => {
+    expect(gaseste("stan", "Ioana Dumitru")).toBe(false);
+  });
+  it("semnele speciale se caută ca atare", () => {
+    expect(gaseste("a.b", "axb")).toBe(false);
+    expect(gaseste("a.b", "a.b")).toBe(true);
+  });
+});
+
+describe("filtruCautare", () => {
+  it("toate cuvintele în nume, sau e-mailul, sau telefonul", () => {
+    expect(filtruCautare("ana ion")).toBe('and(nume.imatch."[aăâAĂÂ]n[aăâAĂÂ]",nume.imatch."[iîIÎ]on"),email_norm.ilike.%ana ion%');
+    expect(filtruCautare("0722 000")).toBe('and(nume.imatch."0722",nume.imatch."000"),email_norm.ilike.%0722 000%,telefon_norm.like.%40722000%,telefon_norm.like.%0722000%');
+  });
+  it("o bucată din mijlocul numărului care începe cu 0 se caută și așa cum e scrisă", () => {
+    expect(filtruCautare("012 345")).toContain("telefon_norm.like.%012345%");
+    expect(filtruCautare("+40 721")).not.toContain("telefon_norm.like.%40721%,telefon_norm.like.%40721%");
+  });
+  it("doar semne → nu găsește nimic", () => {
+    expect(filtruCautare("()")).toBe("id.is.null");
+    expect(filtruCautare(" · : ")).toBe("id.is.null");
+  });
+  it("un singur cuvânt, fără telefon", () => {
+    expect(filtruCautare("Elena")).toBe('nume.imatch."Elen[aăâAĂÂ]",email_norm.ilike.%elena%');
   });
 });
