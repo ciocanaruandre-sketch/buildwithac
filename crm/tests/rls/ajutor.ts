@@ -1,10 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/baza.types";
+import { ECHIPA_TEST, type ContTest } from "@/lib/echipa-test";
 import { admin } from "@/lib/supabase/admin";
 
 export { admin };
-export type Cont = "admin" | "caller" | "caller2" | "closer" | "constructor";
-export const emailTest = (c: Cont) => `${c}@test.buildwithac.ro`;
+export type Cont = ContTest;
+export const emailTest = (c: Cont) => ECHIPA_TEST[c].email;
 
 const sesiuni = new Map<Cont, SupabaseClient<Database>>();
 

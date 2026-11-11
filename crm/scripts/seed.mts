@@ -4,6 +4,7 @@
 import { existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/baza.types";
+import { ECHIPA_TEST, type ContTest } from "../lib/echipa-test";
 
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 if (process.env.CRM_MEDIU !== "test") {
@@ -13,29 +14,26 @@ if (process.env.CRM_MEDIU !== "test") {
 const parola = process.env.CRM_PAROLA_TEST;
 if (!parola) throw new Error("Lipsește CRM_PAROLA_TEST din .env.local");
 
-type Rol = Database["public"]["Enums"]["rol"];
 type LeadNou = Database["public"]["Tables"]["lead_uri"]["Insert"];
 
 const db = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const CONTURI: { cont: string; nume: string; rol: Rol }[] = [
-  { cont: "admin", nume: "Andrei Ciocănaru", rol: "admin" },
-  { cont: "caller", nume: "Mara Ionescu", rol: "caller" },
-  { cont: "caller2", nume: "Vlad Petrescu", rol: "caller" },
-  { cont: "closer", nume: "Ioana Dumitru", rol: "closer" },
-  { cont: "constructor", nume: "Radu Stan", rol: "constructor" },
-];
-
-async function conturi(): Promise<Record<string, string>> {
+async function conturi(): Promise<Record<ContTest, string>> {
   const { data, error } = await db.auth.admin.listUsers({ perPage: 1000 });
   if (error) throw error;
-  const ids: Record<string, string> = {};
-  for (const c of CONTURI) {
-    const email = `${c.cont}@test.buildwithac.ro`;
+  const ids = {} as Record<ContTest, string>;
+  for (const [cont, c] of Object.entries(ECHIPA_TEST) as [ContTest, (typeof ECHIPA_TEST)[ContTest]][]) {
+    const email = c.email;
     let id = data.users.find((u) => u.email === email)?.id;
-    if (!id) {
+    const vechi = id ? undefined : data.users.find((u) => u.email === c.emailVechi)?.id;
+    if (vechi) {
+      // contul de pe adresa veche (…@test.buildwithac.ro) se mută pe adresa nouă
+      const r = await db.auth.admin.updateUserById(vechi, { email, email_confirm: true, password: parola, ban_duration: "none" });
+      if (r.error) throw r.error;
+      id = vechi;
+    } else if (!id) {
       const r = await db.auth.admin.createUser({ email, password: parola, email_confirm: true });
       if (r.error) throw r.error;
       id = r.data.user.id;
@@ -45,7 +43,7 @@ async function conturi(): Promise<Record<string, string>> {
     }
     const p = await db.from("profiluri").upsert({ id, nume: c.nume, email, rol: c.rol, activ: true });
     if (p.error) throw p.error;
-    ids[c.cont] = id;
+    ids[cont] = id;
   }
   return ids;
 }
