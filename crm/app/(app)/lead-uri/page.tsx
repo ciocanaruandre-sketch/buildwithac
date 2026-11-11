@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase/server";
 import { laOraRomaniei, ziuaPeste, ziuaRomaniei } from "@/lib/timp";
 import { ETICHETE, SERVICII, STARI, SURSE, type Stare } from "@/lib/tipuri";
 
-const PE_PAGINA = 50;
+const PE_PAGINA = 25;
 const NUMARATE: Stare[] = ["nou", "fara_raspuns", "callback", "programat", "oferta_trimisa"];
 
 export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) {
@@ -70,7 +70,7 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
       </div>
 
       <form className="mb-3 flex flex-wrap gap-2" action="/lead-uri">
-        <input className="camp !w-full sm:!w-64" name="q" defaultValue={f.q} placeholder="Nume, telefon sau e-mail" aria-label="Caută" />
+        {f.q && <input type="hidden" name="q" value={f.q} />}
         <select className="camp !w-auto" name="perioada" defaultValue={f.perioada} aria-label="Perioada">
           {PERIOADE.map((p) => (
             <option key={p} value={p}>{ETICHETE_PERIOADA[p]}</option>

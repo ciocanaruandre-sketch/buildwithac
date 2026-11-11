@@ -1,14 +1,20 @@
 "use client";
 
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Iconita } from "@/components/Iconite";
 
 const nimic = () => () => {};
 const eMac = () => /Mac|iPhone|iPad/.test(navigator.userAgent);
 
-/** Căsuța din bara de sus: caută lead-uri după nume, cuvinte sau telefon. Pe telefon, doar lupa, până o apeși. */
+/** Căsuța din bara de sus: caută lead-uri după nume, cuvinte sau telefon. Pe telefon, doar lupa, până o apeși.
+ *  Pe lista de lead-uri păstrează filtrele alese (perioada, starea…) și arată ce cauți acum. */
 export function Cautare() {
-  const [deschis, setDeschis] = useState(false);
+  const peLista = usePathname() === "/lead-uri";
+  const parametri = useSearchParams();
+  const qAcum = peLista ? (parametri.get("q") ?? "") : "";
+  const filtre = peLista ? [...parametri.entries()].filter(([k, v]) => k !== "q" && k !== "pagina" && v) : [];
+  const [deschis, setDeschis] = useState(Boolean(qAcum));
   const camp = useRef<HTMLInputElement>(null);
   const mac = useSyncExternalStore(nimic, eMac, () => false);
 
@@ -45,8 +51,13 @@ export function Cautare() {
         className={`${deschis ? "flex" : "hidden"} order-last w-full items-center gap-2 rounded-full bg-seg px-3.5 py-2 text-ink-3 focus-within:shadow-[0_0_0_1px_var(--amber)] md:order-none md:flex md:w-[300px] lg:w-[300px]`}
       >
         <Iconita nume="cauta" className="h-[15px] w-[15px] flex-none" />
+        {filtre.map(([k, v]) => (
+          <input key={k} type="hidden" name={k} value={v} />
+        ))}
         <input
+          key={qAcum}
           ref={camp}
+          defaultValue={qAcum}
           name="q"
           type="search"
           aria-label="Caută lead-uri"

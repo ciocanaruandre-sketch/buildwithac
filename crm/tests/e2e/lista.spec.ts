@@ -10,11 +10,24 @@ test("callerul vede numărătoarea și lead-urile din seed", async ({ page }) =>
 
 test("căutarea după telefon scris pe jumătate găsește lead-ul", async ({ page }) => {
   await intraCa(page, "caller");
-  await page.getByPlaceholder("Nume, telefon sau e-mail").fill("0700 000 001");
-  await page.getByPlaceholder("Nume, telefon sau e-mail").press("Enter");
+  await page.getByRole("searchbox", { name: "Caută lead-uri" }).fill("0700 000 001");
+  await page.getByRole("searchbox", { name: "Caută lead-uri" }).press("Enter");
   await expect(page).toHaveURL(/q=0700/);
   await expect(page.getByRole("link", { name: "Elena Marin · Cafeneaua Boabe" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Cristian Popa · Salon Aura" })).toHaveCount(0);
+});
+
+test("pe listă e o singură căutare, iar cea de sus păstrează filtrele alese", async ({ page }) => {
+  await intraCa(page, "caller");
+  await expect(page.getByPlaceholder("Nume, telefon sau e-mail")).toHaveCount(0);
+  await page.goto("/lead-uri?stare=client");
+  const caseta = page.getByRole("searchbox", { name: "Caută lead-uri" });
+  await caseta.fill("laura");
+  await caseta.press("Enter");
+  await expect(page).toHaveURL(/stare=client/);
+  await expect(page).toHaveURL(/q=laura/);
+  await expect(page.getByRole("link", { name: "Laura Ene · Atelier Ceramică" })).toBeVisible();
+  await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toHaveValue("laura");
 });
 
 test("„Îmi iau lead-ul” îl mută în „Ale mele”", async ({ page }) => {
