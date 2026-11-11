@@ -60,11 +60,11 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
           <Link
             key={s}
             href={`/lead-uri${spreParametri({ perioada: "tot", pagina: 1 }, { stare: f.stare === s ? undefined : s })}`}
-            className={`panel px-3.5 py-3 ${f.stare === s ? "!border-amber" : ""}`}
+            className={`panel px-4 py-3 ${f.stare === s ? "!border-amber" : "hover:border-line-2"}`}
             aria-label={`${ETICHETE.stare[s]} ${numarate[i].count ?? 0}`}
           >
             <span className="lbl block">{ETICHETE.stare[s]}</span>
-            <b className="font-mono text-[22px] font-medium">{numarate[i].count ?? 0}</b>
+            <b className="num mt-0.5 block text-[22px] font-semibold tracking-[-.02em]">{numarate[i].count ?? 0}</b>
           </Link>
         ))}
       </div>
@@ -119,11 +119,11 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
       </div>
 
       <div className="panel overflow-x-auto">
-        <table className="w-full min-w-[980px] border-collapse text-[13px]">
+        <table className="w-full min-w-[980px] border-collapse text-[13.5px]">
           <thead>
             <tr className="border-b border-line text-left">
               {["Nume", "Serviciu", "Sursă", "Stare", "Callback", "Intrat", "Caller", ""].map((t) => (
-                <th key={t} className="lbl px-3.5 py-2.5 font-semibold">{t}</th>
+                <th key={t} className="lbl px-3.5 py-3 text-left">{t}</th>
               ))}
             </tr>
           </thead>
@@ -134,13 +134,13 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
                 <tr key={l.id} className="border-b border-line last:border-0">
                   <td className="px-3.5 py-2.5">
                     <Link href={`/lead-uri/${l.id}`} className="font-medium hover:text-amber">{l.nume}</Link>
-                    <span className="block font-mono text-[11px] text-ink-3">{l.telefon ?? l.email}</span>
+                    <span className="num block text-[12px] text-ink-3">{l.telefon ?? l.email}</span>
                   </td>
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.serviciu[l.serviciu]}</td>
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.sursa[l.sursa]}</td>
                   <td className="px-3.5 py-2.5"><span className={`chip ${CULOARE_STARE[l.stare]}`}>{ETICHETE.stare[l.stare]}</span></td>
-                  <td className={`px-3.5 py-2.5 font-mono text-[12px] ${intarziat ? "text-red-t" : "text-ink-2"}`}>{l.stare === "callback" && l.callback_la ? cand(l.callback_la, acum) : "—"}</td>
-                  <td className="px-3.5 py-2.5 font-mono text-[12px] text-ink-3">{cand(l.intrat_la, acum)}</td>
+                  <td className={`num px-3.5 py-2.5 text-[12.5px] ${intarziat ? "text-red-t" : "text-ink-2"}`}>{l.stare === "callback" && l.callback_la ? cand(l.callback_la, acum) : "—"}</td>
+                  <td className="num px-3.5 py-2.5 text-[12.5px] text-ink-3">{cand(l.intrat_la, acum)}</td>
                   <td className="px-3.5 py-2.5 text-ink-2">{l.caller_id ? numeOm.get(l.caller_id) ?? "—" : <span className="text-ink-3">liber</span>}</td>
                   <td className="px-3.5 py-2">
                     <ButoaneRand id={l.id} telefon={l.telefon} telefonNorm={l.telefon_norm} liber={!l.caller_id} />
@@ -158,7 +158,7 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
       </div>
 
       {total > PE_PAGINA && (
-        <div className="mt-3 flex items-center gap-2 font-mono text-[12px] text-ink-3">
+        <div className="num mt-3 flex items-center gap-2 text-[12.5px] text-ink-3">
           {f.pagina > 1 && <Link className="btn" href={`/lead-uri${spreParametri(f, { pagina: f.pagina - 1 })}`}>Înapoi</Link>}
           <span>
             {start + 1}–{Math.min(start + PE_PAGINA, total)} din {total}

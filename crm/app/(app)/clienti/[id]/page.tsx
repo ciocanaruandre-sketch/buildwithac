@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BaraSus } from "@/components/BaraSus";
 import { ContactClient } from "@/components/fisa/ContactClient";
 import { Conturi } from "@/components/fisa/Conturi";
 import { DateProiect } from "@/components/fisa/DateProiect";
@@ -13,7 +14,7 @@ import { Stadiu } from "@/components/fisa/Stadiu";
 import { StergeClient } from "@/components/fisa/StergeClient";
 import { Taskuri } from "@/components/fisa/Taskuri";
 import { Taburi } from "@/components/Taburi";
-import { cand, termenLung, termenScurt, ziScurta } from "@/lib/afisare";
+import { cand, initiale, termenLung, termenScurt, ziScurta } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
 import { desfaCalea, etichetaFisier, marimeCitibila } from "@/lib/fisiere";
 import { descrieEveniment, descrieEvenimentProiect, type Eveniment } from "@/lib/parcurs";
@@ -21,7 +22,7 @@ import { comision, lei, ordoneazaTaskuri, progres, textIntarziere, urmatorulTask
 import { supabase } from "@/lib/supabase/server";
 import { linkWhatsApp, normalizeazaTelefon } from "@/lib/telefon";
 import { ziuaRomaniei } from "@/lib/timp";
-import { ETICHETE } from "@/lib/tipuri";
+import { ETICHETE, STADII } from "@/lib/tipuri";
 
 const procentCitibil = (p: number) => `${String(p).replace(".", ",")}%`;
 
@@ -48,16 +49,12 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
   const toate = proiecte ?? [];
   const p = toate.find((x) => x.id === cerut) ?? toate.find((x) => !x.inchis_la) ?? toate[0];
 
-  const antet = (
-    <p className="lbl mb-1.5">
-      <Link href="/clienti" className="hover:text-ink">Clienți</Link> / fișa
-    </p>
-  );
+  const antet = <BaraSus cale={[{ eticheta: "Clienți", href: "/clienti" }, { eticheta: c.nume }]} />;
   if (!p) {
     return (
       <>
         {antet}
-        <h1 className="mb-4 text-[26px] font-bold">{c.nume}</h1>
+        <h1 className="mb-4 text-[30px] leading-tight">{c.nume}</h1>
         <p className="panel px-4 py-6 text-[14px] text-ink-2">Clientul n-are încă niciun proiect.</p>
       </>
     );
@@ -129,21 +126,32 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
 
   const telefonNorm = c.telefon ? normalizeazaTelefon(c.telefon) : null;
   const kv = (e: string, v: React.ReactNode, testid?: string) => (
-    <>
-      <dt className="text-ink-3">{e}</dt>
-      <dd className="min-w-0 break-words" data-testid={testid}>{v}</dd>
-    </>
+    <div>
+      <dt>{e}</dt>
+      <dd data-testid={testid}>{v}</dd>
+    </div>
   );
+  const nrStadiu = STADII.indexOf(p.stadiu);
 
   return (
     <>
       {antet}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <h1 className="text-[26px] font-bold">{c.nume}</h1>
-        <span className="chip blue">{p.titlu}</span>
-        <span data-testid="stadiu" className="chip amber">{ETICHETE.stadiu[p.stadiu]}</span>
-        {p.inchis_la && <span data-testid="inchis" className="chip red">Închis</span>}
-        <span className="chip">Client din {ziScurta(c.creat_la)}</span>
+      <div className="mb-[22px] flex items-center gap-4">
+        <div aria-hidden className="grid h-[60px] w-[60px] flex-none place-items-center rounded-[18px] bg-amber/15 text-[21px] font-semibold tracking-[-.02em] text-amber">
+          {initiale(c.nume)}
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-[26px] leading-tight sm:text-[30px]">{c.nume}</h1>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <span className="chip blue">{p.titlu}</span>
+            <span data-testid="stadiu" className="chip amber">
+              <i aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />
+              {ETICHETE.stadiu[p.stadiu]}
+            </span>
+            {p.inchis_la && <span data-testid="inchis" className="chip red">Închis</span>}
+            <span className="chip">Client din {ziScurta(c.creat_la)}</span>
+          </div>
+        </div>
       </div>
 
       {cerereNoua && c.lead_id && (
@@ -174,33 +182,33 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
         </nav>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <div className="flex flex-col gap-4">
-          <div className="panel p-3.5" data-testid="urmeaza">
-            <p className="lbl mb-1.5 !text-amber">Urmează</p>
+      <div className="grid items-start gap-[18px] lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-3.5">
+          <div className="panel alerta px-4 py-3.5" data-testid="urmeaza">
+            <p className="lbl">Urmează</p>
             {urmator ? (
               <>
-                <p className="text-[15px] font-medium">{urmator.titlu}</p>
+                <p className="mt-1.5 mb-0.5 text-[15.5px] leading-snug font-semibold tracking-[-.01em]">{urmator.titlu}</p>
                 <p className="text-[12.5px] text-ink-3">
                   {urmator.termen ? `Termen: ${termenLung(urmator.termen)}` : "Fără termen"}
                   {intarziat && <span className="text-red-t"> · {intarziat}</span>}
                 </p>
               </>
             ) : (
-              <p className="text-[15px] font-medium">{pr.total ? "Toate task-urile sunt gata." : "Niciun task încă."}</p>
+              <p className="mt-1.5 text-[15.5px] font-semibold tracking-[-.01em]">{pr.total ? "Toate task-urile sunt gata." : "Niciun task încă."}</p>
             )}
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-bg-3" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pr.procent} aria-label="Progresul proiectului">
-              <i className="block h-full" style={{ width: `${pr.procent}%`, background: "var(--grad)" }} />
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-seg" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pr.procent} aria-label="Progresul proiectului">
+              <i className="block h-full rounded-full" style={{ width: `${pr.procent}%`, background: "var(--grad)" }} />
             </div>
-            <p className="mt-1.5 font-mono text-[11px] text-ink-3">
+            <p className="num mt-1.5 text-[12px] text-ink-3">
               {pr.gata} din {pr.total} task-uri gata
             </p>
           </div>
 
-          <div className="panel p-3.5" data-testid="contact">
-            <p className="lbl mb-2">Contact</p>
-            <dl className="mb-3 grid grid-cols-[88px_1fr] gap-x-2.5 gap-y-1.5 text-[13px]">
-              {kv("Telefon", <span className="font-mono">{c.telefon ?? "—"}</span>)}
+          <div className="panel px-4 pt-3.5 pb-2" data-testid="contact">
+            <p className="lbl">Contact</p>
+            <dl className="kv">
+              {kv("Telefon", <span className="num">{c.telefon ?? "—"}</span>)}
               {kv("E-mail", c.email ?? "—")}
               {telefonNorm &&
                 kv(
@@ -211,7 +219,7 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                 )}
             </dl>
             {eAdmin && (
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3 border-t border-line pt-3 pb-1.5">
                 <ContactClient key={`${c.nume}|${c.telefon}|${c.email}`} clientId={c.id} nume={c.nume} telefon={c.telefon} email={c.email} />
                 {c.lead_id && (
                   <Link href={`/lead-uri/${c.lead_id}`} className="text-[13px] text-amber">
@@ -222,14 +230,22 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
             )}
           </div>
 
-          <div className="panel p-3.5" data-testid="proiect">
-            <p className="lbl mb-2">Proiectul</p>
-            <dl className="grid grid-cols-[88px_1fr] items-center gap-x-2.5 gap-y-1.5 text-[13px]">
+          <div className="panel px-4 pt-3.5 pb-2" data-testid="proiect">
+            <p className="lbl">Proiectul</p>
+            <div aria-hidden className="mt-2 mb-1.5 grid grid-cols-6 gap-1">
+              {STADII.map((s, i) => (
+                <i key={s} className={`h-1.5 rounded-full ${i < nrStadiu ? "bg-amber/45" : i === nrStadiu ? "bg-amber" : "bg-seg"}`} />
+              ))}
+            </div>
+            <p className="num text-[12.5px] text-ink-3">
+              {ETICHETE.stadiu[p.stadiu]} · stadiul {nrStadiu + 1} din {STADII.length}
+            </p>
+            <dl className="kv">
               {kv("Serviciu", ETICHETE.serviciu[p.serviciu])}
               {kv("Stadiu", <Stadiu key={`${p.id}|${p.stadiu}`} proiectId={p.id} stadiu={p.stadiu} poate={poateStadiu} />)}
-              {kv("Preț", <span className="font-mono">{lei(p.pret_lei)}</span>)}
-              {kv("Încasat", <span className="font-mono">{lei(p.incasat_lei)}</span>)}
-              {kv("Predare", p.termen ? <span className="font-mono text-[12px]">{termenLung(p.termen)}</span> : "—")}
+              {kv("Preț", <span className="num">{lei(p.pret_lei)}</span>)}
+              {kv("Încasat", <span className="num">{lei(p.incasat_lei)}</span>)}
+              {kv("Predare", p.termen ? <span className="num">{termenLung(p.termen)}</span> : "—")}
               {kv(
                 "Lucrează",
                 eAdmin ? (
@@ -245,7 +261,7 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                   procentulMeu === null || comisionulMeu === null ? (
                     <span className="text-ink-3">nestabilit încă</span>
                   ) : (
-                    <span className="font-mono text-[12px]">
+                    <span className="num">
                       {procentCitibil(procentulMeu)} · {lei(comisionulMeu)} din ce s-a încasat
                     </span>
                   ),
@@ -253,7 +269,7 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
               {kv("A venit din", ETICHETE.sursa[c.sursa])}
             </dl>
             {eAdmin && (
-              <div className="flex flex-wrap items-start gap-x-2">
+              <div className="flex flex-wrap items-start gap-x-2 border-t border-line pt-3 pb-1.5">
                 <DateProiect key={`${p.id}|${p.titlu}|${p.pret_lei}|${p.incasat_lei}|${p.termen}`} proiectId={p.id} titlu={p.titlu} pretLei={p.pret_lei} incasatLei={p.incasat_lei} termen={p.termen} />
                 <InchideProiect proiectId={p.id} inchis={Boolean(p.inchis_la)} />
               </div>
@@ -307,13 +323,18 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                 cheie: "parcurs",
                 eticheta: "Parcurs",
                 continut: (
-                  <ol data-testid="parcurs" className="relative flex flex-col gap-2.5 pl-[18px] before:absolute before:top-1.5 before:bottom-1.5 before:left-1 before:w-px before:bg-line-2">
+                  <ol data-testid="parcurs" className="relative flex flex-col pl-[22px] before:absolute before:top-2 before:bottom-5 before:left-[5px] before:w-0.5 before:rounded-full before:bg-seg">
                     {parcurs.map((e, i) => (
-                      <li key={i} className="relative text-[13px] before:absolute before:top-[5px] before:-left-[18px] before:h-[9px] before:w-[9px] before:rounded-full before:border before:border-ink-3 before:bg-bg">
-                        <p>{e.text}</p>
-                        <p className="font-mono text-[11px] text-ink-3">
+                      <li
+                        key={i}
+                        className={`relative pt-1 pb-3.5 text-[13.5px] before:absolute before:top-2 before:-left-[22px] before:h-3 before:w-3 before:rounded-full before:border-2 ${
+                          i === 0 ? "before:border-amber before:bg-amber" : "before:border-ink-3 before:bg-bg-3"
+                        }`}
+                      >
+                        <p className="text-[12px] text-ink-3">
                           {cand(e.la, acum)} · {e.autor_id ? nume(e.autor_id) : "automat"}
                         </p>
+                        <p>{e.text}</p>
                       </li>
                     ))}
                   </ol>

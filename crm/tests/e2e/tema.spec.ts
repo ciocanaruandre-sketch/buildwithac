@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { intraCa } from "./ajutor";
+import { clientNou, stergeLead } from "./date";
 
 test("pe laptop, bara laterală arată legătura activă", async ({ page }) => {
   await intraCa(page, "admin");
@@ -49,4 +50,39 @@ test("Ctrl K duce cursorul în căutare; pe telefon, căsuța se deschide din lu
 test("constructorul nu are căutarea de lead-uri", async ({ page }) => {
   await intraCa(page, "constructor");
   await expect(page.getByRole("searchbox", { name: "Caută lead-uri" })).toHaveCount(0);
+});
+
+test("fișa clientului: tab-urile sunt un comutator, la 390px fără scroll orizontal", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await intraCa(page, "admin");
+  await page.goto("/clienti");
+  await page.getByRole("link", { name: /Laura Ene/ }).first().click();
+  await page.getByRole("tab", { name: /Parcurs/ }).click();
+  const tab = page.getByRole("tab", { name: /Parcurs/ });
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+  // comutatorul: tab-ul ales e o pastilă cu fundal, nu o linie dedesubt
+  await expect(tab).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(tab).toHaveCSS("border-bottom-width", "0px");
+  const lat = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(lat).toBeLessThanOrEqual(390);
+});
+
+test("bifa rotundă a unui task se poate apăsa", async ({ page }) => {
+  const c = await clientNou();
+  try {
+    await intraCa(page, "admin");
+    await page.goto(`/clienti/${c.clientId}`);
+    const taskuri = page.getByTestId("taskuri");
+    await taskuri.getByLabel("Ce e de făcut").fill("Bifa rotundă de probă");
+    await taskuri.getByRole("button", { name: "Adaugă task-ul" }).click();
+    const bifa = taskuri.getByRole("checkbox", { name: "Gata: Bifa rotundă de probă" });
+    await expect(bifa).toBeVisible();
+    await expect(taskuri.getByTestId("cerc-bifa").first()).toHaveCSS("border-radius", "50%");
+    await bifa.click();
+    await expect(bifa).toBeChecked();
+    const titlu = taskuri.getByRole("listitem").filter({ hasText: "Bifa rotundă de probă" }).getByText("Bifa rotundă de probă", { exact: true });
+    await expect(titlu).toHaveCSS("text-decoration-line", "line-through");
+  } finally {
+    await stergeLead(c.leadId);
+  }
 });

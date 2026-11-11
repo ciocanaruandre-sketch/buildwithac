@@ -1,6 +1,7 @@
 import { iesi } from "@/app/(cont)/actiuni";
 import { Iconita } from "@/components/Iconite";
 import { Navigare, type Legatura } from "@/components/Navigare";
+import { initiale } from "@/lib/afisare";
 import { eu } from "@/lib/eu";
 import { ETICHETE, type Rol } from "@/lib/tipuri";
 
@@ -14,14 +15,6 @@ function legaturiPentru(rol: Rol): Legatura[] {
   if (rol === "admin") l.push({ href: "/echipa", eticheta: "Echipa", iconita: "echipa" });
   return l;
 }
-
-const initiale = (nume: string) =>
-  nume
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase();
 
 function Logo() {
   return (

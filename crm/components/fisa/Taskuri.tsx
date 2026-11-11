@@ -14,23 +14,35 @@ export function BifaTask({ id, titlu, gata }: { id: string; titlu: string; gata:
   const router = useRouter();
   const [lucreaza, porneste] = useTransition();
   const [bifat, setBifat] = useState(gata);
+  // bifa e rotundă (cercul de 20px), dar sub ea rămâne un checkbox adevărat, ca să meargă tastatura și cititoarele de ecran
   return (
-    <input
-      type="checkbox"
-      className="h-4 w-4 flex-none accent-[var(--amber)]"
-      aria-label={`Gata: ${titlu}`}
-      checked={bifat}
-      disabled={lucreaza}
-      onChange={(e) => {
-        const nou = e.target.checked;
-        setBifat(nou);
-        porneste(async () => {
-          const r = await bifeazaTask(id, nou);
-          if (!r.ok) setBifat(!nou);
-          router.refresh();
-        });
-      }}
-    />
+    <span className="relative grid h-5 w-5 flex-none place-items-center">
+      <input
+        type="checkbox"
+        className="peer absolute inset-0 z-[1] m-0 cursor-pointer opacity-0 disabled:cursor-default"
+        aria-label={`Gata: ${titlu}`}
+        checked={bifat}
+        disabled={lucreaza}
+        onChange={(e) => {
+          const nou = e.target.checked;
+          setBifat(nou);
+          porneste(async () => {
+            const r = await bifeazaTask(id, nou);
+            if (!r.ok) setBifat(!nou);
+            router.refresh();
+          });
+        }}
+      />
+      <span
+        data-testid="cerc-bifa"
+        aria-hidden
+        className={`grid h-5 w-5 place-items-center rounded-[50%] text-[12px] leading-none font-bold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber ${
+          bifat ? "bg-green text-[var(--pe-auriu)]" : "border-[1.5px] border-ink-3"
+        }`}
+      >
+        {bifat ? "✓" : ""}
+      </span>
+    </span>
   );
 }
 
