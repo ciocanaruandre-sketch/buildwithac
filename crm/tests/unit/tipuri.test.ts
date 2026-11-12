@@ -1,9 +1,14 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { AL_CUI, ETICHETE, ROLURI, SERVICII, STADII, STARI, STARI_LIVRARE, SURSE, SURSE_MANUALE, UNDE_PAROLA } from "@/lib/tipuri";
+import { Constants } from "@/lib/baza.types";
+import { AL_CUI, ETICHETE, ROLURI, SERVICII, STADII, STARI, STARI_LIVRARE, SURSE, SURSE_MANUALE, TIPURI_TRANSA, UNDE_PAROLA } from "@/lib/tipuri";
 
 describe("tipuri", () => {
+  it("tipurile de tranșă sunt cele din baza de date", () => {
+    expect([...TIPURI_TRANSA]).toEqual([...Constants.public.Enums.tip_transa]);
+  });
+
   const grupuri = [
     ["stare", STARI],
     ["sursa", SURSE],

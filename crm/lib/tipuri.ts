@@ -15,6 +15,9 @@ export const STARI_LIVRARE = ["trimis", "aprobat", "de_refacut"] as const;
 export const AL_CUI = ["client", "firma"] as const;
 export const UNDE_PAROLA = ["la_client", "la_firma", "manager_parole", "nu_e_cazul"] as const;
 
+// = enum-ul tip_transa din baza de date (planul de plată, tranșele adăugate de mână, mentenanța, încasatul de dinainte)
+export const TIPURI_TRANSA = ["odata", "avans", "rest", "rata", "extra", "mentenanta", "inainte"] as const;
+
 export type Rol = (typeof ROLURI)[number];
 export type Stare = (typeof STARI)[number];
 export type Sursa = (typeof SURSE)[number];
@@ -23,6 +26,7 @@ export type Stadiu = (typeof STADII)[number];
 export type StareLivrare = (typeof STARI_LIVRARE)[number];
 export type AlCui = (typeof AL_CUI)[number];
 export type UndeParola = (typeof UNDE_PAROLA)[number];
+export type TipTransa = (typeof TIPURI_TRANSA)[number];
 
 /** Sursele pe care le alege omul când adaugă un lead de mână (reclamele, până intră singure). */
 export const SURSE_MANUALE: Sursa[] = ["reclama_meta", "reclama_tiktok", "cold_calling", "recomandare", "dm_instagram", "dm_tiktok", "altceva"];

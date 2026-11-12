@@ -138,6 +138,70 @@ export type Database = {
           },
         ]
       }
+      comisioane: {
+        Row: {
+          baza_lei: number
+          creat_la: string
+          id: string
+          nota: string | null
+          om_id: string
+          platit_la: string | null
+          procent: number | null
+          proiect_id: string | null
+          suma_lei: number | null
+          tip: string
+          transa_id: string | null
+        }
+        Insert: {
+          baza_lei: number
+          creat_la?: string
+          id?: string
+          nota?: string | null
+          om_id: string
+          platit_la?: string | null
+          procent?: number | null
+          proiect_id?: string | null
+          suma_lei?: number | null
+          tip?: string
+          transa_id?: string | null
+        }
+        Update: {
+          baza_lei?: number
+          creat_la?: string
+          id?: string
+          nota?: string | null
+          om_id?: string
+          platit_la?: string | null
+          procent?: number | null
+          proiect_id?: string | null
+          suma_lei?: number | null
+          tip?: string
+          transa_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comisioane_om_id_fkey"
+            columns: ["om_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comisioane_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comisioane_transa_id_fkey"
+            columns: ["transa_id"]
+            isOneToOne: false
+            referencedRelation: "transe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conturi: {
         Row: {
           adaugat_de: string | null
@@ -584,6 +648,24 @@ export type Database = {
           },
         ]
       }
+      procente_baza: {
+        Row: {
+          categorie: string
+          procent: number | null
+          rol: Database["public"]["Enums"]["rol"]
+        }
+        Insert: {
+          categorie: string
+          procent?: number | null
+          rol: Database["public"]["Enums"]["rol"]
+        }
+        Update: {
+          categorie?: string
+          procent?: number | null
+          rol?: Database["public"]["Enums"]["rol"]
+        }
+        Relationships: []
+      }
       profiluri: {
         Row: {
           activ: boolean
@@ -675,6 +757,42 @@ export type Database = {
           },
           {
             foreignKeyName: "proiect_oameni_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proiect_vanzari: {
+        Row: {
+          adaugat_la: string
+          om_id: string
+          procent: number | null
+          proiect_id: string
+        }
+        Insert: {
+          adaugat_la?: string
+          om_id: string
+          procent?: number | null
+          proiect_id: string
+        }
+        Update: {
+          adaugat_la?: string
+          om_id?: string
+          procent?: number | null
+          proiect_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proiect_vanzari_om_id_fkey"
+            columns: ["om_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proiect_vanzari_proiect_id_fkey"
             columns: ["proiect_id"]
             isOneToOne: false
             referencedRelation: "proiecte"
@@ -797,6 +915,62 @@ export type Database = {
           },
         ]
       }
+      transe: {
+        Row: {
+          abonament_id: string | null
+          alerta_trimisa_la: string | null
+          creat_la: string
+          eticheta: string
+          id: string
+          incasat_lei: number | null
+          incasata_la: string | null
+          proiect_id: string
+          returnat_lei: number
+          returnata_la: string | null
+          scadenta: string
+          suma_lei: number
+          tip: Database["public"]["Enums"]["tip_transa"]
+        }
+        Insert: {
+          abonament_id?: string | null
+          alerta_trimisa_la?: string | null
+          creat_la?: string
+          eticheta: string
+          id?: string
+          incasat_lei?: number | null
+          incasata_la?: string | null
+          proiect_id: string
+          returnat_lei?: number
+          returnata_la?: string | null
+          scadenta: string
+          suma_lei: number
+          tip: Database["public"]["Enums"]["tip_transa"]
+        }
+        Update: {
+          abonament_id?: string | null
+          alerta_trimisa_la?: string | null
+          creat_la?: string
+          eticheta?: string
+          id?: string
+          incasat_lei?: number | null
+          incasata_la?: string | null
+          proiect_id?: string
+          returnat_lei?: number
+          returnata_la?: string | null
+          scadenta?: string
+          suma_lei?: number
+          tip?: Database["public"]["Enums"]["tip_transa"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transe_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -804,6 +978,7 @@ export type Database = {
     Functions: {
       cale_fisier_valida: { Args: { cale: string }; Returns: boolean }
       e_coleg: { Args: { alt: string }; Returns: boolean }
+      in_functie_finante: { Args: never; Returns: boolean }
       lucreaza_la: { Args: { p: string }; Returns: boolean }
       muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
       muta_taskuri: { Args: { de: string; la: string }; Returns: number }
@@ -860,6 +1035,14 @@ export type Database = {
         | "dm_instagram"
         | "dm_tiktok"
         | "altceva"
+      tip_transa:
+        | "odata"
+        | "avans"
+        | "rest"
+        | "rata"
+        | "extra"
+        | "mentenanta"
+        | "inainte"
       unde_parola: "la_client" | "la_firma" | "manager_parole" | "nu_e_cazul"
     }
     CompositeTypes: {
@@ -1023,6 +1206,15 @@ export const Constants = {
         "dm_instagram",
         "dm_tiktok",
         "altceva",
+      ],
+      tip_transa: [
+        "odata",
+        "avans",
+        "rest",
+        "rata",
+        "extra",
+        "mentenanta",
+        "inainte",
       ],
       unde_parola: ["la_client", "la_firma", "manager_parole", "nu_e_cazul"],
     },
