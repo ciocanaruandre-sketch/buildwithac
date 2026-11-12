@@ -1,4 +1,5 @@
 import { BaraSus } from "@/components/BaraSus";
+import { ComisioaneleMele, type ComisionulMeu } from "@/components/finante/ComisioaneleMele";
 import { DePlatitEchipei, type OmDePlatit } from "@/components/finante/DePlatitEchipei";
 import { Incasari, type TransaCuClient } from "@/components/finante/Incasari";
 import { ProcenteBaza } from "@/components/finante/ProcenteBaza";
@@ -23,6 +24,13 @@ const lunaUrmatoare = (zi: string) => {
   return l === 12 ? `${a + 1}-01-01` : `${a}-${String(l + 1).padStart(2, "0")}-01`;
 };
 
+/** Constructorul, closerul și callerul: doar comisioanele lor (funcțiile din baza de date filtrează pe omul conectat). */
+async function Comisioane({ azi }: { azi: string }) {
+  const db = await supabase();
+  const [{ data: mele }, { data: viitoare }] = await Promise.all([db.rpc("comisioanele_mele"), db.rpc("comisioane_viitoare")]);
+  return <ComisioaneleMele mele={(mele ?? []) as ComisionulMeu[]} viitoare={viitoare ?? []} azi={azi} />;
+}
+
 export default async function Finante() {
   const om = await eu();
   const azi = ziuaRomaniei(new Date());
@@ -37,6 +45,7 @@ export default async function Finante() {
       <>
         {antet}
         <p className="mt-1 mb-4 text-[13.5px] text-ink-3">Comisioanele tale, din banii încasați de la clienți.</p>
+        <Comisioane azi={azi} />
       </>
     );
   }

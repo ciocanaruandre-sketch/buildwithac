@@ -126,3 +126,46 @@ test("modul filmare: numele clienților de pe Finanțe sunt blurate", async ({ p
   const raza = Number(/blur\(([\d.]+)px\)/.exec(await nume.evaluate((e) => getComputedStyle(e).filter))?.[1] ?? 0);
   expect(raza).toBeGreaterThanOrEqual(4);
 });
+
+test.describe("pagina oamenilor din echipă", () => {
+  // un proiect cu Radu (30%) și Mara (10%), o tranșă încasată și una întârziată
+  async function proiectCuOameni() {
+    const c = await client();
+    await punePeProiect(c.proiectId, "constructor", 30);
+    const v = await db().from("proiect_vanzari").insert({ proiect_id: c.proiectId, om_id: await idDe("caller"), procent: 10 });
+    if (v.error) throw v.error;
+    const t = await transa(c.proiectId, { eticheta: "Avans" });
+    const { error } = await db().rpc("incaseaza", { t, suma: 1_234_000, zi: ziPeste(0), peste: false });
+    if (error) throw error;
+    await transa(c.proiectId, { eticheta: "Restul", suma: 500_000, scadenta: ziPeste(-5) });
+    return c;
+  }
+
+  test("Radu își vede comisioanele, nu și ale callerului, și nu vede cuvântul «Întârzie»", async ({ page }) => {
+    const c = await proiectCuOameni();
+    await intraCa(page, "constructor");
+    await page.goto("/finante");
+    await expect(page.getByRole("heading", { name: "Finanțe" })).toBeVisible();
+    const dePrimit = page.getByTestId("lista-de-primit");
+    await expect(dePrimit).toContainText(`${c.nume} · Avans · 30% din 1.234.000 lei`);
+    await expect(dePrimit).toContainText("370.200 lei");
+    const urmeaza = page.getByTestId("lista-urmeaza").getByTestId("rand-comision").filter({ hasText: c.nume });
+    await expect(urmeaza).toContainText("Restul · 30% din 500.000 lei");
+    await expect(urmeaza).toContainText("150.000 lei");
+    await expect(urmeaza).toContainText("în așteptare");
+    await expect(page.locator("main")).not.toContainText("123.400");
+    await expect(page.locator("main")).not.toContainText(/întârz/i);
+  });
+
+  test("Mara (caller) vede «Finanțe» în meniu și doar rândurile ei", async ({ page }) => {
+    const c = await proiectCuOameni();
+    await intraCa(page, "caller");
+    await page.getByRole("navigation", { name: "Navigare" }).filter({ visible: true }).getByRole("link", { name: "Finanțe" }).click();
+    await expect(page).toHaveURL(/\/finante$/);
+    const randuri = page.getByTestId("lista-de-primit").getByTestId("rand-comision").filter({ hasText: c.nume });
+    await expect(randuri).toHaveCount(1);
+    await expect(randuri).toContainText("10% din 1.234.000 lei");
+    await expect(randuri).toContainText("123.400 lei");
+    await expect(page.locator("main")).not.toContainText("370.200");
+  });
+});
