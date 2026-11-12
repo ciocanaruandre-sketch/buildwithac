@@ -976,9 +976,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      anuleaza_incasare: { Args: { t: string }; Returns: undefined }
       cale_fisier_valida: { Args: { cale: string }; Returns: boolean }
       e_coleg: { Args: { alt: string }; Returns: boolean }
       in_functie_finante: { Args: never; Returns: boolean }
+      incaseaza: {
+        Args: { peste?: boolean; suma: number; t: string; zi: string }
+        Returns: string
+      }
       lucreaza_la: { Args: { p: string }; Returns: boolean }
       muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
       muta_taskuri: { Args: { de: string; la: string }; Returns: number }
