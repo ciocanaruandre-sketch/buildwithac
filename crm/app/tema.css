@@ -119,8 +119,9 @@ h1, h2, h3 { font-family: var(--text); font-weight: 700; letter-spacing: -.025em
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 15px; border: 0; border-radius: 999px; background: var(--btn); color: var(--ink); font: 550 13px var(--text); white-space: nowrap; cursor: pointer; }
   .btn:hover { background: var(--thumb); }
   .btn:disabled { opacity: .5; cursor: default; }
-  .btn.pri { background: var(--amber); color: var(--pe-auriu); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 4px 14px rgba(255, 181, 46, .25); }
-  .btn.pri:hover { background: var(--amber); filter: brightness(1.06); }
+  /* auriul butoanelor, puțin mai stins decât --amber (Andrei, 2026-11-13: „prea aprins”) */
+  .btn.pri { background: #e3a43c; color: var(--pe-auriu); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 3px 10px rgba(227, 164, 60, .16); }
+  .btn.pri:hover { background: #e3a43c; filter: brightness(1.06); }
   .btn.mic { padding: 4px 10px; font-size: 12px; }
   .btn.pericol { background: color-mix(in srgb, var(--red-t) 15%, transparent); color: var(--red-t); }
   .btn.pericol:hover { background: color-mix(in srgb, var(--red-t) 24%, transparent); }
