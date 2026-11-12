@@ -11,10 +11,12 @@ import { ETICHETE, type Rol } from "@/lib/tipuri";
 function legaturiPentru(rol: Rol): Legatura[] {
   const taskuri: Legatura = { href: "/taskuri", eticheta: "Task-urile mele", iconita: "taskuri" };
   const clienti: Legatura = { href: "/clienti", eticheta: "Clienți", iconita: "clienti" };
-  if (rol === "constructor") return [clienti, taskuri];
+  const finante: Legatura = { href: "/finante", eticheta: "Finanțe", iconita: "finante" };
+  if (rol === "constructor") return [clienti, taskuri, finante];
   const l: Legatura[] = [{ href: "/lead-uri", eticheta: "Lead-uri", iconita: "lead-uri" }, clienti];
   if (rol === "admin") l.push(taskuri);
   if (rol === "closer" || rol === "admin") l.push({ href: "/program", eticheta: "Program", iconita: "program" });
+  l.push(finante);
   if (rol === "admin") l.push({ href: "/echipa", eticheta: "Echipa", iconita: "echipa" });
   return l;
 }

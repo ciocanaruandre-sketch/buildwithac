@@ -3,7 +3,8 @@
 import { useState } from "react";
 
 /** Tab-urile unei fișe (lead sau client): un comutator segmentat, iar dedesubt panoul tab-ului ales. Conținutul vine gata randat de pe server. */
-export function Taburi({ taburi }: { taburi: { cheie: string; eticheta: string; numar?: number; continut: React.ReactNode }[] }) {
+/** `faraPanou`: panourile stau fără chenar (pentru conținut care are deja chenarele lui, ca coloanele din Finanțe). */
+export function Taburi({ taburi, faraPanou = false }: { taburi: { cheie: string; eticheta: string; numar?: number; continut: React.ReactNode }[]; faraPanou?: boolean }) {
   const [activ, setActiv] = useState(taburi[0]?.cheie);
   return (
     <div className="min-w-0">
@@ -16,7 +17,7 @@ export function Taburi({ taburi }: { taburi: { cheie: string; eticheta: string; 
         ))}
       </div>
       {taburi.map((t) => (
-        <div key={t.cheie} role="tabpanel" hidden={activ !== t.cheie} className="panel p-4">
+        <div key={t.cheie} role="tabpanel" hidden={activ !== t.cheie} className={faraPanou ? "min-w-0" : "panel p-4"}>
           {t.continut}
         </div>
       ))}

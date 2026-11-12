@@ -1,4 +1,4 @@
-export type NumeIconita = "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta" | "filmare";
+export type NumeIconita = "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta" | "filmare" | "finante";
 
 /** Desenele din prototip/crm-tema.html (i-inbox, i-users, i-check, i-cal, i-team, i-search), plus ieșirea. */
 const DESENE: Record<NumeIconita, React.ReactNode> = {
@@ -50,6 +50,14 @@ const DESENE: Record<NumeIconita, React.ReactNode> = {
     <>
       <rect x="2.5" y="6" width="13" height="12" rx="3" />
       <path d="M15.5 10.5l6-3.5v10l-6-3.5" />
+    </>
+  ),
+  // o bancnotă: Finanțe
+  finante: (
+    <>
+      <rect x="2.5" y="6" width="19" height="12" rx="3" />
+      <circle cx="12" cy="12" r="2.6" />
+      <path d="M6 10v4M18 10v4" />
     </>
   ),
 };
