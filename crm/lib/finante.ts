@@ -121,3 +121,10 @@ export function dePlatitOm(c: ComisionOm[]): { total: number; poatePlati: boolea
   const total = neplatite.reduce((s, x) => s + (x.suma_lei ?? 0), 0);
   return { total, poatePlati: total > 0, nestabilite: neplatite.filter((x) => x.suma_lei === null).length };
 }
+
+/** „o zi”, „3 zile”, „20 de zile” (ca textIntarziere din lib/proiecte, fără „întârziat”). */
+export function textZile(n: number): string {
+  if (n === 1) return "o zi";
+  const rest = n % 100;
+  return `${n}${rest === 0 || rest >= 20 ? " de" : ""} zile`;
+}

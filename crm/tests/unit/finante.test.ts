@@ -119,3 +119,8 @@ it("lunile sunt în română, cu literă mică", () => {
   expect(LUNI).toHaveLength(12);
   expect(LUNI[10]).toBe("noiembrie");
 });
+
+it("textZile: „o zi”, „11 zile”, „20 de zile”", async () => {
+  const { textZile } = await import("@/lib/finante");
+  expect([1, 2, 11, 19, 20, 101, 120].map(textZile)).toEqual(["o zi", "2 zile", "11 zile", "19 zile", "20 de zile", "101 zile", "120 de zile"]);
+});
