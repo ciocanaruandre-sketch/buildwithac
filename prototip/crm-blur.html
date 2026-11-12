@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM: modul filmare (variante de blur)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== tema A „Grafit” (ca în CRM) ===== */
+:root{
+  --bg:#141417; --panel:#1c1c20; --panel-2:#232328; --line:rgba(255,255,255,.07);
+  --ink:#f1f1f3; --ink-2:#b4b4bb; --ink-3:#8a8a92;
+  --glass:rgba(30,30,34,.55); --glass-bd:rgba(255,255,255,.07); --glass-hi:rgba(255,255,255,.10);
+  --edge-a:rgba(255,255,255,.22); --edge-b:rgba(255,255,255,.05); --blur:28px; --shadow:rgba(0,0,0,.35);
+  --wall-op:.10; --r:16px; --r-sm:10px; --r-xl:22px;
+  --sel:rgba(255,255,255,.08); --seg:rgba(255,255,255,.05); --thumb:rgba(255,255,255,.12); --btn:rgba(255,255,255,.07);
+  --amber-t:#ffb52e; --green:#4fbf8a; --red-t:#ff7a66; --blue:#6b9bd1; --violet:#a98be0;
+  --urm:rgba(255,181,46,.07); --urm-bd:rgba(255,181,46,.22);
+  --amber:#ffb52e; --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222); --mono:"JetBrains Mono",ui-monospace,monospace;
+  --b:4px; /* cât de tare e blurul */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:12px}
+.muted{color:var(--ink-3)}
+.wall{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.wall i{position:absolute;border-radius:50%;filter:blur(100px);opacity:var(--wall-op)}
+.wall .w1{width:640px;height:640px;left:-140px;top:-200px;background:#ffb52e}
+.wall .w2{width:560px;height:560px;right:-160px;top:28%;background:#e53222}
+.wall .w3{width:760px;height:520px;left:28%;bottom:-300px;background:#7a0e0e}
+.glass{position:relative;background:var(--glass);-webkit-backdrop-filter:blur(var(--blur)) saturate(170%);backdrop-filter:blur(var(--blur)) saturate(170%);border:1px solid var(--glass-bd);box-shadow:inset 0 1px 0 var(--glass-hi),0 14px 40px var(--shadow)}
+.glass::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(140deg,var(--edge-a),transparent 32%,transparent 66%,var(--edge-b));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+
+.app{position:relative;z-index:1;padding:12px 24px 170px 268px}
+.side{position:fixed;left:12px;top:12px;bottom:12px;width:236px;border-radius:var(--r-xl);padding:16px 10px 10px;display:flex;flex-direction:column;gap:2px;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 10px 18px;font:650 15px Inter;letter-spacing:-.01em}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--grad);display:block;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.brand small{display:block;font:500 11.5px Inter;color:var(--ink-3)}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);font:500 13.5px Inter}
+.nav svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.nav.on{background:var(--sel);color:var(--ink)}
+.nav.on svg{stroke:var(--amber-t);opacity:1}
+.nav .n{margin-left:auto;font-size:12px;color:var(--ink-3)}
+.side .sep{height:1px;background:var(--line);margin:10px 8px}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r-sm);background:var(--sel)}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:600 11px Inter;background:var(--btn);color:var(--ink-2);flex:none}
+.av.a{background:var(--grad);color:#1a1206}
+.av.s{width:22px;height:22px;font-size:9.5px}
+.me b{font:600 13px Inter;display:block}.me span{font-size:12px;color:var(--ink-3)}
+
+main{max-width:1160px;margin:0 auto}
+.top{position:sticky;top:12px;z-index:5;display:flex;align-items:center;gap:10px;padding:7px 7px 7px 18px;border-radius:999px;margin-bottom:26px}
+.crumb{font:500 13.5px Inter;color:var(--ink-3);white-space:nowrap}
+.crumb b{color:var(--ink);font-weight:600}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;width:300px;padding:8px 14px;border-radius:999px;background:var(--seg);color:var(--ink-3);font-size:13px}
+.search svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;background:var(--btn);color:var(--ink);font:550 13px Inter;border:0;cursor:pointer;white-space:nowrap}
+.btn.pri{background:var(--amber);color:#1a1206;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 4px 14px rgba(255,181,46,.25)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font:500 12px Inter;white-space:nowrap;background:var(--btn);color:var(--ink-2)}
+.chip.c{background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.amber{--c:var(--amber-t)}.green{--c:var(--green)}.red{--c:var(--red-t)}.blue{--c:var(--blue)}.violet{--c:var(--violet)}
+.chip .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+.lbl{font:600 12.5px Inter;color:var(--ink-3)}
+.panel{position:relative;background:var(--panel);border-radius:var(--r);border:1px solid var(--line)}
+.panel-h{padding:14px 16px 4px}
+.panel-b{padding:10px 16px 14px}
+.bar{height:6px;background:var(--seg);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grad);border-radius:99px}
+.head{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.big{width:60px;height:60px;border-radius:18px;display:grid;place-items:center;font:650 21px Inter;background:color-mix(in srgb,var(--amber) 16%,transparent);color:var(--amber-t);flex:none}
+h1{font:700 30px/1.15 Inter;letter-spacing:-.025em}
+.head .chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.head .acts{margin-left:auto;display:flex;gap:8px}
+.grid{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:18px;align-items:start}
+.grid>div{min-width:0}
+.left{display:flex;flex-direction:column;gap:14px}
+.urm{background:var(--urm);border:1px solid var(--urm-bd)}
+.urm .lbl{color:var(--amber-t)}
+.urm b{display:block;font:600 15.5px/1.3 Inter;margin:6px 0 3px}
+.kv{display:flex;flex-direction:column}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.kv div:last-child{border-bottom:0}
+.kv dt{color:var(--ink-3)}
+.kv dd{text-align:right}
+.kv a{color:var(--amber-t)}
+.stages{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:4px 0 8px}
+.stages i{height:6px;border-radius:99px;background:var(--seg)}
+.stages i.done{background:color-mix(in srgb,var(--amber) 45%,transparent)}
+.stages i.now{background:var(--amber)}
+.seg{display:inline-flex;max-width:100%;overflow-x:auto;scrollbar-width:none;gap:2px;padding:3px;border-radius:999px;background:var(--seg);margin-bottom:14px}
+.seg button{white-space:nowrap;flex:none;border:0;background:transparent;color:var(--ink-2);font:550 13px Inter;padding:7px 15px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.seg button .n{font-size:11.5px;color:var(--ink-3)}
+.seg button.on{background:var(--thumb);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-hi)}
+.task{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.box{width:20px;height:20px;border-radius:50%;border:1.6px solid var(--ink-3);flex:none;display:grid;place-items:center;font-size:11px;color:#fff}
+.task.done .box{background:var(--green);border-color:var(--green)}
+.task.done .t{color:var(--ink-3);text-decoration:line-through}
+.task .t{flex:1}
+.task .meta{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-3);white-space:nowrap}
+.task .late{color:var(--red-t)}
+.grp{padding:16px 16px 6px;font:600 12.5px Inter;color:var(--ink-3)}
+.note{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13.5px}
+.note:last-child{border-bottom:0}
+.note .w{font-size:12px;color:var(--ink-3);margin-bottom:3px}
+
+/* lista de lead-uri */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.lt{width:100%;border-collapse:collapse;font-size:13.5px}
+.lt th{text-align:left;font:600 12px Inter;color:var(--ink-3);padding:12px 16px 8px;border-bottom:1px solid var(--line)}
+.lt td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+.lt tr:last-child td{border-bottom:0}
+.lt .nm{font-weight:600}
+.lt .fm{font-size:12.5px;color:var(--ink-3);margin-top:1px}
+
+/* ecranele */
+.screen{display:none}
+.screen.on{display:block;animation:intra .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes intra{from{opacity:0;transform:translateY(14px) scale(.985);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+
+/* ===== MODUL FILMARE =====
+   .p = ce e personal (nume, telefon, e-mail). .f = numele firmei (opțional).
+   Textul e împărțit în bucăți: .k (rămâne clar în varianta D) și .h (ascuns). */
+.p>span{display:inline-block;transition:filter .25s,opacity .25s}
+.p{position:relative;white-space:nowrap}
+
+/* A · Blur fin: doar blur, nimic în plus */
+body.mA .p>span{filter:blur(var(--b))}
+/* B · Blur + estompat: mai moale, mai puțin contrast */
+body.mB .p>span{filter:blur(calc(var(--b) * .8));opacity:.55}
+/* C · Sticlă mată: o bandă de sticlă peste text, ca restul temei */
+body.mC .p>span{position:relative}
+body.mC .p>span::after{content:"";position:absolute;inset:-1px -3px;border-radius:6px;-webkit-backdrop-filter:blur(var(--b));backdrop-filter:blur(var(--b));background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+/* D · Doar o parte: începutul rămâne clar (prenumele, prefixul 07xx), restul blur */
+body.mD .p>span.h{filter:blur(var(--b))}
+
+/* numele firmelor: doar dacă e bifat */
+body:not(.firme) .f>span{filter:none!important;opacity:1!important}
+body:not(.firme) .f>span::after{display:none}
+
+/* ===== comutatorul ===== */
+.sw{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 24px)}
+.sw .row2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.sw .bt{display:flex;gap:4px;padding:5px;border-radius:999px;flex-wrap:wrap;justify-content:center}
+.sw button{border:0;background:transparent;color:var(--ink-2);font:600 13px Inter;padding:9px 15px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.sw button.on{background:var(--amber);color:#1a1206}
+.sw .opt{display:flex;align-items:center;gap:10px;padding:7px 14px;border-radius:999px;font:500 12.5px Inter;color:var(--ink-2)}
+.sw .opt input[type=range]{width:120px;accent-color:#ffb52e}
+.sw .opt input[type=checkbox]{accent-color:#ffb52e;width:15px;height:15px}
+.sw .opt label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.sw .d{padding:7px 14px;border-radius:999px;font-size:12.5px;color:var(--ink-2);text-align:center;max-width:760px}
+.sw .play.on{background:var(--btn);color:var(--ink);box-shadow:inset 0 0 0 1px var(--amber)}
+
+/* ===== telefon ===== */
+@media (max-width:760px){
+  .side{display:none}
+  .app{padding:10px 12px 260px}
+  .top{padding:6px 6px 6px 14px;margin-bottom:18px}
+  .search,.top .btn:not(.pri){display:none}
+  .top .btn.pri{margin-left:auto}
+  .head{flex-wrap:wrap;gap:12px}.head .acts{display:none}
+  .big{width:48px;height:48px;font-size:17px;border-radius:14px}
+  h1{font-size:23px}
+  .grid{grid-template-columns:1fr}
+  .lt thead{display:none}
+  .lt tr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .lt td{padding:0;border:0}
+  .lt td.src,.lt td.who{display:none}
+  .lt td.st{grid-column:2;grid-row:1}
+  .sw .d{display:none}
+  .sw button{padding:8px 11px;font-size:12.5px}
+}
+</style>
+</head>
+<body class="mA">
+
+<div class="wall"><i class="w1"></i><i class="w2"></i><i class="w3"></i></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 13h5l1 3h6l1-3h5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-team" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+</svg>
+
+<aside class="side glass">
+  <div class="brand"><i></i><div>buildwithac<small>CRM</small></div></div>
+  <a class="nav"><svg><use href="#i-chart"/></svg>Dashboard</a>
+  <a class="nav" data-go="lead"><svg><use href="#i-inbox"/></svg>Lead-uri<span class="n">48</span></a>
+  <a class="nav" data-go="client"><svg><use href="#i-users"/></svg>Clienți<span class="n">5</span></a>
+  <a class="nav"><svg><use href="#i-check"/></svg>Task-urile mele<span class="n">5</span></a>
+  <a class="nav"><svg><use href="#i-cal"/></svg>Program</a>
+  <div class="sep"></div>
+  <a class="nav"><svg><use href="#i-team"/></svg>Echipa</a>
+  <div class="me"><div class="av a">AC</div><div><b>Andrei</b><span>Admin</span></div></div>
+</aside>
+
+<div class="app">
+<main>
+
+<!-- ============ LEAD-URI ============ -->
+<section class="screen" id="lead">
+  <div class="top glass">
+    <div class="crumb"><b>Lead-uri</b></div>
+    <div class="search"><svg><use href="#i-search"/></svg><span>Caută după nume, cuvinte, telefon…</span></div>
+    <button class="btn pri">+ Lead de mână</button>
+  </div>
+  <div class="filters">
+    <span class="chip" style="background:var(--thumb);color:var(--ink)">Toate · 48</span>
+    <span class="chip c blue">Nou · 9</span>
+    <span class="chip c amber">De sunat · 12</span>
+    <span class="chip c violet">Discuție programată · 6</span>
+    <span class="chip c green">Client · 5</span>
+  </div>
+  <div class="panel" style="overflow:hidden">
+    <table class="lt">
+      <thead><tr><th>Lead</th><th>Telefon</th><th>Stare</th><th>De unde</th><th>Al cui</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ FIȘA CLIENTULUI ============ -->
+<section class="screen" id="client">
+  <div class="top glass">
+    <div class="crumb">Clienți &nbsp;›&nbsp; <b><span class="p f" data-k="0">Cafeneaua Colț</span></b></div>
+    <div class="search"><svg><use href="#i-search"/></svg><span>Caută după nume, cuvinte, telefon…</span></div>
+    <button class="btn">+ Notiță</button>
+    <button class="btn pri">+ Task</button>
+  </div>
+  <div class="head">
+    <div class="big">CC</div>
+    <div>
+      <h1><span class="p f" data-k="10">Cafeneaua Colț</span></h1>
+      <div class="chips">
+        <span class="chip c blue">Site de la zero</span>
+        <span class="chip c amber"><span class="d"></span>Construcție</span>
+        <span class="chip">Client din 28 oct</span>
+      </div>
+    </div>
+    <div class="acts"><button class="btn">+ Proiect nou</button></div>
+  </div>
+  <div class="grid">
+    <div class="left">
+      <div class="panel urm"><div class="panel-b" style="padding-top:14px">
+        <div class="lbl">Urmează</div>
+        <b>Pagina de meniu: pozele de la client</b>
+        <div class="muted" style="font-size:13px">Joi, 13 nov · Mara</div>
+        <div style="margin-top:14px" class="bar"><i style="width:55%"></i></div>
+        <div class="muted num" style="font-size:12.5px;margin-top:7px">6 din 11 task-uri gata</div>
+      </div></div>
+      <div class="panel">
+        <div class="panel-h lbl">Contact</div>
+        <div class="panel-b"><dl class="kv">
+          <div><dt>Persoană</dt><dd><span class="p" data-k="5">Ioana Marinescu</span></dd></div>
+          <div><dt>Telefon</dt><dd class="num"><span class="p" data-k="4">0745 318 902</span></dd></div>
+          <div><dt>E-mail</dt><dd><span class="p" data-k="0">ioana.marinescu@gmail.com</span></dd></div>
+          <div><dt>WhatsApp</dt><dd><a>Deschide</a></dd></div>
+        </dl></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h lbl">Proiectul</div>
+        <div class="panel-b">
+          <div class="stages"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i><i></i></div>
+          <div class="muted" style="font-size:12.5px;margin-bottom:6px">Construcție · stadiul 3 din 6</div>
+          <dl class="kv">
+            <div><dt>Preț</dt><dd class="num">2.400 lei</dd></div>
+            <div><dt>Încasat</dt><dd class="num">1.200 lei <span class="chip" style="margin-left:4px;padding:2px 8px">avans</span></dd></div>
+            <div><dt>Predare</dt><dd class="num">28 nov</dd></div>
+            <div><dt>Lucrează</dt><dd>Andrei, Mara</dd></div>
+            <div><dt>A venit din</dt><dd>Formular site</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="seg">
+        <button class="on">Task-uri<span class="n">11</span></button>
+        <button>Materiale<span class="n">4</span></button>
+        <button>Conturi<span class="n">4</span></button>
+        <button>Notițe<span class="n">3</span></button>
+        <button>Parcurs</button>
+      </div>
+      <div class="panel">
+        <div class="grp">De făcut</div>
+        <div class="task"><div class="box"></div><div class="t">Google Business: legat de site</div><div class="meta late">Andrei · 7 nov · întârziat</div></div>
+        <div class="task"><div class="box"></div><div class="t">Pagina de meniu: pozele de la client</div><div class="meta"><span class="av s">MA</span> 13 nov</div></div>
+        <div class="task"><div class="box"></div><div class="t">Rezervări prin WhatsApp pe pagina de contact</div><div class="meta">Andrei · 17 nov</div></div>
+        <div class="task"><div class="box"></div><div class="t">Sunat-o pe <span class="p" data-k="5">Ioana Marinescu</span> pentru pozele din local</div><div class="meta"><span class="av s">MA</span> 19 nov</div></div>
+        <div class="grp">Gata</div>
+        <div class="task done"><div class="box">✓</div><div class="t">Discuția de pornire și formularul completat</div><div class="meta">Andrei · 28 oct</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Logo și culorile primite de la client</div><div class="meta">Andrei · 30 oct</div></div>
+        <div class="task done"><div class="box">✓</div><div class="t">Schița paginii principale, aprobată de client</div><div class="meta">Andrei · 3 nov</div></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="panel-h lbl">Notițe</div>
+        <div class="note"><div class="w">Andrei · 6 nov</div>Vrea meniul pe categorii, nu o listă lungă. Prețurile le schimbă des: să le poată edita singură.</div>
+        <div class="note"><div class="w">Mara · 4 nov</div>Pozele vechi sunt mici. Am cerut altele, făcute cu telefonul, la lumina zilei.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<div class="sw">
+  <div class="d glass" id="desc"></div>
+  <div class="row2">
+    <div class="opt glass">
+      <span>Cât de tare</span><input type="range" id="tare" min="2" max="8" step="0.5" value="4"><b id="tareV" class="num">4</b>
+    </div>
+    <div class="opt glass"><label><input type="checkbox" id="firme"> și numele firmelor</label></div>
+    <div class="bt glass">
+      <button data-e="lead">Lead-uri</button>
+      <button data-e="client">Fișa clientului</button>
+      <button class="play" id="play">▶ Trecere rapidă</button>
+    </div>
+  </div>
+  <div class="bt glass">
+    <button data-m="0">Fără blur</button>
+    <button data-m="A">A · Blur fin</button>
+    <button data-m="B">B · Blur estompat</button>
+    <button data-m="C">C · Sticlă mată</button>
+    <button data-m="D">D · Doar o parte</button>
+  </div>
+</div>
+
+<script>
+// lead-urile demo (inventate; în modul filmare nu se văd niciodată clar)
+const leaduri = [
+  ["Laura Ene", "Atelier Ceramică", "0722 419 305", "Client", "green", "Formular site", "AC"],
+  ["Mihai Dobre", "Frizeria Dobre", "0745 861 027", "Discuție programată", "violet", "Reclamă Meta", "VL"],
+  ["Andreea Pop", "Florăria Iris", "0766 204 518", "Client", "green", "Recomandare", "AC"],
+  ["Cristian Ilie", "Clinica DentArt", "0731 552 940", "De sunat", "amber", "Reclamă TikTok", "IO"],
+  ["Elena Stoica", "Salon Bella", "0754 117 683", "Nou", "blue", "Formular site", "—"],
+  ["Radu Georgescu", "Imobiliare Nord", "0721 908 346", "De sunat", "amber", "Reclamă Meta", "VL"],
+  ["Simona Tudor", "Cofetăria Tudor", "0740 663 291", "Nou", "blue", "Reclamă TikTok", "—"],
+  ["Bogdan Marin", "Pensiunea Brazi", "0768 375 014", "Discuție programată", "violet", "Recomandare", "IO"],
+];
+const kNume = n => n.split(" ")[0].length;
+document.getElementById("rows").innerHTML = leaduri.map(([n, f, t, s, c, src, who]) => `
+  <tr>
+    <td><div class="nm"><span class="p" data-k="${kNume(n)}">${n}</span></div><div class="fm"><span class="p f" data-k="0">${f}</span></div></td>
+    <td class="num"><span class="p" data-k="4">${t}</span></td>
+    <td class="st"><span class="chip c ${c}"><span class="d"></span>${s}</span></td>
+    <td class="src muted">${src}</td>
+    <td class="who">${who === "—" ? '<span class="muted">—</span>' : `<span class="av s ${who === "AC" ? "a" : ""}">${who}</span>`}</td>
+  </tr>`).join("");
+
+// împarte fiecare text personal în bucata clară (.k) și bucata ascunsă (.h)
+document.querySelectorAll(".p").forEach(el => {
+  const txt = el.textContent, k = +el.dataset.k || 0;
+  const a = txt.slice(0, k), b = txt.slice(k);
+  // spațiul dintre bucăți stă în afara lor (altfel dispare la capătul unei bucăți)
+  const sp = /\s$/.test(a) || /^\s/.test(b) ? " " : "";
+  el.innerHTML = (a.trim() ? `<span class="k">${a.trim()}</span>` : "") + sp + (b.trim() ? `<span class="h">${b.trim()}</span>` : "");
+});
+
+const desc = {
+  "0": "Fără blur: cum arată acum. Doar ca să compari.",
+  A: "Blur fin: doar textul, încețoșat. Se vede forma (un nume, un număr), nu se citește nimic.",
+  B: "Blur estompat: încețoșat și mai stins, ca să nu tragă ochiul. Cel mai discret.",
+  C: "Sticlă mată: o bandă subțire de sticlă peste text, ca restul temei. Se vede că e ascuns cu intenție.",
+  D: "Doar o parte: prenumele și prefixul (0745) rămân clare, restul e blurat. Se înțelege cel mai ușor ce e acolo."
+};
+let m = "A", e = "client";
+function aplica() {
+  document.body.classList.remove("m0", "mA", "mB", "mC", "mD");
+  document.body.classList.add("m" + m);
+  document.querySelectorAll("[data-m]").forEach(b => b.classList.toggle("on", b.dataset.m === m));
+  document.querySelectorAll("[data-e]").forEach(b => b.classList.toggle("on", b.dataset.e === e));
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === e));
+  document.querySelectorAll(".nav[data-go]").forEach(n => n.classList.toggle("on", n.dataset.go === e));
+  document.getElementById("desc").textContent = desc[m];
+  history.replaceState(null, "", "#" + m + "-" + e);
+}
+document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { m = b.dataset.m; aplica(); });
+document.querySelectorAll("[data-e]").forEach(b => b.onclick = () => { e = b.dataset.e; aplica(); });
+document.querySelectorAll(".nav[data-go]").forEach(n => n.onclick = () => { e = n.dataset.go; aplica(); });
+const tare = document.getElementById("tare");
+tare.oninput = () => { document.documentElement.style.setProperty("--b", tare.value + "px"); document.getElementById("tareV").textContent = tare.value; };
+document.getElementById("firme").onchange = ev => document.body.classList.toggle("firme", ev.target.checked);
+
+// „trecere rapidă”: schimbă ecranele singur, ca într-un clip de reclamă
+let tm = null;
+document.getElementById("play").onclick = ev => {
+  if (tm) { clearInterval(tm); tm = null; ev.target.classList.remove("on"); ev.target.textContent = "▶ Trecere rapidă"; return; }
+  ev.target.classList.add("on"); ev.target.textContent = "■ Oprește";
+  tm = setInterval(() => { e = e === "lead" ? "client" : "lead"; aplica(); }, 1400);
+};
+
+const h = location.hash.match(/^#([0ABCD])-(lead|client)$/);
+if (h) { m = h[1]; e = h[2]; }
+aplica();
+</script>
+</body>
+</html>
