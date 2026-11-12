@@ -39,6 +39,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      abonament_oameni: {
+        Row: {
+          abonament_id: string
+          om_id: string
+          procent: number | null
+        }
+        Insert: {
+          abonament_id: string
+          om_id: string
+          procent?: number | null
+        }
+        Update: {
+          abonament_id?: string
+          om_id?: string
+          procent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abonament_oameni_abonament_id_fkey"
+            columns: ["abonament_id"]
+            isOneToOne: false
+            referencedRelation: "abonamente"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abonament_oameni_om_id_fkey"
+            columns: ["om_id"]
+            isOneToOne: false
+            referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      abonamente: {
+        Row: {
+          creat_la: string
+          id: string
+          oprit_la: string | null
+          porneste: string
+          proiect_id: string
+          suma_lei: number
+          zi: number
+        }
+        Insert: {
+          creat_la?: string
+          id?: string
+          oprit_la?: string | null
+          porneste: string
+          proiect_id: string
+          suma_lei: number
+          zi: number
+        }
+        Update: {
+          creat_la?: string
+          id?: string
+          oprit_la?: string | null
+          porneste?: string
+          proiect_id?: string
+          suma_lei?: number
+          zi?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abonamente_proiect_id_fkey"
+            columns: ["proiect_id"]
+            isOneToOne: false
+            referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cereri: {
         Row: {
           id: string
@@ -963,6 +1034,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "transe_abonament"
+            columns: ["abonament_id"]
+            isOneToOne: false
+            referencedRelation: "abonamente"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transe_proiect_id_fkey"
             columns: ["proiect_id"]
             isOneToOne: false
@@ -977,8 +1055,36 @@ export type Database = {
     }
     Functions: {
       anuleaza_incasare: { Args: { t: string }; Returns: undefined }
+      azi_ro: { Args: never; Returns: string }
       cale_fisier_valida: { Args: { cale: string }; Returns: boolean }
+      comisioane_viitoare: {
+        Args: never
+        Returns: {
+          client: string
+          comision: number
+          eticheta: string
+          procent: number
+          proiect: string
+          scadenta: string
+          suma_lei: number
+        }[]
+      }
+      comisioanele_mele: {
+        Args: never
+        Returns: {
+          baza_lei: number
+          client: string
+          creat_la: string
+          eticheta: string
+          id: string
+          platit_la: string
+          procent: number
+          suma_lei: number
+          tip: string
+        }[]
+      }
       e_coleg: { Args: { alt: string }; Returns: boolean }
+      genereaza_mentenanta: { Args: { pana: string }; Returns: number }
       in_functie_finante: { Args: never; Returns: boolean }
       incaseaza: {
         Args: { peste?: boolean; suma: number; t: string; zi: string }
@@ -994,7 +1100,18 @@ export type Database = {
           om_id: string
         }[]
       }
+      opreste_abonament: { Args: { a: string }; Returns: undefined }
       plateste_tot: { Args: { om: string; zi: string }; Returns: number }
+      porneste_abonament: {
+        Args: {
+          om: string
+          p: string
+          porneste: string
+          suma: number
+          zi: number
+        }
+        Returns: string
+      }
       programeaza_discutie: {
         Args: { p_closer: string; p_incepe: string; p_lead: string }
         Returns: undefined
@@ -1007,6 +1124,10 @@ export type Database = {
       rol_curent: { Args: never; Returns: Database["public"]["Enums"]["rol"] }
       salveaza_program: {
         Args: { p_closer: string; p_durata: number; p_zile: Json }
+        Returns: undefined
+      }
+      schimba_abonament: {
+        Args: { a: string; suma: number; zi: number }
         Returns: undefined
       }
       sterge_client: { Args: { c: string }; Returns: boolean }

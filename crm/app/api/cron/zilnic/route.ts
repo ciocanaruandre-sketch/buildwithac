@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { curataFisiereOrfane } from "@/lib/fisiere-bucket";
 import { copieSaptamanala, eLuni, stergeVechi } from "@/lib/retentie";
 import { admin } from "@/lib/supabase/admin";
+import { ziuaPeste } from "@/lib/timp";
 
 export const maxDuration = 60;
 
@@ -15,7 +16,7 @@ function autorizat(cerere: Request): boolean {
 
 /**
  * Jobul zilnic din vercel.json: șterge lead-urile mai vechi de 90 de zile (cererea la Supabase îl ține și treaz),
- * iar lunea îi trimite lui Andrei copia datelor.
+ * face tranșele de mentenanță ale lunii următoare, iar lunea îi trimite lui Andrei copia datelor.
  */
 export async function GET(cerere: Request) {
   if (!autorizat(cerere)) return Response.json({ eroare: "neautorizat" }, { status: 401 });
@@ -28,9 +29,16 @@ export async function GET(cerere: Request) {
       console.error("cron zilnic: fișierele orfane", e);
       return null;
     });
+    // tranșele de mentenanță ale lunii următoare, cu ~35 de zile înainte; o eroare aici nu oprește restul
+    const mentenanta = await db.rpc("genereaza_mentenanta", { pana: ziuaPeste(acum, 35) }).then(
+      (r) => {
+        if (r.error) console.error("cron zilnic: mentenanța", r.error);
+        return r.data ?? null;
+      },
+    );
     const copie = eLuni(acum) ? await copieSaptamanala(db, fetch, { acum, sterse }) : null;
     if (copie === false) console.error("cron zilnic: copia de luni n-a plecat");
-    return Response.json({ sterse, orfane, copie });
+    return Response.json({ sterse, orfane, mentenanta, copie });
   } catch (e) {
     console.error("cron zilnic:", e);
     return Response.json({ eroare: "baza" }, { status: 500 });

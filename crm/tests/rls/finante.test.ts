@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { ziuaRomaniei } from "@/lib/timp";
+import { ziuaPeste, ziuaRomaniei } from "@/lib/timp";
 import { admin, clientDeTest, conecteazaCa, idDe, omTemporar, stergeClient, stergeTemporari } from "./ajutor";
 
 const lead_uri: string[] = [];
@@ -308,5 +308,119 @@ describe("finanțe: returnări și plăți", () => {
     expect((await k.rpc("returneaza", { t, suma: 100, zi: azi() })).error).not.toBeNull();
     expect((await k.rpc("plateste_tot", { om: await idDe("constructor"), zi: azi() })).error).not.toBeNull();
     expect((await k.from("comisioane").update({ platit_la: null }).eq("transa_id", t).select("id")).data ?? []).toEqual([]);
+  });
+});
+
+const peste = (n: number) => ziuaPeste(new Date(), n);
+
+async function setBaza(categorie: string, rol: "caller" | "closer" | "constructor", procent: number | null) {
+  const { error } = await admin().from("procente_baza").update({ procent }).eq("categorie", categorie).eq("rol", rol);
+  if (error) throw error;
+}
+
+describe("finanțe: mentenanța, mutarea și vederile omului", () => {
+  it("pornirea abonamentului face tranșele lunilor până la +35 de zile", async () => {
+    const { proiectId } = await client();
+    await puneConstructor(proiectId, 30);
+    const a = await conecteazaCa("admin");
+    const r = await a.rpc("porneste_abonament", { p: proiectId, suma: 300, zi: 5, porneste: azi(), om: await idDe("constructor") });
+    expect(r.error).toBeNull();
+    const { data } = await admin().from("transe").select("scadenta, eticheta, suma_lei, tip").eq("abonament_id", r.data!).order("scadenta");
+    const asteptate: string[] = [];
+    for (let i = 0; i <= 2; i++) {
+      const [an, luna] = peste(0).split("-").map(Number);
+      const d = new Date(Date.UTC(an, luna - 1 + i, 5)).toISOString().slice(0, 10);
+      if (d >= azi() && d <= peste(35)) asteptate.push(d);
+    }
+    expect(data!.map((x) => x.scadenta)).toEqual(asteptate);
+    expect(data!.every((x) => x.suma_lei === 300 && x.tip === "mentenanta" && /^Mentenanță [a-zăâîșț]+$/.test(x.eticheta))).toBe(true);
+    expect((await a.rpc("genereaza_mentenanta", { pana: peste(35) })).data).toBe(0);
+  });
+
+  it("comisionul de mentenanță merge la omul abonamentului, nu la lista proiectului", async () => {
+    await setBaza("mentenanta", "constructor", 50);
+    const { proiectId } = await client({ caller_id: await idDe("caller") });
+    await puneConstructor(proiectId, 30);
+    await puneCaller(proiectId, 10);
+    const a = await conecteazaCa("admin");
+    const ab = await a.rpc("porneste_abonament", { p: proiectId, suma: 300, zi: 1, porneste: peste(-40), om: await idDe("constructor") });
+    expect(ab.error).toBeNull();
+    const { data: t } = await admin().from("transe").select("id").eq("abonament_id", ab.data!).order("scadenta").limit(1).single();
+    await incaseaza(t!.id, 300);
+    expect((await comisioaneDin(t!.id)).map((x) => [x.om_id, x.procent, x.suma_lei])).toEqual([[await idDe("constructor"), 50, 150]]);
+    await setBaza("mentenanta", "constructor", null);
+  });
+
+  it("oprirea șterge tranșele viitoare, nu și pe cele întârziate", async () => {
+    const { proiectId } = await client();
+    const a = await conecteazaCa("admin");
+    const ab = await a.rpc("porneste_abonament", { p: proiectId, suma: 300, zi: 28, porneste: azi(), om: null as unknown as string });
+    expect(ab.error).toBeNull();
+    const ins = await admin().from("transe").insert({ proiect_id: proiectId, abonament_id: ab.data!, tip: "mentenanta", eticheta: "Mentenanță veche", suma_lei: 300, scadenta: peste(-10) });
+    expect(ins.error).toBeNull();
+    expect((await a.rpc("opreste_abonament", { a: ab.data! })).error).toBeNull();
+    const { data } = await admin().from("transe").select("eticheta").eq("abonament_id", ab.data!);
+    expect(data).toEqual([{ eticheta: "Mentenanță veche" }]);
+    expect((await admin().from("abonamente").select("oprit_la").eq("id", ab.data!).single()).data).toEqual({ oprit_la: azi() });
+  });
+
+  it("schimbarea abonamentului refață tranșele viitoare cu suma nouă", async () => {
+    const { proiectId } = await client();
+    const a = await conecteazaCa("admin");
+    const ab = await a.rpc("porneste_abonament", { p: proiectId, suma: 300, zi: 28, porneste: azi(), om: null as unknown as string });
+    expect((await a.rpc("schimba_abonament", { a: ab.data!, suma: 450, zi: 28 })).error).toBeNull();
+    const { data } = await admin().from("transe").select("suma_lei").eq("abonament_id", ab.data!);
+    expect(data!.length).toBeGreaterThan(0);
+    expect(data!.every((x) => x.suma_lei === 450)).toBe(true);
+  });
+
+  it("comisioane_viitoare: omul își vede tranșele, fără data celor întârziate, fără proiectele altora", async () => {
+    const nume = `Viitoare ${Date.now()}`;
+    const { proiectId } = await client({ nume });
+    await puneConstructor(proiectId, 30);
+    await transa(proiectId, 1000, peste(10), "Restul");
+    await transa(proiectId, 2000, peste(-3), "Avans");
+    const k = await conecteazaCa("constructor");
+    const { data, error } = await k.rpc("comisioane_viitoare");
+    expect(error).toBeNull();
+    const ale_mele = data!.filter((x) => x.client === nume);
+    expect(ale_mele.map((x) => [x.eticheta, x.scadenta, x.comision])).toEqual([
+      ["Avans", null, 600],
+      ["Restul", peste(10), 300],
+    ]);
+    const altul = await conecteazaCa("caller2");
+    expect(((await altul.rpc("comisioane_viitoare")).data ?? []).filter((x) => x.client === nume)).toEqual([]);
+  });
+
+  it("comisioanele_mele dă «client» null după ștergerea clientului", async () => {
+    const nume = `Mele ${Date.now()}`;
+    const { clientId, proiectId } = await client({ nume });
+    await puneConstructor(proiectId, 30);
+    const t = await transa(proiectId, 1000);
+    await incaseaza(t, 1000);
+    const k = await conecteazaCa("constructor");
+    const inainte = (await k.rpc("comisioanele_mele")).data!.find((x) => x.client === nume);
+    expect(inainte).toMatchObject({ eticheta: "Avans", procent: 30, baza_lei: 1000, suma_lei: 300, platit_la: null, tip: "comision" });
+
+    const a = await conecteazaCa("admin");
+    await a.from("comisioane").update({ platit_la: azi() }).eq("transa_id", t);
+    expect((await a.rpc("sterge_client", { c: clientId })).error).toBeNull();
+    const dupa = (await k.rpc("comisioanele_mele")).data!.find((x) => x.id === inainte!.id);
+    expect(dupa).toMatchObject({ client: null, suma_lei: 300 });
+    // ceilalți nu-i văd comisioanele
+    expect(((await (await conecteazaCa("caller")).rpc("comisioanele_mele")).data ?? []).find((x) => x.id === inainte!.id)).toBeUndefined();
+  });
+
+  it("„Mută tot la…” pune omul nou cu procentul de bază", async () => {
+    await setBaza("site", "constructor", 35);
+    const plecat = await omTemporar("constructor");
+    const { proiectId } = await client({ serviciu: "site" });
+    await admin().from("proiect_oameni").insert({ proiect_id: proiectId, om_id: plecat, procent: 20 });
+    await admin().from("taskuri").insert({ proiect_id: proiectId, titlu: "De mutat", om_id: plecat });
+    const a = await conecteazaCa("admin");
+    expect((await a.rpc("muta_taskuri", { de: plecat, la: await idDe("constructor") })).error).toBeNull();
+    const { data } = await admin().from("proiect_oameni").select("procent").eq("proiect_id", proiectId).eq("om_id", await idDe("constructor")).single();
+    expect(data).toEqual({ procent: 35 });
+    await setBaza("site", "constructor", null);
   });
 });
