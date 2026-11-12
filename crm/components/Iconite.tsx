@@ -1,4 +1,4 @@
-export type NumeIconita = "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta";
+export type NumeIconita = "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta" | "filmare";
 
 /** Desenele din prototip/crm-tema.html (i-inbox, i-users, i-check, i-cal, i-team, i-search), plus ieșirea. */
 const DESENE: Record<NumeIconita, React.ReactNode> = {
@@ -43,6 +43,13 @@ const DESENE: Record<NumeIconita, React.ReactNode> = {
     <>
       <circle cx="11" cy="11" r="7" />
       <path d="M20 20l-3.5-3.5" />
+    </>
+  ),
+  // o cameră de filmat: modul filmare
+  filmare: (
+    <>
+      <rect x="2.5" y="6" width="13" height="12" rx="3" />
+      <path d="M15.5 10.5l6-3.5v10l-6-3.5" />
     </>
   ),
 };

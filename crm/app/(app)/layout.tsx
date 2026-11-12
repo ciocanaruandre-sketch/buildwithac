@@ -1,5 +1,8 @@
 import { iesi } from "@/app/(cont)/actiuni";
+import { ComutatorFilmare } from "@/components/ComutatorFilmare";
 import { Iconita } from "@/components/Iconite";
+import { eBazaDeTest } from "@/lib/echipa-test";
+import { inFilmare } from "@/lib/filmare-server";
 import { Navigare, type Legatura } from "@/components/Navigare";
 import { initiale } from "@/lib/afisare";
 import { eu } from "@/lib/eu";
@@ -31,8 +34,11 @@ function Logo() {
 export default async function LayoutAplicatie({ children }: { children: React.ReactNode }) {
   const om = await eu();
   const legaturi = legaturiPentru(om.rol);
+  // modul filmare: blurul vine din HTML-ul de pe server (fără clipire); comutatorul doar la Admin, doar pe baza de test
+  const filmare = await inFilmare();
+  const comutator = om.rol === "admin" && eBazaDeTest(process.env.NEXT_PUBLIC_SUPABASE_URL) ? <ComutatorFilmare activ={filmare} /> : null;
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" data-filmare={filmare ? "" : undefined}>
       <aside className="sticla fixed top-3 bottom-3 left-3 z-20 hidden w-[236px] flex-col gap-0.5 rounded-xl2 px-2.5 pt-4 pb-2.5 md:flex">
         <div className="px-2.5 pt-0.5 pb-[18px]">
           <Logo />
@@ -49,6 +55,7 @@ export default async function LayoutAplicatie({ children }: { children: React.Re
             <b className="block truncate text-[13px] font-semibold">{om.nume}</b>
             <span className="text-[12px] text-ink-3">{ETICHETE.rol[om.rol]}</span>
           </div>
+          {comutator}
           <form action={iesi}>
             <button aria-label="Ieși" title="Ieși" className="grid h-8 w-8 place-items-center rounded-full text-ink-3 hover:bg-[var(--btn)] hover:text-ink">
               <Iconita nume="iesi" className="h-[17px] w-[17px]" />
@@ -59,9 +66,12 @@ export default async function LayoutAplicatie({ children }: { children: React.Re
 
       <header className="flex items-center justify-between px-4 pt-4 pb-1 md:hidden">
         <Logo />
-        <form action={iesi}>
-          <button className="btn mic">Ieși</button>
-        </form>
+        <div className="flex items-center gap-1.5">
+          {comutator}
+          <form action={iesi}>
+            <button className="btn mic">Ieși</button>
+          </form>
+        </div>
       </header>
 
       <div className="md:pl-[256px]">

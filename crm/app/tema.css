@@ -172,3 +172,10 @@ h1, h2, h3 { font-family: var(--text); font-weight: 700; letter-spacing: -.025em
     outline-offset: 2px;
   }
 }
+
+/* Modul filmare (doar pe CRM-ul demo): numele, firmele, telefoanele și e-mailurile clienților, blurate fin.
+   Se vede forma (un nume, un număr), nu se citește nimic. Link-urile de telefon nu arată numărul la hover. */
+[data-filmare] .ascuns { display: inline-block; filter: blur(4px); }
+[data-filmare] a[href^="tel:"],
+[data-filmare] a[href^="mailto:"],
+[data-filmare] a[href^="https://wa.me/"] { pointer-events: none; }
