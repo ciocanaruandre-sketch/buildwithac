@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM: pagina Bani (variante)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141417; --panel:#1c1c20; --panel-2:#232328; --line:rgba(255,255,255,.07);
+  --ink:#f1f1f3; --ink-2:#b4b4bb; --ink-3:#8a8a92;
+  --glass:rgba(30,30,34,.55); --glass-bd:rgba(255,255,255,.07); --glass-hi:rgba(255,255,255,.10);
+  --r:16px; --r-sm:10px; --r-xl:22px;
+  --sel:rgba(255,255,255,.08); --seg:rgba(255,255,255,.05); --btn:rgba(255,255,255,.07);
+  --amber:#ffb52e; --amber-t:#ffb52e; --green:#4fbf8a; --red-t:#ff7a66; --blue:#6b9bd1;
+  --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;min-height:100vh}
+button{font:inherit;color:inherit}
+.wall{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.wall i{position:absolute;border-radius:50%;filter:blur(100px);opacity:.10}
+.wall .w1{width:640px;height:640px;left:-140px;top:-200px;background:#ffb52e}
+.wall .w2{width:560px;height:560px;right:-160px;top:28%;background:#e53222}
+
+.switch{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:10px 12px;background:rgba(10,10,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.switch .grp{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--seg)}
+.switch button{border:0;background:none;padding:6px 13px;border-radius:999px;font:550 12.5px Inter;color:var(--ink-3);cursor:pointer}
+.switch button.on{background:var(--sel);color:var(--ink)}
+.switch .t{font:600 12px Inter;color:var(--ink-3)}
+
+.app{position:relative;z-index:1;display:flex;gap:20px;max-width:1280px;margin:0 auto;padding:18px 20px 80px}
+.side{width:220px;flex:none;border-radius:var(--r-xl);padding:16px 10px;background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(28px);align-self:flex-start;position:sticky;top:70px}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 14px;font:600 15px Inter}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--grad);display:block}
+.brand small{display:block;font:500 11.5px Inter;color:var(--ink-3)}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);font:500 13.5px Inter}
+.nav.on{background:var(--sel);color:var(--ink)}
+.nav .nou{margin-left:auto;font-size:10.5px;color:var(--amber-t)}
+.main{flex:1;min-width:0}
+body.tel .app{max-width:390px;padding:14px 14px 90px;border-left:1px solid var(--line);border-right:1px solid var(--line);min-height:100vh}
+body.tel .side{display:none}
+.jos{display:none}
+body.tel .jos{display:flex;position:fixed;bottom:10px;left:50%;transform:translateX(-50%);width:370px;justify-content:space-around;padding:8px 6px;border-radius:22px;background:rgba(30,30,34,.85);backdrop-filter:blur(20px);border:1px solid var(--glass-bd);z-index:40}
+.jos span{font:500 10.5px Inter;color:var(--ink-3);text-align:center}
+.jos span.on{color:var(--amber-t)}
+
+.crumb{font:600 13.5px Inter;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+h1{font:700 26px/1.15 Inter;letter-spacing:-.025em;margin-bottom:4px}
+.sub{color:var(--ink-3);font-size:13px;margin-bottom:16px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;background:var(--btn);color:var(--ink);font:550 13px Inter;border:0;cursor:pointer;white-space:nowrap}
+.btn.pri{background:var(--amber);color:#1a1206}
+.btn.mic{padding:5px 11px;font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font:500 11.5px Inter;white-space:nowrap;background:var(--btn);color:var(--ink-2)}
+.chip.c{background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.amber{--c:var(--amber-t)}.green{--c:var(--green)}.red{--c:var(--red-t)}.blue{--c:var(--blue)}
+.lbl{font:600 12.5px Inter;color:var(--ink-3)}
+.panel{position:relative;background:var(--panel);border-radius:var(--r);border:1px solid var(--line)}
+.av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 10.5px Inter;background:var(--btn);color:var(--ink-2);flex:none}
+.muted{color:var(--ink-3)}
+
+.tabs{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--seg);margin-bottom:16px;max-width:100%;overflow-x:auto}
+.tabs button{border:0;background:none;padding:7px 14px;border-radius:999px;font:550 13px Inter;color:var(--ink-3);cursor:pointer;white-space:nowrap}
+.tabs button.on{background:var(--sel);color:var(--ink)}
+.pag{display:none}.pag.on{display:block}
+
+.rez{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.rez .panel{padding:12px 14px}
+.rez b{display:block;font:650 21px Inter;letter-spacing:-.02em;margin-top:2px}
+.rez small{font-size:12px;color:var(--ink-3)}
+.rez .bar{height:5px;background:var(--seg);border-radius:9px;overflow:hidden;margin-top:8px}
+.rez .bar i{display:block;height:100%;background:var(--grad)}
+body.tel .rez{grid-template-columns:1fr 1fr}
+body.tel .rez .panel:first-child{grid-column:1/-1}
+body.tel .rez b{font-size:17px}
+
+.doi{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+body.tel .doi{grid-template-columns:1fr}
+
+/* rândul unei plăți */
+.grupa{margin-bottom:14px}
+.grupa .gh{display:flex;align-items:baseline;gap:8px;padding:0 4px 6px}
+.grupa .gh .lbl.r{color:var(--red-t)}
+.grupa .gh .tot{margin-left:auto;font:600 12.5px Inter;color:var(--ink-3)}
+.plata{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.plata:last-child{border-bottom:0}
+.plata .zi{width:44px;flex:none;text-align:center;line-height:1.1}
+.plata .zi b{display:block;font:650 17px Inter}
+.plata .zi small{font-size:11px;color:var(--ink-3)}
+.plata .cine{min-width:0;flex:1}
+.plata .cine div{font:550 13.5px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plata .cine span{font-size:12px;color:var(--ink-3)}
+.plata .sum{font:650 14px Inter;text-align:right;white-space:nowrap}
+.plata .sum small{display:block;font:500 11.5px Inter}
+.plata.intarzie .zi b{color:var(--red-t)}
+.plata.facuta{opacity:.7}
+.plata .act{flex:none}
+body.tel .plata .act .btn{padding:5px 9px}
+body.tel .plata .act .txt{display:none}
+
+/* B · coloane */
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.tel .cols{grid-template-columns:1fr}
+.col .ch{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.col .ch .tot{margin-left:auto;font:600 12.5px Inter;color:var(--ink-3)}
+.card{padding:10px 14px;border-bottom:1px solid var(--line)}
+.card:last-child{border-bottom:0}
+.card .s1{display:flex;justify-content:space-between;gap:8px;font:550 13px Inter}
+.card .s2{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--ink-3);margin-top:2px}
+.card .s3{display:flex;justify-content:flex-end;margin-top:8px}
+.card.nou{animation:aprins 1.2s ease}
+@keyframes aprins{from{background:rgba(79,191,138,.18)}to{background:transparent}}
+.var{display:none}
+body.vA .var.A, body.vB .var.B{display:block}
+
+/* echipa */
+.om{padding:12px 14px;border-bottom:1px solid var(--line)}
+.om:last-child{border-bottom:0}
+.om .top{display:flex;align-items:center;gap:10px}
+.om .top .s{margin-left:auto;text-align:right}
+.om .top .s b{display:block;font:650 15px Inter;color:var(--amber-t)}
+.om .top .s small{font-size:11.5px;color:var(--ink-3)}
+.om .linii{margin:8px 0 0 36px;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--ink-2)}
+.om .linii div{display:flex;gap:8px}
+.om .linii div span:last-child{margin-left:auto}
+.om .btn{margin:10px 0 0 36px}
+.om.gata .top .s b{color:var(--green)}
+
+/* procente */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font:600 12px Inter;color:var(--ink-3);text-align:left;padding:11px 14px;border-bottom:1px solid var(--line)}
+td{padding:9px 14px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th.n,td.n{text-align:right}
+.inp{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:9px;background:var(--seg);min-width:60px;justify-content:flex-end;font-variant-numeric:tabular-nums}
+.inp.gol{color:var(--ink-3)}
+
+/* vederea lui Radu */
+.radu{display:none}
+body.vRadu .radu{display:block}
+body.vRadu .andrei{display:none}
+
+.nota-proto{max-width:720px;margin:26px auto 0;font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.nota-proto b{color:var(--ink-2)}
+</style>
+</head>
+<body class="vA">
+<div class="wall"><i class="w1"></i><i class="w2"></i></div>
+
+<div class="switch">
+  <span class="t">Varianta</span>
+  <div class="grp" id="var"><button data-v="A" class="on">A · Pe zile</button><button data-v="B">B · Coloane</button></div>
+  <span class="t">Cine se uită</span>
+  <div class="grp" id="cine"><button data-c="andrei" class="on">Andrei (Admin)</button><button data-c="radu">Radu (constructor)</button></div>
+  <div class="grp" id="lat"><button data-l="lap" class="on">Laptop</button><button data-l="tel">Telefon</button></div>
+</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i></i><div>buildwithac<small>CRM</small></div></div>
+    <div class="nav andrei">Lead-uri</div>
+    <div class="nav">Clienți</div>
+    <div class="nav">Task-urile mele</div>
+    <div class="nav andrei">Program</div>
+    <div class="nav on">Bani <span class="nou">nou</span></div>
+    <div class="nav andrei">Echipa</div>
+  </aside>
+
+  <main class="main">
+    <!-- ================== ANDREI ================== -->
+    <div class="andrei">
+      <h1>Bani</h1>
+      <div class="sub">Joi, 12 noiembrie</div>
+      <div class="tabs" id="tabsA">
+        <button data-p="incasari" class="on">Încasări</button>
+        <button data-p="echipa">De plătit echipei <span class="chip c amber" style="margin-left:4px">3</span></button>
+        <button data-p="procente">Procente de bază</button>
+      </div>
+
+      <!-- ÎNCASĂRI -->
+      <div class="pag on" data-p="incasari">
+        <div class="rez">
+          <div class="panel"><small>Încasat în noiembrie</small><b style="color:var(--green)">4.000 lei</b><div class="bar"><i style="width:32%"></i></div><small>din 12.500 lei programați luna asta</small></div>
+          <div class="panel"><small>Urmează în noiembrie</small><b>5.800 lei</b></div>
+          <div class="panel"><small>Întârziate</small><b style="color:var(--red-t)">2.700 lei</b></div>
+        </div>
+
+        <!-- A · pe zile -->
+        <div class="var A">
+          <div class="grupa">
+            <div class="gh"><span class="lbl r">Întârzie</span><span class="tot">2.700 lei</span></div>
+            <div class="panel">
+              <div class="plata intarzie"><div class="zi"><b>1</b><small>nov</small></div><div class="cine"><div>Cafeneaua Boabe</div><span>Rata 3 din 4 · întârzie de 11 zile</span></div><div class="sum">1.500 lei</div><div class="act"><button class="btn pri mic">✓ <span class="txt">Am încasat</span></button></div></div>
+              <div class="plata intarzie"><div class="zi"><b>8</b><small>nov</small></div><div class="cine"><div>Salon Lumi</div><span>Restul · întârzie de 4 zile</span></div><div class="sum">1.200 lei</div><div class="act"><button class="btn pri mic">✓ <span class="txt">Am încasat</span></button></div></div>
+            </div>
+          </div>
+          <div class="grupa">
+            <div class="gh"><span class="lbl">Săptămâna asta</span><span class="tot">2.800 lei</span></div>
+            <div class="panel">
+              <div class="plata"><div class="zi"><b>14</b><small>vin</small></div><div class="cine"><div>Clinica DentArt</div><span>Avans · site</span></div><div class="sum">2.500 lei</div><div class="act"><button class="btn mic">✓ <span class="txt">Am încasat</span></button></div></div>
+              <div class="plata"><div class="zi"><b>15</b><small>sâm</small></div><div class="cine"><div>Florăria Iris</div><span>Mentenanță noiembrie</span></div><div class="sum">300 lei</div><div class="act"><button class="btn mic">✓ <span class="txt">Am încasat</span></button></div></div>
+            </div>
+          </div>
+          <div class="grupa">
+            <div class="gh"><span class="lbl">Mai încolo</span><span class="tot">următoarele 30 de zile</span></div>
+            <div class="panel">
+              <div class="plata"><div class="zi"><b>20</b><small>nov</small></div><div class="cine"><div>Atelier Ceramică</div><span>Restul · site</span></div><div class="sum">2.000 lei</div><div class="act"><button class="btn mic">✓ <span class="txt">Am încasat</span></button></div></div>
+              <div class="plata"><div class="zi"><b>25</b><small>nov</small></div><div class="cine"><div>Imobiliare Nord</div><span>Rata 2 din 3</span></div><div class="sum">1.000 lei</div><div class="act"><button class="btn mic">✓ <span class="txt">Am încasat</span></button></div></div>
+              <div class="plata"><div class="zi"><b>1</b><small>dec</small></div><div class="cine"><div>Cafeneaua Boabe</div><span>Rata 4 din 4</span></div><div class="sum">1.500 lei</div><div class="act"><button class="btn mic">✓ <span class="txt">Am încasat</span></button></div></div>
+            </div>
+          </div>
+          <div class="grupa">
+            <div class="gh"><span class="lbl" style="color:var(--green)">Încasate în noiembrie</span><span class="tot">4.000 lei</span></div>
+            <div class="panel">
+              <div class="plata facuta"><div class="zi"><b>10</b><small>nov</small></div><div class="cine"><div>Imobiliare Nord</div><span>Rata 1 din 3</span></div><div class="sum">1.000 lei<small style="color:var(--green)">încasat</small></div></div>
+              <div class="plata facuta"><div class="zi"><b>6</b><small>nov</small></div><div class="cine"><div>Atelier Ceramică</div><span>Avans · site</span></div><div class="sum">2.000 lei<small style="color:var(--green)">încasat</small></div></div>
+              <div class="plata facuta"><div class="zi"><b>3</b><small>nov</small></div><div class="cine"><div>Florăria Iris</div><span>Rata 2 din 2</span></div><div class="sum">1.000 lei<small style="color:var(--green)">încasat</small></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B · coloane -->
+        <div class="var B">
+          <div class="cols">
+            <div class="panel col">
+              <div class="ch"><span class="lbl" style="color:var(--red-t)">Întârzie</span><span class="tot">2.700 lei</span></div>
+              <div class="card"><div class="s1"><span>Cafeneaua Boabe</span><span>1.500</span></div><div class="s2"><span>Rata 3 din 4</span><span style="color:var(--red-t)">11 zile</span></div></div>
+              <div class="card"><div class="s1"><span>Salon Lumi</span><span>1.200</span></div><div class="s2"><span>Restul</span><span style="color:var(--red-t)">4 zile</span></div></div>
+            </div>
+            <div class="panel col">
+              <div class="ch"><span class="lbl">Urmează · 30 de zile</span><span class="tot">7.300 lei</span></div>
+              <div class="card"><div class="s1"><span>Clinica DentArt</span><span>2.500</span></div><div class="s2"><span>Avans</span><span>vin 14 nov</span></div></div>
+              <div class="card"><div class="s1"><span>Florăria Iris</span><span>300</span></div><div class="s2"><span>Mentenanță</span><span>sâm 15 nov</span></div></div>
+              <div class="card"><div class="s1"><span>Atelier Ceramică</span><span>2.000</span></div><div class="s2"><span>Restul</span><span>20 nov</span></div></div>
+              <div class="card"><div class="s1"><span>Imobiliare Nord</span><span>1.000</span></div><div class="s2"><span>Rata 2 din 3</span><span>25 nov</span></div></div>
+              <div class="card"><div class="s1"><span>Cafeneaua Boabe</span><span>1.500</span></div><div class="s2"><span>Rata 4 din 4</span><span>1 dec</span></div></div>
+            </div>
+            <div class="panel col">
+              <div class="ch"><span class="lbl" style="color:var(--green)">Încasate · noiembrie</span><span class="tot">4.000 lei</span></div>
+              <div class="card"><div class="s1"><span>Imobiliare Nord</span><span>1.000</span></div><div class="s2"><span>Rata 1 din 3</span><span>10 nov</span></div></div>
+              <div class="card"><div class="s1"><span>Atelier Ceramică</span><span>2.000</span></div><div class="s2"><span>Avans</span><span>6 nov</span></div></div>
+              <div class="card"><div class="s1"><span>Florăria Iris</span><span>1.000</span></div><div class="s2"><span>Rata 2 din 2</span><span>3 nov</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DE PLĂTIT ECHIPEI -->
+      <div class="pag" data-p="echipa">
+        <div class="sub" style="margin-top:-6px">Comisioanele din banii deja încasați, pe care încă nu le-ai dat.</div>
+        <div class="panel" style="max-width:620px">
+          <div class="om">
+            <div class="top"><span class="av">RS</span><div><div>Radu Stan</div><span class="muted" style="font-size:12px">constructor</span></div><div class="s"><b>1.000 lei</b><small>2 comisioane</small></div></div>
+            <div class="linii"><div><span>Atelier Ceramică · avans (30%)</span><span>600 lei</span></div><div><span>Imobiliare Nord · rata 1 (40%)</span><span>400 lei</span></div></div>
+            <button class="btn mic pl">Am plătit tot</button>
+          </div>
+          <div class="om">
+            <div class="top"><span class="av">ID</span><div><div>Ioana Dumitru</div><span class="muted" style="font-size:12px">closer</span></div><div class="s"><b>350 lei</b><small>2 comisioane</small></div></div>
+            <div class="linii"><div><span>Cafeneaua Boabe · rata 2 (10%)</span><span>150 lei</span></div><div><span>Atelier Ceramică · avans (10%)</span><span>200 lei</span></div></div>
+            <button class="btn mic pl">Am plătit tot</button>
+          </div>
+          <div class="om">
+            <div class="top"><span class="av">VM</span><div><div>Vlad Marin</div><span class="muted" style="font-size:12px">caller</span></div><div class="s"><b>175 lei</b><small>2 comisioane</small></div></div>
+            <div class="linii"><div><span>Cafeneaua Boabe · rata 2 (5%)</span><span>75 lei</span></div><div><span>Atelier Ceramică · avans (5%)</span><span>100 lei</span></div></div>
+            <button class="btn mic pl">Am plătit tot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROCENTE -->
+      <div class="pag" data-p="procente">
+        <div class="sub" style="margin-top:-6px">Se pun singure pe fiecare proiect nou. Pe un proiect anume le schimbi din fișa clientului.</div>
+        <div class="panel" style="max-width:620px;overflow-x:auto">
+          <table>
+            <thead><tr><th>Serviciu</th><th class="n">Constructor</th><th class="n">Closer</th><th class="n">Caller</th></tr></thead>
+            <tbody>
+              <tr><td>Site</td><td class="n"><span class="inp">30 %</span></td><td class="n"><span class="inp">10 %</span></td><td class="n"><span class="inp">5 %</span></td></tr>
+              <tr><td>Automatizări</td><td class="n"><span class="inp">40 %</span></td><td class="n"><span class="inp">10 %</span></td><td class="n"><span class="inp">5 %</span></td></tr>
+              <tr><td>1 la 1</td><td class="n"><span class="inp gol">–</span></td><td class="n"><span class="inp">10 %</span></td><td class="n"><span class="inp">5 %</span></td></tr>
+              <tr><td>Altceva</td><td class="n"><span class="inp gol">–</span></td><td class="n"><span class="inp gol">–</span></td><td class="n"><span class="inp gol">–</span></td></tr>
+              <tr><td>Mentenanță <span class="muted" style="font-size:12px">(lunar)</span></td><td class="n"><span class="inp">50 %</span></td><td class="n"><span class="inp">0 %</span></td><td class="n"><span class="inp">0 %</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sub" style="margin-top:10px">„–” = nestabilit: pe proiect apare „procent nestabilit” până îl scrii. Cifrele de aici sunt doar exemple.</div>
+      </div>
+    </div>
+
+    <!-- ================== RADU ================== -->
+    <div class="radu">
+      <h1>Banii mei</h1>
+      <div class="sub">Comisioanele tale, din banii încasați de la clienți.</div>
+      <div class="rez">
+        <div class="panel"><small>De primit</small><b style="color:var(--amber-t)">1.000 lei</b></div>
+        <div class="panel"><small>Primit în noiembrie</small><b style="color:var(--green)">600 lei</b></div>
+        <div class="panel"><small>Urmează, dacă plătesc clienții</small><b>1.500 lei</b></div>
+      </div>
+      <div class="grupa">
+        <div class="gh"><span class="lbl" style="color:var(--amber-t)">De primit</span><span class="tot">1.000 lei</span></div>
+        <div class="panel">
+          <div class="plata"><div class="zi"><b>10</b><small>nov</small></div><div class="cine"><div>Imobiliare Nord</div><span>Rata 1 · 40% din 1.000 lei</span></div><div class="sum">400 lei</div></div>
+          <div class="plata"><div class="zi"><b>6</b><small>nov</small></div><div class="cine"><div>Atelier Ceramică</div><span>Avans · 30% din 2.000 lei</span></div><div class="sum">600 lei</div></div>
+        </div>
+      </div>
+      <div class="grupa">
+        <div class="gh"><span class="lbl">Urmează</span><span class="tot">după ce intră banii de la client</span></div>
+        <div class="panel">
+          <div class="plata"><div class="zi"><b>14</b><small>nov</small></div><div class="cine"><div>Clinica DentArt</div><span>Avans · 30% din 2.500 lei</span></div><div class="sum">750 lei</div></div>
+          <div class="plata"><div class="zi"><b>20</b><small>nov</small></div><div class="cine"><div>Atelier Ceramică</div><span>Restul · 30% din 2.000 lei</span></div><div class="sum">600 lei</div></div>
+          <div class="plata"><div class="zi"><b>15</b><small>dec</small></div><div class="cine"><div>Florăria Iris</div><span>Mentenanță · 50% din 300 lei</span></div><div class="sum">150 lei</div></div>
+        </div>
+      </div>
+      <div class="grupa">
+        <div class="gh"><span class="lbl" style="color:var(--green)">Primite</span><span class="tot">600 lei în noiembrie</span></div>
+        <div class="panel">
+          <div class="plata facuta"><div class="zi"><b>4</b><small>nov</small></div><div class="cine"><div>Cafeneaua Boabe</div><span>Rata 2 · 40%</span></div><div class="sum">600 lei<small style="color:var(--green)">primit</small></div></div>
+        </div>
+      </div>
+      <div class="sub">Radu nu vede clienții întârziați și nici banii altora, doar suma lui.</div>
+    </div>
+
+    <p class="nota-proto"><b>De probă aici:</b> pagina nouă „Bani” din meniu, văzută de tine și de un constructor (Radu). Tab-urile „De plătit echipei” și „Procente de bază” se pot deschide. Butonul „✓ Am încasat” face același lucru ca pe fișa clientului: bifează rata și naște comisioanele. Date inventate.</p>
+  </main>
+</div>
+
+<div class="jos"><span>Lead-uri</span><span>Clienți</span><span>Task-uri</span><span>Program</span><span class="on">Bani</span><span>Echipa</span></div>
+
+<script>
+const b=document.body;
+function grp(id,fn){document.querySelectorAll('#'+id+' button').forEach(x=>x.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(y=>y.classList.toggle('on',y===x));fn(x)})}
+grp('var',x=>{b.classList.remove('vA','vB');b.classList.add('v'+x.dataset.v)});
+grp('cine',x=>b.classList.toggle('vRadu',x.dataset.c==='radu'));
+grp('lat',x=>b.classList.toggle('tel',x.dataset.l==='tel'));
+grp('tabsA',x=>document.querySelectorAll('.pag').forEach(p=>p.classList.toggle('on',p.dataset.p===x.dataset.p)));
+// B: butonul „Am încasat” pe cardurile din Întârzie și Urmează
+const cols=document.querySelectorAll('.var.B .col');
+[cols[0],cols[1]].forEach((col,i)=>col.querySelectorAll('.card').forEach(c=>{
+  const s=document.createElement('div');s.className='s3';
+  s.innerHTML=`<button class="btn mic ${i===0?'pri':''} incas">✓ Am încasat</button>`;c.appendChild(s);
+}));
+const lei=n=>n.toLocaleString('ro-RO')+' lei';
+const num=t=>+t.replace(/\D/g,'');
+document.addEventListener('click',e=>{
+  const inc=e.target.closest('.incas');
+  if(inc){
+    const c=inc.closest('.card'),src=c.closest('.col'),dst=cols[2];
+    const suma=num(c.querySelector('.s1 span:last-child').textContent);
+    c.querySelector('.s3').remove();
+    c.querySelector('.s2 span:last-child').textContent='azi';c.querySelector('.s2 span:last-child').style.color='';
+    dst.querySelector('.ch').after(c);c.classList.add('nou');
+    const t1=src.querySelector('.tot'),t2=dst.querySelector('.tot');
+    t1.textContent=lei(num(t1.textContent)-suma);
+    t2.textContent=lei(num(t2.textContent)+suma);
+    return;
+  }
+  const p=e.target.closest('.om .pl');
+  if(p){const om=p.closest('.om');om.classList.add('gata');om.querySelector('.s small').textContent='plătit azi';p.remove()}
+});
+</script>
+</body>
+</html>
