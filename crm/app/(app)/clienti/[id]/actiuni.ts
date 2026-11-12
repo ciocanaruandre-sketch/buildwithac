@@ -153,7 +153,8 @@ export async function stergeClient(clientId: string): Promise<Rezultat> {
 
   // lead-ul și clientul pleacă împreună sau deloc (o singură tranzacție în baza de date)
   const { data: sters, error } = await db.rpc("sterge_client", { c: clientId });
-  if (error || !sters) return { ok: false, mesaj: "Clientul n-a putut fi șters. Încearcă din nou." };
+  // „Mai ai de plătit comisioane…” vine din baza de date și ajunge pe ecran
+  if (error || !sters) return { ok: false, mesaj: mesajDinBaza(error, "Clientul n-a putut fi șters. Încearcă din nou.") };
   // apoi fișierele; dacă pică ceva aici, jobul zilnic golește dosarele proiectelor care nu mai există
   for (const p of proiecte) {
     if (!(await stergeFisiereleProiectului(db, p.id))) console.error(`stergeClient: fișierele proiectului ${p.id} rămân pentru jobul zilnic`);

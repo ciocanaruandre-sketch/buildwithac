@@ -984,6 +984,7 @@ export type Database = {
         Args: { peste?: boolean; suma: number; t: string; zi: string }
         Returns: string
       }
+      lei_text: { Args: { n: number }; Returns: string }
       lucreaza_la: { Args: { p: string }; Returns: boolean }
       muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
       muta_taskuri: { Args: { de: string; la: string }; Returns: number }
@@ -993,11 +994,16 @@ export type Database = {
           om_id: string
         }[]
       }
+      plateste_tot: { Args: { om: string; zi: string }; Returns: number }
       programeaza_discutie: {
         Args: { p_closer: string; p_incepe: string; p_lead: string }
         Returns: undefined
       }
       proiect_din_cale: { Args: { cale: string }; Returns: string }
+      returneaza: {
+        Args: { suma: number; t: string; zi: string }
+        Returns: undefined
+      }
       rol_curent: { Args: never; Returns: Database["public"]["Enums"]["rol"] }
       salveaza_program: {
         Args: { p_closer: string; p_durata: number; p_zile: Json }

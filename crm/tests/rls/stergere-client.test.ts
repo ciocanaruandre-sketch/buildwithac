@@ -63,6 +63,29 @@ describe("ștergerea unui client", () => {
     expect((await admin().from("lead_uri").select("id").eq("id", c.lead.id)).data).toHaveLength(1);
   });
 
+  it("ștergerea e blocată cât sunt comisioane de plătit; după plată, comisioanele plătite rămân fără proiect", async () => {
+    const c = await clientPlin();
+    // doar comisionul constructorului (30%); callerul clientului, cu procent nestabilit, ar ține ștergerea blocată
+    await admin().from("proiect_vanzari").delete().eq("proiect_id", c.proiectId);
+    const azi = new Date().toISOString().slice(0, 10);
+    const t = await admin().from("transe").insert({ proiect_id: c.proiectId, tip: "odata", eticheta: "Toată suma", suma_lei: 1000, scadenta: azi }).select("id").single();
+    if (t.error) throw t.error;
+    const a = await conecteazaCa("admin");
+    expect((await a.rpc("incaseaza", { t: t.data.id, suma: 1000, zi: azi, peste: false })).error).toBeNull();
+
+    const blocat = await a.rpc("sterge_client", { c: c.clientId });
+    expect(blocat.error?.message).toBe("Mai ai de plătit comisioane din proiectele lui. Plătește-le întâi.");
+    expect((await admin().from("clienti").select("id").eq("id", c.clientId)).data).toHaveLength(1);
+
+    const platite = await a.from("comisioane").update({ platit_la: azi }).eq("transa_id", t.data.id).select("id");
+    expect(platite.data).toHaveLength(1);
+    const sters = await a.rpc("sterge_client", { c: c.clientId });
+    expect(sters.error).toBeNull();
+    expect(sters.data).toBe(true);
+    const { data } = await admin().from("comisioane").select("proiect_id, transa_id, suma_lei, platit_la").eq("id", platite.data![0].id).single();
+    expect(data).toEqual({ proiect_id: null, transa_id: null, suma_lei: 300, platit_la: azi });
+  });
+
   it("sterge_client pe un client care nu există → false", async () => {
     const r = await (await conecteazaCa("admin")).rpc("sterge_client", { c: randomUUID() });
     expect(r.error).toBeNull();

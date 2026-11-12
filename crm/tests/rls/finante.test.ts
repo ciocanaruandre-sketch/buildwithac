@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { ziuaRomaniei } from "@/lib/timp";
-import { admin, clientDeTest, conecteazaCa, idDe, stergeClient, stergeTemporari } from "./ajutor";
+import { admin, clientDeTest, conecteazaCa, idDe, omTemporar, stergeClient, stergeTemporari } from "./ajutor";
 
 const lead_uri: string[] = [];
 afterAll(async () => {
@@ -228,5 +228,85 @@ describe("finanțe: încasarea și comisioanele", () => {
     const k = await conecteazaCa("constructor");
     expect((await k.rpc("incaseaza", { t, suma: 2000, zi: azi(), peste: false })).error).not.toBeNull();
     expect((await k.rpc("anuleaza_incasare", { t })).error).not.toBeNull();
+  });
+});
+
+/** Un proiect cu Radu 30% și callerul 10% și o încasare de 2.000; comisionul lui Radu e plătit. */
+async function incasarePlatitaLaRadu() {
+  const { proiectId } = await client();
+  await puneConstructor(proiectId, 30);
+  await puneCaller(proiectId, 10);
+  const t = await transa(proiectId, 2000);
+  await incaseaza(t, 2000);
+  await admin().from("comisioane").update({ platit_la: azi() }).eq("transa_id", t).eq("om_id", await idDe("constructor"));
+  return { proiectId, t };
+}
+
+describe("finanțe: returnări și plăți", () => {
+  it("returnarea întreagă: comisionul neplătit dispare, cel plătit devine minus", async () => {
+    const { t } = await incasarePlatitaLaRadu();
+    const a = await conecteazaCa("admin");
+    expect((await a.rpc("returneaza", { t, suma: 2000, zi: azi() })).error).toBeNull();
+    const k = await comisioaneDin(t);
+    expect(k.map((x) => [x.tip, x.suma_lei, x.platit_la === null])).toEqual([
+      ["minus", -600, true],
+      ["comision", 600, false],
+    ]);
+    const caller = await idDe("caller");
+    expect(k.find((x) => x.om_id === caller)).toBeUndefined();
+    expect((await admin().from("transe").select("returnat_lei").eq("id", t).single()).data).toEqual({ returnat_lei: 2000 });
+  });
+
+  it("returnarea parțială scade proporțional", async () => {
+    const { t } = await incasarePlatitaLaRadu();
+    const a = await conecteazaCa("admin");
+    expect((await a.rpc("returneaza", { t, suma: 500, zi: azi() })).error).toBeNull();
+    const k = await comisioaneDin(t);
+    expect(k.find((x) => x.tip === "comision" && x.platit_la === null)).toMatchObject({ suma_lei: 150, baza_lei: 1500 });
+    expect(k.find((x) => x.tip === "minus")).toMatchObject({ suma_lei: -150, baza_lei: -500 });
+    expect((await a.rpc("returneaza", { t, suma: 1600, zi: azi() })).error?.message).toBe("Poți returna cel mult 1.500 lei.");
+  });
+
+  it("„Am plătit tot” stinge minusurile și întoarce diferența", async () => {
+    const { proiectId, t } = await incasarePlatitaLaRadu();
+    const a = await conecteazaCa("admin");
+    await a.rpc("returneaza", { t, suma: 2000, zi: azi() });
+    const t2 = await transa(proiectId, 3000);
+    await incaseaza(t2, 3000);
+    const radu = await idDe("constructor");
+    const r = await a.rpc("plateste_tot", { om: radu, zi: azi() });
+    expect(r.error).toBeNull();
+    expect(r.data).toBeGreaterThanOrEqual(300);
+    const { data } = await admin().from("comisioane").select("platit_la").eq("proiect_id", proiectId).eq("om_id", radu);
+    expect(data!.every((x) => x.platit_la !== null)).toBe(true);
+  });
+
+  it("„Am plătit tot” refuză când totalul e zero sau negativ", async () => {
+    const om = await omTemporar("constructor");
+    const { proiectId } = await client();
+    await admin().from("proiect_oameni").insert({ proiect_id: proiectId, om_id: om, procent: 30 });
+    const t = await transa(proiectId, 2000);
+    await incaseaza(t, 2000);
+    const a = await conecteazaCa("admin");
+    await a.from("comisioane").update({ platit_la: azi() }).eq("transa_id", t);
+    await a.rpc("returneaza", { t, suma: 2000, zi: azi() });
+    expect((await a.rpc("plateste_tot", { om, zi: azi() })).error?.message).toBe("Nu e nimic de plătit.");
+  });
+
+  it("bifa pe un rând cu procent nestabilit e refuzată", async () => {
+    const { proiectId } = await client();
+    await puneConstructor(proiectId, null);
+    const t = await transa(proiectId, 2000);
+    await incaseaza(t, 2000);
+    const a = await conecteazaCa("admin");
+    expect((await a.from("comisioane").update({ platit_la: azi() }).eq("transa_id", t)).error?.message).toBe("Procentul nu e stabilit încă.");
+  });
+
+  it("doar Adminul returnează și plătește", async () => {
+    const { t } = await incasarePlatitaLaRadu();
+    const k = await conecteazaCa("constructor");
+    expect((await k.rpc("returneaza", { t, suma: 100, zi: azi() })).error).not.toBeNull();
+    expect((await k.rpc("plateste_tot", { om: await idDe("constructor"), zi: azi() })).error).not.toBeNull();
+    expect((await k.from("comisioane").update({ platit_la: null }).eq("transa_id", t).select("id")).data ?? []).toEqual([]);
   });
 });
