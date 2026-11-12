@@ -1,5 +1,6 @@
 "use client";
 
+import { Ascuns } from "@/components/Ascuns";
 import { useState } from "react";
 import { adaugaCont, stergeCont } from "@/app/(app)/clienti/[id]/actiuni-fisa";
 import { ButonSterge, Mesaj, useActiune } from "@/components/fisa/comune";
@@ -63,7 +64,7 @@ export function Conturi({ proiectId, conturi }: { proiectId: string; conturi: Co
               {conturi.map((c) => (
                 <tr key={c.id} className="border-b border-line last:border-0">
                   <td className="px-2 py-2">{c.serviciu}</td>
-                  <td className="px-2 py-2 font-mono text-[12px] break-all">{c.cont}</td>
+                  <td className="px-2 py-2 font-mono text-[12px] break-all"><Ascuns>{c.cont}</Ascuns></td>
                   <td className="px-2 py-2">
                     <span className={`chip ${c.al_cui === "client" ? "green" : "amber"}`}>{ETICHETE.alCui[c.al_cui]}</span>
                   </td>

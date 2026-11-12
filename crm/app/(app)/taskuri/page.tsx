@@ -1,3 +1,4 @@
+import { Ascuns } from "@/components/Ascuns";
 import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { BifaTask } from "@/components/fisa/Taskuri";
@@ -45,7 +46,7 @@ export default async function TaskurileMele() {
                     <span className="min-w-[160px] flex-1">{t.titlu}</span>
                     {t.termen && <span className={`num flex-none text-[12px] ${grupa.rosu ? "text-red-t" : "text-ink-3"}`}>{termenScurt(t.termen)}</span>}
                     <Link href={{ pathname: `/clienti/${t.proiecte.client_id}`, query: { proiect: t.proiect_id } }} className="min-w-0 max-w-full truncate text-[12px] text-ink-2 hover:text-amber">
-                      {t.proiecte.clienti.nume} · {t.proiecte.titlu}
+                      <Ascuns>{t.proiecte.clienti.nume}</Ascuns> · {t.proiecte.titlu}
                     </Link>
                   </li>
                 ))}

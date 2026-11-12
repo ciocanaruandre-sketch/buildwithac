@@ -1,3 +1,4 @@
+import { Ascuns } from "@/components/Ascuns";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BaraSus } from "@/components/BaraSus";
@@ -49,12 +50,12 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
   const toate = proiecte ?? [];
   const p = toate.find((x) => x.id === cerut) ?? toate.find((x) => !x.inchis_la) ?? toate[0];
 
-  const antet = <BaraSus cale={[{ eticheta: "Clienți", href: "/clienti" }, { eticheta: c.nume }]} />;
+  const antet = <BaraSus cale={[{ eticheta: "Clienți", href: "/clienti" }, { eticheta: <Ascuns>{c.nume}</Ascuns> }]} />;
   if (!p) {
     return (
       <>
         {antet}
-        <h1 className="mb-4 text-[30px] leading-tight">{c.nume}</h1>
+        <h1 className="mb-4 text-[30px] leading-tight"><Ascuns>{c.nume}</Ascuns></h1>
         <p className="panel px-4 py-6 text-[14px] text-ink-2">Clientul n-are încă niciun proiect.</p>
       </>
     );
@@ -138,10 +139,10 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
       {antet}
       <div className="mb-[22px] flex items-center gap-4">
         <div aria-hidden className="grid h-[60px] w-[60px] flex-none place-items-center rounded-[18px] bg-amber/15 text-[21px] font-semibold tracking-[-.02em] text-amber">
-          {initiale(c.nume)}
+          <Ascuns>{initiale(c.nume)}</Ascuns>
         </div>
         <div className="min-w-0">
-          <h1 className="text-[26px] leading-tight sm:text-[30px]">{c.nume}</h1>
+          <h1 className="text-[26px] leading-tight sm:text-[30px]"><Ascuns>{c.nume}</Ascuns></h1>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <span className="chip blue">{p.titlu}</span>
             <span data-testid="stadiu" className="chip amber">
@@ -208,8 +209,8 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
           <div className="panel px-4 pt-3.5 pb-2" data-testid="contact">
             <p className="lbl">Contact</p>
             <dl className="kv">
-              {kv("Telefon", <span className="num">{c.telefon ?? "—"}</span>)}
-              {kv("E-mail", c.email ?? "—")}
+              {kv("Telefon", <span className="num">{c.telefon ? <Ascuns>{c.telefon}</Ascuns> : "—"}</span>)}
+              {kv("E-mail", c.email ? <Ascuns>{c.email}</Ascuns> : "—")}
               {telefonNorm &&
                 kv(
                   "WhatsApp",

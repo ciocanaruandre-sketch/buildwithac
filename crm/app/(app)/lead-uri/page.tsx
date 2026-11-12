@@ -1,3 +1,4 @@
+import { Ascuns } from "@/components/Ascuns";
 import Link from "next/link";
 import { BaraSus } from "@/components/BaraSus";
 import { ButoaneRand } from "@/components/ButoaneRand";
@@ -133,8 +134,8 @@ export default async function LeadUri({ searchParams }: PageProps<"/lead-uri">) 
               return (
                 <tr key={l.id} className="border-b border-line last:border-0">
                   <td className="px-3.5 py-2.5">
-                    <Link href={`/lead-uri/${l.id}`} className="font-medium hover:text-amber">{l.nume}</Link>
-                    <span className="num block text-[12px] text-ink-3">{l.telefon ?? l.email}</span>
+                    <Link href={`/lead-uri/${l.id}`} className="font-medium hover:text-amber"><Ascuns>{l.nume}</Ascuns></Link>
+                    <span className="num block text-[12px] text-ink-3"><Ascuns>{l.telefon ?? l.email}</Ascuns></span>
                   </td>
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.serviciu[l.serviciu]}</td>
                   <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.sursa[l.sursa]}</td>

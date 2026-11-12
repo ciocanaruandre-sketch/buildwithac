@@ -1,3 +1,4 @@
+import { Ascuns } from "@/components/Ascuns";
 import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -50,7 +51,7 @@ export default async function Programeaza({ params, searchParams }: PageProps<"/
 
   return (
     <>
-      <BaraSus cale={[{ eticheta: "Lead-uri", href: "/lead-uri" }, { eticheta: l.nume, href: `/lead-uri/${id}` }, { eticheta: "Programează" }]} />
+      <BaraSus cale={[{ eticheta: "Lead-uri", href: "/lead-uri" }, { eticheta: <Ascuns>{l.nume}</Ascuns>, href: `/lead-uri/${id}` }, { eticheta: "Programează" }]} />
       <h1 className="mb-5 text-[26px] leading-tight sm:text-[30px]">Programează discuția</h1>
 
       <p className="lbl mb-2">1. Closerul</p>

@@ -1,3 +1,4 @@
+import { Ascuns } from "@/components/Ascuns";
 import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -79,9 +80,9 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
 
   return (
     <>
-      <BaraSus cale={[{ eticheta: "Lead-uri", href: "/lead-uri" }, { eticheta: l.nume }]} />
+      <BaraSus cale={[{ eticheta: "Lead-uri", href: "/lead-uri" }, { eticheta: <Ascuns>{l.nume}</Ascuns> }]} />
       <div className="mb-[22px] flex flex-wrap items-center gap-3">
-        <h1 className="text-[26px] leading-tight sm:text-[30px]">{l.nume}</h1>
+        <h1 className="text-[26px] leading-tight sm:text-[30px]"><Ascuns>{l.nume}</Ascuns></h1>
         <span data-testid="stare" className={`chip ${CULOARE_STARE[l.stare]}`}>{ETICHETE.stare[l.stare]}</span>
       </div>
 
@@ -100,8 +101,8 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
           <div className="panel px-4 pt-3.5 pb-3.5">
             <p className="lbl">Contact</p>
             <dl className="kv mb-3">
-              {kv("Telefon", <span className="num">{l.telefon ?? "—"}</span>)}
-              {kv("E-mail", l.email ?? "—")}
+              {kv("Telefon", <span className="num">{l.telefon ? <Ascuns>{l.telefon}</Ascuns> : "—"}</span>)}
+              {kv("E-mail", l.email ? <Ascuns>{l.email}</Ascuns> : "—")}
             </dl>
             <ButoaneRand id={l.id} telefon={l.telefon} telefonNorm={l.telefon_norm} liber={!l.caller_id && actiuni.includes("ia_lead")} />
           </div>
@@ -205,9 +206,9 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                 eticheta: "Detalii",
                 continut: (
                   <dl className="kv">
-                    {kv("Nume", l.nume)}
-                    {kv("Telefon", l.telefon ?? "—")}
-                    {kv("E-mail", l.email ?? "—")}
+                    {kv("Nume", <Ascuns>{l.nume}</Ascuns>)}
+                    {kv("Telefon", l.telefon ? <Ascuns>{l.telefon}</Ascuns> : "—")}
+                    {kv("E-mail", l.email ? <Ascuns>{l.email}</Ascuns> : "—")}
                     {kv("Serviciu", ETICHETE.serviciu[l.serviciu])}
                     {kv("Sursă", ETICHETE.sursa[l.sursa])}
                     {kv("Stare", ETICHETE.stare[l.stare])}

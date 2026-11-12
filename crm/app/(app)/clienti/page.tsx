@@ -1,3 +1,4 @@
+import { Ascuns } from "@/components/Ascuns";
 import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { cand, termenScurt, ziScurta } from "@/lib/afisare";
@@ -79,9 +80,9 @@ async function Proiecte({ om }: { om: Eu }) {
               <tr key={p.id} className={`border-b border-line last:border-0 ${p.inchis_la ? "opacity-60" : ""}`}>
                 <td className="px-3.5 py-2.5">
                   <Link href={{ pathname: `/clienti/${p.client_id}`, query: { proiect: p.id } }} className="font-medium hover:text-amber">
-                    {p.clienti.nume}
+                    <Ascuns>{p.clienti.nume}</Ascuns>
                   </Link>
-                  <span className="block num text-[12px] text-ink-3">{p.clienti.telefon ?? p.clienti.email}</span>
+                  <span className="block num text-[12px] text-ink-3"><Ascuns>{p.clienti.telefon ?? p.clienti.email}</Ascuns></span>
                 </td>
                 <td className="px-3.5 py-2.5 text-ink-2">{p.titlu}</td>
                 <td className="px-3.5 py-2.5">
@@ -137,11 +138,11 @@ async function ClientiiMei() {
             <tr key={c.id} className="border-b border-line last:border-0">
               <td className="px-3.5 py-2.5">
                 {c.lead_id ? (
-                  <Link href={`/lead-uri/${c.lead_id}`} className="font-medium hover:text-amber">{c.nume}</Link>
+                  <Link href={`/lead-uri/${c.lead_id}`} className="font-medium hover:text-amber"><Ascuns>{c.nume}</Ascuns></Link>
                 ) : (
-                  <span className="font-medium">{c.nume}</span>
+                  <span className="font-medium"><Ascuns>{c.nume}</Ascuns></span>
                 )}
-                <span className="block num text-[12px] text-ink-3">{c.telefon ?? c.email}</span>
+                <span className="block num text-[12px] text-ink-3"><Ascuns>{c.telefon ?? c.email}</Ascuns></span>
               </td>
               <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.serviciu[c.serviciu]}</td>
               <td className="px-3.5 py-2.5 text-ink-2">{ETICHETE.sursa[c.sursa]}</td>

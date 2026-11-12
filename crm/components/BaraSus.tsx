@@ -4,7 +4,7 @@ import { Cautare } from "@/components/Cautare";
 import { eu } from "@/lib/eu";
 
 /** Bara de sus, de sticlă, ca o pastilă: unde ești (ultimul e îngroșat), căutarea lead-urilor și butoanele paginii, la dreapta. */
-export async function BaraSus({ cale, children }: { cale: { eticheta: string; href?: string }[]; children?: React.ReactNode }) {
+export async function BaraSus({ cale, children }: { cale: { eticheta: React.ReactNode; href?: string }[]; children?: React.ReactNode }) {
   const om = await eu();
   return (
     <div className="sticla sticky top-2 z-10 mb-[26px] flex flex-wrap items-center gap-2.5 rounded-[26px] py-[7px] pr-[7px] pl-[18px] md:top-3 md:rounded-full">
