@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { salveazaProiect } from "@/app/(app)/clienti/[id]/actiuni";
 
-/** Doar pentru Admin: „Schimbă” titlul, prețul, încasatul și termenul de predare. */
-export function DateProiect({ proiectId, titlu, pretLei, incasatLei, termen }: { proiectId: string; titlu: string; pretLei: number | null; incasatLei: number; termen: string | null }) {
+/** Doar pentru Admin: „Schimbă” titlul, prețul și termenul de predare. Încasatul vine din tab-ul Finanțe. */
+export function DateProiect({ proiectId, titlu, pretLei, termen }: { proiectId: string; titlu: string; pretLei: number | null; termen: string | null }) {
   const router = useRouter();
   const [deschis, setDeschis] = useState(false);
-  const [d, setD] = useState({ titlu, pretLei: pretLei === null ? "" : String(pretLei), incasatLei: String(incasatLei), termen: termen ?? "" });
+  const [d, setD] = useState({ titlu, pretLei: pretLei === null ? "" : String(pretLei), termen: termen ?? "" });
   const [mesaj, setMesaj] = useState<string | null>(null);
   const [lucreaza, porneste] = useTransition();
 
@@ -31,7 +31,6 @@ export function DateProiect({ proiectId, titlu, pretLei, incasatLei, termen }: {
     <div className="mt-3 flex w-full flex-col gap-2 border-t border-line pt-3">
       {camp("Titlu", "titlu")}
       {camp("Preț (lei)", "pretLei")}
-      {camp("Încasat (lei)", "incasatLei")}
       {camp("Termen de predare", "termen", "date")}
       {mesaj && <p role="alert" className="text-[13px] text-red-t">{mesaj}</p>}
       <div className="flex gap-2">

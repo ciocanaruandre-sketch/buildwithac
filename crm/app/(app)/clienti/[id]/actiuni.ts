@@ -32,23 +32,22 @@ export async function schimbaStadiu(proiectId: string, stadiu: Stadiu): Promise<
   return { ok: true };
 }
 
-/** Doar Adminul: titlul, prețul, încasatul și termenul de predare. */
-export async function salveazaProiect(proiectId: string, d: { titlu: string; pretLei: string; incasatLei: string; termen: string }): Promise<Rezultat> {
+/** Doar Adminul: titlul, prețul și termenul de predare. Încasatul e suma tranșelor încasate (tab-ul Finanțe). */
+export async function salveazaProiect(proiectId: string, d: { titlu: string; pretLei: string; termen: string }): Promise<Rezultat> {
   const om = await eu();
   if (om.rol !== "admin" || !UUID.test(proiectId)) return { ok: false, mesaj: NEPERMIS };
 
   const titlu = d.titlu.trim();
   if (!titlu || titlu.length > 120) return { ok: false, mesaj: "Scrie titlul proiectului (cel mult 120 de caractere)." };
   const pret = citesteLei(d.pretLei);
-  const incasat = citesteLei(d.incasatLei);
-  if (pret === "gresit" || incasat === "gresit") return { ok: false, mesaj: "Scrie suma în lei, fără zecimale." };
+  if (pret === "gresit") return { ok: false, mesaj: "Scrie suma în lei, fără zecimale." };
   const termen = d.termen.trim() || null;
   if (termen && (!ZI.test(termen) || Number.isNaN(new Date(`${termen}T00:00:00Z`).getTime()))) return { ok: false, mesaj: "Alege o dată pentru predare." };
 
   const db = await supabase();
   const { data, error } = await db
     .from("proiecte")
-    .update({ titlu, pret_lei: pret, incasat_lei: incasat ?? 0, termen })
+    .update({ titlu, pret_lei: pret, termen })
     .eq("id", proiectId)
     .select("client_id");
   if (error) return { ok: false, mesaj: mesajDinBaza(error, NESALVAT) };

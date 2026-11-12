@@ -49,11 +49,6 @@ export function grupeazaTaskuri<T extends TaskScurt>(t: T[], azi: string): { int
   return g;
 }
 
-/** Din banii încasați efectiv, rotunjit la leu. null dacă procentul nu e stabilit. */
-export function comision(incasatLei: number, procent: number | null): number | null {
-  return procent === null ? null : Math.round((incasatLei * procent) / 100);
-}
-
 /** „2.400 lei”; „—” când suma lipsește. */
 export function lei(n: number | null): string {
   if (n === null) return "—";

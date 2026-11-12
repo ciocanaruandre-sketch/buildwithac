@@ -13,7 +13,7 @@ const client = async (...a: Parameters<typeof clientNou>) => {
   return c;
 };
 
-test("adminul completează proiectul: preț, încasat, termen, apoi schimbă stadiul", async ({ page }) => {
+test("adminul completează proiectul: preț, termen, apoi schimbă stadiul", async ({ page }) => {
   const c = await client();
   await intraCa(page, "admin");
   await page.goto("/clienti");
@@ -27,21 +27,20 @@ test("adminul completează proiectul: preț, încasat, termen, apoi schimbă sta
   const proiect = page.getByTestId("proiect");
   await proiect.getByRole("button", { name: "Schimbă" }).click();
   await proiect.getByLabel("Preț (lei)").fill("2400");
-  await proiect.getByLabel("Încasat (lei)").fill("1.200");
   await proiect.getByLabel("Termen de predare").fill(ziPeste(10));
   await proiect.getByRole("button", { name: "Salvează" }).click();
   await expect(proiect).toContainText("2.400 lei");
-  await expect(proiect).toContainText("1.200 lei");
+  await expect(proiect.getByLabel("Încasat (lei)")).toHaveCount(0);
 
   await proiect.getByLabel("Stadiu").selectOption({ label: "Schiță" });
   await expect(page.getByTestId("parcurs")).toContainText("Stadiu: Discuție → Schiță");
-  const { data } = await db().from("proiecte").select("pret_lei, incasat_lei, termen, stadiu").eq("id", c.proiectId).single();
-  expect(data).toEqual({ pret_lei: 2400, incasat_lei: 1200, termen: ziPeste(10), stadiu: "schita" });
+  const { data } = await db().from("proiecte").select("pret_lei, termen, stadiu").eq("id", c.proiectId).single();
+  expect(data).toEqual({ pret_lei: 2400, termen: ziPeste(10), stadiu: "schita" });
 });
 
 test("adminul pune un constructor pe proiect; constructorul își vede prețul și comisionul, nimic de schimbat", async ({ page }) => {
   const c = await client();
-  await db().from("proiecte").update({ pret_lei: 2400, incasat_lei: 1200 }).eq("id", c.proiectId);
+  await db().from("proiecte").update({ pret_lei: 2400 }).eq("id", c.proiectId);
   await intraCa(page, "admin");
   await page.goto(`/clienti/${c.clientId}`);
   const proiect = page.getByTestId("proiect");
@@ -58,7 +57,7 @@ test("adminul pune un constructor pe proiect; constructorul își vede prețul �
   await page.getByRole("row").filter({ hasText: c.nume }).getByRole("link", { name: c.nume }).click();
   const alLui = page.getByTestId("proiect");
   await expect(alLui).toContainText("2.400 lei");
-  await expect(alLui).toContainText("30% · 360 lei din ce s-a încasat");
+  await expect(alLui).toContainText("30% · nimic încasat încă");
   await expect(page.getByRole("button", { name: "Schimbă" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Scoate" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Fișa de lead →" })).toHaveCount(0);

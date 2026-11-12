@@ -5,6 +5,8 @@ import { BaraSus } from "@/components/BaraSus";
 import { ContactClient } from "@/components/fisa/ContactClient";
 import { Conturi } from "@/components/fisa/Conturi";
 import { DateProiect } from "@/components/fisa/DateProiect";
+import { Finante, type ComisionFisa } from "@/components/fisa/Finante";
+import { OameniProcente } from "@/components/fisa/OameniProcente";
 import { Livrari } from "@/components/fisa/Livrari";
 import { Materiale } from "@/components/fisa/Materiale";
 import { Notite } from "@/components/fisa/Notite";
@@ -19,11 +21,12 @@ import { cand, initiale, termenLung, termenScurt, ziScurta } from "@/lib/afisare
 import { cerRol } from "@/lib/eu";
 import { desfaCalea, etichetaFisier, marimeCitibila } from "@/lib/fisiere";
 import { descrieEveniment, descrieEvenimentProiect, type Eveniment } from "@/lib/parcurs";
-import { comision, lei, ordoneazaTaskuri, progres, textIntarziere, urmatorulTask, zileIntarziere } from "@/lib/proiecte";
+import { descrierePlan, textZile, totaluriProiect, type Transa } from "@/lib/finante";
+import { lei, ordoneazaTaskuri, progres, textIntarziere, urmatorulTask, zileIntarziere } from "@/lib/proiecte";
 import { supabase } from "@/lib/supabase/server";
 import { linkWhatsApp, normalizeazaTelefon } from "@/lib/telefon";
 import { ziuaRomaniei } from "@/lib/timp";
-import { ETICHETE, STADII } from "@/lib/tipuri";
+import { ETICHETE, STADII, type Rol } from "@/lib/tipuri";
 
 const procentCitibil = (p: number) => `${String(p).replace(".", ",")}%`;
 
@@ -72,6 +75,16 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
     db.from("conturi").select("id, serviciu, cont, al_cui, unde_parola").eq("proiect_id", p.id).order("adaugat_la"),
     db.from("materiale").select("id, titlu, nota, url, cale, marime, adaugat_de, adaugat_la").eq("proiect_id", p.id).order("adaugat_la", { ascending: false }),
   ]);
+  // Finanțe: Adminul vede tot; constructorul doar comisioanele lui de pe proiect (RLS)
+  const [{ data: transeDb }, { data: comisioaneDb }, { data: vanzari }, { data: abonamentDb }, { data: baza }] = await Promise.all([
+    eAdmin ? db.from("transe").select("*").eq("proiect_id", p.id) : Promise.resolve({ data: [] }),
+    db.from("comisioane").select("id, transa_id, om_id, procent, suma_lei, platit_la, tip").eq("proiect_id", p.id),
+    eAdmin ? db.from("proiect_vanzari").select("om_id, procent").eq("proiect_id", p.id) : Promise.resolve({ data: [] }),
+    eAdmin
+      ? db.from("abonamente").select("id, suma_lei, zi, porneste, abonament_oameni (om_id, procent)").eq("proiect_id", p.id).is("oprit_la", null).maybeSingle()
+      : Promise.resolve({ data: null }),
+    eAdmin ? db.from("procente_baza").select("categorie, rol, procent") : Promise.resolve({ data: [] }),
+  ]);
   const evLead = eAdmin && c.lead_id ? (await db.from("evenimente").select("tip, detalii, la, autor_id").eq("lead_id", c.lead_id)).data ?? [] : [];
 
   const t = taskuri ?? [];
@@ -83,7 +96,33 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
   const oameni = (randuri ?? []).map((r) => ({ id: r.om_id, nume: nume(r.om_id), procent: r.procent })).sort((a, b) => a.nume.localeCompare(b.nume, "ro"));
   const deAdaugat = (profiluri ?? []).filter((o) => o.rol === "constructor" && o.activ && !peProiect.includes(o.id)).map((o) => ({ id: o.id, nume: o.nume }));
   const procentulMeu = (randuri ?? []).find((r) => r.om_id === om.id)?.procent ?? null;
-  const comisionulMeu = comision(p.incasat_lei, procentulMeu);
+  const comisioane = (comisioaneDb ?? []) as ComisionFisa[];
+  const aleMele = comisioane.filter((k) => k.om_id === om.id && k.suma_lei !== null);
+  const primiti = aleMele.filter((k) => k.platit_la).reduce((s, k) => s + k.suma_lei!, 0);
+  const dePrimit = aleMele.filter((k) => !k.platit_la).reduce((s, k) => s + k.suma_lei!, 0);
+
+  const transe = (transeDb ?? []) as Transa[];
+  const totaluri = totaluriProiect(transe);
+  const rolDe = new Map((profiluri ?? []).map((o) => [o.id, o.rol as Rol]));
+  const rolText = (id: string, implicit: Rol) => ETICHETE.rol[rolDe.get(id) ?? implicit].toLowerCase();
+  const procentBaza = (categorie: string, rol: Rol) => ((baza ?? []) as { categorie: string; rol: Rol; procent: number | null }[]).find((b) => b.categorie === categorie && b.rol === rol)?.procent ?? null;
+  const intarziata = transe.filter((x) => !x.incasata_la && x.scadenta < azi).sort((a, b) => a.scadenta.localeCompare(b.scadenta))[0];
+  const constructoriProcent = oameni.map((o) => ({ ...o, rol: "constructor" }));
+  const vanzatori = ((vanzari ?? []) as { om_id: string; procent: number | null }[])
+    .map((v) => ({ id: v.om_id, nume: nume(v.om_id), rol: rolText(v.om_id, "caller"), procent: v.procent }))
+    .sort((a, b) => a.nume.localeCompare(b.nume, "ro"));
+  const vanzatoriDeAdaugat = (profiluri ?? [])
+    .filter((o) => (o.rol === "caller" || o.rol === "closer") && o.activ && !vanzatori.some((v) => v.id === o.id))
+    .map((o) => ({ id: o.id, nume: o.nume, rol: rolText(o.id, "caller"), procent: null, procentBaza: procentBaza(p.serviciu, o.rol as Rol) }));
+  const abonament = abonamentDb
+    ? {
+        id: abonamentDb.id,
+        suma_lei: abonamentDb.suma_lei,
+        zi: abonamentDb.zi,
+        porneste: abonamentDb.porneste,
+        oameni: abonamentDb.abonament_oameni.map((o) => ({ id: o.om_id, nume: nume(o.om_id), rol: rolText(o.om_id, "constructor"), procent: o.procent })),
+      }
+    : null;
   const poateStadiu = !p.inchis_la || eAdmin;
 
   // task-urile se dau Adminilor și oamenilor de pe proiect (la fel verifică și baza de date)
@@ -150,6 +189,11 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
               {ETICHETE.stadiu[p.stadiu]}
             </span>
             {p.inchis_la && <span data-testid="inchis" className="chip red">Închis</span>}
+            {intarziata && (
+              <span data-testid="chip-intarziere" className="chip red">
+                Rată întârziată
+              </span>
+            )}
             <span className="chip">Client din {ziScurta(c.creat_la)}</span>
           </div>
         </div>
@@ -185,6 +229,17 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
 
       <div className="grid items-start gap-[18px] lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-3.5">
+          {intarziata && (
+            <div className="panel px-4 py-3.5" style={{ borderColor: "color-mix(in srgb, var(--red-t) 40%, transparent)" }} data-testid="rata-intarziata">
+              <p className="lbl !text-red-t">Rată întârziată</p>
+              <p className="mt-1.5 mb-0.5 text-[15.5px] leading-snug font-semibold tracking-[-.01em]">
+                {intarziata.eticheta} · <span className="num">{lei(intarziata.suma_lei)}</span>
+              </p>
+              <p className="text-[12.5px] text-ink-3">
+                Scadentă pe {termenScurt(intarziata.scadenta)} · întârzie de {textZile(zileIntarziere(intarziata.scadenta, azi))}
+              </p>
+            </div>
+          )}
           <div className="panel alerta px-4 py-3.5" data-testid="urmeaza">
             <p className="lbl">Urmează</p>
             {urmator ? (
@@ -245,12 +300,13 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
               {kv("Serviciu", ETICHETE.serviciu[p.serviciu])}
               {kv("Stadiu", <Stadiu key={`${p.id}|${p.stadiu}`} proiectId={p.id} stadiu={p.stadiu} poate={poateStadiu} />)}
               {kv("Preț", <span className="num">{lei(p.pret_lei)}</span>)}
-              {kv("Încasat", <span className="num">{lei(p.incasat_lei)}</span>)}
+              {eAdmin && kv("Încasat", <span className="num">{lei(totaluri.incasat)}</span>)}
+              {eAdmin && kv("Plată", descrierePlan(transe))}
               {kv("Predare", p.termen ? <span className="num">{termenLung(p.termen)}</span> : "—")}
               {kv(
                 "Lucrează",
                 eAdmin ? (
-                  <OameniProiect key={p.id} proiectId={p.id} oameni={oameni} deAdaugat={deAdaugat} />
+                  <OameniProiect key={p.id} proiectId={p.id} oameni={oameni} deAdaugat={deAdaugat} procentBaza={procentBaza(p.serviciu, "constructor")} />
                 ) : (
                   peProiect.map((x) => nume(x)).sort((a, b) => a.localeCompare(b, "ro")).join(", ") || "—"
                 ),
@@ -259,23 +315,35 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
               {!eAdmin &&
                 kv(
                   "Comisionul tău",
-                  procentulMeu === null || comisionulMeu === null ? (
+                  aleMele.length ? (
+                    <span className="num">
+                      {lei(primiti)} primiți · {lei(dePrimit)} de primit
+                    </span>
+                  ) : procentulMeu === null ? (
                     <span className="text-ink-3">nestabilit încă</span>
                   ) : (
-                    <span className="num">
-                      {procentCitibil(procentulMeu)} · {lei(comisionulMeu)} din ce s-a încasat
-                    </span>
+                    <span className="num">{procentCitibil(procentulMeu)} · nimic încasat încă</span>
                   ),
                 )}
               {kv("A venit din", ETICHETE.sursa[c.sursa])}
             </dl>
             {eAdmin && (
               <div className="flex flex-wrap items-start gap-x-2 border-t border-line pt-3 pb-1.5">
-                <DateProiect key={`${p.id}|${p.titlu}|${p.pret_lei}|${p.incasat_lei}|${p.termen}`} proiectId={p.id} titlu={p.titlu} pretLei={p.pret_lei} incasatLei={p.incasat_lei} termen={p.termen} />
+                <DateProiect key={`${p.id}|${p.titlu}|${p.pret_lei}|${p.termen}`} proiectId={p.id} titlu={p.titlu} pretLei={p.pret_lei} termen={p.termen} />
                 <InchideProiect proiectId={p.id} inchis={Boolean(p.inchis_la)} />
               </div>
             )}
           </div>
+
+          {eAdmin && (
+            <OameniProcente
+              key={`${p.id}|${JSON.stringify(randuri)}|${JSON.stringify(vanzari)}`}
+              proiectId={p.id}
+              constructori={constructoriProcent}
+              vanzatori={vanzatori}
+              deAdaugat={vanzatoriDeAdaugat}
+            />
+          )}
 
           {eAdmin && <StergeClient clientId={c.id} />}
         </div>
@@ -308,6 +376,28 @@ export default async function FisaClient({ params, searchParams }: PageProps<"/c
                 numar: livrari?.length ?? 0,
                 continut: <Livrari proiectId={p.id} livrari={(livrari ?? []).map((l) => ({ id: l.id, titlu: l.titlu, link: l.link, nota: l.nota, stare: l.stare, cand: ziScurta(l.adaugat_la) }))} />,
               },
+              ...(eAdmin
+                ? [
+                    {
+                      cheie: "finante",
+                      eticheta: "Finanțe",
+                      numar: transe.filter((x) => !x.abonament_id).length,
+                      continut: (
+                        <Finante
+                          proiectId={p.id}
+                          pret={p.pret_lei}
+                          transe={transe}
+                          comisioane={comisioane}
+                          nume={nume}
+                          oameni={[...oameni, ...vanzatori]}
+                          abonament={abonament}
+                          constructori={oameni.map((o) => ({ id: o.id, nume: o.nume }))}
+                          azi={azi}
+                        />
+                      ),
+                    },
+                  ]
+                : []),
               {
                 cheie: "notite",
                 eticheta: "Notițe",

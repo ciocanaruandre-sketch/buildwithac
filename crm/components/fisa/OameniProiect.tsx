@@ -6,8 +6,8 @@ import { adaugaOm, scoateOm } from "@/app/(app)/clienti/[id]/actiuni";
 
 type Om = { id: string; nume: string };
 
-/** Doar pentru Admin: constructorii de pe proiect, cu procentul fiecăruia; „Scoate” și „Adaugă”. */
-export function OameniProiect({ proiectId, oameni, deAdaugat }: { proiectId: string; oameni: (Om & { procent: number | null })[]; deAdaugat: Om[] }) {
+/** Doar pentru Admin: constructorii de pe proiect, cu procentul fiecăruia; „Scoate” și „Adaugă” (procentul vine completat din procentele de bază). */
+export function OameniProiect({ proiectId, oameni, deAdaugat, procentBaza = null }: { proiectId: string; oameni: (Om & { procent: number | null })[]; deAdaugat: Om[]; procentBaza?: number | null }) {
   const router = useRouter();
   const [om, setOm] = useState("");
   const [procent, setProcent] = useState("");
@@ -38,7 +38,10 @@ export function OameniProiect({ proiectId, oameni, deAdaugat }: { proiectId: str
       ))}
       {deAdaugat.length > 0 && (
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <select className="camp !py-1 text-[12px]" aria-label="Adaugă un om" value={om} onChange={(e) => setOm(e.target.value)}>
+          <select className="camp !py-1 text-[12px]" aria-label="Adaugă un om" value={om} onChange={(e) => {
+              setOm(e.target.value);
+              if (!procent && procentBaza !== null) setProcent(String(procentBaza).replace(".", ","));
+            }}>
             <option value="">Adaugă un om…</option>
             {deAdaugat.map((o) => (
               <option key={o.id} value={o.id}>{o.nume}</option>

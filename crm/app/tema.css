@@ -134,9 +134,9 @@ h1, h2, h3 { font-family: var(--text); font-weight: 700; letter-spacing: -.025em
   /* Controlul segmentat (tab-urile): pastilă, tab-ul ales e „degetul” mai deschis. Se derulează în interior pe ecrane mici. */
   .seg { display: flex; width: max-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; gap: 2px; padding: 3px; border-radius: 999px; background: var(--seg); }
   .seg::-webkit-scrollbar { display: none; }
-  .seg [role="tab"] { flex: none; display: flex; align-items: center; gap: 6px; padding: 7px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2); font: 550 13px var(--text); white-space: nowrap; cursor: pointer; }
-  .seg [role="tab"]:hover { color: var(--ink); }
-  .seg [role="tab"][aria-selected="true"] { background: var(--thumb); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .18), inset 0 1px 0 var(--glass-hi); }
+  .seg [role="tab"], .seg [aria-pressed] { flex: none; display: flex; align-items: center; gap: 6px; padding: 7px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2); font: 550 13px var(--text); white-space: nowrap; cursor: pointer; }
+  .seg [role="tab"]:hover, .seg [aria-pressed]:hover { color: var(--ink); }
+  .seg [role="tab"][aria-selected="true"], .seg [aria-pressed="true"] { background: var(--thumb); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .18), inset 0 1px 0 var(--glass-hi); }
 
   /* Rânduri ca în Setări: eticheta la stânga, valoarea la dreapta. */
   .kv > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }

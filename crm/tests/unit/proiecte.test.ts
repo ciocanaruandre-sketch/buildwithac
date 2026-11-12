@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { descrieEvenimentProiect, type Eveniment } from "@/lib/parcurs";
-import { citesteLei, citesteProcent, comision, grupeazaTaskuri, lei, ordoneazaTaskuri, progres, textIntarziere, urmatorulTask, zileIntarziere, type TaskScurt } from "@/lib/proiecte";
+import { citesteLei, citesteProcent, grupeazaTaskuri, lei, ordoneazaTaskuri, progres, textIntarziere, urmatorulTask, zileIntarziere, type TaskScurt } from "@/lib/proiecte";
 
 let n = 0;
 const t = (x: Partial<TaskScurt>): TaskScurt => ({ id: String(++n), titlu: "t", om_id: null, termen: null, gata: false, gata_la: null, creat_la: "2026-11-01T10:00:00Z", ...x });
@@ -66,14 +66,6 @@ describe("ordinea task-urilor", () => {
 });
 
 describe("banii", () => {
-  it("comisionul se socotește din banii încasați, rotunjit la leu", () => {
-    expect(comision(1200, 30)).toBe(360);
-    expect(comision(1001, 33.33)).toBe(334);
-    expect(comision(0, 30)).toBe(0);
-  });
-  it("procent nestabilit → null", () => {
-    expect(comision(1200, null)).toBeNull();
-  });
   it("lei: punct la mii, „—” când lipsește", () => {
     expect(lei(2400)).toBe("2.400 lei");
     expect(lei(1250000)).toBe("1.250.000 lei");
