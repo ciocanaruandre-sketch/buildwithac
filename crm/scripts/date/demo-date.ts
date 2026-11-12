@@ -1,5 +1,5 @@
 // Firma demo: datele, ca funcții pure (fără Supabase, fără Date.now()). Le scrie `scripts/demo.mts`.
-// Totul e inventat: nume, firme, telefoane 0700 100 …, link-uri spre domenii de exemplu.
+// Totul e inventat: nume, firme, telefoane variate (în clipuri, doar blurate), link-uri spre domenii de exemplu.
 import type { ContTest } from "../../lib/echipa-test";
 import type { Serviciu, Stadiu, Stare, StareLivrare, Sursa, UndeParola } from "../../lib/tipuri";
 
@@ -30,8 +30,17 @@ export type LeadDemo = {
   parcurs: EvenimentDemo[];
 };
 
-export const telefonDemo = (nr: number) => `0700 100 ${String(nr).padStart(3, "0")}`;
-export const telefonNormDemo = (nr: number) => `40700100${String(nr).padStart(3, "0")}`;
+/** Prefixe reale de mobil din România. Numerele demo par reale, de-asta în clipuri se văd doar blurate (modul filmare). */
+export const PREFIXE_MOBIL = ["0721", "0722", "0723", "0724", "0726", "0730", "0731", "0740", "0742", "0744", "0745", "0746", "0747", "0748", "0749", "0751", "0752", "0753", "0754", "0755", "0756", "0757", "0758", "0760", "0761", "0762", "0763", "0764", "0765", "0766", "0767", "0768", "0769"];
+
+/** „0745 318 902”: același `nr` dă mereu același număr, ca pozele și clipurile să se poată reface. */
+export const telefonDemo = (nr: number) => {
+  const prefix = PREFIXE_MOBIL[(nr * 7) % PREFIXE_MOBIL.length];
+  const rest = String((nr * 7919 + 104729) % 1_000_000).padStart(6, "0");
+  return `${prefix} ${rest.slice(0, 3)} ${rest.slice(3)}`;
+};
+/** Forma normalizată („40745318902”), aceeași pe care o face `normalizeazaTelefon`. */
+export const telefonNormDemo = (nr: number) => `40${telefonDemo(nr).replace(/\s/g, "").slice(1)}`;
 
 /** Sursele pe care le adaugă cineva de mână (restul vin singure). */
 const DE_MANA: Sursa[] = ["recomandare", "cold_calling", "dm_instagram", "dm_tiktok", "altceva"];
@@ -91,7 +100,7 @@ const RANDURI: Rand[] = [
   // ——— callback: au răspuns și au cerut să fie sunați altă dată
   { nr: 20, nume: "Ștefan Voicu · Cabinet Avocat Voicu", serviciu: "site", sursa: "formular_site", stare: "callback", zile: 3.2, caller: MARA, cb: 5, descriere: "Cabinet de avocatură. Am nevoie de un site serios, cu domeniile în care lucrez.", note: [[MARA, "Era în instanță. Zice să revin azi după-amiază, după 16."]] },
   { nr: 21, nume: "Andreea Lazăr · Salon Glam", serviciu: "automatizari", sursa: "reclama_tiktok", stare: "callback", zile: 4.4, caller: MARA, cb: 22, afacere: "Salon de unghii", vrea: "Clientele să-și facă singure programarea, fără să mă sune.", buget: "500–1.000 €", note: [[MARA, "A răspuns între două cliente. Mâine dimineață are pauză, sun atunci."]] },
-  { nr: 22, nume: "Horia Gheorghe · Gheorghe & Asociații", serviciu: "automatizari", sursa: "recomandare", stare: "callback", zile: 5.3, caller: VLAD, cb: -2, note: [["admin", "Recomandat de Laura Ene. Contabilitate, 5 oameni. Vrea să scape de introdusul manual al facturilor."], [VLAD, "Vrea să vorbească întâi cu asociatul. Revin."]] },
+  { nr: 22, nume: "Horia Gheorghe · Gheorghe & Asociații", serviciu: "automatizari", sursa: "recomandare", stare: "callback", zile: 5.3, caller: VLAD, cb: -2, note: [["admin", "Recomandat de o clientă. Contabilitate, 5 oameni. Vrea să scape de introdusul manual al facturilor."], [VLAD, "Vrea să vorbească întâi cu asociatul. Revin."]] },
   { nr: 23, nume: "Nicoleta Avram · Florăria Margareta", serviciu: "site", sursa: "reclama_meta", stare: "callback", zile: 6.6, caller: VLAD, cb: 47, afacere: "Florărie", vrea: "Comenzi de buchete online, cu livrare în oraș.", buget: "1.000–2.000 €", note: [[VLAD, "Săptămâna asta e aglomerată cu nunțile. Joi e mai liberă."]] },
   { nr: 24, nume: "Răzvan Enache · Sala Forța", serviciu: "automatizari", sursa: "dm_instagram", stare: "callback", zile: 8.2, caller: MARA, cb: -20, note: [["admin", "Mi-a scris pe Instagram. Are o sală de fitness cu abonamente pe hârtie."], [MARA, "Vrea să vadă întâi un exemplu de abonament digital. I-am zis că revin cu unul."]] },
   { nr: 25, nume: "Cătălina Mihai · Ceainăria Ceai & Carte", serviciu: "site", sursa: "formular_site", stare: "callback", zile: 9.4, caller: VLAD, cb: 70, descriere: "Ceainărie cu bibliotecă. Vreau un site cu evenimentele din fiecare lună." },
@@ -118,7 +127,7 @@ const RANDURI: Rand[] = [
   // ——— client: au semnat (fișele lor de client vin din Task 9)
   { nr: 39, nume: "Elisabeta Marin · Patiseria Dulce Colț", serviciu: "site", sursa: "reclama_tiktok", stare: "client", zile: 34.2, caller: MARA, afacere: "Patiserie", vrea: "Comenzi de prăjituri pentru evenimente.", buget: "1.000–2.000 €", note: [[IOANA, "A acceptat oferta. Avans 50% plătit."]] },
   { nr: 40, nume: "Cornel Radu · Clinica Kineto Plus", serviciu: "automatizari", sursa: "reclama_meta", stare: "client", zile: 46.4, caller: VLAD, afacere: "Clinică de recuperare", vrea: "Programările și reamintirile pe WhatsApp.", buget: "2.000–5.000 €", note: [[VLAD, "Știe exact ce vrea. Ioana, are bugetul aprobat."], [IOANA, "Semnat. Pornim luni."]] },
-  { nr: 41, nume: "Delia Pop · Agenția de Turism Hoinar", serviciu: "site", sursa: "recomandare", stare: "client", zile: 58.3, caller: MARA, note: [["admin", "Recomandată de Andreea Pop (Florăria Iris)."], [IOANA, "Vrea site și, mai târziu, o automatizare pentru ofertele trimise clienților."]] },
+  { nr: 41, nume: "Delia Pop · Agenția de Turism Hoinar", serviciu: "site", sursa: "recomandare", stare: "client", zile: 58.3, caller: MARA, note: [["admin", "Recomandată de o clientă, o florărie."], [IOANA, "Vrea site și, mai târziu, o automatizare pentru ofertele trimise clienților."]] },
   { nr: 42, nume: "Aurelian Stoica", serviciu: "1la1", sursa: "formular_site", stare: "client", zile: 63.5, caller: VLAD, descriere: "Am un magazin online mic și vreau să învăț să lucrez cu AI pentru descrieri de produse." },
   { nr: 43, nume: "Teodor Câmpeanu · Ferma Câmpeanu", serviciu: "altceva", sursa: "cold_calling", stare: "client", zile: 72.2, caller: VLAD, numar: "pagina de Facebook a fermei", note: [[IOANA, "Vrea un formular de comandă pentru coșuri cu produse și un tabel cu stocul."]] },
 

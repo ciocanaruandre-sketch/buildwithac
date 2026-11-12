@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { normalizeazaTelefon } from "../../lib/telefon";
 import { clientiDemo, discutiiDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, telefonDemo, telefonNormDemo } from "../../scripts/date/demo-date";
 
 const acum = new Date("2026-11-12T09:00:00Z"); // o miercuri
@@ -57,10 +58,9 @@ describe("firma demo: lead-urile", () => {
     expect(P.filter((t) => /\b(Ioana|Mara|Vlad|Radu)\b/.test(t))).toEqual([]);
   });
 
-  it("telefoanele nu se ciocnesc cu seed-ul și cu e2e", () => {
-    expect(telefonDemo(7)).toBe("0700 100 007");
-    expect(telefonNormDemo(7)).toBe("40700100007");
-    expect(L.every((l) => /^40700100\d{3}$/.test(telefonNormDemo(l.nr)))).toBe(true);
+  it("telefoanele nu se ciocnesc cu seed-ul (0700 000 …) și cu e2e (0733 111 222)", () => {
+    const t = L.map((l) => telefonDemo(l.nr));
+    expect(t.some((x) => x.startsWith("0700") || x === "0733 111 222")).toBe(false);
   });
 
   it("discuțiile cad în zile lucrătoare, 10–18 ora României, fără suprapuneri", () => {
@@ -159,5 +159,59 @@ describe("firma demo: orele", () => {
     const z = [80, 33.12, 12.6, 3.05, 2.95, 2.1, 1.4, 1.08, 1];
     const t = z.map((x) => laOra(acum, x).getTime());
     for (let i = 1; i < t.length; i++) expect(t[i]).toBeGreaterThanOrEqual(t[i - 1]);
+  });
+});
+
+const PREFIXE = ["0721", "0722", "0723", "0724", "0726", "0730", "0731", "0740", "0742", "0744", "0745", "0746", "0747", "0748", "0749", "0751", "0752", "0753", "0754", "0755", "0756", "0757", "0758", "0760", "0761", "0762", "0763", "0764", "0765", "0766", "0767", "0768", "0769"];
+
+describe("firma demo: telefoanele (modul filmare)", () => {
+  it("sunt variate, credibile, unice și la fel la fiecare rulare", () => {
+    const t = L.map((l) => telefonDemo(l.nr));
+    expect(t.every((x) => /^07\d{2} \d{3} \d{3}$/.test(x))).toBe(true);
+    expect(t.every((x) => PREFIXE.includes(x.slice(0, 4)))).toBe(true);
+    expect(t.some((x) => x.startsWith("0700"))).toBe(false);
+    expect(new Set(t).size).toBe(t.length);
+    expect(new Set(t.map((x) => x.slice(0, 4))).size).toBeGreaterThanOrEqual(10);
+    expect(leaduriDemo({ acum, singur: false }).map((l) => telefonDemo(l.nr))).toEqual(t);
+  });
+
+  it("forma normalizată se potrivește cu cea afișată (căutarea după telefon)", () => {
+    for (const l of L) expect(telefonNormDemo(l.nr)).toBe(normalizeazaTelefon(telefonDemo(l.nr)));
+  });
+});
+
+describe("firma demo: textul liber (modul filmare)", () => {
+  const ECHIPA = ["Andrei", "Mara", "Vlad", "Ioana", "Radu"];
+  const escapa = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const cuvant = (s: string, flags = "") => new RegExp(`(?<![\\p{L}\\d])${escapa(s)}(?![\\p{L}\\d])`, `u${flags}`);
+
+  it("nu conține numele, firma sau telefonul unui lead ori client", () => {
+    const C = clientiDemo({ acum, singur: false });
+    const texte: string[] = [
+      ...L.flatMap((l) => [...l.notite.map((n) => n.text), ...(l.raspunsuri ?? []).map((r) => r.raspuns), JSON.stringify(l.parcurs)]),
+      ...C.flatMap((c) =>
+        c.proiecte.flatMap((p) => [
+          p.titlu,
+          ...p.taskuri.map((t) => t.titlu),
+          ...p.materiale.flatMap((m) => [m.titlu, m.nota ?? ""]),
+          ...p.conturi.map((x) => x.serviciu),
+          ...p.livrari.flatMap((x) => [x.titlu, x.nota ?? ""]),
+          ...p.notite.map((n) => n.text),
+          JSON.stringify(p.parcurs),
+        ]),
+      ),
+    ];
+    const gasite: string[] = [];
+    for (const l of L) {
+      const [om, firma] = l.nume.split("·").map((s) => s.trim());
+      const cautate = [
+        ...om.split(/\s+/).filter((p) => p.length >= 3 && !ECHIPA.includes(p)).map((p) => cuvant(p)),
+        ...(firma ? [cuvant(firma, "i")] : []),
+        cuvant(telefonDemo(l.nr)),
+        cuvant(telefonDemo(l.nr).replace(/\s/g, "")),
+      ];
+      for (const t of texte) for (const r of cautate) if (r.test(t)) gasite.push(`${r.source} în „${t.slice(0, 80)}”`);
+    }
+    expect(gasite).toEqual([]);
   });
 });
