@@ -107,6 +107,30 @@ test.describe("modul filmare: blurul pe ecrane", () => {
     await expect(page.locator(".ascuns", { hasText: "lei" })).toHaveCount(0);
   });
 
+  test("regula de blur e una simplă (fără max/calc, ca s-o înțeleagă și Safari) și dă cel puțin 4px pe textul cel mai mic", async ({ page }) => {
+    await intraCa(page, "admin");
+    await page.goto("/lead-uri");
+    const reguli = await page.evaluate(() =>
+      [...document.styleSheets].flatMap((s) => {
+        try { return [...s.cssRules].map((r) => r.cssText); } catch { return []; }
+      }).filter((t) => t.includes(".ascuns")),
+    );
+    expect(reguli.length).toBeGreaterThan(0);
+    for (const r of reguli) expect(r).not.toMatch(/blur\([^)]*(max|min|calc|clamp)\(/);
+    const mici = page.locator("tbody td span.text-\\[12px\\] .ascuns").first();
+    expect(raza(await filtru(mici))).toBeGreaterThanOrEqual(4);
+  });
+
+  test("formularul „Schimbă” de pe fișa clientului: câmpurile completate sunt blurate", async ({ page }) => {
+    await intraCa(page, "admin");
+    await page.goto("/clienti");
+    await page.locator("tbody a[href^='/clienti/']").first().click();
+    await page.getByTestId("contact").getByRole("button", { name: "Schimbă" }).click();
+    const campuri = page.getByTestId("contact").locator("input.camp");
+    await expect(campuri).toHaveCount(3);
+    for (let i = 0; i < 3; i++) expect(raza(await filtru(campuri.nth(i)))).toBeGreaterThanOrEqual(4);
+  });
+
   test("Task-urile mele: numele clientului e blurat, titlul task-ului nu", async ({ page }) => {
     await intraCa(page, "admin");
     await page.goto("/taskuri");

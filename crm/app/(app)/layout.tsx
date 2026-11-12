@@ -1,7 +1,7 @@
 import { iesi } from "@/app/(cont)/actiuni";
 import { ComutatorFilmare } from "@/components/ComutatorFilmare";
 import { Iconita } from "@/components/Iconite";
-import { eBazaDeTest } from "@/lib/echipa-test";
+import { aratComutatorFilmare } from "@/lib/filmare";
 import { inFilmare } from "@/lib/filmare-server";
 import { Navigare, type Legatura } from "@/components/Navigare";
 import { initiale } from "@/lib/afisare";
@@ -36,7 +36,7 @@ export default async function LayoutAplicatie({ children }: { children: React.Re
   const legaturi = legaturiPentru(om.rol);
   // modul filmare: blurul vine din HTML-ul de pe server (fără clipire); comutatorul doar la Admin, doar pe baza de test
   const filmare = await inFilmare();
-  const comutator = om.rol === "admin" && eBazaDeTest(process.env.NEXT_PUBLIC_SUPABASE_URL) ? <ComutatorFilmare activ={filmare} /> : null;
+  const comutator = aratComutatorFilmare(om.rol, process.env.NEXT_PUBLIC_SUPABASE_URL) ? <ComutatorFilmare activ={filmare} /> : null;
   return (
     <div className="min-h-screen" data-filmare={filmare ? "" : undefined}>
       <aside className="sticla fixed top-3 bottom-3 left-3 z-20 hidden w-[236px] flex-col gap-0.5 rounded-xl2 px-2.5 pt-4 pb-2.5 md:flex">

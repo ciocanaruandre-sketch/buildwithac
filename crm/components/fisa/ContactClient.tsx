@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { salveazaContact } from "@/app/(app)/clienti/[id]/actiuni";
 
-/** Doar pentru Admin: „Schimbă” numele, telefonul și e-mailul clientului. */
+/** Doar pentru Admin: „Schimbă” numele, telefonul și e-mailul clientului. În modul filmare, câmpurile (deja completate) sunt blurate. */
 export function ContactClient({ clientId, nume, telefon, email }: { clientId: string; nume: string; telefon: string | null; email: string | null }) {
   const router = useRouter();
   const [deschis, setDeschis] = useState(false);
@@ -23,7 +23,7 @@ export function ContactClient({ clientId, nume, telefon, email }: { clientId: st
   const camp = (eticheta: string, cheie: keyof typeof d) => (
     <label className="flex flex-col gap-1">
       <span className="lbl">{eticheta}</span>
-      <input className="camp" value={d[cheie]} onChange={(e) => setD({ ...d, [cheie]: e.target.value })} />
+      <input className="camp ascuns-camp" value={d[cheie]} onChange={(e) => setD({ ...d, [cheie]: e.target.value })} />
     </label>
   );
 

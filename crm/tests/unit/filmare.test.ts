@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COOKIE_FILMARE, filmareActiva } from "@/lib/filmare";
+import { aratComutatorFilmare, COOKIE_FILMARE, filmareActiva } from "@/lib/filmare";
 
 const TEST = "https://sglkjcwsohzszktljacv.supabase.co";
 const PROD = "https://znabkoesmtoggdmehmqp.supabase.co";
@@ -16,5 +16,12 @@ describe("modul filmare", () => {
 
   it("cookie-ul are un nume fix", () => {
     expect(COOKIE_FILMARE).toBe("crm_filmare");
+  });
+
+  it("comutatorul apare doar pentru Admin și doar pe baza de test, niciodată pe producție", () => {
+    expect(aratComutatorFilmare("admin", TEST)).toBe(true);
+    expect(aratComutatorFilmare("admin", PROD)).toBe(false);
+    expect(aratComutatorFilmare("admin", undefined)).toBe(false);
+    for (const rol of ["caller", "closer", "constructor"] as const) expect(aratComutatorFilmare(rol, TEST)).toBe(false);
   });
 });
