@@ -96,17 +96,33 @@ export async function seteazaActiv(id: string, activ: boolean): Promise<Rezultat
   return { ok: true };
 }
 
+const NOTA_COMISIOANE = " Comisioanele de pe proiectele lor nu se mută singure.";
+
+/** Omul e pe vreun proiect cu tranșe (ca om din proiect sau ca vânzător cu procent)? Atunci comisioanele rămân pe el. */
+async function areProiecteCuBani(db: Awaited<ReturnType<typeof supabase>>, om: string): Promise<boolean> {
+  const [{ data: o }, { data: v }] = await Promise.all([
+    db.from("proiect_oameni").select("proiect_id").eq("om_id", om),
+    db.from("proiect_vanzari").select("proiect_id").eq("om_id", om),
+  ]);
+  const proiecte = [...new Set([...(o ?? []), ...(v ?? [])].map((r) => r.proiect_id))];
+  if (!proiecte.length) return false;
+  const { count } = await db.from("transe").select("id", { count: "exact", head: true }).in("proiect_id", proiecte);
+  return (count ?? 0) > 0;
+}
+
 /** „Mută tot la…”: lead-urile deschise și discuțiile viitoare (muta_lead_uri) sau, la un constructor, task-urile neterminate (muta_taskuri). */
 export async function mutaTot(de: string, la: string): Promise<{ ok: true; mutate: number; mesaj: string } | { ok: false; mesaj: string }> {
   if ((await eu()).rol !== "admin") return NU_E_ADMIN as { ok: false; mesaj: string };
   if (!la) return { ok: false, mesaj: "Alege omul." };
   const db = await supabase();
   const { data: plecat } = await db.from("profiluri").select("rol").eq("id", de).maybeSingle();
+  // înainte de mutare: la constructor, mutarea îl scoate și din proiect
+  const nota = (await areProiecteCuBani(db, de)) ? NOTA_COMISIOANE : "";
   if (plecat?.rol === "constructor") {
     const t = await db.rpc("muta_taskuri", { de, la });
     if (t.error) return { ok: false, mesaj: mesajDinBaza(t.error, "Mutarea n-a mers.") };
     revalidatePath("/echipa");
-    return { ok: true, mutate: t.data, mesaj: `Am mutat ${t.data === 1 ? "un task" : `${t.data} task-uri`}.` };
+    return { ok: true, mutate: t.data, mesaj: `Am mutat ${t.data === 1 ? "un task" : `${t.data} task-uri`}.${nota}` };
   }
   const { data, error } = await db.rpc("muta_lead_uri", { de, la });
   if (error) return { ok: false, mesaj: error.message || "Mutarea n-a mers." };
@@ -115,5 +131,5 @@ export async function mutaTot(de: string, la: string): Promise<{ ok: true; mutat
   if (r.discutii) mesaj += ` Și ${r.discutii === 1 ? "o discuție programată" : `${r.discutii} discuții programate`}.`;
   if (r.discutii_ramase) mesaj += ` ${r.discutii_ramase === 1 ? "O discuție a rămas" : `${r.discutii_ramase} discuții au rămas`}: ora e ocupată la cel nou. Reprogramează din fișa lead-ului.`;
   revalidatePath("/echipa");
-  return { ok: true, mutate: r.lead_uri, mesaj };
+  return { ok: true, mutate: r.lead_uri, mesaj: mesaj + nota };
 }

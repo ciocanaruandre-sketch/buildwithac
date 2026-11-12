@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { intraCa } from "./ajutor";
-import { db, leadNou, stergeLead } from "./date";
+import { clientNou, db, leadNou, stergeLead, ziPeste } from "./date";
 
 // conturi temporare, ca să nu oprim conturile pe care le folosesc celelalte teste
 let oameni: string[] = [];
@@ -83,6 +83,25 @@ test("lead-urile unui om oprit se mută toate la altcineva", async ({ page }) =>
   await expect(page.getByText("Am mutat 1 lead.")).toBeVisible();
   const { data } = await db().from("lead_uri").select("caller:profiluri!lead_uri_caller_id_fkey(nume)").eq("id", l.id).single();
   expect(data?.caller).toEqual({ nume: "Mara Ionescu" });
+});
+
+test("«Mută tot la…»: când omul are procent pe un proiect cu tranșe, mesajul spune că comisioanele nu se mută", async ({ page }) => {
+  const om = await omTemporar("E2E Vânzător");
+  const c = await clientNou();
+  lead_uri.push(c.leadId);
+  const v = await db().from("proiect_vanzari").insert({ proiect_id: c.proiectId, om_id: om.id, procent: 5 });
+  if (v.error) throw v.error;
+  const l = await leadNou({ caller_id: om.id });
+  lead_uri.push(l.id);
+  await db().from("profiluri").update({ activ: false }).eq("id", om.id);
+  const t = await db().from("transe").insert({ proiect_id: c.proiectId, tip: "odata", eticheta: "Toată suma", suma_lei: 1000, scadenta: ziPeste(5) });
+  if (t.error) throw t.error;
+  await intraCa(page, "admin");
+  await page.goto("/echipa");
+  const r = rand(page, "E2E Vânzător");
+  await r.getByLabel("Mută tot la").selectOption({ label: "Mara Ionescu" });
+  await r.getByRole("button", { name: "Mută" }).click();
+  await expect(page.getByText("Am mutat 1 lead. Comisioanele de pe proiectele lor nu se mută singure.")).toBeVisible();
 });
 
 test("callerul nu intră pe Echipa", async ({ page }) => {

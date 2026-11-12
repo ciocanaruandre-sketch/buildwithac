@@ -206,3 +206,20 @@ test("clientul trimite iar formularul: banda „Cerere nouă” apare până se 
   await expect(page).toHaveURL(/\?proiect=/);
   await expect(page.getByTestId("cerere-noua")).toHaveCount(0);
 });
+
+test("Clienți, la Admin: pastila «Rată întârziată · N zile» pe rândul proiectului; constructorul n-o vede", async ({ page }) => {
+  const c = await client();
+  await punePeProiect(c.proiectId, "constructor", 30);
+  const r = await db().from("transe").insert([
+    { proiect_id: c.proiectId, tip: "rata", eticheta: "Rata 1 din 2", suma_lei: 500, scadenta: ziPeste(-4) },
+    { proiect_id: c.proiectId, tip: "rata", eticheta: "Rata 2 din 2", suma_lei: 500, scadenta: ziPeste(-1) },
+  ]);
+  if (r.error) throw r.error;
+  await intraCa(page, "admin");
+  await page.goto("/clienti");
+  await expect(page.getByRole("row").filter({ hasText: c.nume }).getByTestId("chip-intarziere")).toHaveText("Rată întârziată · 4 zile");
+  await intraCa(page, "constructor");
+  await page.goto("/clienti");
+  await expect(page.getByRole("row").filter({ hasText: c.nume })).toBeVisible();
+  await expect(page.getByTestId("chip-intarziere")).toHaveCount(0);
+});

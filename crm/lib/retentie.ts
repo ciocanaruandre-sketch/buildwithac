@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/baza.types";
+import { descriereTransa, linkTransa, transeIntarziate, type TransaIntarziata } from "@/lib/alerte-finante";
 import { CRM } from "@/lib/config";
 import { escapa, trimiteEmail, type Email } from "@/lib/email";
 import { FUS, ziuaRomaniei } from "@/lib/timp";
@@ -15,11 +16,17 @@ export const ZILE_DUPA_COLABORARE = 365;
 export const TABELE = [
   "profiluri", "lead_uri", "cereri", "notite", "evenimente", "clienti", "program_closer", "discutii",
   "proiecte", "proiect_oameni", "taskuri", "evenimente_proiect", "notite_proiect", "livrari", "conturi", "materiale",
+  "procente_baza", "proiect_vanzari", "transe", "comisioane", "abonamente", "abonament_oameni",
 ] as const;
 type Tabel = (typeof TABELE)[number];
 
-/** După ce se ordonează fiecare tabel la citire (implicit `id`); proiect_oameni are cheia din două coloane. */
-const ORDINE: Partial<Record<Tabel, string[]>> = { proiect_oameni: ["proiect_id", "om_id"] };
+/** După ce se ordonează fiecare tabel la citire (implicit `id`); tabelele fără `id` au cheia din două coloane. */
+const ORDINE: Partial<Record<Tabel, string[]>> = {
+  proiect_oameni: ["proiect_id", "om_id"],
+  procente_baza: ["categorie", "rol"],
+  proiect_vanzari: ["proiect_id", "om_id"],
+  abonament_oameni: ["abonament_id", "om_id"],
+};
 
 type Db = SupabaseClient<Database>;
 
@@ -81,7 +88,14 @@ export function clientiDeSters(proiecte: { client_id: string; inchis_la: string 
 export type ClientDeSters = { id: string; nume: string };
 
 /** E-mailul de luni, cu toate tabelele într-un JSON atașat, lead-urile care se șterg săptămâna asta și clienții de șters de mână. */
-export function construiesteCopia(tabele: Record<string, unknown[]>, acum: Date, sterse: number, expira: LeadCareExpira[] = [], deSters: ClientDeSters[] = []): Omit<Email, "catre"> {
+export function construiesteCopia(
+  tabele: Record<string, unknown[]>,
+  acum: Date,
+  sterse: number,
+  expira: LeadCareExpira[] = [],
+  deSters: ClientDeSters[] = [],
+  intarziate: TransaIntarziata[] = [],
+): Omit<Email, "catre"> {
   const zi = ziuaRomaniei(acum);
   const nume = `crm-${zi}.json`;
   const json = JSON.stringify({ facuta_la: acum.toISOString(), tabele }, null, 1);
@@ -96,9 +110,14 @@ export function construiesteCopia(tabele: Record<string, unknown[]>, acum: Date,
   const titluClienti = `Clienți cu colaborarea încheiată de peste un an (${deSters.length}). Șterge-i din fișa lor, cum promite pagina de confidențialitate:`;
   const linkClient = (c: ClientDeSters) => `${CRM.url}/clienti/${c.id}`;
   const listaClienti = [titluClienti, ...deSters.map((c) => `- ${c.nume}\n  ${linkClient(c)}`)].join("\n");
-  const text = [...randuri, ...(expira.length ? [lista] : []), ...(deSters.length ? [listaClienti] : [])].join("\n\n");
+  const titluTranse = `Tranșe întârziate (${intarziate.length}):`;
+  const listaTranse = [titluTranse, ...intarziate.map((t) => `- ${descriereTransa(t, zi)}\n  ${linkTransa(t)}`)].join("\n");
+  const text = [...randuri, ...(intarziate.length ? [listaTranse] : []), ...(expira.length ? [lista] : []), ...(deSters.length ? [listaClienti] : [])].join("\n\n");
   const html = [
     ...randuri.map((r) => `<p>${escapa(r)}</p>`),
+    ...(intarziate.length
+      ? [`<p>${escapa(titluTranse)}</p>`, `<ul>${intarziate.map((t) => `<li><a href="${linkTransa(t)}">${escapa(descriereTransa(t, zi))}</a></li>`).join("")}</ul>`]
+      : []),
     ...(expira.length
       ? [`<p>${escapa(titlu)}</p>`, `<ul>${expira.map((l) => `<li><a href="${link(l)}">${escapa(descriere(l))}</a></li>`).join("")}</ul>`]
       : []),
@@ -132,7 +151,20 @@ export async function copieSaptamanala(db: Db, f: typeof fetch = fetch, o: { acu
   const acum = o.acum ?? new Date();
   const tabele: Record<string, unknown[]> = {};
   for (const t of TABELE) tabele[t] = await citesteTot(db, t);
-  return trimiteEmail({ catre: CRM.emailAdmin, ...construiesteCopia(tabele, acum, o.sterse ?? 0, await careExpira(db, acum), await clientiCuColaborareaIncheiata(db, acum)) }, f);
+  return trimiteEmail(
+    {
+      catre: CRM.emailAdmin,
+      ...construiesteCopia(
+        tabele,
+        acum,
+        o.sterse ?? 0,
+        await careExpira(db, acum),
+        await clientiCuColaborareaIncheiata(db, acum),
+        await transeIntarziate(db, ziuaRomaniei(acum), false),
+      ),
+    },
+    f,
+  );
 }
 
 /** Clienții de șters, cu numele lor, pentru e-mailul de luni. */

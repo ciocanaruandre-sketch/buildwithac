@@ -3,7 +3,8 @@ import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { cand, termenScurt, ziScurta } from "@/lib/afisare";
 import { eu, type Eu } from "@/lib/eu";
-import { progres } from "@/lib/proiecte";
+import { textZile } from "@/lib/finante";
+import { progres, zileIntarziere } from "@/lib/proiecte";
 import { supabase } from "@/lib/supabase/server";
 import { ziuaRomaniei } from "@/lib/timp";
 import { ETICHETE, STADII } from "@/lib/tipuri";
@@ -38,6 +39,12 @@ async function Proiecte({ om }: { om: Eu }) {
     db.from("profiluri").select("id, nume"),
     db.from("proiect_oameni").select("proiect_id, om_id"),
   ]);
+  // la Admin: cea mai veche tranșă întârziată a fiecărui proiect, pentru pastila roșie
+  const { data: intarziate } = eAdmin
+    ? await db.from("transe").select("proiect_id, scadenta").is("incasata_la", null).lt("scadenta", ziuaRomaniei(new Date())).order("scadenta")
+    : { data: [] };
+  const primaIntarziata = new Map<string, string>();
+  for (const t of intarziate ?? []) if (!primaIntarziata.has(t.proiect_id)) primaIntarziata.set(t.proiect_id, t.scadenta);
   if (!proiecte?.length) {
     return gol(eAdmin ? "Încă niciun client. Apare aici când un closer marchează „Client” pe un lead." : "Aici apar clienții la care lucrezi, după ce te pune Andrei pe un proiect.");
   }
@@ -86,7 +93,14 @@ async function Proiecte({ om }: { om: Eu }) {
                 </td>
                 <td className="px-3.5 py-2.5 text-ink-2">{p.titlu}</td>
                 <td className="px-3.5 py-2.5">
-                  {p.inchis_la ? <span className="chip red">Închis</span> : <span className="chip amber">{ETICHETE.stadiu[p.stadiu]}</span>}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {p.inchis_la ? <span className="chip red">Închis</span> : <span className="chip amber">{ETICHETE.stadiu[p.stadiu]}</span>}
+                    {primaIntarziata.has(p.id) && (
+                      <span data-testid="chip-intarziere" className="chip red whitespace-nowrap">
+                        Rată întârziată · {textZile(zileIntarziere(primaIntarziata.get(p.id)!, azi))}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-3.5 py-2.5">
                   <div className="flex items-center gap-2">
