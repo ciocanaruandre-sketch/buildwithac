@@ -4,8 +4,10 @@ import { primesteCerere, type CerereNoua } from "@/lib/intrare";
 import { admin, sterge } from "./ajutor";
 
 const deSters: string[] = [];
+const run = Date.now().toString(36);
 afterAll(async () => {
   for (const id of deSters) await sterge(id);
+  await admin().from("reclame").delete().like("campanie", `Test intrare ${run}%`);
 });
 
 let n = 0;
@@ -99,5 +101,70 @@ describe("rutele de intrare", () => {
       new Request("http://x/api/intrare/site", { method: "POST", headers: { Authorization: "Bearer secret-test-intrare" }, body: JSON.stringify({ nume: "x", serviciu: "nimic" }) }),
     );
     expect(r.status).toBe(400);
+  });
+});
+
+describe("intrarea din reclame", () => {
+  const camp = (x: string) => `Test intrare ${run} ${x}`;
+  async function trimite(telefon: string, utm: Record<string, string>) {
+    process.env.CRM_SECRET_INTRARE = "secret-test-intrare";
+    const r = await intrareSite(
+      new Request("http://x/api/intrare/site", {
+        method: "POST",
+        headers: { Authorization: "Bearer secret-test-intrare", "Content-Type": "application/json" },
+        body: JSON.stringify({ nume: "Din reclamă", telefon, serviciu: "site", utm }),
+      }),
+    );
+    expect(r.status).toBe(200);
+    const { id } = (await r.json()) as { id: string };
+    if (!deSters.includes(id)) deSters.push(id);
+    return id;
+  }
+  const tel = () => `0798${unic().slice(-6)}`;
+  const legatura = async (leadId: string) =>
+    (await admin().from("reclame_lead_uri").select("reclama_id, reclame(nume, campanie, platforma)").eq("lead_id", leadId).maybeSingle()).data;
+  const sursa = async (leadId: string) => (await admin().from("lead_uri").select("sursa").eq("id", leadId).single()).data!.sursa;
+
+  it("/api/intrare/site din reclamă Meta → sursa Reclamă Meta, legat de reclamă", async () => {
+    const id = await trimite(tel(), { utm_source: "ig", utm_medium: "reclama", utm_campaign: camp("meta"), utm_content: "Clip cafenea" });
+    expect(await sursa(id)).toBe("reclama_meta");
+    expect(await legatura(id)).toMatchObject({ reclame: { nume: "Clip cafenea", campanie: camp("meta"), platforma: "meta" } });
+  });
+
+  it("link organic cu utm_source=instagram → Formular site, fără reclamă, UTM păstrat", async () => {
+    const utm = { utm_source: "instagram", utm_campaign: camp("bio") };
+    const id = await trimite(tel(), utm);
+    expect(await sursa(id)).toBe("formular_site");
+    expect(await legatura(id)).toBeNull();
+    const { data } = await admin().from("cereri").select("utm").eq("lead_id", id).single();
+    expect(data!.utm).toEqual(utm);
+  });
+
+  it("omul care există deja trimite din reclamă → nu se leagă, sursa rămâne", async () => {
+    const t = tel();
+    const id = await trimite(t, {});
+    const a2 = await trimite(t, { utm_source: "fb", utm_medium: "reclama", utm_campaign: camp("existent"), utm_content: "Carusel" });
+    expect(a2).toBe(id);
+    expect(await sursa(id)).toBe("formular_site");
+    expect(await legatura(id)).toBeNull();
+    expect((await admin().from("reclame").select("id").eq("campanie", camp("existent"))).data).toEqual([]);
+  });
+
+  it("aceeași reclamă cu nume lung → o singură reclamă", async () => {
+    const utm = { utm_source: "tiktok", utm_medium: "reclama", utm_campaign: camp("lung"), utm_content: "ș".repeat(150) };
+    const a = await trimite(tel(), utm);
+    const b = await trimite(tel(), utm);
+    const { data } = await admin().from("reclame").select("id, nume").eq("campanie", camp("lung"));
+    expect(data).toHaveLength(1);
+    expect(data![0].nume).toBe("ș".repeat(120));
+    expect((await legatura(a))!.reclama_id).toBe(data![0].id);
+    expect((await legatura(b))!.reclama_id).toBe(data![0].id);
+  });
+
+  it("reclama unită primește lead-urile cu numele vechi", async () => {
+    const { data: a } = await admin().from("reclame").insert({ platforma: "meta", campanie: camp("unita"), nume: "Nume nou" }).select("id").single();
+    await admin().from("reclame").insert({ platforma: "meta", campanie: camp("unita"), nume: "Nume vechi", unita_in: a!.id });
+    const id = await trimite(tel(), { utm_source: "fb", utm_medium: "reclama", utm_campaign: camp("unita"), utm_content: "Nume vechi" });
+    expect((await legatura(id))!.reclama_id).toBe(a!.id);
   });
 });
