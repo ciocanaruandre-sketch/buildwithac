@@ -115,8 +115,12 @@ describe("taskuri", () => {
     const { data: dupa } = await admin().from("taskuri").select("id, om_id").in("id", [t1.id, t2.id, gata.id]);
     expect(dupa?.filter((t) => t.om_id === nou).map((t) => t.id).sort()).toEqual([t1.id, t2.id].sort());
     expect(dupa?.find((t) => t.id === gata.id)?.om_id).toBe(plecat);
+    // Omul nou primește procentul de bază al constructorului pentru serviciul proiectului (null dacă nu e stabilit).
+    const { data: pr } = await admin().from("proiecte").select("serviciu").eq("id", p).single();
+    const { data: baza } = await admin().from("procente_baza").select("procent")
+      .eq("categorie", pr!.serviciu).eq("rol", "constructor").maybeSingle();
     const { data: rand } = await admin().from("proiect_oameni").select("procent").eq("proiect_id", p).eq("om_id", nou);
-    expect(rand).toEqual([{ procent: null }]);
+    expect(rand).toEqual([{ procent: baza?.procent ?? null }]);
   });
 
   it("muta_taskuri: nu la un caller și nu la un cont oprit", async () => {
