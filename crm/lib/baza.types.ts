@@ -1211,6 +1211,21 @@ export type Database = {
         Returns: undefined
       }
       proiect_din_cale: { Args: { cale: string }; Returns: string }
+      reclame_cifre: {
+        Args: never
+        Returns: {
+          campanie: string
+          cheltuit_lei: number
+          clienti: number
+          discutii: number
+          id: string
+          incasat_lei: number
+          lead_uri: number
+          mai_vin_lei: number
+          nume: string
+          platforma: string
+        }[]
+      }
       reclame_pastreaza_banii: { Args: { c: string }; Returns: undefined }
       returneaza: {
         Args: { suma: number; t: string; zi: string }
@@ -1229,6 +1244,10 @@ export type Database = {
       titlu_implicit: {
         Args: { s: Database["public"]["Enums"]["serviciu"] }
         Returns: string
+      }
+      uneste_reclame: {
+        Args: { p_pastrata: string; p_unita: string }
+        Returns: undefined
       }
     }
     Enums: {

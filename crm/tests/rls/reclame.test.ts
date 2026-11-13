@@ -130,6 +130,73 @@ describe("reclamele", () => {
     expect(dupa.data).toMatchObject({ reclama_id: r, incasat_sters_lei: 1500, client_id: null, lead_id: null, client: true });
   });
 
+  it("reclame_cifre: pâlnia și banii, inclusiv clientul șters", async () => {
+    const n = nume();
+    const azi = new Date().toISOString().slice(0, 10);
+    // un lead fără nimic, unul cu discuție
+    const simplu = await lead();
+    const r = await atribuie(simplu.id, n);
+    const cuDiscutie = await lead();
+    await atribuie(cuDiscutie.id, n);
+    await admin().from("reclame_lead_uri").update({ a_avut_discutie: true }).eq("lead_id", cuDiscutie.id);
+    // un client cu 2.000 încasați și 800 de încasat; altul cu 1.500 încasați, apoi șters
+    const client = async () => {
+      const l = await lead({ stare: "programat" });
+      await atribuie(l.id, n);
+      await admin().from("lead_uri").update({ stare: "client" }).eq("id", l.id);
+      const c = await admin().from("clienti").select("id, proiecte (id)").eq("lead_id", l.id).single();
+      return { clientId: c.data!.id, proiectId: c.data!.proiecte[0].id };
+    };
+    const viu = await client();
+    const t = await admin()
+      .from("transe")
+      .insert([
+        { proiect_id: viu.proiectId, tip: "avans", eticheta: "Avans", suma_lei: 2000, scadenta: azi, incasata_la: azi, incasat_lei: 2000, returnat_lei: 0 },
+        { proiect_id: viu.proiectId, tip: "rest", eticheta: "Rest", suma_lei: 800, scadenta: azi, returnat_lei: 0 },
+      ]);
+    if (t.error) throw t.error;
+    const sters = await client();
+    const t2 = await admin().from("transe").insert({ proiect_id: sters.proiectId, tip: "odata", eticheta: "Tot", suma_lei: 1500, scadenta: azi, incasata_la: azi, incasat_lei: 1500 });
+    if (t2.error) throw t2.error;
+    const s = await (await conecteazaCa("admin")).rpc("sterge_client", { c: sters.clientId });
+    expect(s.error).toBeNull();
+
+    const db = await conecteazaCa("admin");
+    const { data, error } = await db.rpc("reclame_cifre");
+    expect(error).toBeNull();
+    expect(data!.find((x) => x.id === r)).toMatchObject({ nume: n, platforma: "meta", cheltuit_lei: null, lead_uri: 4, discutii: 3, clienti: 2, incasat_lei: 3500, mai_vin_lei: 800 });
+    expect((await (await conecteazaCa("constructor")).rpc("reclame_cifre")).data).toEqual([]);
+  });
+
+  it("uneste_reclame: lead-urile și cheltuiala trec la cea păstrată", async () => {
+    const [a, b, c] = [await lead(), await lead(), await lead()];
+    const ra = await atribuie(a.id, nume());
+    const nb = nume();
+    const rb = await atribuie(b.id, nb);
+    await admin().from("reclame").update({ cheltuit_lei: 200 }).eq("id", rb);
+    const db = await conecteazaCa("admin");
+    for (const cont of ["caller", "closer", "constructor"] as const) {
+      expect((await (await conecteazaCa(cont)).rpc("uneste_reclame", { p_pastrata: ra, p_unita: rb })).error).not.toBeNull();
+    }
+    expect((await db.rpc("uneste_reclame", { p_pastrata: ra, p_unita: ra })).error).not.toBeNull();
+    const tt = await atribuie(c.id, nume(), "tiktok");
+    expect((await db.rpc("uneste_reclame", { p_pastrata: ra, p_unita: tt })).error?.message).toBe("Poți uni doar reclame de pe aceeași platformă.");
+
+    expect((await db.rpc("uneste_reclame", { p_pastrata: ra, p_unita: rb })).error).toBeNull();
+    const cifre = (await db.rpc("reclame_cifre")).data!;
+    expect(cifre.find((x) => x.id === ra)).toMatchObject({ lead_uri: 2, cheltuit_lei: 200 });
+    expect(cifre.find((x) => x.id === rb)).toBeUndefined();
+    // un lead nou cu numele vechi ajunge la cea păstrată
+    const d = await lead();
+    expect(await atribuie(d.id, nb)).toBe(ra);
+    // gol + gol = gol
+    const [e, f] = [await lead(), await lead()];
+    const re = await atribuie(e.id, nume());
+    const rf = await atribuie(f.id, nume());
+    expect((await db.rpc("uneste_reclame", { p_pastrata: re, p_unita: rf })).error).toBeNull();
+    expect((await db.rpc("reclame_cifre")).data!.find((x) => x.id === re)?.cheltuit_lei).toBeNull();
+  });
+
   it("proiecte nu mai are incasat_lei", async () => {
     const { error } = await admin().from("proiecte").select("incasat_lei" as "id").limit(1);
     expect(error).not.toBeNull();

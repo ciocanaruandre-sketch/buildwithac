@@ -36,6 +36,8 @@
   --green: #4fbf8a;
   --red-t: #ff7a66;
   --blue: #6b9bd1;
+  /* TikTok, pe pagina Reclame */
+  --turcoaz: #5fd4d0;
   --urm: rgba(255, 181, 46, .07);
   --urm-bd: rgba(255, 181, 46, .22);
   --pe-auriu: #1a1206;
@@ -59,6 +61,7 @@
   --color-red-t: var(--red-t);
   --color-green: var(--green);
   --color-blue: var(--blue);
+  --color-turcoaz: var(--turcoaz);
   --color-sel: var(--sel);
   --color-seg: var(--seg);
   --radius-r: var(--r);
@@ -131,6 +134,7 @@ h1, h2, h3 { font-family: var(--text); font-weight: 700; letter-spacing: -.025em
   .chip.green { background: color-mix(in srgb, var(--green) 15%, transparent); color: var(--green); }
   .chip.red { background: color-mix(in srgb, var(--red-t) 15%, transparent); color: var(--red-t); }
   .chip.blue { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }
+  .chip.turcoaz { background: color-mix(in srgb, var(--turcoaz) 15%, transparent); color: var(--turcoaz); }
 
   /* Controlul segmentat (tab-urile): pastilă, tab-ul ales e „degetul” mai deschis. Se derulează în interior pe ecrane mici. */
   .seg { display: flex; width: max-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; gap: 2px; padding: 3px; border-radius: 999px; background: var(--seg); }

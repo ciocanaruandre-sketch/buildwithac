@@ -17,7 +17,7 @@ function legaturiPentru(rol: Rol): Legatura[] {
   if (rol === "admin") l.push(taskuri);
   if (rol === "closer" || rol === "admin") l.push({ href: "/program", eticheta: "Program", iconita: "program" });
   l.push(finante);
-  if (rol === "admin") l.push({ href: "/echipa", eticheta: "Echipa", iconita: "echipa" });
+  if (rol === "admin") l.push({ href: "/reclame", eticheta: "Reclame", iconita: "reclame" }, { href: "/echipa", eticheta: "Echipa", iconita: "echipa" });
   return l;
 }
 
