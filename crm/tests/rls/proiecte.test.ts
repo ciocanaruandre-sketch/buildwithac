@@ -22,8 +22,8 @@ async function pune(proiectId: string, omId: string, procent: number | null = nu
 describe("proiecte", () => {
   it("lead-ul devine client → un client și exact un proiect, în «discutie», cu serviciul lead-ului", async () => {
     const { lead, clientId, proiectId } = await client({ serviciu: "automatizari" });
-    const { data } = await admin().from("proiecte").select("id, stadiu, serviciu, titlu, incasat_lei, pret_lei").eq("client_id", clientId);
-    expect(data).toEqual([{ id: proiectId, stadiu: "discutie", serviciu: "automatizari", titlu: "Automatizări", incasat_lei: 0, pret_lei: null }]);
+    const { data } = await admin().from("proiecte").select("id, stadiu, serviciu, titlu, pret_lei").eq("client_id", clientId);
+    expect(data).toEqual([{ id: proiectId, stadiu: "discutie", serviciu: "automatizari", titlu: "Automatizări", pret_lei: null }]);
 
     // marcat din nou „Client”: nimic nu se dublează
     await admin().from("lead_uri").update({ stare: "oferta_trimisa" }).eq("id", lead.id);

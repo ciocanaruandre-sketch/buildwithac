@@ -226,7 +226,7 @@ export async function fise(ids: Record<ContTest, string>) {
   const { count: proiecteleEi } = await db.from("proiecte").select("id", { count: "exact", head: true }).eq("client_id", andreea.clientId);
   if (proiecteleEi === 1) {
     verifica(
-      await db.from("proiecte").update({ titlu: "Site", stadiu: "mentenanta", pret_lei: 1800, incasat_lei: 1800, termen: peste_zile(-30) }).eq("id", andreea.proiectId),
+      await db.from("proiecte").update({ titlu: "Site", stadiu: "mentenanta", pret_lei: 1800, termen: peste_zile(-30) }).eq("id", andreea.proiectId),
       await db.from("taskuri").insert([
         { proiect_id: andreea.proiectId, titlu: "Site-ul publicat pe domeniul ei", om_id: ids.admin, termen: peste_zile(-32), gata: true },
         { proiect_id: andreea.proiectId, titlu: "I-am arătat cum schimbă prețurile", om_id: ids.admin, termen: peste_zile(-30), gata: true },
@@ -256,6 +256,8 @@ export async function golesteTot(): Promise<void> {
   verifica(await db.from("lead_uri").delete().not("id", "is", null));
   // comisioanele rămân după client (proiect_id devine null, ca omul să-și păstreze banii): aici pleacă toate
   verifica(await db.from("comisioane").delete().not("id", "is", null));
+  // reclamele păstrează cifrele lead-urilor șterse (anonim): pleacă și ele, cu legăturile lor
+  verifica(await db.from("reclame").delete().not("id", "is", null));
   // fără clienți nu mai există proiecte, deci toate dosarele din bucket sunt orfane
   await curataFisiereOrfane(db);
 }

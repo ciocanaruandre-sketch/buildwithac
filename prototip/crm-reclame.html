@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM: pagina Reclame (variante)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141417; --panel:#1c1c20; --panel-2:#232328; --line:rgba(255,255,255,.07);
+  --ink:#f1f1f3; --ink-2:#b4b4bb; --ink-3:#8a8a92;
+  --glass:rgba(30,30,34,.55); --glass-bd:rgba(255,255,255,.07);
+  --r:16px; --r-sm:10px; --r-xl:22px;
+  --sel:rgba(255,255,255,.08); --seg:rgba(255,255,255,.05); --btn:rgba(255,255,255,.07);
+  --amber:#e3a43c; --amber-t:#ffb52e; --green:#4fbf8a; --red-t:#ff7a66; --blue:#6b9bd1; --tt:#5fd4d0;
+  --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input{font:inherit;color:inherit}
+.wall{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.wall i{position:absolute;border-radius:50%;filter:blur(100px);opacity:.10}
+.wall .w1{width:640px;height:640px;left:-140px;top:-200px;background:#ffb52e}
+.wall .w2{width:560px;height:560px;right:-160px;top:28%;background:#e53222}
+
+.switch{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:10px 12px;background:rgba(10,10,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.switch .grp{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--seg)}
+.switch button{border:0;background:none;padding:6px 13px;border-radius:999px;font:550 12.5px Inter;color:var(--ink-3);cursor:pointer}
+.switch button.on{background:var(--sel);color:var(--ink)}
+.switch .t{font:600 12px Inter;color:var(--ink-3)}
+
+.app{position:relative;z-index:1;display:flex;gap:20px;max-width:1280px;margin:0 auto;padding:18px 20px 80px}
+.side{width:220px;flex:none;border-radius:var(--r-xl);padding:16px 10px;background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(28px);align-self:flex-start;position:sticky;top:70px}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 14px;font:600 15px Inter}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--grad);display:block}
+.brand small{display:block;font:500 11.5px Inter;color:var(--ink-3)}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);font:500 13.5px Inter}
+.nav.on{background:var(--sel);color:var(--ink)}
+.nav .nou{margin-left:auto;font-size:10.5px;color:var(--amber-t)}
+.main{flex:1;min-width:0}
+body.tel .app{max-width:390px;padding:14px 14px 90px;border-left:1px solid var(--line);border-right:1px solid var(--line);min-height:100vh}
+body.tel .side{display:none}
+.jos{display:none}
+body.tel .jos{display:flex;position:fixed;bottom:10px;left:50%;transform:translateX(-50%);width:370px;justify-content:space-around;padding:8px 6px;border-radius:22px;background:rgba(30,30,34,.85);backdrop-filter:blur(20px);border:1px solid var(--glass-bd);z-index:40}
+.jos span{font:500 10px Inter;color:var(--ink-3);text-align:center}
+.jos span.on{color:var(--amber-t)}
+
+h1{font:700 26px/1.15 Inter;letter-spacing:-.025em;margin-bottom:4px}
+.sub{color:var(--ink-3);font-size:13px;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;background:var(--btn);color:var(--ink);font:550 13px Inter;border:0;cursor:pointer;white-space:nowrap}
+.btn.mic{padding:5px 11px;font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font:500 11px Inter;white-space:nowrap;background:var(--btn);color:var(--ink-2)}
+.chip.c{background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.meta{--c:var(--blue)}.tiktok{--c:var(--tt)}.green{--c:var(--green)}.red{--c:var(--red-t)}.amber{--c:var(--amber-t)}
+.panel{position:relative;background:var(--panel);border-radius:var(--r);border:1px solid var(--line)}
+.muted{color:var(--ink-3)}
+.poz{color:var(--green)}.neg{color:var(--red-t)}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px}
+.per{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--seg);margin-bottom:14px}
+.per button{border:0;background:none;padding:6px 12px;border-radius:999px;font:550 12.5px Inter;color:var(--ink-3);cursor:pointer}
+.per button.on{background:var(--sel);color:var(--ink)}
+
+.rez{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.rez .panel{padding:12px 14px}
+.rez b{display:block;font:650 21px Inter;letter-spacing:-.02em;margin-top:2px}
+.rez small{font-size:12px;color:var(--ink-3)}
+body.tel .rez{grid-template-columns:1fr 1fr}
+body.tel .rez b{font-size:17px}
+
+/* suma cheltuită, de scris */
+.ch{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:9px;background:var(--seg);border:1px dashed transparent;cursor:text;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ch:hover{border-color:rgba(255,255,255,.18)}
+.ch.gol{color:var(--amber-t);border-color:color-mix(in srgb,var(--amber-t) 45%,transparent)}
+.ch input{width:64px;background:none;border:0;outline:0;text-align:right}
+
+.var{display:none}
+body.vA .var.A, body.vB .var.B, body.vC .var.C{display:block}
+
+/* A · tabel */
+.tb .cap,.tb .rand{display:grid;grid-template-columns:minmax(0,2.4fr) .7fr .7fr 1.1fr 1fr 1fr 1fr;gap:10px;align-items:center;padding:10px 14px}
+.tb .cap{font:600 11.5px Inter;color:var(--ink-3);border-bottom:1px solid var(--line)}
+.tb .cap span:not(:first-child),.tb .rand > span:not(:first-child){text-align:right}
+.tb .camp{padding:12px 14px 6px;font:600 12px Inter;color:var(--ink-3);display:flex;gap:8px;align-items:center;border-top:1px solid var(--line)}
+.tb .camp:first-of-type{border-top:0}
+.tb .rand{border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tb .rand .n{font:550 13.5px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb .rand small{display:block;font-size:11.5px;color:var(--ink-3)}
+.tb .rand .k{display:none}
+body.tel .tb .cap{display:none}
+body.tel .tb .rand{grid-template-columns:1fr 1fr;gap:6px 14px}
+body.tel .tb .rand > span:first-child{grid-column:1/-1}
+body.tel .tb .rand > span:not(:first-child){text-align:left;display:flex;justify-content:space-between;gap:6px}
+body.tel .tb .rand .k{display:inline;color:var(--ink-3);font-size:12px}
+
+/* B · carduri cu pâlnie */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body.tel .cards{grid-template-columns:1fr}
+.card{padding:14px}
+.card .h{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.card .h .n{font:600 14.5px Inter}
+.card .h small{display:block;color:var(--ink-3);font-size:12px}
+.pl{margin:14px 0 12px;display:flex;flex-direction:column;gap:6px}
+.pl div{display:grid;grid-template-columns:72px 1fr 26px;align-items:center;gap:8px;font-size:12px;color:var(--ink-2)}
+.pl i{display:block;height:8px;border-radius:9px;background:var(--grad);min-width:3px}
+.pl b{font:600 12.5px Inter;text-align:right;color:var(--ink)}
+.bani{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.bani small{display:block;font-size:11.5px;color:var(--ink-3)}
+.bani b{font:650 15px Inter}
+.verdict{margin-top:12px;font:550 12.5px Inter;padding:8px 10px;border-radius:10px;background:var(--seg)}
+
+/* C · clasament */
+.c-sus{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+body.tel .c-sus{grid-template-columns:1fr}
+.c-sus .panel{padding:14px 16px}
+.c-sus .lb{font:600 12px Inter;color:var(--ink-3)}
+.c-sus .n{font:650 17px Inter;margin:6px 0 2px}
+.c-sus .x{font:700 30px Inter;letter-spacing:-.03em}
+.loc{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.loc:last-child{border-bottom:0}
+.loc .nr{width:22px;font:700 15px Inter;color:var(--ink-3);flex:none}
+.loc .mij{flex:1;min-width:0}
+.loc .mij .n{font:550 13.5px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loc .mij small{font-size:12px;color:var(--ink-3)}
+.loc .bar{height:6px;background:var(--seg);border-radius:9px;margin-top:7px;overflow:hidden}
+.loc .bar i{display:block;height:100%;background:var(--grad)}
+.loc .dr{text-align:right;flex:none}
+.loc .dr b{display:block;font:700 18px Inter;letter-spacing:-.02em}
+.loc .dr small{font-size:11.5px;color:var(--ink-3)}
+body.tel .loc{flex-wrap:wrap;gap:8px 12px}
+body.tel .loc .dr{width:100%;display:flex;justify-content:space-between;align-items:baseline;padding-left:36px}
+
+.nota-proto{max-width:720px;margin:26px auto 0;font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.nota-proto b{color:var(--ink-2)}
+</style>
+</head>
+<body class="vA">
+<div class="wall"><i class="w1"></i><i class="w2"></i></div>
+
+<div class="switch">
+  <span class="t">Varianta</span>
+  <div class="grp" id="var"><button data-v="A" class="on">A · Tabel</button><button data-v="B">B · Carduri cu pâlnie</button><button data-v="C">C · Clasament</button></div>
+  <div class="grp" id="lat"><button data-l="lap" class="on">Laptop</button><button data-l="tel">Telefon</button></div>
+</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i></i><div>buildwithac<small>CRM</small></div></div>
+    <div class="nav">Lead-uri</div>
+    <div class="nav">Clienți</div>
+    <div class="nav">Task-urile mele</div>
+    <div class="nav">Program</div>
+    <div class="nav">Finanțe</div>
+    <div class="nav on">Reclame <span class="nou">nou</span></div>
+    <div class="nav">Echipa</div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div><h1>Reclame</h1><div class="sub">Ce reclamă îți aduce clienți și bani</div></div>
+      <div class="per" id="per"><button>Noiembrie</button><button>Ultimele 3 luni</button><button class="on">Tot timpul</button></div>
+    </div>
+
+    <div class="rez" id="rez"></div>
+
+    <div class="var A"><div class="panel tb" id="tA"></div></div>
+    <div class="var B"><div class="cards" id="tB"></div></div>
+    <div class="var C"><div class="c-sus" id="cSus"></div><div class="panel" id="tC"></div></div>
+
+    <p class="nota-proto"><b>De probă aici:</b> apasă pe orice sumă din „Cheltuit” (sau pe „scrie suma” cu auriu) și scrie altă cifră: costul pe client și câștigul se recalculează pe loc. „Încasat” vine singur din Finanțe, de la clienții aduși de reclama aceea; „mai vin” = ratele programate care n-au intrat încă. Numele reclamelor și campaniilor vin singure din link (le pune Meta/TikTok). Perioada de sus nu face nimic în machetă. Date inventate.</p>
+  </main>
+</div>
+
+<div class="jos"><span>Lead-uri</span><span>Clienți</span><span>Task-uri</span><span>Program</span><span>Finanțe</span><span class="on">Reclame</span><span>Echipa</span></div>
+
+<script>
+const D=[
+  {id:1,camp:'Site-uri pentru cafenele',pl:'meta',n:'Clip cafenea, înainte și după',ch:620,lead:14,disc:6,cl:2,inc:4500,vin:2000},
+  {id:2,camp:'Site-uri pentru cafenele',pl:'meta',n:'Carusel: 5 greșeli pe site',ch:380,lead:9,disc:2,cl:0,inc:0,vin:0},
+  {id:3,camp:'Automatizări pentru saloane',pl:'meta',n:'Clip programări pe WhatsApp',ch:450,lead:7,disc:4,cl:2,inc:3200,vin:800},
+  {id:4,camp:'Automatizări pentru saloane',pl:'meta',n:'Poză: recenzii Google',ch:null,lead:3,disc:1,cl:0,inc:0,vin:0},
+  {id:5,camp:'Site în 7 zile',pl:'tiktok',n:'Clip ecran de telefon',ch:300,lead:11,disc:3,cl:1,inc:1500,vin:1500},
+];
+const lei=n=>Math.round(n).toLocaleString('ro-RO')+' lei';
+const plat=p=>p==='meta'?'<span class="chip c meta">Meta</span>':'<span class="chip c tiktok">TikTok</span>';
+const chHtml=r=>r.ch==null?`<span class="ch gol" data-id="${r.id}">scrie suma</span>`:`<span class="ch" data-id="${r.id}">${lei(r.ch)}</span>`;
+const castig=r=>r.ch==null?null:r.inc-r.ch;
+const perCl=r=>r.ch==null||!r.cl?null:r.ch/r.cl;
+const perLead=r=>r.ch==null||!r.lead?null:r.ch/r.lead;
+const roas=r=>r.ch?r.inc/r.ch:null;
+const semn=v=>v==null?'<span class="muted">—</span>':`<span class="${v>=0?'poz':'neg'}">${v>=0?'+':'−'}${lei(Math.abs(v))}</span>`;
+
+function rez(){
+  const s=k=>D.reduce((a,r)=>a+(r[k]||0),0);
+  const ch=s('ch'),cl=s('cl'),lead=s('lead'),inc=s('inc');
+  document.getElementById('rez').innerHTML=`
+    <div class="panel"><small>Cheltuit</small><b>${lei(ch)}</b><small>${lei(ch/lead)} pe lead</small></div>
+    <div class="panel"><small>Lead-uri</small><b>${lead}</b><small>din ${D.length} reclame</small></div>
+    <div class="panel"><small>Clienți</small><b>${cl}</b><small>${lei(ch/cl)} pe client</small></div>
+    <div class="panel"><small>Încasat</small><b class="poz">${lei(inc)}</b><small>+ ${lei(s('vin'))} mai vin</small></div>`;
+}
+
+function A(){
+  let h=`<div class="cap"><span>Reclama</span><span>Lead-uri</span><span>Clienți</span><span>Cheltuit</span><span>Pe client</span><span>Încasat</span><span>Câștig</span></div>`;
+  let camp='';
+  for(const r of D){
+    if(r.camp!==camp){camp=r.camp;h+=`<div class="camp">${plat(r.pl)} ${camp}</div>`}
+    const pc=perCl(r);
+    h+=`<div class="rand">
+      <span><span class="n">${r.n}</span><small>${r.disc} discuții</small></span>
+      <span><span class="k">Lead-uri</span>${r.lead}</span>
+      <span><span class="k">Clienți</span>${r.cl}</span>
+      <span><span class="k">Cheltuit</span>${chHtml(r)}</span>
+      <span><span class="k">Pe client</span>${pc==null?'<span class="muted">—</span>':lei(pc)}</span>
+      <span><span class="k">Încasat</span><span>${r.inc?lei(r.inc):'<span class="muted">0</span>'}${r.vin?`<small>+ ${lei(r.vin)} mai vin</small>`:''}</span></span>
+      <span><span class="k">Câștig</span>${semn(castig(r))}</span>
+    </div>`;
+  }
+  document.getElementById('tA').innerHTML=h;
+}
+
+function B(){
+  const max=Math.max(...D.map(r=>r.lead));
+  document.getElementById('tB').innerHTML=D.map(r=>{
+    const c=castig(r);
+    let v;
+    if(r.ch==null) v=`<span style="color:var(--amber-t)">Scrie cât ai cheltuit ca să vezi dacă merită.</span>`;
+    else if(!r.cl) v=`<span class="neg">Niciun client încă. ${r.lead} lead-uri, ${lei(perLead(r))} fiecare.</span>`;
+    else if(c>=0) v=`<span class="poz">Aduce bani: la 1 leu cheltuit ai încasat ${roas(r).toFixed(1).replace('.',',')} lei.</span>`;
+    else v=`<span style="color:var(--amber-t)">Încă pe minus, dar mai vin ${lei(r.vin)}.</span>`;
+    const w=x=>Math.max(2,x/max*100);
+    return `<div class="panel card">
+      <div class="h"><div><div class="n">${r.n}</div><small>${r.camp}</small></div>${plat(r.pl)}</div>
+      <div class="pl">
+        <div>Lead-uri<i style="width:${w(r.lead)}%"></i><b>${r.lead}</b></div>
+        <div>Discuții<i style="width:${w(r.disc)}%"></i><b>${r.disc}</b></div>
+        <div>Clienți<i style="width:${w(r.cl)}%"></i><b>${r.cl}</b></div>
+      </div>
+      <div class="bani">
+        <div><small>Cheltuit</small>${chHtml(r)}</div>
+        <div><small>Încasat</small><b>${r.inc?lei(r.inc):'0'}</b>${r.vin?`<small>+ ${lei(r.vin)} mai vin</small>`:''}</div>
+        <div><small>Câștig</small><b>${semn(c)}</b></div>
+      </div>
+      <div class="verdict">${v}</div>
+    </div>`;
+  }).join('');
+}
+
+function C(){
+  const ord=[...D].sort((a,b)=>(castig(b)??-1e9)-(castig(a)??-1e9));
+  const cuCl=D.filter(r=>perCl(r)!=null).sort((a,b)=>perCl(a)-perCl(b));
+  const best=ord[0], ieftin=cuCl[0];
+  document.getElementById('cSus').innerHTML=`
+    <div class="panel"><div class="lb">Îți aduce cei mai mulți bani</div><div class="n">${best.n}</div><div class="x poz">${semn(castig(best))}</div><small class="muted">${lei(best.ch)} cheltuiți → ${lei(best.inc)} încasați</small></div>
+    <div class="panel"><div class="lb">Cel mai ieftin client</div><div class="n">${ieftin?ieftin.n:'—'}</div><div class="x">${ieftin?lei(perCl(ieftin)):'—'}</div><small class="muted">pe client adus</small></div>`;
+  const maxInc=Math.max(...D.map(r=>r.inc+r.vin),1);
+  document.getElementById('tC').innerHTML=ord.map((r,i)=>`
+    <div class="loc">
+      <span class="nr">${i+1}</span>
+      <div class="mij"><div class="n">${r.n}</div><small>${plat(r.pl)} ${r.lead} lead-uri · ${r.cl} clienți · cheltuit ${chHtml(r)}</small>
+        <div class="bar"><i style="width:${(r.inc)/maxInc*100}%"></i></div></div>
+      <div class="dr"><b>${semn(castig(r))}</b><small>${r.inc?lei(r.inc)+' încasat':'nimic încasat'}${r.vin?' · +'+lei(r.vin):''}</small></div>
+    </div>`).join('');
+}
+
+function tot(){rez();A();B();C()}
+tot();
+
+const b=document.body;
+function grp(id,fn){document.querySelectorAll('#'+id+' button').forEach(x=>x.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(y=>y.classList.toggle('on',y===x));fn&&fn(x)})}
+grp('var',x=>{b.classList.remove('vA','vB','vC');b.classList.add('v'+x.dataset.v)});
+grp('lat',x=>b.classList.toggle('tel',x.dataset.l==='tel'));
+grp('per');
+
+document.addEventListener('click',e=>{
+  const s=e.target.closest('.ch');
+  if(!s||s.querySelector('input'))return;
+  const r=D.find(x=>x.id==s.dataset.id);
+  s.classList.remove('gol');
+  s.innerHTML=`<input inputmode="numeric" value="${r.ch??''}" placeholder="0"> lei`;
+  const i=s.querySelector('input');i.focus();i.select();
+  const gata=()=>{const v=parseInt(i.value.replace(/\D/g,''));r.ch=isNaN(v)?null:v;tot()};
+  i.onblur=gata;i.onkeydown=k=>{if(k.key==='Enter')i.blur()};
+});
+</script>
+</body>
+</html>

@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/baza.types";
 import { decide, type Decizie } from "@/lib/decizie";
 import type { CerereNoua } from "@/lib/intrare-tipuri";
+import { reclamaDinUtm } from "@/lib/reclame";
 import { normalizeazaEmail, normalizeazaTelefon } from "@/lib/telefon";
 
 export type { CerereNoua } from "@/lib/intrare-tipuri";
@@ -67,6 +68,8 @@ export async function primesteCerere(c: CerereNoua, db: Db): Promise<Rezultat> {
       const { error } = await db.from("lead_uri").update({ intrat_la: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
     }
+    // doar cererea care face lead-ul îl leagă de reclamă: un om care exista deja nu e meritul ei
+    if (decizie === "lead_nou") await atribuieReclama(db, id, c.utm);
     if (decizie !== "lead_nou") {
       const tip = decizie === "redeschide" ? "redeschis" : "cerere_noua";
       const { error } = await db.from("evenimente").insert({ lead_id: id, tip, detalii: { sursa: c.sursa } });
@@ -75,6 +78,18 @@ export async function primesteCerere(c: CerereNoua, db: Db): Promise<Rezultat> {
     return { id, decizie };
   }
   throw new Error("Lead-ul n-a putut fi scris după două încercări.");
+}
+
+/** O greșeală aici nu pierde lead-ul: se scrie în jurnal și cererea merge mai departe. */
+async function atribuieReclama(db: Db, leadId: string, utm: Record<string, string>) {
+  const r = reclamaDinUtm(utm);
+  if (!r) return;
+  try {
+    const { error } = await db.rpc("atribuie_reclama", { p_lead: leadId, p_platforma: r.platforma, p_campanie: r.campanie, p_nume: r.nume });
+    if (error) throw error;
+  } catch (e) {
+    console.error("intrare/reclama", e);
+  }
 }
 
 export const eFaraContact = (e: unknown) => e instanceof FaraContact;

@@ -880,7 +880,6 @@ export type Database = {
           creat_de: string | null
           creat_la: string
           id: string
-          incasat_lei: number
           inchis_la: string | null
           pret_lei: number | null
           serviciu: Database["public"]["Enums"]["serviciu"]
@@ -893,7 +892,6 @@ export type Database = {
           creat_de?: string | null
           creat_la?: string
           id?: string
-          incasat_lei?: number
           inchis_la?: string | null
           pret_lei?: number | null
           serviciu: Database["public"]["Enums"]["serviciu"]
@@ -906,7 +904,6 @@ export type Database = {
           creat_de?: string | null
           creat_la?: string
           id?: string
-          incasat_lei?: number
           inchis_la?: string | null
           pret_lei?: number | null
           serviciu?: Database["public"]["Enums"]["serviciu"]
@@ -927,6 +924,92 @@ export type Database = {
             columns: ["creat_de"]
             isOneToOne: false
             referencedRelation: "profiluri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reclame: {
+        Row: {
+          campanie: string
+          cheltuit_lei: number | null
+          creat_la: string
+          id: string
+          nume: string
+          platforma: string
+          unita_in: string | null
+        }
+        Insert: {
+          campanie?: string
+          cheltuit_lei?: number | null
+          creat_la?: string
+          id?: string
+          nume: string
+          platforma: string
+          unita_in?: string | null
+        }
+        Update: {
+          campanie?: string
+          cheltuit_lei?: number | null
+          creat_la?: string
+          id?: string
+          nume?: string
+          platforma?: string
+          unita_in?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reclame_unita_in_fkey"
+            columns: ["unita_in"]
+            isOneToOne: false
+            referencedRelation: "reclame"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reclame_lead_uri: {
+        Row: {
+          a_avut_discutie: boolean
+          client: boolean
+          client_id: string | null
+          creat_la: string
+          id: string
+          incasat_sters_lei: number
+          lead_id: string | null
+          reclama_id: string
+        }
+        Insert: {
+          a_avut_discutie?: boolean
+          client?: boolean
+          client_id?: string | null
+          creat_la?: string
+          id?: string
+          incasat_sters_lei?: number
+          lead_id?: string | null
+          reclama_id: string
+        }
+        Update: {
+          a_avut_discutie?: boolean
+          client?: boolean
+          client_id?: string | null
+          creat_la?: string
+          id?: string
+          incasat_sters_lei?: number
+          lead_id?: string | null
+          reclama_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reclame_lead_uri_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "lead_uri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reclame_lead_uri_reclama_id_fkey"
+            columns: ["reclama_id"]
+            isOneToOne: false
+            referencedRelation: "reclame"
             referencedColumns: ["id"]
           },
         ]
@@ -1058,6 +1141,15 @@ export type Database = {
     }
     Functions: {
       anuleaza_incasare: { Args: { t: string }; Returns: undefined }
+      atribuie_reclama: {
+        Args: {
+          p_campanie: string
+          p_lead: string
+          p_nume: string
+          p_platforma: string
+        }
+        Returns: string
+      }
       azi_ro: { Args: never; Returns: string }
       cale_fisier_valida: { Args: { cale: string }; Returns: boolean }
       comisioane_viitoare: {
@@ -1119,6 +1211,22 @@ export type Database = {
         Returns: undefined
       }
       proiect_din_cale: { Args: { cale: string }; Returns: string }
+      reclame_cifre: {
+        Args: never
+        Returns: {
+          campanie: string
+          cheltuit_lei: number
+          clienti: number
+          discutii: number
+          id: string
+          incasat_lei: number
+          lead_uri: number
+          mai_vin_lei: number
+          nume: string
+          platforma: string
+        }[]
+      }
+      reclame_pastreaza_banii: { Args: { c: string }; Returns: undefined }
       returneaza: {
         Args: { suma: number; t: string; zi: string }
         Returns: undefined
@@ -1136,6 +1244,10 @@ export type Database = {
       titlu_implicit: {
         Args: { s: Database["public"]["Enums"]["serviciu"] }
         Returns: string
+      }
+      uneste_reclame: {
+        Args: { p_pastrata: string; p_unita: string }
+        Returns: undefined
       }
     }
     Enums: {

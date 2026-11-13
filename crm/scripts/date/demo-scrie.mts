@@ -3,7 +3,7 @@ import type { Json } from "../../lib/baza.types";
 import type { ContTest } from "../../lib/echipa-test";
 import { client, db, verifica, type Ids } from "./baza.mjs";
 import { planDePlata } from "../../lib/finante";
-import { clientiDemo, discutiiDemo, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, type ProiectDemo, ziDupa } from "./demo-date";
+import { clientiDemo, discutiiDemo, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, RECLAME_DEMO, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, type ProiectDemo, ziDupa } from "./demo-date";
 
 const DE_MANA = ["recomandare", "cold_calling", "dm_instagram", "dm_tiktok", "altceva"];
 
@@ -51,6 +51,11 @@ export async function scrieLeaduriDemo(o: Optiuni, ids: Ids): Promise<(LeadDemo 
       .single();
     if (ins.error) throw ins.error;
     const id = ins.data.id;
+    // reclama înaintea clientului și a discuției: trigger-ele îi numără pe loc
+    if (l.reclama !== undefined) {
+      const r = RECLAME_DEMO[l.reclama];
+      verifica(await db.rpc("atribuie_reclama", { p_lead: id, p_platforma: r.platforma, p_campanie: r.campanie, p_nume: r.nume }));
+    }
     if (l.stare === "client") verifica(await db.from("lead_uri").update({ stare: "client" }).eq("id", id));
 
     if (l.raspunsuri) verifica(await db.from("cereri").insert({ lead_id: id, sursa: l.sursa, raspunsuri: l.raspunsuri, utm: l.utm ?? {}, primita_la: la(l.acumZile) }));
@@ -85,6 +90,10 @@ export async function scrieLeaduriDemo(o: Optiuni, ids: Ids): Promise<(LeadDemo 
     );
     if (l.notite.length) verifica(await db.from("notite").insert(l.notite.map((n) => ({ lead_id: id, autor_id: ids[n.autor], text: n.text, la: la(n.acumZile) }))));
     scrise.push({ ...l, id });
+  }
+  // suma cheltuită, scrisă de Andrei din Ads Manager
+  for (const r of RECLAME_DEMO) {
+    verifica(await db.from("reclame").update({ cheltuit_lei: r.cheltuit }).eq("platforma", r.platforma).eq("campanie", r.campanie).eq("nume", r.nume));
   }
   return scrise;
 }

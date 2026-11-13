@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { primesteCerere } from "@/lib/intrare";
+import { sursaDinUtm } from "@/lib/reclame";
 import { admin } from "@/lib/supabase/admin";
 import { SERVICII } from "@/lib/tipuri";
 
@@ -21,7 +22,7 @@ function autorizat(cerere: Request): boolean {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-/** Lead din formularul de pe buildwithac.ro. Site-ul trimite e-mailul lui, cu link la fișă: aici nu se mai notifică. */
+/** Lead din formularul de pe buildwithac.ro (venit direct sau dintr-o reclamă, după UTM). Site-ul trimite e-mailul lui, cu link la fișă: aici nu se mai notifică. */
 export async function POST(cerere: Request) {
   if (!autorizat(cerere)) return Response.json({ eroare: "neautorizat" }, { status: 401 });
   const date = Corp.safeParse(await cerere.json().catch(() => null));
@@ -34,7 +35,7 @@ export async function POST(cerere: Request) {
         telefon,
         email: null,
         serviciu,
-        sursa: "formular_site",
+        sursa: sursaDinUtm(utm ?? {}),
         raspunsuri: descriere ? [{ intrebare: "Descriere", raspuns: descriere }] : [],
         utm: utm ?? {},
         idExtern: null,

@@ -102,14 +102,14 @@ test.describe("procentele de bază", () => {
   });
 });
 
-test("390px: meniul de jos are 6 intrări vizibile și pagina nu se derulează pe orizontală", async ({ page }) => {
+test("390px: meniul de jos are 7 intrări vizibile și pagina nu se derulează pe orizontală", async ({ page }) => {
   const c = await client();
   await transa(c.proiectId, { scadenta: ziPeste(-3) });
   await page.setViewportSize({ width: 390, height: 844 });
   await intraCa(page, "admin");
   for (const cale of ["/finante", "/clienti", `/clienti/${c.clientId}`]) {
     await page.goto(cale);
-    await expect(page.getByRole("navigation", { name: "Navigare" }).filter({ visible: true }).getByRole("link")).toHaveCount(6);
+    await expect(page.getByRole("navigation", { name: "Navigare" }).filter({ visible: true }).getByRole("link")).toHaveCount(7);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   }
   await expect(page.getByRole("navigation", { name: "Navigare" }).filter({ visible: true }).getByRole("link", { name: "Finanțe" })).toBeVisible();

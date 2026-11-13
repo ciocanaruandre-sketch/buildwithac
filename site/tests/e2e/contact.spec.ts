@@ -29,6 +29,26 @@ async function intercepteaza(page: Page, raspuns: { status: number; json?: objec
 }
 
 test.describe("formularul de contact", () => {
+  test("/?serviciu=automatizari&utm_source=ig&utm_medium=reclama#formular la 390px: formularul e în ecran, cu Automatizări ales", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/?serviciu=automatizari&utm_source=ig&utm_medium=reclama#formular");
+    await page.waitForLoadState("networkidle");
+    await expect(card(page).getByRole("button", { name: "Automatizări", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(card(page).getByRole("button", { name: "Site", exact: true })).toHaveAttribute("aria-pressed", "false");
+    await expect(card(page).getByRole("heading", { name: "Vrei să colaborăm?" })).toBeInViewport();
+    await expect(card(page).getByRole("button", { name: "Automatizări", exact: true })).toBeInViewport();
+  });
+
+  test("parametrii lipiți de platformă după #formular: tot ajunge la formular și ține minte reclama", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/?serviciu=site#formular&utm_source=ig&utm_medium=reclama&utm_campaign=Cafenele&utm_content=Clip");
+    await page.waitForLoadState("networkidle");
+    await expect(card(page).getByRole("button", { name: "Site", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(card(page).getByRole("heading", { name: "Vrei să colaborăm?" })).toBeInViewport();
+    const tinut = await page.evaluate(() => sessionStorage.getItem("bwac_utm"));
+    expect(JSON.parse(tinut ?? "{}")).toEqual({ utm_source: "ig", utm_medium: "reclama", utm_campaign: "Cafenele", utm_content: "Clip" });
+  });
+
   test("are titlul, cele 4 pastile și link spre confidențialitate", async ({ page }) => {
     await deschide(page);
     await expect(card(page).getByRole("heading", { name: "Vrei să colaborăm?" })).toBeVisible();

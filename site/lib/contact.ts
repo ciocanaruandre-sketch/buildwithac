@@ -12,6 +12,12 @@ export type CheieServiciu = (typeof SERVICII_CONTACT)[number]["cheie"];
 export type CampContact = "nume" | "telefon" | "serviciu" | "descriere";
 export type CerereContact = { nume: string; telefon: string; serviciu: CheieServiciu; descriere: string; utm?: Record<string, string> };
 
+/** Serviciul din linkul unei reclame (`?serviciu=automatizari`): doar unul din formular, altfel nimic. */
+export function serviciuDinLink(search: string): CheieServiciu | null {
+  const v = new URLSearchParams(search).get("serviciu");
+  return SERVICII_CONTACT.find((s) => s.cheie === v)?.cheie ?? null;
+}
+
 // cifre, „+” doar la început, spații, cratime, puncte, paranteze; orice țară
 const TELEFON = /^\+?[\d\s\-.()]+$/;
 

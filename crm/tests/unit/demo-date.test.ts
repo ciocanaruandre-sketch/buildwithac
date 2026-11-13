@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { normalizeazaTelefon } from "../../lib/telefon";
 import { planDePlata } from "../../lib/finante";
-import { clientiDemo, discutiiDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, telefonDemo, telefonNormDemo, ziDupa } from "../../scripts/date/demo-date";
+import { verdict, type CifreReclama } from "../../lib/reclame";
+import { clientiDemo, discutiiDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, RECLAME_DEMO, telefonDemo, telefonNormDemo, ziDupa } from "../../scripts/date/demo-date";
 
 const acum = new Date("2026-11-12T09:00:00Z"); // o miercuri
 const L = leaduriDemo({ acum, singur: false });
@@ -262,5 +263,36 @@ describe("firma demo: textul liber (modul filmare)", () => {
       for (const t of texte) for (const r of cautate) if (r.test(t)) gasite.push(`${r.source} în „${t.slice(0, 80)}”`);
     }
     expect(gasite).toEqual([]);
+  });
+});
+
+describe("firma demo: reclamele", () => {
+  it("fiecare reclamă demo are cel puțin un lead, iar verdictele acoperă toate cele 4 feluri", () => {
+    const clienti = clientiDemo({ acum, singur: false });
+    const cifre: CifreReclama[] = RECLAME_DEMO.map((r, i) => {
+      const ale = L.filter((l) => l.reclama === i);
+      let incasat = 0;
+      let maiVin = 0;
+      for (const l of ale.filter((x) => x.stare === "client")) {
+        for (const p of clienti.find((c) => c.nrLead === l.nr)!.proiecte) {
+          expect(p.abonament).toBeUndefined();
+          if (!p.plata) continue;
+          const plan = planDePlata(p.pret, planDemo(acum, p.plata));
+          const luat = (p.incasari ?? []).reduce((s, x) => s + (x.suma ?? plan[x.rata].suma_lei), 0) - (p.returnare?.suma ?? 0);
+          incasat += luat;
+          maiVin += plan.reduce((s, t) => s + t.suma_lei, 0) - (p.incasari ?? []).reduce((s, x) => s + (x.suma ?? plan[x.rata].suma_lei), 0);
+        }
+      }
+      return { id: String(i), platforma: r.platforma, campanie: r.campanie, nume: r.nume, cheltuit_lei: r.cheltuit, lead_uri: ale.length, discutii: 0, clienti: ale.filter((x) => x.stare === "client").length, incasat_lei: incasat, mai_vin_lei: maiVin };
+    });
+    for (const c of cifre) expect(c.lead_uri, c.nume).toBeGreaterThan(0);
+    const texte = cifre.map((c) => verdict(c).text);
+    expect(texte.some((t) => t.startsWith("Aduce bani"))).toBe(true);
+    expect(texte.some((t) => t.startsWith("Niciun client încă."))).toBe(true);
+    expect(texte).toContain("Scrie cât ai cheltuit ca să vezi dacă merită.");
+    expect(texte.some((t) => t.startsWith("Încă pe minus, dar mai vin"))).toBe(true);
+    // lead-urile din reclame au UTM-ul unei reclame, cu numele ei
+    for (const l of L.filter((x) => x.reclama !== undefined)) expect(l.utm).toMatchObject({ utm_medium: "reclama", utm_content: RECLAME_DEMO[l.reclama!].nume });
+    expect(L.filter((l) => l.sursa === "reclama_meta" || l.sursa === "reclama_tiktok").every((l) => l.reclama !== undefined)).toBe(true);
   });
 });
