@@ -1,11 +1,16 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ziuaPeste, ziuaRomaniei } from "@/lib/timp";
 import { admin, clientDeTest, conecteazaCa, idDe, omTemporar, stergeClient, stergeTemporari } from "./ajutor";
 
 const lead_uri: string[] = [];
+// procentele de bază ale bazei de test (le pune `npm run demo`): testele le schimbă, la final se pun la loc
+let procente: { categorie: string; rol: "caller" | "closer" | "constructor" | "admin"; procent: number | null }[] = [];
+beforeAll(async () => {
+  procente = (await admin().from("procente_baza").select("categorie, rol, procent")).data ?? [];
+});
 afterAll(async () => {
   for (const id of lead_uri) await stergeClient(id);
-  await admin().from("procente_baza").update({ procent: null }).neq("categorie", "");
+  for (const b of procente) await admin().from("procente_baza").update({ procent: b.procent }).eq("categorie", b.categorie).eq("rol", b.rol);
   await stergeTemporari();
 });
 
@@ -31,7 +36,10 @@ async function puneConstructor(proiectId: string, procent: number | null) {
 
 describe("finanțe: tabelele și permisiunile", () => {
   it("callerul și closerul clientului intră pe proiectul nou, cu procentul de bază", async () => {
+    // procentele de pe baza de test (le pune `npm run demo`) se pun la loc la final
+    const { data: inainte } = await admin().from("procente_baza").select("rol, procent").eq("categorie", "site").in("rol", ["caller", "closer"]);
     await admin().from("procente_baza").update({ procent: 10 }).eq("categorie", "site").eq("rol", "caller");
+    await admin().from("procente_baza").update({ procent: null }).eq("categorie", "site").eq("rol", "closer");
     const { proiectId } = await client({ serviciu: "site", caller_id: await idDe("caller"), closer_id: await idDe("closer") });
     const { data } = await admin().from("proiect_vanzari").select("om_id, procent").eq("proiect_id", proiectId).order("procent");
     expect(data).toEqual(
@@ -41,7 +49,7 @@ describe("finanțe: tabelele și permisiunile", () => {
       ]),
     );
     expect(data).toHaveLength(2);
-    await admin().from("procente_baza").update({ procent: null }).eq("categorie", "site").eq("rol", "caller");
+    for (const r of inainte ?? []) await admin().from("procente_baza").update({ procent: r.procent }).eq("categorie", "site").eq("rol", r.rol);
   });
 
   it("un caller cu procent pe proiect nu vede proiectul; își vede doar rândul lui", async () => {

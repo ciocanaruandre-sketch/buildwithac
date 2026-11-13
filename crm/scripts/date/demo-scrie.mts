@@ -2,7 +2,8 @@
 import type { Json } from "../../lib/baza.types";
 import type { ContTest } from "../../lib/echipa-test";
 import { client, db, verifica, type Ids } from "./baza.mjs";
-import { clientiDemo, discutiiDemo, leaduriDemo, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, ziDupa } from "./demo-date";
+import { planDePlata } from "../../lib/finante";
+import { clientiDemo, discutiiDemo, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, type ProiectDemo, ziDupa } from "./demo-date";
 
 const DE_MANA = ["recomandare", "cold_calling", "dm_instagram", "dm_tiktok", "altceva"];
 
@@ -98,6 +99,43 @@ export async function programDemo(o: Optiuni, ids: Ids) {
   );
 }
 
+/** Procentele de bază ale firmei demo; se pun înaintea clienților, ca proiectele noi să le primească. */
+export async function scrieProcenteBaza(): Promise<void> {
+  for (const b of PROCENTE_BAZA_DEMO) verifica(await db.from("procente_baza").update({ procent: b.procent }).eq("categorie", b.categorie).eq("rol", b.rol));
+}
+
+/** Banii unui proiect: planul, încasările (cu comisioanele plătite), returnarea și mentenanța. Prin funcțiile din bază, ca în aplicație. */
+async function scrieFinante(o: Optiuni, proiectId: string, p: ProiectDemo): Promise<void> {
+  const zi = (acumZile: number) => ziDupa(o.acum, -acumZile);
+  const la = (acumZile: number) => laOra(o.acum, acumZile).toISOString();
+  if (p.plata) {
+    const plan = planDePlata(p.pret, planDemo(o.acum, p.plata));
+    const ins = await db.from("transe").insert(plan.map((t) => ({ ...t, proiect_id: proiectId }))).select("id, scadenta, eticheta");
+    if (ins.error) throw ins.error;
+    // ordinea din plan (scadența, apoi eticheta), nu cea în care vin rândurile
+    const transe = plan.map((t) => ins.data.find((x) => x.scadenta === t.scadenta && x.eticheta === t.eticheta)!);
+    for (const inc of p.incasari ?? []) {
+      const t = transe[inc.rata];
+      verifica(await db.rpc("incaseaza", { t: t.id, suma: inc.suma ?? plan[inc.rata].suma_lei, zi: zi(inc.acumZile), peste: false }));
+      // comisioanele se nasc la bifare: în demo, bifa s-a făcut în ziua încasării
+      verifica(await db.from("comisioane").update({ creat_la: la(inc.acumZile) }).eq("transa_id", t.id));
+      if (inc.platit) verifica(await db.from("comisioane").update({ platit_la: zi(inc.acumZile) }).eq("transa_id", t.id).eq("tip", "comision").not("suma_lei", "is", null));
+    }
+    if (p.returnare) {
+      verifica(await db.rpc("returneaza", { t: transe[p.returnare.rata].id, suma: p.returnare.suma, zi: zi(p.returnare.acumZile) }));
+      verifica(await db.from("comisioane").update({ creat_la: la(p.returnare.acumZile) }).eq("transa_id", transe[p.returnare.rata].id).eq("tip", "minus"));
+    }
+  }
+  if (p.abonament) {
+    const a = await db.rpc("porneste_abonament", { p: proiectId, suma: p.abonament.suma, zi: p.abonament.zi, porneste: zi(p.abonament.pornitAcumZile), om: null as unknown as string });
+    if (a.error) throw a.error;
+    // lunile trecute: încasate la scadență
+    const { data: luni, error } = await db.from("transe").select("id, suma_lei, scadenta").eq("abonament_id", a.data).lt("scadenta", ziDupa(o.acum, 0)).order("scadenta");
+    if (error) throw error;
+    for (const l of luni) verifica(await db.rpc("incaseaza", { t: l.id, suma: l.suma_lei, zi: l.scadenta, peste: false }));
+  }
+}
+
 /** Clienții demo: fișa, proiectele și tot ce e sub ele, cu zilele lor. Lead-urile lor sunt deja „client”. */
 export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
   const la = (z: number) => laOra(o.acum, z).toISOString();
@@ -116,7 +154,6 @@ export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
         serviciu: p.serviciu,
         stadiu: p.stadiu,
         pret_lei: p.pret,
-        incasat_lei: p.incasat,
         termen: termen(p.termenPesteZile),
         creat_la: la(p.creatAcumZile),
         inchis_la: p.inchisAcumZile === undefined ? null : la(p.inchisAcumZile),
@@ -142,6 +179,8 @@ export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
       if (p.livrari.length)
         verifica(await db.from("livrari").insert(p.livrari.map((x) => ({ proiect_id: id, titlu: x.titlu, link: x.link, nota: x.nota ?? null, stare: x.stare, adaugat_de: ids.admin, adaugat_la: la(x.acumZile) }))));
       if (p.notite.length) verifica(await db.from("notite_proiect").insert(p.notite.map((n) => ({ proiect_id: id, autor_id: ids[n.autor], text: n.text, la: la(n.acumZile) }))));
+
+      await scrieFinante(o, id, p);
 
       // Parcursul proiectului: pleacă ce au pus trigger-ele acum, vin evenimentele cu zilele lor
       verifica(await db.from("evenimente_proiect").delete().eq("proiect_id", id));

@@ -1,6 +1,7 @@
 // Firma demo: datele, ca funcții pure (fără Supabase, fără Date.now()). Le scrie `scripts/demo.mts`.
 // Totul e inventat: nume, firme, telefoane variate (în clipuri, doar blurate), link-uri spre domenii de exemplu.
 import type { ContTest } from "../../lib/echipa-test";
+import type { AlegerePlan } from "../../lib/finante";
 import type { Serviciu, Stadiu, Stare, StareLivrare, Sursa, UndeParola } from "../../lib/tipuri";
 
 export type Optiuni = { acum: Date; singur: boolean };
@@ -367,7 +368,13 @@ export type ProiectDemo = {
   serviciu: Serviciu;
   stadiu: Stadiu;
   pret: number;
-  incasat: number;
+  /** Planul de plată, cu zilele „peste N zile” (negativ = în trecut). Fără el: „Fără plan”. */
+  plata?: AlegerePlanDemo;
+  /** Ce s-a încasat: indexul tranșei din plan; `suma` lipsă = toată; `platit` = comisioanele ei plătite în aceeași zi. */
+  incasari?: { rata: number; suma?: number; acumZile: number; platit?: boolean }[];
+  returnare?: { rata: number; suma: number; acumZile: number };
+  /** Mentenanța lunară; tranșele ei cu scadența trecută se bifează încasate, la scadență. */
+  abonament?: { suma: number; zi: number; pornitAcumZile: number };
   termenPesteZile: number | null;
   /** Când a pornit proiectul (primul proiect pornește odată cu clientul). */
   creatAcumZile: number;
@@ -381,6 +388,33 @@ export type ProiectDemo = {
   /** Parcursul proiectului, de la cel mai vechi la cel mai nou (oamenii din `detalii.om` sunt chei de cont). */
   parcurs: EvenimentDemo[];
 };
+
+export type AlegerePlanDemo =
+  | { fel: "odata"; zi: number }
+  | { fel: "avans"; avans: { lei: number } | { procent: number }; ziAvans: number; ziRest: number }
+  | { fel: "rate"; nr: number; primaZi: number };
+
+/** Planul demo cu zilele calendaristice de la București, relative la `acum`. */
+export function planDemo(acum: Date, a: AlegerePlanDemo): AlegerePlan {
+  if (a.fel === "odata") return { fel: "odata", zi: ziDupa(acum, a.zi) };
+  if (a.fel === "avans") return { fel: "avans", avans: a.avans, ziAvans: ziDupa(acum, a.ziAvans), ziRest: ziDupa(acum, a.ziRest) };
+  return { fel: "rate", nr: a.nr, primaZi: ziDupa(acum, a.primaZi) };
+}
+
+/** Procentele de bază ale firmei demo (constructor / caller / closer); rămân și cu `--singur`. */
+export const PROCENTE_BAZA_DEMO: { categorie: string; rol: "constructor" | "caller" | "closer"; procent: number }[] = (
+  [
+    ["site", 30, 10, 10],
+    ["automatizari", 40, 10, 10],
+    ["1la1", 20, 10, 10],
+    ["altceva", 30, 10, 10],
+    ["mentenanta", 50, 0, 0],
+  ] as const
+).flatMap(([categorie, constructor, caller, closer]) => [
+  { categorie, rol: "constructor" as const, procent: constructor },
+  { categorie, rol: "caller" as const, procent: caller },
+  { categorie, rol: "closer" as const, procent: closer },
+]);
 
 export type ClientDemo = { nrLead: number; clientDinAcumZile: number; proiecte: ProiectDemo[] };
 
@@ -403,7 +437,8 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         serviciu: "site",
         stadiu: "schita",
         pret: 2600,
-        incasat: 1300,
+        plata: { fel: "avans", avans: { procent: 50 }, ziAvans: -25, ziRest: 12 },
+        incasari: [{ rata: 0, acumZile: 24, platit: true }],
         termenPesteZile: 16,
         procentRadu: 30,
         taskuri: [
@@ -439,7 +474,8 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         serviciu: "automatizari",
         stadiu: "constructie",
         pret: 3800,
-        incasat: 1900,
+        plata: { fel: "rate", nr: 4, primaZi: -33 },
+        incasari: [{ rata: 0, acumZile: 32, platit: true }],
         termenPesteZile: 9,
         procentRadu: 40,
         taskuri: [
@@ -478,7 +514,8 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         serviciu: "site",
         stadiu: "revizii",
         pret: 3200,
-        incasat: 2400,
+        plata: { fel: "odata", zi: -11 },
+        incasari: [{ rata: 0, suma: 2000, acumZile: 5 }],
         termenPesteZile: 5,
         procentRadu: 30,
         taskuri: [
@@ -512,7 +549,6 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         serviciu: "automatizari",
         stadiu: "discutie",
         pret: 1800,
-        incasat: 0,
         termenPesteZile: null,
         pornitAcumZile: 6,
         taskuri: [
@@ -535,7 +571,9 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         serviciu: "1la1",
         stadiu: "livrat",
         pret: 900,
-        incasat: 900,
+        plata: { fel: "odata", zi: -22 },
+        incasari: [{ rata: 0, acumZile: 21, platit: true }],
+        returnare: { rata: 0, suma: 300, acumZile: 4 },
         termenPesteZile: -20,
         taskuri: [
           { titlu: "Sesiunea 1: descrieri de produse cu ChatGPT", om: "admin", termenPesteZile: -45, gata: true },
@@ -561,7 +599,9 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         serviciu: "altceva",
         stadiu: "mentenanta",
         pret: 1500,
-        incasat: 1500,
+        plata: { fel: "odata", zi: -45 },
+        incasari: [{ rata: 0, acumZile: 44, platit: true }],
+        abonament: { suma: 250, zi: 10, pornitAcumZile: 38 },
         termenPesteZile: -42,
         inchisAcumZile: 40,
         taskuri: [

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { normalizeazaTelefon } from "../../lib/telefon";
-import { clientiDemo, discutiiDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, telefonDemo, telefonNormDemo } from "../../scripts/date/demo-date";
+import { planDePlata } from "../../lib/finante";
+import { clientiDemo, discutiiDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, telefonDemo, telefonNormDemo, ziDupa } from "../../scripts/date/demo-date";
 
 const acum = new Date("2026-11-12T09:00:00Z"); // o miercuri
 const L = leaduriDemo({ acum, singur: false });
@@ -92,7 +93,6 @@ describe("firma demo: clienții", () => {
     expect(P.some((p) => p.taskuri.some((t) => t.termenPesteZile < 0 && !t.gata))).toBe(true);
     expect(P.some((p) => p.taskuri.some((t) => t.termenPesteZile === 0))).toBe(true);
     for (const s of ["trimis", "aprobat", "de_refacut"]) expect(P.some((p) => p.livrari.some((l) => l.stare === s))).toBe(true);
-    expect(P.every((p) => p.incasat <= p.pret)).toBe(true);
     expect(P.every((p) => p.taskuri.length >= 3 && p.taskuri.length <= 8)).toBe(true);
   });
 
@@ -126,6 +126,55 @@ describe("firma demo: clienții", () => {
     const S = clientiDemo({ acum, singur: true }).flatMap((c) => c.proiecte);
     expect(S.every((p) => p.procentRadu === undefined && p.taskuri.every((t) => t.om === "admin"))).toBe(true);
     expect(S.every((p) => p.materiale.every((m) => m.om === "admin") && p.notite.every((n) => n.autor === "admin"))).toBe(true);
+  });
+});
+
+describe("firma demo: finanțele", () => {
+  const C = clientiDemo({ acum, singur: false });
+  const P = C.flatMap((c) => c.proiecte);
+  const azi = ziDupa(acum, 0);
+  // tranșele fiecărui plan, cu încasarea lor (dacă are)
+  const transe = P.flatMap((p) =>
+    p.plata ? planDePlata(p.pret, planDemo(acum, p.plata)).map((t, i) => ({ ...t, p, incasare: p.incasari?.find((x) => x.rata === i) })) : [],
+  );
+
+  it("toate cele trei feluri de plan", () => {
+    for (const f of ["odata", "avans", "rate"]) expect(P.some((p) => p.plata?.fel === f)).toBe(true);
+  });
+  it("cel puțin două tranșe întârziate (neîncasate sau încasate doar parțial)", () => {
+    const intarziate = transe.filter((t) => t.scadenta < azi && (!t.incasare || (t.incasare.suma !== undefined && t.incasare.suma < t.suma_lei)));
+    expect(intarziate.length).toBeGreaterThanOrEqual(2);
+  });
+  it("o încasare parțială", () => {
+    expect(transe.some((t) => t.incasare?.suma !== undefined && t.incasare.suma < t.suma_lei)).toBe(true);
+  });
+  it("o returnare pe o tranșă cu comisioanele plătite", () => {
+    const p = P.find((x) => x.returnare)!;
+    expect(p).toBeDefined();
+    expect(p.incasari?.find((x) => x.rata === p.returnare!.rata)?.platit).toBe(true);
+  });
+  it("un abonament de mentenanță", () => {
+    expect(P.some((p) => p.abonament)).toBe(true);
+  });
+  it("cel puțin două tranșe în următoarele 30 de zile", () => {
+    expect(transe.filter((t) => !t.incasare && t.scadenta >= azi && t.scadenta <= ziDupa(acum, 30)).length).toBeGreaterThanOrEqual(2);
+  });
+  it("încasările sunt în trecut, după crearea proiectului, și nu trec de prețul planului", () => {
+    for (const t of transe.filter((x) => x.incasare)) {
+      expect(t.incasare!.acumZile).toBeGreaterThanOrEqual(0);
+      expect(t.incasare!.acumZile).toBeLessThan(t.p.creatAcumZile);
+      expect(t.incasare!.suma ?? t.suma_lei).toBeLessThanOrEqual(t.suma_lei);
+    }
+  });
+  it("procentele de bază: toate cele 15, între 0 și 100", () => {
+    expect(PROCENTE_BAZA_DEMO).toHaveLength(15);
+    expect(PROCENTE_BAZA_DEMO.find((x) => x.categorie === "site" && x.rol === "constructor")?.procent).toBe(30);
+    expect(PROCENTE_BAZA_DEMO.find((x) => x.categorie === "mentenanta" && x.rol === "caller")?.procent).toBe(0);
+  });
+  it("singur: Radu nu e pe niciun proiect, dar planurile rămân", () => {
+    const S = clientiDemo({ acum, singur: true }).flatMap((c) => c.proiecte);
+    expect(S.every((p) => p.procentRadu === undefined)).toBe(true);
+    expect(S.filter((p) => p.plata).length).toBe(P.filter((p) => p.plata).length);
   });
 });
 

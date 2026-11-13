@@ -54,8 +54,9 @@ describe("copieSaptamanala", () => {
     expect(corp?.attachments[0].filename).toMatch(/^crm-\d{4}-\d{2}-\d{2}\.json$/);
     const json = JSON.parse(Buffer.from(corp!.attachments[0].content, "base64").toString("utf8"));
     expect(Object.keys(json.tabele).sort()).toEqual([
-      "cereri", "clienti", "conturi", "discutii", "evenimente", "evenimente_proiect", "lead_uri", "livrari",
-      "materiale", "notite", "notite_proiect", "profiluri", "program_closer", "proiect_oameni", "proiecte", "taskuri",
+      "abonament_oameni", "abonamente", "cereri", "clienti", "comisioane", "conturi", "discutii", "evenimente", "evenimente_proiect",
+      "lead_uri", "livrari", "materiale", "notite", "notite_proiect", "procente_baza", "profiluri", "program_closer", "proiect_oameni",
+      "proiect_vanzari", "proiecte", "taskuri", "transe",
     ]);
     expect(json.tabele.lead_uri.map((x: { id: string }) => x.id)).toContain(l.id);
     expect(corp?.html).toContain(`/lead-uri/${expira.id}`);

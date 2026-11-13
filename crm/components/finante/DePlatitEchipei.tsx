@@ -63,7 +63,7 @@ function Om({ om }: { om: OmDePlatit }) {
         </div>
         <div className="flex-none text-right">
           <b className={`num block text-[15px] font-semibold ${total < 0 ? "text-red-t" : "text-amber"}`}>{lei(total).replace(/^-/, "−")}</b>
-          <small className="text-[12px] text-ink-3">{comisioane === 1 ? "un comision" : `${comisioane} comisioane`}</small>
+          <small className="text-[12px] text-ink-3">{comisioane === 0 ? "doar returnări" : comisioane === 1 ? "un comision" : `${comisioane} comisioane`}</small>
         </div>
       </div>
       <div className="mt-2">

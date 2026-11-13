@@ -170,9 +170,26 @@ export async function fise(ids: Record<ContTest, string>) {
   const { count: eUmpluta } = await db.from("notite_proiect").select("id", { count: "exact", head: true }).eq("proiect_id", p);
   if (!eUmpluta) {
     for (const tabel of ["taskuri", "materiale", "conturi", "livrari"] as const) verifica(await db.from(tabel).delete().eq("proiect_id", p));
+    // planul de plată: avansul încasat (cu comisionul lui Radu), restul peste 18 zile; doar dacă n-are încă tranșe
+    const { count: areTranse } = await db.from("transe").select("id", { count: "exact", head: true }).eq("proiect_id", p);
+    if (!areTranse) {
+      const t = await db
+        .from("transe")
+        .insert([
+          { proiect_id: p, tip: "avans", eticheta: "Avans", suma_lei: 1200, scadenta: peste_zile(-10) },
+          { proiect_id: p, tip: "rest", eticheta: "Restul", suma_lei: 1200, scadenta: peste_zile(18) },
+        ])
+        .select("id, tip");
+      if (t.error) throw t.error;
+      verifica(await db.from("proiect_oameni").upsert({ proiect_id: p, om_id: radu, procent: 30 }));
+      const avans = t.data.find((x) => x.tip === "avans")!.id;
+      verifica(await db.rpc("incaseaza", { t: avans, suma: 1200, zi: peste_zile(-9), peste: false }));
+      // comisioanele se nasc la bifare, aici în ziua încasării
+      verifica(await db.from("comisioane").update({ creat_la: new Date(Date.now() - 9 * 86_400_000).toISOString() }).eq("transa_id", avans));
+    }
     verifica(await db.from("evenimente_proiect").delete().eq("proiect_id", p).in("tip", ["livrat", "livrare_stare"]));
     verifica(
-      await db.from("proiecte").update({ titlu: "Site de la zero", stadiu: "constructie", pret_lei: 2400, incasat_lei: 1200, termen: peste_zile(18) }).eq("id", p),
+      await db.from("proiecte").update({ titlu: "Site de la zero", stadiu: "constructie", pret_lei: 2400, termen: peste_zile(18) }).eq("id", p),
       await db.from("proiect_oameni").upsert({ proiect_id: p, om_id: radu, procent: 30 }),
       await db.from("taskuri").insert([
         { proiect_id: p, titlu: "Discuția de pornire și formularul completat", om_id: ids.admin, termen: peste_zile(-14), gata: true },
@@ -237,6 +254,8 @@ export async function golesteTot(): Promise<void> {
   cereBazaDeTest();
   verifica(await db.from("clienti").delete().not("id", "is", null));
   verifica(await db.from("lead_uri").delete().not("id", "is", null));
+  // comisioanele rămân după client (proiect_id devine null, ca omul să-și păstreze banii): aici pleacă toate
+  verifica(await db.from("comisioane").delete().not("id", "is", null));
   // fără clienți nu mai există proiecte, deci toate dosarele din bucket sunt orfane
   await curataFisiereOrfane(db);
 }
