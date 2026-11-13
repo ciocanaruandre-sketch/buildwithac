@@ -226,7 +226,7 @@ export async function fise(ids: Record<ContTest, string>) {
   const { count: proiecteleEi } = await db.from("proiecte").select("id", { count: "exact", head: true }).eq("client_id", andreea.clientId);
   if (proiecteleEi === 1) {
     verifica(
-      await db.from("proiecte").update({ titlu: "Site", stadiu: "mentenanta", pret_lei: 1800, incasat_lei: 1800, termen: peste_zile(-30) }).eq("id", andreea.proiectId),
+      await db.from("proiecte").update({ titlu: "Site", stadiu: "mentenanta", pret_lei: 1800, termen: peste_zile(-30) }).eq("id", andreea.proiectId),
       await db.from("taskuri").insert([
         { proiect_id: andreea.proiectId, titlu: "Site-ul publicat pe domeniul ei", om_id: ids.admin, termen: peste_zile(-32), gata: true },
         { proiect_id: andreea.proiectId, titlu: "I-am arătat cum schimbă prețurile", om_id: ids.admin, termen: peste_zile(-30), gata: true },
