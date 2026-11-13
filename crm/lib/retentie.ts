@@ -17,6 +17,7 @@ export const TABELE = [
   "profiluri", "lead_uri", "cereri", "notite", "evenimente", "clienti", "program_closer", "discutii",
   "proiecte", "proiect_oameni", "taskuri", "evenimente_proiect", "notite_proiect", "livrari", "conturi", "materiale",
   "procente_baza", "proiect_vanzari", "transe", "comisioane", "abonamente", "abonament_oameni",
+  "reclame", "reclame_lead_uri",
 ] as const;
 type Tabel = (typeof TABELE)[number];
 

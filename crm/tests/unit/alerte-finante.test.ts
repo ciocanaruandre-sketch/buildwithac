@@ -82,4 +82,7 @@ describe("copia de luni și finanțele", () => {
   it("TABELE conține tabelele finanțelor", () => {
     for (const t of ["procente_baza", "proiect_vanzari", "transe", "comisioane", "abonamente", "abonament_oameni"]) expect(TABELE).toContain(t);
   });
+  it("TABELE conține reclamele (cifrele lor nu se mai pot reface)", () => {
+    for (const t of ["reclame", "reclame_lead_uri"]) expect(TABELE).toContain(t);
+  });
 });
