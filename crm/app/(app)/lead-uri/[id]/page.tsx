@@ -11,6 +11,7 @@ import { Taburi } from "@/components/Taburi";
 import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, type Eveniment } from "@/lib/parcurs";
+import { reclamaDinUtm, type ReclamaUtm } from "@/lib/reclame";
 import { actiuniPermise } from "@/lib/stari";
 import { supabase } from "@/lib/supabase/server";
 import { ETICHETE, type Stare } from "@/lib/tipuri";
@@ -61,6 +62,12 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
   const nume = (x: unknown) => (typeof x === "string" ? numeDupaId.get(x) ?? "cineva" : "nimeni");
   const actiuni = actiuniPermise(l, om.rol, om.id);
   const utm = (cereri ?? []).map((c) => c.utm as Record<string, string>).find((u) => u && Object.keys(u).length);
+  // reclama lead-ului: legătura din baza de date (doar Adminul o vede); altfel, la un lead venit din reclamă,
+  // din linkul primei lui cereri (callerul și closerul văd tot numele în cuvinte)
+  const legata = (await db.from("reclame_lead_uri").select("reclame (platforma, campanie, nume)").eq("lead_id", id).maybeSingle()).data?.reclame;
+  const primulUtm = [...(cereri ?? [])].reverse().map((c) => c.utm as Record<string, string>).find((u) => u && Object.keys(u).length);
+  const reclama: ReclamaUtm | null =
+    (legata as ReclamaUtm | null | undefined) ?? (l.sursa === "reclama_meta" || l.sursa === "reclama_tiktok" ? reclamaDinUtm(primulUtm ?? {}) : null);
 
   const { data: discutie } = await db.from("discutii").select("incepe_la, closer_id").eq("lead_id", id).gt("sfarseste_la", acum.toISOString()).order("incepe_la").limit(1).maybeSingle();
   const textDiscutie = discutie ? `Discuție programată: ${candLung(discutie.incepe_la)} cu ${nume(discutie.closer_id)}` : null;
@@ -112,7 +119,15 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
             <dl className="kv">
               {kv("Serviciu", ETICHETE.serviciu[l.serviciu])}
               {kv("Sursă", ETICHETE.sursa[l.sursa])}
-              {utm && kv("Reclamă", <span className="font-mono text-[12px]">{Object.entries(utm).map(([k, v]) => `${k.replace("utm_", "")}: ${v}`).join(" · ")}</span>)}
+              {reclama
+                ? kv(
+                    "Reclamă",
+                    <span className="inline-flex flex-wrap items-center justify-end gap-1.5" data-testid="reclama">
+                      <span className={`chip ${reclama.platforma === "meta" ? "blue" : "turcoaz"}`}>{reclama.platforma === "meta" ? "Meta" : "TikTok"}</span>
+                      <span>{reclama.campanie && reclama.campanie !== reclama.nume ? `${reclama.campanie} · ${reclama.nume}` : reclama.nume}</span>
+                    </span>,
+                  )
+                : utm && kv("Link", <span className="font-mono text-[12px]">{Object.entries(utm).map(([k, v]) => `${k.replace("utm_", "")}: ${v}`).join(" · ")}</span>)}
               {kv("Intrat", <span className="num">{cand(l.intrat_la, acum)}</span>)}
             </dl>
           </div>

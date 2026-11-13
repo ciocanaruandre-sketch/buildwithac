@@ -23,6 +23,8 @@ export type LeadDemo = {
   incercari?: number;
   raspunsuri?: { intrebare: string; raspuns: string }[];
   utm?: Record<string, string>;
+  /** Indexul din `RECLAME_DEMO`, pentru lead-urile venite dintr-o reclamă. */
+  reclama?: number;
   notite: { autor: ContTest; acumZile: number; text: string }[];
   /**
    * Parcursul, de la cel mai vechi la cel mai nou. În `detalii`, oamenii sunt chei de cont (ContTest):
@@ -227,10 +229,34 @@ function raspunsuriPentru(r: Rand): LeadDemo["raspunsuri"] {
   return undefined;
 }
 
+/**
+ * Cele 5 reclame din machetă (`prototip/crm-reclame.html`), cu cheltuielile de acolo, în afară de TikTok:
+ * 1.500 în loc de 300, ca singurul ei client (1.300 încasați, 1.300 de încasat) să dea „Încă pe minus, dar mai vin”.
+ * Cu clienții demo, verdictele ies: Meta „Clip programări” aduce bani, cele două de cafenele n-au clienți,
+ * „Poză: recenzii Google” n-are sumă, TikTok e pe minus cu bani care mai vin.
+ */
+export const RECLAME_DEMO: { platforma: "meta" | "tiktok"; campanie: string; nume: string; cheltuit: number | null }[] = [
+  { platforma: "meta", campanie: "Site-uri pentru cafenele", nume: "Clip cafenea, înainte și după", cheltuit: 620 },
+  { platforma: "meta", campanie: "Site-uri pentru cafenele", nume: "Carusel: 5 greșeli pe site", cheltuit: 380 },
+  { platforma: "meta", campanie: "Automatizări pentru saloane", nume: "Clip programări pe WhatsApp", cheltuit: 450 },
+  { platforma: "meta", campanie: "Automatizări pentru saloane", nume: "Poză: recenzii Google", cheltuit: null },
+  { platforma: "tiktok", campanie: "Site în 7 zile", nume: "Clip ecran de telefon", cheltuit: 1500 },
+];
+
+/** Reclama unui lead demo: TikTok are una; la Meta, site-urile merg la cafenele, restul la saloane (pe rând, după `nr`). */
+function reclamaPentru(r: Rand): number | undefined {
+  if (r.sursa === "reclama_tiktok") return 4;
+  if (r.sursa !== "reclama_meta") return undefined;
+  if (r.serviciu === "site") return r.nr % 2 ? 0 : 1;
+  // clientul de la Meta (Kineto Plus, nr 40) e al reclamei cu programări
+  return r.stare === "client" || r.nr % 2 ? 2 : 3;
+}
+
 function utmPentru(r: Rand): LeadDemo["utm"] {
-  if (r.sursa === "reclama_meta") return { utm_source: "meta", utm_campaign: r.serviciu === "site" ? "site-uri-toamna" : "automatizari-toamna" };
-  if (r.sursa === "reclama_tiktok") return { utm_source: "tiktok", utm_campaign: "clipuri-noiembrie" };
-  return undefined;
+  const i = reclamaPentru(r);
+  if (i === undefined) return undefined;
+  const a = RECLAME_DEMO[i];
+  return { utm_source: a.platforma === "tiktok" ? "tiktok" : r.nr % 3 ? "ig" : "fb", utm_medium: "reclama", utm_campaign: a.campanie, utm_content: a.nume };
 }
 
 /** Notițele care vorbesc cu echipa, spuse de un om care lucrează singur. */
@@ -262,6 +288,7 @@ export function leaduriDemo(o: Optiuni): LeadDemo[] {
       incercari: r.incercari,
       raspunsuri: raspunsuriPentru(r),
       utm: utmPentru(r),
+      reclama: reclamaPentru(r),
       notite: notite.map((n) => ({ ...n, autor: om(n.autor)!, text: (o.singur && TEXT_SINGUR[n.text]) || n.text })),
       parcurs: parcurs.map((e) => ({
         ...e,

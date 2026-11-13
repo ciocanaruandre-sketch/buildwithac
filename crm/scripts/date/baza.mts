@@ -256,6 +256,8 @@ export async function golesteTot(): Promise<void> {
   verifica(await db.from("lead_uri").delete().not("id", "is", null));
   // comisioanele rămân după client (proiect_id devine null, ca omul să-și păstreze banii): aici pleacă toate
   verifica(await db.from("comisioane").delete().not("id", "is", null));
+  // reclamele păstrează cifrele lead-urilor șterse (anonim): pleacă și ele, cu legăturile lor
+  verifica(await db.from("reclame").delete().not("id", "is", null));
   // fără clienți nu mai există proiecte, deci toate dosarele din bucket sunt orfane
   await curataFisiereOrfane(db);
 }
