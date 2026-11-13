@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ancoraDinHash } from "@/lib/utm";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,7 +17,9 @@ export const lenis: { curent?: Lenis } = {};
  * Câteva secunde, ținta e ținută pe loc la fiecare cadru, până omul derulează singur.
  */
 function ramaiLaAncora() {
-  const tinta = location.hash.length > 1 ? document.getElementById(location.hash.slice(1)) : null;
+  // o reclamă poate lipi parametrii după ancoră (#formular&utm_source=…)
+  const ancora = ancoraDinHash(location.hash);
+  const tinta = ancora ? document.getElementById(ancora) : null;
   if (!tinta) return;
   let cadru = 0;
   const pas = () => {

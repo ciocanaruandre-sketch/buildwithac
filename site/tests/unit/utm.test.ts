@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { citesteUtm, curataUtm } from "@/lib/utm";
+import { ancoraDinHash, citesteUtm, curataUtm } from "@/lib/utm";
 
 describe("citesteUtm", () => {
   it("păstrează doar parametrii utm_* cunoscuți", () => {
@@ -11,6 +11,23 @@ describe("citesteUtm", () => {
   it("fără parametri → obiect gol", () => {
     expect(citesteUtm("")).toEqual({});
     expect(citesteUtm("?utm_source=")).toEqual({});
+  });
+  it("platforma care pune parametrii după #formular: se citesc și de acolo", () => {
+    const utm = { utm_source: "ig", utm_medium: "reclama", utm_campaign: "Cafenele", utm_content: "Clip" };
+    expect(citesteUtm("?serviciu=site", "#formular&utm_source=ig&utm_medium=reclama&utm_campaign=Cafenele&utm_content=Clip")).toEqual(utm);
+    expect(citesteUtm("", "#formular?utm_source=ig&utm_medium=reclama&utm_campaign=Cafenele&utm_content=Clip")).toEqual(utm);
+    // cei dinainte de # câștigă
+    expect(citesteUtm("?utm_source=fb", "#formular&utm_source=ig")).toEqual({ utm_source: "fb" });
+    expect(citesteUtm("", "#formular")).toEqual({});
+  });
+});
+
+describe("ancoraDinHash", () => {
+  it("doar numele ancorei, fără parametrii lipiți după ea", () => {
+    expect(ancoraDinHash("#formular&utm_source=ig")).toBe("formular");
+    expect(ancoraDinHash("#formular?utm_source=ig")).toBe("formular");
+    expect(ancoraDinHash("#contact")).toBe("contact");
+    expect(ancoraDinHash("")).toBe("");
   });
 });
 

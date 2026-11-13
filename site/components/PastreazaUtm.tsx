@@ -10,7 +10,7 @@ import { CHEIE_STOCARE_UTM, citesteUtm } from "@/lib/utm";
 export function PastreazaUtm() {
   useEffect(() => {
     try {
-      const utm = citesteUtm(window.location.search);
+      const utm = citesteUtm(window.location.search, window.location.hash);
       if (Object.keys(utm).length && !sessionStorage.getItem(CHEIE_STOCARE_UTM)) {
         sessionStorage.setItem(CHEIE_STOCARE_UTM, JSON.stringify(utm));
       }
