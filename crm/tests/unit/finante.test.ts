@@ -81,6 +81,17 @@ describe("totaluriProiect", () => {
 });
 
 describe("coloaneIncasari", () => {
+  it("banii de dinainte de Finanțe nu intră în luna de acum", () => {
+    const azi = "2026-11-13";
+    const c = coloaneIncasari([
+      tr({ id: "inainte", tip: "inainte", scadenta: azi, incasata_la: azi, incasat_lei: 5000, suma_lei: 5000 }),
+      tr({ id: "noua", scadenta: "2026-11-02", incasata_la: "2026-11-02", incasat_lei: 1000, suma_lei: 1000 }),
+    ], azi);
+    expect(c.incasate.map((x) => x.id)).toEqual(["noua"]);
+    expect(c.cifre.incasatLuna).toBe(1000);
+    expect(c.cifre.programatLuna).toBe(1000);
+  });
+
   it("împarte tranșele pe coloane și face cifrele lunii", () => {
     const azi = "2026-11-13";
     const t = [

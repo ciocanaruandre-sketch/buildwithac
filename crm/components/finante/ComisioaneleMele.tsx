@@ -4,15 +4,15 @@ import { lei } from "@/lib/proiecte";
 import { ziuaRomaniei } from "@/lib/timp";
 
 export type ComisionulMeu = { id: string; tip: string; client: string | null; eticheta: string | null; procent: number | null; baza_lei: number; suma_lei: number | null; platit_la: string | null; creat_la: string };
-export type ComisionViitor = { client: string; eticheta: string; suma_lei: number; procent: number | null; comision: number | null; scadenta: string | null };
+export type ComisionViitor = { client: string; proiect: string; eticheta: string; suma_lei: number; procent: number | null; comision: number | null };
 
 const LUNI_SCURT = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "nov", "dec"];
 const procentText = (p: number) => `${String(p).replace(".", ",")}%`;
 const suma = (n: number | null) => (n === null ? "" : lei(n).replace(/^-/, "−"));
 
-/** Ziua ca în calendar: „14” mare, „nov” mic. Fără zi: „în așteptare”. */
+/** Ziua ca în calendar: „14” mare, „nov” mic. */
 function Zi({ zi }: { zi: string | null }) {
-  if (!zi) return <span className="w-[54px] flex-none text-center text-[11px] leading-tight text-ink-3">în așteptare</span>;
+  if (!zi) return <span className="w-[54px] flex-none" />;
   return (
     <span className="w-[54px] flex-none text-center leading-none">
       <b className="num block text-[16px] font-semibold">{Number(zi.slice(8, 10))}</b>
@@ -55,8 +55,8 @@ export function ComisioaneleMele({ mele, viitoare, azi }: { mele: ComisionulMeu[
   const { total } = dePlatitOm(neplatite);
   const primitLuna = primite.filter((k) => k.platit_la!.slice(0, 7) === azi.slice(0, 7)).reduce((s, k) => s + (k.suma_lei ?? 0), 0);
   const viitor = viitoare.reduce((s, k) => s + (k.comision ?? 0), 0);
-  // cele fără dată (în așteptare) sus, apoi după zi
-  const urmeaza = [...viitoare].sort((a, b) => (a.scadenta ?? "").localeCompare(b.scadenta ?? ""));
+  // fără date (omul nu trebuie să poată deduce cine întârzie): grupate pe client, în ordinea din baza de date
+  const urmeaza = [...viitoare.reduce((m, k) => m.set(k.client, [...(m.get(k.client) ?? []), k]), new Map<string, ComisionViitor[]>())];
 
   const detaliiMele = (k: ComisionulMeu) =>
     k.tip === "minus" ? `${k.eticheta ?? "tranșă ștearsă"} · returnare` : `${k.eticheta ?? "tranșă ștearsă"} · ${k.procent === null ? "procent nestabilit" : `${procentText(k.procent)} din ${lei(k.baza_lei)}`}`;
@@ -84,14 +84,20 @@ export function ComisioaneleMele({ mele, viitoare, azi }: { mele: ComisionulMeu[
         ))}
       </Lista>
       <Lista cheie="urmeaza" titlu="Urmează" dreapta="după ce intră banii de la client" gol="Nimic programat.">
-        {urmeaza.map((k, i) => (
-          <Rand
-            key={`${k.client}|${k.eticheta}|${k.scadenta}|${i}`}
-            zi={k.scadenta}
-            client={k.client}
-            detalii={`${k.eticheta} · ${k.procent === null ? "procent nestabilit" : `${procentText(k.procent)} din ${lei(k.suma_lei)}`}`}
-            valoare={suma(k.comision)}
-          />
+        {urmeaza.map(([client, randuri]) => (
+          <div key={client} data-testid="grup-urmeaza" className="border-b border-line px-3.5 py-2.5 last:border-0">
+            <div className="mb-1 text-[12px] text-ink-3">
+              <Ascuns>{client}</Ascuns>
+            </div>
+            {randuri.map((k, i) => (
+              <div key={i} data-testid="rand-urmeaza" className="flex items-baseline gap-3 py-0.5 text-[13px]">
+                <span className="min-w-0 flex-1 text-ink-2">
+                  {k.eticheta} · {k.procent === null ? "procent nestabilit" : `${procentText(k.procent)} din ${lei(k.suma_lei)}`}
+                </span>
+                <b className="num flex-none text-[13.5px] font-semibold">{suma(k.comision)}</b>
+              </div>
+            ))}
+          </div>
         ))}
       </Lista>
       <Lista cheie="primite" titlu="Primite" culoare="text-green" dreapta={`${lei(primitLuna)} în ${luna}`} gol="Încă n-ai primit nimic.">

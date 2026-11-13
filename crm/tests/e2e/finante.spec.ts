@@ -149,10 +149,11 @@ test.describe("pagina oamenilor din echipă", () => {
     const dePrimit = page.getByTestId("lista-de-primit");
     await expect(dePrimit).toContainText(`${c.nume} · Avans · 30% din 1.234.000 lei`);
     await expect(dePrimit).toContainText("370.200 lei");
-    const urmeaza = page.getByTestId("lista-urmeaza").getByTestId("rand-comision").filter({ hasText: c.nume });
+    // fără date: grupate pe client, ca omul să nu poată deduce cine întârzie
+    const urmeaza = page.getByTestId("lista-urmeaza").getByTestId("grup-urmeaza").filter({ hasText: c.nume });
     await expect(urmeaza).toContainText("Restul · 30% din 500.000 lei");
     await expect(urmeaza).toContainText("150.000 lei");
-    await expect(urmeaza).toContainText("în așteptare");
+    await expect(urmeaza).not.toContainText("în așteptare");
     await expect(page.locator("main")).not.toContainText("123.400");
     await expect(page.locator("main")).not.toContainText(/întârz/i);
   });

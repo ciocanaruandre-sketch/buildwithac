@@ -75,6 +75,7 @@ export type Database = {
       abonamente: {
         Row: {
           creat_la: string
+          generat_pana: string | null
           id: string
           oprit_la: string | null
           porneste: string
@@ -84,6 +85,7 @@ export type Database = {
         }
         Insert: {
           creat_la?: string
+          generat_pana?: string | null
           id?: string
           oprit_la?: string | null
           porneste: string
@@ -93,6 +95,7 @@ export type Database = {
         }
         Update: {
           creat_la?: string
+          generat_pana?: string | null
           id?: string
           oprit_la?: string | null
           porneste?: string
@@ -1065,7 +1068,6 @@ export type Database = {
           eticheta: string
           procent: number
           proiect: string
-          scadenta: string
           suma_lei: number
         }[]
       }

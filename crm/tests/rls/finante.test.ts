@@ -382,19 +382,24 @@ describe("finanțe: mentenanța, mutarea și vederile omului", () => {
     expect(data!.every((x) => x.suma_lei === 450)).toBe(true);
   });
 
-  it("comisioane_viitoare: omul își vede tranșele, fără data celor întârziate, fără proiectele altora", async () => {
+  it("comisioane_viitoare: omul își vede tranșele fără nicio dată și fără «· rest», fără proiectele altora", async () => {
     const nume = `Viitoare ${Date.now()}`;
     const { proiectId } = await client({ nume });
     await puneConstructor(proiectId, 30);
     await transa(proiectId, 1000, peste(10), "Restul");
     await transa(proiectId, 2000, peste(-3), "Avans");
+    // plată parțială: restul neîncasat poartă eticheta «Rata 1 · rest» în baza de date
+    const r = await transa(proiectId, 1000, peste(5), "Rata 1");
+    expect((await incaseaza(r, 400)).error).toBeNull();
     const k = await conecteazaCa("constructor");
     const { data, error } = await k.rpc("comisioane_viitoare");
     expect(error).toBeNull();
     const ale_mele = data!.filter((x) => x.client === nume);
-    expect(ale_mele.map((x) => [x.eticheta, x.scadenta, x.comision])).toEqual([
-      ["Avans", null, 600],
-      ["Restul", peste(10), 300],
+    expect(ale_mele.every((x) => !("scadenta" in x))).toBe(true);
+    expect(ale_mele.map((x) => [x.eticheta, x.comision])).toEqual([
+      ["Avans", 600],
+      ["Rata 1", 180],
+      ["Restul", 300],
     ]);
     const altul = await conecteazaCa("caller2");
     expect(((await altul.rpc("comisioane_viitoare")).data ?? []).filter((x) => x.client === nume)).toEqual([]);
@@ -430,5 +435,91 @@ describe("finanțe: mentenanța, mutarea și vederile omului", () => {
     const { data } = await admin().from("proiect_oameni").select("procent").eq("proiect_id", proiectId).eq("om_id", await idDe("constructor")).single();
     expect(data).toEqual({ procent: 35 });
     await setBaza("site", "constructor", null);
+  });
+});
+
+describe("finanțe: reparațiile de după verificare", () => {
+  it("o lună de mentenanță ștearsă nu revine, iar una mutată în luna următoare nu face o a doua", async () => {
+    const { proiectId } = await client();
+    const a = await conecteazaCa("admin");
+    const ab = await a.rpc("porneste_abonament", { p: proiectId, suma: 300, zi: 28, porneste: peste(-40), om: null as unknown as string });
+    expect(ab.error).toBeNull();
+    const toate = async () => (await admin().from("transe").select("id, scadenta").eq("abonament_id", ab.data!).order("scadenta")).data!;
+    const inainte = await toate();
+    expect(inainte.length).toBeGreaterThanOrEqual(2);
+
+    // ștearsă (clientul a sărit o lună)
+    expect((await a.from("transe").delete().eq("id", inainte[0].id)).error).toBeNull();
+    // mutată în luna următoare
+    const mutata = inainte[1];
+    const [an, luna, zi] = mutata.scadenta.split("-").map(Number);
+    const lunaUrm = new Date(Date.UTC(an, luna, Math.min(zi, 28))).toISOString().slice(0, 10);
+    expect((await a.from("transe").update({ scadenta: lunaUrm }).eq("id", mutata.id)).error).toBeNull();
+
+    expect((await a.rpc("genereaza_mentenanta", { pana: peste(35) })).data).toBe(0);
+    const dupa = await toate();
+    expect(dupa.map((x) => x.id)).not.toContain(inainte[0].id);
+    expect(dupa.filter((x) => x.scadenta.slice(0, 7) === mutata.scadenta.slice(0, 7))).toEqual([]);
+    expect(dupa.filter((x) => x.scadenta.slice(0, 7) === lunaUrm.slice(0, 7))).toHaveLength(1);
+  });
+
+  it("schimbarea sumei refață lunile viitoare, chiar dacă fuseseră deja făcute", async () => {
+    const { proiectId } = await client();
+    const a = await conecteazaCa("admin");
+    const ab = await a.rpc("porneste_abonament", { p: proiectId, suma: 300, zi: 28, porneste: azi(), om: null as unknown as string });
+    const n = (await admin().from("transe").select("id").eq("abonament_id", ab.data!)).data!.length;
+    expect((await a.rpc("schimba_abonament", { a: ab.data!, suma: 450, zi: 27 })).error).toBeNull();
+    const { data } = await admin().from("transe").select("suma_lei").eq("abonament_id", ab.data!);
+    expect(data!.length).toBe(n);
+    expect(data!.every((x) => x.suma_lei === 450)).toBe(true);
+  });
+
+  it("«Doar eu» la mentenanță: fără om, nimeni de pe proiect nu primește comision", async () => {
+    const { proiectId } = await client();
+    await puneConstructor(proiectId, 30);
+    const a = await conecteazaCa("admin");
+    const ab = await a.rpc("porneste_abonament", { p: proiectId, suma: 300, zi: 28, porneste: azi(), om: null as unknown as string });
+    expect(ab.error).toBeNull();
+    const { data } = await admin().from("abonament_oameni").select("om_id").eq("abonament_id", ab.data!).eq("om_id", await idDe("constructor"));
+    expect(data).toEqual([]);
+  });
+
+  it("un om cu comisioane fără procent nu se scoate de pe proiect până nu i se pune procentul", async () => {
+    const { proiectId } = await client();
+    await puneConstructor(proiectId, null);
+    await puneCaller(proiectId, null);
+    const t = await transa(proiectId, 1000);
+    expect((await incaseaza(t, 1000)).error).toBeNull();
+    const a = await conecteazaCa("admin");
+
+    const scoateK = await a.from("proiect_oameni").delete().eq("proiect_id", proiectId).eq("om_id", await idDe("constructor"));
+    expect(scoateK.error?.message).toBe("Are comisioane fără procent pe proiect. Pune-i întâi procentul (0 dacă nu primește nimic).");
+    const scoateC = await a.from("proiect_vanzari").delete().eq("proiect_id", proiectId).eq("om_id", await idDe("caller"));
+    expect(scoateC.error?.message).toBe("Are comisioane fără procent pe proiect. Pune-i întâi procentul (0 dacă nu primește nimic).");
+
+    expect((await a.from("proiect_oameni").upsert({ proiect_id: proiectId, om_id: await idDe("constructor"), procent: 30 }, { onConflict: "proiect_id,om_id" })).error).toBeNull();
+    expect((await a.from("proiect_vanzari").upsert({ proiect_id: proiectId, om_id: await idDe("caller"), procent: 0 }, { onConflict: "proiect_id,om_id" })).error).toBeNull();
+    expect((await a.from("proiect_oameni").delete().eq("proiect_id", proiectId).eq("om_id", await idDe("constructor"))).error).toBeNull();
+    expect((await a.from("proiect_vanzari").delete().eq("proiect_id", proiectId).eq("om_id", await idDe("caller"))).error).toBeNull();
+  });
+
+  it("procentul unui om cu contul oprit se poate pune după încasare", async () => {
+    const { proiectId } = await client();
+    const k = await omTemporar("constructor");
+    const c = await omTemporar("caller");
+    expect((await admin().from("proiect_oameni").insert({ proiect_id: proiectId, om_id: k, procent: null })).error).toBeNull();
+    expect((await admin().from("proiect_vanzari").insert({ proiect_id: proiectId, om_id: c, procent: null })).error).toBeNull();
+    const t = await transa(proiectId, 1000);
+    expect((await incaseaza(t, 1000)).error).toBeNull();
+    await admin().from("profiluri").update({ activ: false }).in("id", [k, c]);
+
+    const a = await conecteazaCa("admin");
+    expect((await a.from("proiect_oameni").upsert({ proiect_id: proiectId, om_id: k, procent: 25 }, { onConflict: "proiect_id,om_id" })).error).toBeNull();
+    expect((await a.from("proiect_vanzari").upsert({ proiect_id: proiectId, om_id: c, procent: 10 }, { onConflict: "proiect_id,om_id" })).error).toBeNull();
+    const sume = (await comisioaneDin(t)).map((x) => [x.om_id, x.suma_lei]);
+    expect(sume).toEqual(expect.arrayContaining([[k, 250], [c, 100]]));
+    // un om nou cu contul oprit tot nu se poate pune
+    const altul = await omTemporar("constructor", false);
+    expect((await a.from("proiect_oameni").insert({ proiect_id: proiectId, om_id: altul, procent: 10 })).error?.message).toBe("Pe proiect se pun doar constructori cu contul pornit.");
   });
 });

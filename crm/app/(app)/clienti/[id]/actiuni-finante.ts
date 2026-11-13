@@ -225,7 +225,7 @@ export async function pornesteAbonament(proiectId: string, d: { suma: string; zi
   if (d.omId && !UUID.test(d.omId)) return { ok: false, mesaj: "Alege omul." };
   const clientId = await clientulProiectului(db, proiectId);
   if (!clientId) return { ok: false, mesaj: NEPERMIS };
-  // fără om ales: primul constructor de pe proiect (îl alege funcția)
+  // fără om ales („Doar eu”): nimeni din echipă nu primește comision din mentenanță
   const { error } = await db.rpc("porneste_abonament", { p: proiectId, suma: a.suma, zi: a.zi, porneste: d.porneste, om: (d.omId || null) as string });
   if (error) return { ok: false, mesaj: mesajDinBaza(error, NESALVAT) };
   improspateaza(clientId);

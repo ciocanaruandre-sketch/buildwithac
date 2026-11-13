@@ -127,7 +127,9 @@ async function scrieFinante(o: Optiuni, proiectId: string, p: ProiectDemo): Prom
     }
   }
   if (p.abonament) {
-    const a = await db.rpc("porneste_abonament", { p: proiectId, suma: p.abonament.suma, zi: p.abonament.zi, porneste: zi(p.abonament.pornitAcumZile), om: null as unknown as string });
+    // mentenanța o face primul constructor de pe proiect (fără om = „Doar eu”)
+    const { data: primul } = await db.from("proiect_oameni").select("om_id").eq("proiect_id", proiectId).order("adaugat_la").limit(1).maybeSingle();
+    const a = await db.rpc("porneste_abonament", { p: proiectId, suma: p.abonament.suma, zi: p.abonament.zi, porneste: zi(p.abonament.pornitAcumZile), om: (primul?.om_id ?? null) as string });
     if (a.error) throw a.error;
     // lunile trecute: încasate la scadență
     const { data: luni, error } = await db.from("transe").select("id, suma_lei, scadenta").eq("abonament_id", a.data).lt("scadenta", ziDupa(o.acum, 0)).order("scadenta");

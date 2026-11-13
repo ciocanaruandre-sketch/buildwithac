@@ -97,6 +97,8 @@ export function totaluriProiect(t: Transa[]): { incasat: number; deIncasat: numb
 export function coloaneIncasari<T extends Transa>(t: T[], azi: string): { intarzie: T[]; urmeaza: T[]; incasate: T[]; cifre: { incasatLuna: number; programatLuna: number; urmeazaLuna: number; intarziate: number } } {
   const peste30 = ziDupa(azi, 30);
   const lunaAzi = luna(azi);
+  // „inainte” = banii încasați înainte de Finanțe (datați în ziua migrației): nu sunt încasările lunii
+  t = t.filter((x) => x.tip !== "inainte");
   const neincasate = t.filter((x) => !x.incasata_la).sort((a, b) => a.scadenta.localeCompare(b.scadenta));
   const intarzie = neincasate.filter((x) => x.scadenta < azi);
   const urmeaza = neincasate.filter((x) => x.scadenta >= azi && x.scadenta <= peste30);
