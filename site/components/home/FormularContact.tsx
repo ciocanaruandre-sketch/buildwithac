@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { SERVICII_CONTACT, verificaCerere, type CampContact, type CheieServiciu } from "@/lib/contact";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { SERVICII_CONTACT, serviciuDinLink, verificaCerere, type CampContact, type CheieServiciu } from "@/lib/contact";
 import { SITE } from "@/lib/config";
 import { useHidratat } from "@/lib/hidratat";
 import { limitaTimp } from "@/lib/limita-timp";
@@ -26,8 +26,13 @@ function utmPastrat(): unknown {
   }
 }
 
+const nimic = () => () => {};
+
 export function FormularContact() {
-  const [serviciu, setServiciu] = useState<CheieServiciu | null>(null);
+  const [ales, setServiciu] = useState<CheieServiciu | null>(null);
+  // linkul unei reclame poate aduce serviciul deja ales (`?serviciu=`); un clic pe altă pastilă câștigă
+  const dinLink = useSyncExternalStore(nimic, () => serviciuDinLink(location.search), () => null);
+  const serviciu = ales ?? dinLink;
   const [greseli, setGreseli] = useState<CampContact[]>([]);
   const [stare, setStare] = useState<"trimite" | "ok" | "esec" | null>(null);
   const hidratat = useHidratat();

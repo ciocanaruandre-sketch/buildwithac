@@ -4,7 +4,7 @@
 
 **Goal:** Un lead venit pe formularul site-ului dintr-o reclamă Meta sau TikTok intră singur în CRM cu sursa și reclama lui. Pagina „Reclame” (doar Admin) arată, pe fiecare reclamă, lead-urile, discuțiile, clienții, banii cheltuiți și banii încasați, cu un verdict.
 
-**Architecture:** Clasificarea UTM-urilor e un fișier pur, `crm/lib/reclame.ts`, folosit de ruta de intrare (sursa) și de `primesteCerere` (reclama). Reclamele și legătura lead → reclamă stau în două tabele noi, apărate de RLS doar pentru Admin. Legătura are contoare (discuție, client, bani de la clienții șterși) puse de trigger-e în clipa întâmplării. Când lead-ul sau clientul dispare, rândul rămâne anonim, deci cifrele nu scad. Cifrele paginii vin dintr-o singură funcție SQL, `reclame_cifre()`. Pe site, `?serviciu=` alege pastila din formular și duce la `#contact`.
+**Architecture:** Clasificarea UTM-urilor e un fișier pur, `crm/lib/reclame.ts`, folosit de ruta de intrare (sursa) și de `primesteCerere` (reclama). Reclamele și legătura lead → reclamă stau în două tabele noi, apărate de RLS doar pentru Admin. Legătura are contoare (discuție, client, bani de la clienții șterși) puse de trigger-e în clipa întâmplării. Când lead-ul sau clientul dispare, rândul rămâne anonim, deci cifrele nu scad. Cifrele paginii vin dintr-o singură funcție SQL, `reclame_cifre()`. Pe site, `?serviciu=` alege pastila din formular și duce la `#formular`.
 
 **Tech Stack:** Next.js 16 (App Router, Server Actions), Supabase (Postgres, RLS, plpgsql), vitest (unit + `test:rls`), Playwright, Tailwind v4 cu tema „Grafit”. Pe site: Next.js 16, Lenis.
 
@@ -42,7 +42,7 @@
 2. **Un om care există deja ca lead sau client trimite iar formularul, din reclamă.** Nu se leagă de reclamă, nu se face reclamă nouă și sursa lui nu se schimbă. RLS în Task 3.
 3. **Cron-ul de 90 de zile șterge un lead; Adminul șterge un client.** Lead-urile, discuțiile, clienții și banii reclamei rămân aceiași. Ștergerea de mână a unui lead îl scoate din cifre. RLS în Task 2.
 4. **Nume de reclamă lung (peste 120 de caractere), cu diacritice sau emoji, sau cu spații la capete.** Același nume intră la aceeași reclamă de fiecare dată, iar lookup-ul și inserarea folosesc aceeași tăiere. Unit în Task 1, RLS în Task 3.
-5. **390px.** Meniul de jos are 7 intrări vizibile, cardurile stau pe o coloană și nu apare derulare orizontală. Pe site, `/?serviciu=site#contact` ajunge la formular cu „Site” ales, chiar și cu Lenis și animațiile GSAP. E2E în Task 5 și Task 4.
+5. **390px.** Meniul de jos are 7 intrări vizibile, cardurile stau pe o coloană și nu apare derulare orizontală. Pe site, `/?serviciu=site#formular` ajunge la formular cu „Site” ales, chiar și cu Lenis și animațiile GSAP. E2E în Task 5 și Task 4.
 
 ---
 
@@ -172,9 +172,9 @@
 - Modify: `site/components/home/FormularContact.tsx`, `site/lib/contact.ts`, `site/tests/unit/contact.test.ts`, `site/tests/e2e/contact.spec.ts`
 
 **Interfaces:**
-- Produces: `serviciuDinLink(search: string): CheieServiciu | null` în `site/lib/contact.ts` (doar cheile din `SERVICII_CONTACT`, altfel `null`). `FormularContact` îl citește la montare și alege pastila. Dacă URL-ul are `#contact`, pagina ajunge la secțiune după hidratare, prin Lenis (`scrollTo("#contact")`, fără animație), ca animațiile GSAP să nu mute ținta.
+- Produces: `serviciuDinLink(search: string): CheieServiciu | null` în `site/lib/contact.ts` (doar cheile din `SERVICII_CONTACT`, altfel `null`). `FormularContact` îl citește la montare și alege pastila. Dacă URL-ul are `#formular`, pagina ajunge la secțiune după hidratare, prin Lenis (`ramaiLaAncora` din LenisProvider, existent), ca animațiile GSAP să nu mute ținta.
 
-- [ ] **Step 1: Teste.** Unit: `serviciuDinLink("?serviciu=site")` → `"site"`; `"?serviciu=1la1"` → `"1la1"`; `"?serviciu=hack"` → `null`; `""` → `null`. E2E: `"/?serviciu=automatizari&utm_source=ig&utm_medium=reclama#contact la 390px: formularul e în ecran, cu Automatizări ales"`. Pastila e selectată (atributul pe care îl folosește azi chip-ul ales), iar `#contact` e în viewport după `waitForLoadState("networkidle")`.
+- [ ] **Step 1: Teste.** Unit: `serviciuDinLink("?serviciu=site")` → `"site"`; `"?serviciu=1la1"` → `"1la1"`; `"?serviciu=hack"` → `null`; `""` → `null`. E2E: `"/?serviciu=automatizari&utm_source=ig&utm_medium=reclama#formular la 390px: formularul e în ecran, cu Automatizări ales"`. Pastila e selectată (atributul pe care îl folosește azi chip-ul ales), iar `#formular` e în viewport după `waitForLoadState("networkidle")`.
 - [ ] **Step 2: Rulează și verifică că pică.** Run (din `site/`): `npx vitest run contact` și `npx playwright test tests/e2e/contact.spec.ts`. Expected: FAIL.
 - [ ] **Step 3: Implementează.** `PastreazaUtm` rămâne neatins.
 - [ ] **Step 4: Rulează** cele două comenzi, plus `npm run lint`. Expected: PASS.
@@ -273,6 +273,6 @@
 
 - [ ] **Step 1:** Toate verificările din Global Constraints, în `crm/` și în `site/`. Expected: toate PASS, cu numărul de teste notat.
 - [ ] **Step 2:** Verificarea finală cu subagent (pas greu: anunță consumul și cere acordul lui Andrei). Repară criticele și importantele, iar măruntele le notezi în jurnal.
-- [ ] **Step 3:** Cu „da”-ul lui Andrei: `git push -u origin crm-reclame`, apoi `npx vercel ls` (din `crm/`) pentru previzualizarea CRM-ului. Site-ul are și el previzualizare, pentru `?serviciu=`. Rulează `npm run demo` pe test. Andrei verifică pe laptop și pe iPhone cu `andrei@buildwithac.ro` și deschide pe telefon `…/?serviciu=site&utm_source=ig&utm_medium=reclama&utm_campaign=Test&utm_content=Proba#contact` de pe previzualizarea site-ului.
+- [ ] **Step 3:** Cu „da”-ul lui Andrei: `git push -u origin crm-reclame`, apoi `npx vercel ls` (din `crm/`) pentru previzualizarea CRM-ului. Site-ul are și el previzualizare, pentru `?serviciu=`. Rulează `npm run demo` pe test. Andrei verifică pe laptop și pe iPhone cu `andrei@buildwithac.ro` și deschide pe telefon `…/?serviciu=site&utm_source=ig&utm_medium=reclama&utm_campaign=Test&utm_content=Proba#formular` de pe previzualizarea site-ului.
 - [ ] **Step 4:** La „e bine” și „da” pentru producție, Andrei aplică migrațiile `20261113000007`–`000008` pe PRODUCȚIE cu `!`: `SB_MEDIU=productie npm run sb -- db push --remote=znabkoesmtoggdmehmqp`. Apoi: unirea `crm-reclame` în `main`, push, `npx vercel ls`, `curl -sI https://crm.buildwithac.ro/intra` (200), `curl -sI https://buildwithac.ro` (200). Andrei intră cu `admin@buildwithac.ro` pe „Reclame” (ecranul gol, cu textul de lipit).
 - [ ] **Step 5:** Stadiul în `docs/progres-brainstorming.md` („DE AICI CONTINUĂM”) și memoria. Commit: `docs: Reclamele sunt live`.

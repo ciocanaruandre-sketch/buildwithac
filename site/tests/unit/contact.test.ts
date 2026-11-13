@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { verificaCerere, construiesteEmail, trimiteCerere, type CerereContact } from "@/lib/contact";
+import { verificaCerere, construiesteEmail, trimiteCerere, serviciuDinLink, type CerereContact } from "@/lib/contact";
 
 const buna = { nume: "Maria Popescu", telefon: "0721123456", serviciu: "site", descriere: "" };
 const greseli = (d: unknown) => {
@@ -151,5 +151,15 @@ describe("trimiteCerere", () => {
   it("timp depășit → indisponibil", async () => {
     const f = vi.fn(async () => { throw new DOMException("timeout", "AbortError"); });
     expect(await trimiteCerere(c, { cheie: "re_test" }, f as unknown as typeof fetch)).toBe("indisponibil");
+  });
+});
+
+describe("serviciuDinLink", () => {
+  it("alege doar serviciile din formular", () => {
+    expect(serviciuDinLink("?serviciu=site")).toBe("site");
+    expect(serviciuDinLink("?serviciu=1la1")).toBe("1la1");
+    expect(serviciuDinLink("?utm_source=ig&serviciu=automatizari")).toBe("automatizari");
+    expect(serviciuDinLink("?serviciu=hack")).toBeNull();
+    expect(serviciuDinLink("")).toBeNull();
   });
 });

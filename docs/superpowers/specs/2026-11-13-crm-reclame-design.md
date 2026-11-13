@@ -22,7 +22,7 @@ Andrei nu rulează încă reclame, dar urmează să le pornească pentru servici
 ### 3.1 Drumul unui lead din reclamă
 
 1. Omul apasă pe o reclamă obișnuită cu link (Meta: Facebook/Instagram; TikTok). Site-ul se deschide în browserul aplicației. **[Andrei]** (nu formularele care se deschid în aplicație)
-2. Linkul duce direct la formular, cu serviciul deja ales: `https://buildwithac.ro/?serviciu=site#contact` (valorile `serviciu` = cheile din `SERVICII`). **[apelul meu]** Un `serviciu` necunoscut se ignoră.
+2. Linkul duce direct la formular, cu serviciul deja ales: `https://buildwithac.ro/?serviciu=site#formular` (valorile `serviciu` = cheile din `SERVICII`). **[apelul meu]** Un `serviciu` necunoscut se ignoră.
 3. Omul completează formularul; lead-ul intră în CRM ca acum.
 4. O cerere e **din reclamă** doar dacă are `utm_medium=reclama` **și** `utm_campaign` sau `utm_content` nevid; atunci CRM-ul pune sursa după `utm_source`: `fb`, `ig`, `facebook`, `instagram`, `msg`, `an`, `meta` → **Reclamă Meta**; `tiktok` → **Reclamă TikTok**. Orice altceva (inclusiv link-uri din bio sau din postări cu UTM, fără `utm_medium=reclama`) → `formular_site`, ca acum, cu UTM-urile păstrate pe cerere. **[apelul meu]** Se compară fără majuscule. Așa, un link organic cu `utm_source=instagram` nu devine niciodată „reclamă”.
 5. Fișa lead-ului arată platforma, campania și numele reclamei, în cuvinte, nu în forma brută `utm_…` de azi. **[apelul meu]**
@@ -107,7 +107,7 @@ Andrei a ales A (2026-11-13), fără pixel deocamdată, cu pagina „Reclame” 
 
 - Forma tabelelor (reclamele, legătura lead → reclamă, unirea, numărătoarea anonimă) și funcțiile/vederile pentru cifre, cu RLS doar pentru Admin.
 - Unde se calculează sursa din UTM (în ruta de intrare sau în `primesteCerere`) și testele pentru toate valorile din §3.1.
-- Citirea lui `?serviciu=` pe site (alege pastila din `FormularContact` și derulează la `#contact`) fără să strice `PastreazaUtm`.
+- Citirea lui `?serviciu=` pe site (alege pastila din `FormularContact` și derulează la `#formular`) fără să strice `PastreazaUtm`.
 - Unde stă textul de lipit din §3.2.
 - Iconița „Reclame” din meniu, în stilul celorlalte.
 - Migrațiile merg întâi pe TEST; pe PRODUCȚIE doar cu „da”-ul lui Andrei (el rulează `db push` cu `!`).
