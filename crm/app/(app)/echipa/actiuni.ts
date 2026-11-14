@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { leadUri } from "@/lib/afisare";
 import { trimiteEmail } from "@/lib/email";
 import { eu } from "@/lib/eu";
 import { mesajDinBaza } from "@/lib/erori";
@@ -14,7 +15,6 @@ import type { Rol } from "@/lib/tipuri";
 export type Rezultat = { ok: true; mesaj?: string; link?: string } | { ok: false; mesaj: string };
 
 const NU_E_ADMIN: Rezultat = { ok: false, mesaj: "Doar Adminul schimbă echipa." };
-const lead = (n: number) => (n === 1 ? "1 lead" : `${n} lead-uri`);
 
 async function origine() {
   const h = await headers();
@@ -127,7 +127,7 @@ export async function mutaTot(de: string, la: string): Promise<{ ok: true; mutat
   const { data, error } = await db.rpc("muta_lead_uri", { de, la });
   if (error) return { ok: false, mesaj: error.message || "Mutarea n-a mers." };
   const r = data as { lead_uri: number; discutii: number; discutii_ramase: number };
-  let mesaj = `Am mutat ${lead(r.lead_uri)}.`;
+  let mesaj = `Am mutat ${leadUri(r.lead_uri)}.`;
   if (r.discutii) mesaj += ` Și ${r.discutii === 1 ? "o discuție programată" : `${r.discutii} discuții programate`}.`;
   if (r.discutii_ramase) mesaj += ` ${r.discutii_ramase === 1 ? "O discuție a rămas" : `${r.discutii_ramase} discuții au rămas`}: ora e ocupată la cel nou. Reprogramează din fișa lead-ului.`;
   revalidatePath("/echipa");

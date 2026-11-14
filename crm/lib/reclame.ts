@@ -1,3 +1,4 @@
+import { leadUri } from "@/lib/afisare";
 import { lei } from "@/lib/proiecte";
 
 export type Platforma = "meta" | "tiktok";
@@ -65,7 +66,7 @@ export function verdict(r: CifreReclama): Verdict {
   if (r.cheltuit_lei === null) return { ton: "amber", text: "Scrie cât ai cheltuit ca să vezi dacă merită." };
   if (!r.clienti) {
     if (!r.lead_uri) return { ton: "red", text: "Niciun lead încă." };
-    return { ton: "red", text: `Niciun client încă. ${r.lead_uri} lead-uri, ${lei(peLead(r))} fiecare.` };
+    return { ton: "red", text: `Niciun client încă. ${leadUri(r.lead_uri)}, ${lei(peLead(r))}${r.lead_uri === 1 ? "" : " fiecare"}.` };
   }
   const c = castig(r)!;
   if (c >= 0) {
@@ -91,11 +92,15 @@ export function ordoneaza(r: CifreReclama[]): CifreReclama[] {
 
 export type Totaluri = { cheltuit: number; lead_uri: number; clienti: number; incasat: number; mai_vin: number; reclame: number; peLead: number | null; peClient: number | null };
 
+/** Costul pe lead și pe client se socotește doar din reclamele cu suma scrisă: altfel lead-urile celor fără sumă l-ar micșora. */
 export function totaluri(r: CifreReclama[]): Totaluri {
-  const s = (f: (x: CifreReclama) => number) => r.reduce((a, x) => a + f(x), 0);
+  const s = (f: (x: CifreReclama) => number, din = r) => din.reduce((a, x) => a + f(x), 0);
+  const cuSuma = r.filter((x) => x.cheltuit_lei !== null);
   const cheltuit = s((x) => x.cheltuit_lei ?? 0);
   const lead_uri = s((x) => x.lead_uri);
   const clienti = s((x) => x.clienti);
+  const leadCuSuma = s((x) => x.lead_uri, cuSuma);
+  const clientiCuSuma = s((x) => x.clienti, cuSuma);
   return {
     cheltuit,
     lead_uri,
@@ -103,7 +108,7 @@ export function totaluri(r: CifreReclama[]): Totaluri {
     incasat: s((x) => x.incasat_lei),
     mai_vin: s((x) => x.mai_vin_lei),
     reclame: r.length,
-    peLead: lead_uri ? cheltuit / lead_uri : null,
-    peClient: clienti ? cheltuit / clienti : null,
+    peLead: leadCuSuma ? cheltuit / leadCuSuma : null,
+    peClient: clientiCuSuma ? cheltuit / clientiCuSuma : null,
   };
 }

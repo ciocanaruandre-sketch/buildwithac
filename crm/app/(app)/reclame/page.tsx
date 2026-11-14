@@ -3,9 +3,10 @@ import { BaraSus } from "@/components/BaraSus";
 import { AdaugaReclama } from "@/components/reclame/AdaugaReclama";
 import { CardReclama } from "@/components/reclame/CardReclama";
 import { TextAdsManager } from "@/components/reclame/TextAdsManager";
+import { leadUri } from "@/lib/afisare";
 import { eu } from "@/lib/eu";
 import { lei } from "@/lib/proiecte";
-import { ordoneaza, totaluri, type CifreReclama } from "@/lib/reclame";
+import { ordoneaza, reclamaDinUtm, totaluri, type CifreReclama } from "@/lib/reclame";
 import { supabase } from "@/lib/supabase/server";
 
 function Total({ eticheta, valoare, sub, verde = false }: { eticheta: string; valoare: string; sub: string; verde?: boolean }) {
@@ -24,14 +25,30 @@ export default async function Reclame() {
   if (om.rol !== "admin") notFound();
 
   const db = await supabase();
-  const [{ data: cifre }, { data: dinReclame }] = await Promise.all([
+  const [{ data: cifre, error }, { data: dinReclame }] = await Promise.all([
     db.rpc("reclame_cifre"),
-    // lead-urile puse de mână cu sursa „Reclamă …”: n-au reclamă anume
-    db.from("lead_uri").select("id, reclame_lead_uri (id)").in("sursa", ["reclama_meta", "reclama_tiktok"]),
+    // lead-urile cu sursa „Reclamă …” fără reclamă anume: puse de mână
+    // sau venite dintr-un link de reclamă, dar cu legarea eșuată (o greșeală la intrare, scrisă în jurnal)
+    db.from("lead_uri").select("id, reclame_lead_uri (id), cereri (utm)").in("sursa", ["reclama_meta", "reclama_tiktok"]),
   ]);
+
+  if (error) {
+    return (
+      <>
+        <BaraSus cale={[{ eticheta: "Reclame" }]} />
+        <h1 className="mb-4 text-[26px] leading-tight sm:text-[30px]">Reclame</h1>
+        <p role="alert" className="panel p-4 text-[14px] text-red-t">
+          Nu s-au putut încărca reclamele. Reîncarcă pagina peste un minut.
+        </p>
+      </>
+    );
+  }
+
   const reclame = ordoneaza((cifre ?? []) as CifreReclama[]);
   const t = totaluri(reclame);
-  const deMana = (dinReclame ?? []).filter((l) => !l.reclame_lead_uri).length;
+  const faraReclama = (dinReclame ?? []).filter((l) => !l.reclame_lead_uri);
+  const nelegate = faraReclama.filter((l) => l.cereri.some((c) => reclamaDinUtm((c.utm ?? {}) as Record<string, string>))).length;
+  const deMana = faraReclama.length - nelegate;
   const max = Math.max(1, ...reclame.map((r) => r.lead_uri));
   const pePlatforma = (p: string, faraId: string) =>
     reclame.filter((x) => x.platforma === p && x.id !== faraId).map((x) => ({ id: x.id, nume: x.nume, campanie: x.campanie }));
@@ -64,9 +81,13 @@ export default async function Reclame() {
           </div>
           {deMana > 0 && (
             <p className="mb-3 text-[13px] text-ink-3" data-testid="de-mana">
-              {deMana === 1
-                ? "1 lead din reclame adăugat de mână, fără reclamă anume"
-                : `${deMana} lead-uri din reclame adăugate de mână, fără reclamă anume`}
+              {leadUri(deMana)} din reclame {deMana === 1 ? "adăugat" : "adăugate"} de mână, fără reclamă anume
+            </p>
+          )}
+          {nelegate > 0 && (
+            <p className="mb-3 text-[13px] text-amber" data-testid="nelegate">
+              {leadUri(nelegate)} {nelegate === 1 ? "venit" : "venite"} din reclame nu {nelegate === 1 ? "s-a legat" : "s-au legat"} de
+              reclama lor, deci nu intră în cifre. Reclama din link se vede pe fișa lead-ului.
             </p>
           )}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

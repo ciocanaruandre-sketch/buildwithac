@@ -1226,7 +1226,6 @@ export type Database = {
           platforma: string
         }[]
       }
-      reclame_pastreaza_banii: { Args: { c: string }; Returns: undefined }
       returneaza: {
         Args: { suma: number; t: string; zi: string }
         Returns: undefined

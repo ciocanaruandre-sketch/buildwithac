@@ -35,7 +35,8 @@ export function AdaugaReclama() {
       }}
     >
       <p className="text-[13px] text-ink-3">
-        Scrie numele exact ca în Ads Manager. Când vine primul lead din ea, se leagă singur de reclama asta.
+        Scrie campania și numele reclamei exact ca în Ads Manager, cu aceleași litere și spații. Când vine primul lead din ea,
+        se leagă singur de reclama asta. Dacă una diferă, apare o reclamă nouă, pe care o poți uni cu asta.
       </p>
       <div className="seg" role="group" aria-label="Platforma">
         {(["meta", "tiktok"] as const).map((p) => (

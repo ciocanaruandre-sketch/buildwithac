@@ -22,6 +22,13 @@ export const candLung = (d: Date | string) => {
   return `${ZI_SAPT.format(x)}, ${ORA.format(x)}`;
 };
 
+/** „1 lead”, „3 lead-uri”, „20 de lead-uri” (de la 20 în sus, „de”, ca la textZile). */
+export function leadUri(n: number): string {
+  if (n === 1) return "1 lead";
+  const rest = n % 100;
+  return `${n}${n >= 20 && (rest === 0 || rest >= 20) ? " de" : ""} lead-uri`;
+}
+
 /** Culoarea pastilei de stare (clasele .chip din tema.css). */
 export const CULOARE_STARE: Record<Stare, "" | "amber" | "green" | "red" | "blue"> = {
   nou: "blue",
