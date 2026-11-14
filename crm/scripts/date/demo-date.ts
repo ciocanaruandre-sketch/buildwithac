@@ -78,7 +78,7 @@ type Rand = {
 
 const RANDURI: Rand[] = [
   // ——— nou: au intrat, încă nu i-a sunat nimeni
-  { nr: 1, nume: "Corina Sandu · Cofetăria Miere", serviciu: "site", sursa: "formular_site", stare: "nou", zile: 1.2, descriere: "Am o cofetărie mică și vreau să primesc comenzi de torturi online, cu poze și prețuri." },
+  { nr: 1, nume: "Corina Sandu · Cofetăria Miere", serviciu: "site", sursa: "formular_site", stare: "nou", zile: 0.1, descriere: "Am o cofetărie mică și vreau să primesc comenzi de torturi online, cu poze și prețuri." },
   { nr: 2, nume: "Paul Neagu · Frizeria Brici", serviciu: "automatizari", sursa: "reclama_meta", stare: "nou", zile: 1.4, afacere: "Frizerie, 3 scaune", vrea: "Programările de pe Instagram să intre singure în calendar.", buget: "500–1.000 €" },
   { nr: 3, nume: "Irina Bucur", serviciu: "1la1", sursa: "reclama_tiktok", stare: "nou", zile: 1.6, afacere: "Fac machiaj la evenimente", vrea: "Să învăț să folosesc ChatGPT pentru postări.", buget: "Sub 500 €" },
   { nr: 4, nume: "Adrian Moldovan · Moldovan Construct", serviciu: "site", sursa: "reclama_meta", stare: "nou", zile: 2.3, afacere: "Firmă de renovări", vrea: "Un site cu lucrările făcute, să nu mai trimit poze pe WhatsApp.", buget: "1.000–2.000 €" },
@@ -324,10 +324,12 @@ function ziuaBucuresti(t: Date) {
 }
 
 /**
- * Momentul de acum `acumZile` zile, mutat în orele de lucru: ziua e cea de acum `floor(acumZile)` zile,
+ * Momentul de acum `acumZile` zile, mutat în orele de lucru (sub o zi: exact atunci, fără mutare): ziua e cea de acum `floor(acumZile)` zile,
  * iar ora merge de la 18:00 (zecimale 0) spre 09:00 (zecimale aproape de 1), ca ce e mai vechi să fie mai devreme.
  */
 export function laOra(acum: Date, acumZile: number): Date {
+  // sub o zi: chiar de acum câteva ore (lead-ul nou de pe pagina „Azi”), la orice oră
+  if (acumZile < 1) return new Date(acum.getTime() - acumZile * 86_400_000);
   const zile = Math.floor(acumZile);
   const minute = Math.round((acumZile - zile) * 540);
   const z = ziuaBucuresti(acum);
@@ -368,17 +370,37 @@ const ORE: [number, number][] = [
 export function discutiiDemo(o: Optiuni, leaduri: LeadDemo[]): { nr: number; incepe: Date; minute: 30 }[] {
   const programati = leaduri.filter((l) => l.stare === "programat").sort((a, b) => a.nr - b.nr);
   const azi = ziuaBucuresti(o.acum);
+  // primul programat are discuția azi, dacă mai e loc în ziua de lucru (pagina „Azi”)
+  const deAzi = discutieAzi(o.acum);
   const zile: { an: number; luna: number; zi: number }[] = [];
-  for (let k = 1; zile.length < programati.length; k++) {
+  for (let k = 1; zile.length < programati.length - (deAzi ? 1 : 0); k++) {
     const d = new Date(Date.UTC(azi.an, azi.luna, azi.zi + k, 12));
     if (d.getUTCDay() === 0 || d.getUTCDay() === 6) continue;
     zile.push({ an: d.getUTCFullYear(), luna: d.getUTCMonth(), zi: d.getUTCDate() });
   }
   return programati.map((l, i) => {
-    const [ora, min] = ORE[i % ORE.length];
-    const z = zile[i];
+    if (deAzi && i === 0) return { nr: l.nr, incepe: deAzi, minute: 30 as const };
+    const k = deAzi ? i - 1 : i;
+    const [ora, min] = ORE[k % ORE.length];
+    const z = zile[k];
     return { nr: l.nr, incepe: laBucuresti(z.an, z.luna, z.zi, ora, min), minute: 30 as const };
   });
+}
+
+/**
+ * Discuția de azi: la prima jumătate de oră plină de peste cel puțin o oră, între 10:00 și 17:30 (fără 14:00,
+ * ora discuției din datele de test), doar într-o zi lucrătoare. null dacă nu mai e loc azi.
+ */
+function discutieAzi(acum: Date): Date | null {
+  const z = ziuaBucuresti(acum);
+  const zs = new Date(Date.UTC(z.an, z.luna, z.zi, 12)).getUTCDay();
+  if (zs === 0 || zs === 6) return null;
+  for (let m = 10 * 60; m <= 17 * 60 + 30; m += 30) {
+    if (m === 14 * 60) continue;
+    const d = laBucuresti(z.an, z.luna, z.zi, Math.floor(m / 60), m % 60);
+    if (d.getTime() >= acum.getTime() + 60 * 60_000) return d;
+  }
+  return null;
 }
 
 /** Data calendaristică de la București, peste `n` zile (YYYY-MM-DD), pentru termene. */
@@ -443,11 +465,13 @@ export const PROCENTE_BAZA_DEMO: { categorie: string; rol: "constructor" | "call
   { categorie, rol: "closer" as const, procent: closer },
 ]);
 
-export type ClientDemo = { nrLead: number; clientDinAcumZile: number; proiecte: ProiectDemo[] };
+/** `cerereNouaAcumZile`: clientul a trimis iar formularul (banda „Cerere nouă”, rândul din „Azi”). */
+export type ClientDemo = { nrLead: number; clientDinAcumZile: number; proiecte: ProiectDemo[]; cerereNouaAcumZile?: number };
 
 type ProiectScris = Omit<ProiectDemo, "creatAcumZile" | "parcurs" | "livrari" | "notite"> & {
   pornitAcumZile?: number;
-  livrari: Omit<ProiectDemo["livrari"][number], "acumZile">[];
+  // `acumZile` lipsă: data vine din ordinea livrărilor (spre finalul proiectului)
+  livrari: (Omit<ProiectDemo["livrari"][number], "acumZile"> & { acumZile?: number })[];
   notite: [ContTest, string][];
 };
 
@@ -455,7 +479,7 @@ const RADU: ContTest = "constructor";
 const drive = (x: string) => `https://drive.google.com/drive/folders/exemplu-${x}`;
 const doc = (x: string) => `https://docs.google.com/document/d/exemplu-${x}`;
 
-const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
+const CLIENTI: { nrLead: number; proiecte: ProiectScris[]; cerereNouaAcumZile?: number }[] = [
   {
     nrLead: 39, // Elisabeta Marin · Patiseria Dulce Colț
     proiecte: [
@@ -464,7 +488,7 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         serviciu: "site",
         stadiu: "schita",
         pret: 2600,
-        plata: { fel: "avans", avans: { procent: 50 }, ziAvans: -25, ziRest: 12 },
+        plata: { fel: "avans", avans: { procent: 50 }, ziAvans: -25, ziRest: 5 },
         incasari: [{ rata: 0, acumZile: 24, platit: true }],
         termenPesteZile: 16,
         procentRadu: 30,
@@ -524,7 +548,7 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         ],
         livrari: [
           { titlu: "Schema fluxului de programare", link: "https://kineto.exemplu.ro/schema", nota: "„Exact așa vrem.”", stare: "aprobat" },
-          { titlu: "Mesajele de reamintire (3 variante)", link: doc("variante-mesaje"), stare: "trimis" },
+          { titlu: "Mesajele de reamintire (3 variante)", link: doc("variante-mesaje"), stare: "trimis", acumZile: 6 },
         ],
         notite: [
           [RADU, "Terapeuții au ture diferite. Pun întâi tura, apoi orele libere."],
@@ -543,7 +567,8 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
         pret: 3200,
         plata: { fel: "odata", zi: -11 },
         incasari: [{ rata: 0, suma: 2000, acumZile: 5 }],
-        termenPesteZile: 5,
+        // predarea a trecut: rândul „Termen” din „Azi”
+        termenPesteZile: -2,
         procentRadu: 30,
         taskuri: [
           { titlu: "Structura site-ului, aprobată", om: "admin", termenPesteZile: -40, gata: true },
@@ -620,6 +645,7 @@ const CLIENTI: { nrLead: number; proiecte: ProiectScris[] }[] = [
   },
   {
     nrLead: 43, // Teodor Câmpeanu · Ferma Câmpeanu
+    cerereNouaAcumZile: 0.3,
     proiecte: [
       {
         titlu: "Formular de comenzi și tabel de stoc",
@@ -663,7 +689,7 @@ function completeazaProiect(p: ProiectScris, pornit: number): ProiectDemo {
   for (let i = 1; i <= k; i++) parcurs.push({ tip: "stadiu", autor: "admin", acumZile: max1(pornit - pas * i), detalii: { de: STADII_ORDINE[i - 1], in: STADII_ORDINE[i] } });
 
   // ce s-a trimis: spre final, la două zile unul de altul; răspunsul clientului vine a doua zi
-  const livrari = p.livrari.map((l, j) => ({ ...l, acumZile: max1(sfarsit + 1.5 + (p.livrari.length - 1 - j) * 2) }));
+  const livrari = p.livrari.map((l, j) => ({ ...l, acumZile: l.acumZile ?? max1(sfarsit + 1.5 + (p.livrari.length - 1 - j) * 2) }));
   for (const l of livrari) {
     parcurs.push({ tip: "livrat", autor: "admin", acumZile: l.acumZile, detalii: { titlu: l.titlu } });
     if (l.stare !== "trimis") parcurs.push({ tip: "livrare_stare", autor: "admin", acumZile: max1(l.acumZile - 1), detalii: { titlu: l.titlu, in: l.stare } });
@@ -688,6 +714,7 @@ export function clientiDemo(o: Optiuni): ClientDemo[] {
     return {
       nrLead: c.nrLead,
       clientDinAcumZile: clientDin,
+      cerereNouaAcumZile: c.cerereNouaAcumZile,
       proiecte: proiecte.map((p) => ({
         ...p,
         procentRadu: o.singur ? undefined : p.procentRadu,

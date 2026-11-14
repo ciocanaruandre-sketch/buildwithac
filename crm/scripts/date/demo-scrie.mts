@@ -158,6 +158,20 @@ export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
     const l = leaduri.find((x) => x.nr === c.nrLead)!;
     const { clientId, proiectId: primul } = await client(telefonNormDemo(c.nrLead), { nume: l.nume, telefon: telefonDemo(l.nr), serviciu: l.serviciu, sursa: l.sursa });
     verifica(await db.from("clienti").update({ creat_la: la(c.clientDinAcumZile) }).eq("id", clientId));
+    if (c.cerereNouaAcumZile !== undefined) {
+      // clientul a trimis iar formularul de pe site, după cel mai nou proiect: „Cerere nouă”
+      const { data: f } = await db.from("clienti").select("lead_id").eq("id", clientId).single();
+      if (f?.lead_id)
+        verifica(
+          await db.from("cereri").insert({
+            lead_id: f.lead_id,
+            sursa: "formular_site",
+            raspunsuri: [{ intrebare: "Ce vrei să facem?", raspuns: "Aș vrea să trimit și facturile automat, nu doar comenzile." }],
+            utm: {},
+            primita_la: la(c.cerereNouaAcumZile),
+          }),
+        );
+    }
 
     for (const [i, p] of c.proiecte.entries()) {
       const camp = {

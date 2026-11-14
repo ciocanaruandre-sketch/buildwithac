@@ -20,7 +20,8 @@ describe("firma demo: lead-urile", () => {
     const text = JSON.stringify(L);
     expect(text).not.toMatch(/test|e2e|demo|lorem/i);
     expect(text).not.toMatch(/[şţŞŢ]/);
-    expect(L.every((l) => l.acumZile >= 1 && l.acumZile <= 80)).toBe(true);
+    // sub o zi doar un lead nou (pagina „Azi”: nu toate lead-urile noi sunt întârziate)
+    expect(L.every((l) => (l.acumZile >= 1 || (l.stare === "nou" && l.acumZile > 0)) && l.acumZile <= 80)).toBe(true);
     expect(new Set(L.map((l) => l.nr)).size).toBe(L.length);
     expect(new Set(L.map((l) => l.nume)).size).toBe(L.length);
   });
@@ -28,7 +29,7 @@ describe("firma demo: lead-urile", () => {
   it("parcursul e în ordine și nu trece de ziua intrării", () => {
     for (const l of L) {
       const z = l.parcurs.map((p) => p.acumZile);
-      expect(z.every((x) => x <= l.acumZile && x >= 1)).toBe(true);
+      expect(z.every((x) => x <= l.acumZile && x >= Math.min(1, l.acumZile))).toBe(true);
       expect([...z].sort((a, b) => b - a)).toEqual(z);
     }
   });
@@ -294,5 +295,65 @@ describe("firma demo: reclamele", () => {
     // lead-urile din reclame au UTM-ul unei reclame, cu numele ei
     for (const l of L.filter((x) => x.reclama !== undefined)) expect(l.utm).toMatchObject({ utm_medium: "reclama", utm_content: RECLAME_DEMO[l.reclama!].nume });
     expect(L.filter((l) => l.sursa === "reclama_meta" || l.sursa === "reclama_tiktok").every((l) => l.reclama !== undefined)).toBe(true);
+  });
+});
+
+describe("firma demo: pagina Azi", () => {
+  const acum = new Date("2026-11-16T07:00:00Z"); // luni, 09:00 ora României
+  const L = leaduriDemo({ acum, singur: false });
+  const C = clientiDemo({ acum, singur: false });
+  const P = C.flatMap((c) => c.proiecte);
+  const ziRo = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Bucharest" }).format(d);
+
+  it("un lead nou sub o zi și unul peste o zi; sub o zi, ora e chiar de acum câteva ore", () => {
+    const noi = L.filter((l) => l.stare === "nou");
+    expect(noi.some((l) => l.acumZile < 1)).toBe(true);
+    expect(noi.some((l) => l.acumZile >= 1)).toBe(true);
+    expect(laOra(acum, 0.1).getTime()).toBe(acum.getTime() - 0.1 * 86_400_000);
+  });
+
+  it("o discuție azi și niciuna în trecut; vineri la 17:00, niciuna azi", () => {
+    const D = discutiiDemo({ acum, singur: false }, L);
+    expect(D.some((d) => ziRo(d.incepe) === ziRo(acum))).toBe(true);
+    expect(D.every((d) => d.incepe.getTime() > acum.getTime() + 60 * 60_000 - 1)).toBe(true);
+    const vineri = new Date("2026-11-20T15:00:00Z");
+    expect(discutiiDemo({ acum: vineri, singur: false }, leaduriDemo({ acum: vineri, singur: false })).some((d) => ziRo(d.incepe) === ziRo(vineri))).toBe(false);
+  });
+
+  it("un callback azi, în viitor, și unul întârziat", () => {
+    const cb = L.filter((l) => l.stare === "callback").map((l) => laCallback(acum, l.callbackPesteOre!));
+    expect(cb.some((d) => d > acum && ziRo(d) === ziRo(acum))).toBe(true);
+    expect(cb.some((d) => d < acum)).toBe(true);
+  });
+
+  it("un task neterminat cu termen azi; un proiect neînchis, încă în lucru, cu termen depășit", () => {
+    expect(P.some((p) => p.taskuri.some((t) => t.termenPesteZile === 0 && !t.gata))).toBe(true);
+    expect(P.some((p) => p.inchisAcumZile === undefined && ["discutie", "schita", "constructie", "revizii"].includes(p.stadiu) && p.termenPesteZile !== null && p.termenPesteZile < 0)).toBe(true);
+  });
+
+  it("o cerere mai nouă decât cel mai nou proiect al clientului", () => {
+    expect(C.some((c) => c.cerereNouaAcumZile !== undefined && c.cerereNouaAcumZile < Math.min(...c.proiecte.map((p) => p.creatAcumZile)))).toBe(true);
+  });
+
+  it("o livrare „trimis” de cel puțin 5 zile, pe un proiect neînchis", () => {
+    expect(P.some((p) => p.inchisAcumZile === undefined && p.livrari.some((l) => l.stare === "trimis" && l.acumZile >= 5))).toBe(true);
+  });
+
+  it("o tranșă neîncasată cu scadența în următoarele 0–7 zile", () => {
+    const azi = ziDupa(acum, 0);
+    const transe = P.flatMap((p) => (p.plata ? planDePlata(p.pret, planDemo(acum, p.plata)).map((t, i) => ({ ...t, incasata: p.incasari?.some((x) => x.rata === i) })) : []));
+    expect(transe.some((t) => !t.incasata && t.scadenta >= azi && t.scadenta <= ziDupa(acum, 7))).toBe(true);
+  });
+
+  it("un proiect livrat acum 30–60 de zile, fără proiect mai nou la client", () => {
+    const livrat = C.some((c) =>
+      c.proiecte.some((p) => {
+        const ev = p.parcurs.filter((e) => e.tip === "stadiu" && ["livrat", "mentenanta"].includes(String(e.detalii?.in))).map((e) => e.acumZile);
+        if (!ev.length) return false;
+        const z = Math.min(...ev);
+        return z >= 30 && z <= 60 && !c.proiecte.some((x) => x.creatAcumZile < z);
+      }),
+    );
+    expect(livrat).toBe(true);
   });
 });
