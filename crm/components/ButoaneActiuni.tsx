@@ -20,7 +20,7 @@ const ETICHETA: Record<Exclude<Actiune, "ia_lead">, string> = {
 type Deschis = null | "callback" | "pierdut" | "descalificat";
 
 /** Butoanele mari din fișă: doar cele permise. Callback-ul și motivele se deschid sub butoane. */
-export function ButoaneActiuni({ id, actiuni }: { id: string; actiuni: Actiune[] }) {
+export function ButoaneActiuni({ id, actiuni, faraPanou = false, laSucces }: { id: string; actiuni: Actiune[]; faraPanou?: boolean; laSucces?: () => void }) {
   const router = useRouter();
   const [deschis, setDeschis] = useState<Deschis>(null);
   const [mesaj, setMesaj] = useState<string | null>(null);
@@ -36,6 +36,7 @@ export function ButoaneActiuni({ id, actiuni }: { id: string; actiuni: Actiune[]
       setMesaj(null);
       setDeschis(null);
       setMotiv("");
+      laSucces?.();
       router.refresh();
     });
 
@@ -43,7 +44,7 @@ export function ButoaneActiuni({ id, actiuni }: { id: string; actiuni: Actiune[]
   if (!butoane.length) return null;
 
   return (
-    <div className="panel p-3.5">
+    <div className={faraPanou ? "" : "panel p-3.5"}>
       <div className="flex flex-wrap gap-2">
         {butoane.map((a) =>
           a === "programeaza" ? (

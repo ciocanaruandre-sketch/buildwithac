@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { Ascuns } from "@/components/Ascuns";
-import { ETICHETA_TIP, type Cifra, type Placa, type RandAzi, type Tema } from "@/lib/azi";
+import { ButoaneActiuni } from "@/components/ButoaneActiuni";
+import { ButoaneAzi } from "@/components/azi/ButoaneAzi";
+import { ETICHETA_TIP, urmatorul, type Cifra, type Placa, type RandAzi, type Tema } from "@/lib/azi";
+import { actiuniPermise } from "@/lib/stari";
 import { lei } from "@/lib/proiecte";
 import type { Rol } from "@/lib/tipuri";
 
@@ -37,10 +40,19 @@ function Descriere({ r }: { r: RandAzi }) {
 const culoareCand = (r: RandAzi) => (r.urgenta === "intarziat" ? "text-red-t" : r.curand ? "text-amber" : "text-ink-3");
 
 /** Pagina „Azi”: cifrele de sus, cardul „Acum”, plăcile temelor și lista temei alese. */
-export function PaginaAzi({ randuri, placi, cifre, salut, zi }: { randuri: RandAzi[]; placi: Placa[]; cifre: Cifra[]; salut: string; zi: string; om: OmAzi }) {
+export function PaginaAzi({ randuri, placi, cifre, salut, zi, om }: { randuri: RandAzi[]; placi: Placa[]; cifre: Cifra[]; salut: string; zi: string; om: OmAzi }) {
   const [temaAleasa, setTema] = useState<Tema | null>(null);
+  // „Acum”: rândul ales cu „Mai târziu” sau adus din listă cu „Sună”; altfel primul. Nu se salvează: la refresh, ordinea revine.
+  const [acumCheie, setAcumCheie] = useState<string | null>(null);
+  const [rezultat, setRezultat] = useState(false);
   const tema = placi.some((p) => p.tema === temaAleasa) ? temaAleasa! : (placi[0]?.tema ?? null);
-  const acum = randuri[0] ?? null;
+  const acum = randuri.find((r) => r.cheie === acumCheie) ?? randuri[0] ?? null;
+  const urm = acum ? urmatorul(randuri, acum.cheie) : null;
+  const laApel = (cheie: string) => {
+    setAcumCheie(cheie);
+    setRezultat(true);
+  };
+  const poateRezultat = Boolean(acum?.lead && actiuniPermise(acum.lead, om.rol, om.id).some((a) => a !== "ia_lead"));
   const intarziateDupa = randuri.filter((r) => r.urgenta === "intarziat" && r !== acum).length;
   const lista = randuri.filter((r) => r.tema === tema);
 
@@ -81,6 +93,41 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi }: { randuri: RandA
               {" · "}
               <span className={culoareCand(acum)}>{acum.cand}</span>
             </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <ButoaneAzi key={acum.cheie} rand={acum} om={om} laApel={laApel} mare />
+              {urm && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setAcumCheie(urm);
+                    setRezultat(false);
+                  }}
+                >
+                  Mai târziu
+                </button>
+              )}
+            </div>
+            {acum.lead && !rezultat && poateRezultat && (
+              <button type="button" className="mt-2.5 text-[12.5px] text-ink-3 hover:text-ink hover:underline" onClick={() => setRezultat(true)}>
+                Treci rezultatul
+              </button>
+            )}
+            {acum.lead && rezultat && (
+              <div className="mt-3.5 border-t border-line pt-3.5">
+                <ButoaneActiuni
+                  key={acum.cheie}
+                  id={acum.lead.id}
+                  faraPanou
+                  // după „Ia lead-ul” e deja al tău, chiar dacă pagina încă n-a venit înapoi
+                  actiuni={actiuniPermise({ ...acum.lead, caller_id: acum.lead.caller_id ?? om.id }, om.rol, om.id)}
+                  laSucces={() => {
+                    setAcumCheie(null);
+                    setRezultat(false);
+                  }}
+                />
+              </div>
+            )}
             {(intarziateDupa > 0 || placi.length > 0) && (
               <p className="mt-3.5 border-t border-line pt-3 text-[12.5px] text-ink-3">
                 {intarziateDupa > 0 && <b className="font-semibold text-ink-2">Încă {intarziateDupa === 1 ? "1 întârziată" : `${intarziateDupa} întârziate`} după asta. </b>}
@@ -139,6 +186,9 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi }: { randuri: RandA
                 </span>
               )}
               <span className={`flex-none text-right text-[12px] font-medium whitespace-nowrap ${culoareCand(r)}`}>{r.cand}</span>
+              <div className="flex-none max-md:basis-full">
+                <ButoaneAzi rand={r} om={om} laApel={laApel} />
+              </div>
             </li>
           ))}
         </ul>
