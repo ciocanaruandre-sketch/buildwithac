@@ -2,7 +2,7 @@ import { cand, termenScurt } from "@/lib/afisare";
 import { dePlatitOm, textZile, type ComisionOm, type Transa } from "@/lib/finante";
 import { textIntarziere } from "@/lib/proiecte";
 import { normalizeazaTelefon } from "@/lib/telefon";
-import { laOraRomaniei, ziuaPeste, ziuaRomaniei } from "@/lib/timp";
+import { FUS, laOraRomaniei, ziuaPeste, ziuaRomaniei } from "@/lib/timp";
 import { ETICHETE, type Rol, type Serviciu, type Stadiu, type Stare, type Sursa } from "@/lib/tipuri";
 
 export type Tema = "sunat" | "discutii" | "lucru" | "bani";
@@ -316,4 +316,109 @@ export function randuriAzi(d: DateAzi, om: { id: string; rol: Rol }, acum: Date)
   }
 
   return r;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Ordinea, „Acum”, plăcile, cifrele de sus
+
+const GRUPA: Record<Urgenta, number> = { intarziat: 1, azi: 2, urmeaza: 3, cand_ai_timp: 4 };
+const grupa = (x: RandAzi) => (x.curand ? 0 : GRUPA[x.urgenta]);
+
+/** Ordinea din spec §5. „Acum” = primul rând. */
+export function ordoneaza(r: RandAzi[]): RandAzi[] {
+  return [...r].sort((a, b) => {
+    const g = grupa(a) - grupa(b);
+    if (g) return g;
+    switch (grupa(a)) {
+      case 1:
+        return (a.la ?? 0) - (b.la ?? 0) || Number(b.tip === "lead_nou") - Number(a.tip === "lead_nou");
+      case 4: {
+        const c = Number(b.tip === "comision") - Number(a.tip === "comision");
+        if (c) return c;
+        return a.tip === "comision" ? a.nume.localeCompare(b.nume, "ro") : (a.la ?? 0) - (b.la ?? 0);
+      }
+      default:
+        // fără oră la urmă
+        return (a.la ?? Infinity) - (b.la ?? Infinity) || 0;
+    }
+  });
+}
+
+/** „Mai târziu”: cheia rândului de după cel din „Acum” (după ultimul, primul). null dacă n-are unde trece. */
+export function urmatorul(r: RandAzi[], cheie: string | null): string | null {
+  if (r.length < 2) return null;
+  const i = Math.max(0, r.findIndex((x) => x.cheie === cheie));
+  return r[(i + 1) % r.length].cheie;
+}
+
+/** „1 task”, „3 task-uri”, „20 de task-uri” (de la 20 în sus, „de”, ca la textZile). */
+function cate(n: number, unu: string, multe: string): string {
+  if (n === 1) return `1 ${unu}`;
+  const rest = n % 100;
+  return `${n}${rest === 0 || rest >= 20 ? " de" : ""} ${multe}`;
+}
+
+export type Placa = { tema: Tema; nume: string; total: number; intarziate: number; rezumat: string };
+const NUME_TEMA: Record<Tema, string> = { sunat: "De sunat", discutii: "Discuții", lucru: "Lucru", bani: "Bani" };
+const ORDINE_TEME: Tema[] = ["sunat", "discutii", "lucru", "bani"];
+
+function rezumat(tema: Tema, r: RandAzi[]): string {
+  const nr = (f: (x: RandAzi) => boolean) => r.filter(f).length;
+  const parti = (p: [number, string, string][]) =>
+    p
+      .filter(([k]) => k > 0)
+      .map(([k, unu, multe]) => cate(k, unu, multe))
+      .join(" · ");
+  switch (tema) {
+    case "sunat":
+      return parti([[nr((x) => x.tip === "lead_nou"), "nou", "noi"], [nr((x) => x.tip === "callback"), "callback", "callback"]]);
+    case "discutii": {
+      const azi = nr((x) => x.urgenta === "azi");
+      return azi ? `${azi} azi` : `${r.length} mâine`;
+    }
+    case "lucru":
+      return parti([[nr((x) => x.tip === "task"), "task", "task-uri"], [nr((x) => x.tip !== "task"), "alta", "altele"]]);
+    case "bani":
+      return parti([[nr((x) => x.tip === "rata"), "rată", "rate"], [nr((x) => x.tip === "comision"), "comision", "comisioane"], [nr((x) => x.tip === "vanzare"), "vânzare", "vânzări"]]);
+  }
+}
+
+/** Plăcile temelor care au rânduri, în ordinea De sunat, Discuții, Lucru, Bani. */
+export function placi(r: RandAzi[]): Placa[] {
+  return ORDINE_TEME.flatMap((tema) => {
+    const ale = r.filter((x) => x.tema === tema);
+    if (!ale.length) return [];
+    const intarziate = ale.filter((x) => x.urgenta === "intarziat").length;
+    return [{ tema, nume: NUME_TEMA[tema], total: ale.length, intarziate, rezumat: intarziate ? cate(intarziate, "întârziată", "întârziate") : rezumat(tema, ale) }];
+  });
+}
+
+export type Cifra = { text: string; culoare: "red" | "amber" | "blue" | "violet" | "green" };
+
+/** Rândul de pastile de sus; cele cu 0 nu apar. */
+export function cifreSus(r: RandAzi[]): Cifra[] {
+  const nr = (f: (x: RandAzi) => boolean) => r.filter(f).length;
+  const c: [number, string, Cifra["culoare"]][] = [
+    [nr((x) => x.urgenta === "intarziat"), cate(nr((x) => x.urgenta === "intarziat"), "întârziată", "întârziate"), "red"],
+    [nr((x) => x.tema === "sunat"), `${nr((x) => x.tema === "sunat")} de sunat`, "amber"],
+    [nr((x) => x.tip === "discutie" && x.urgenta === "azi"), `${cate(nr((x) => x.tip === "discutie" && x.urgenta === "azi"), "discuție", "discuții")} azi`, "blue"],
+    [nr((x) => x.tip === "task" && x.urgenta === "azi"), `${cate(nr((x) => x.tip === "task" && x.urgenta === "azi"), "task", "task-uri")} azi`, "violet"],
+    [nr((x) => x.tip === "rata"), `${cate(nr((x) => x.tip === "rata"), "rată", "rate")} de încasat`, "green"],
+  ];
+  return c.filter(([k]) => k > 0).map(([, text, culoare]) => ({ text, culoare }));
+}
+
+const ORA_RO = new Intl.DateTimeFormat("en-GB", { timeZone: FUS, hour: "2-digit", hourCycle: "h23" });
+const ZI_TITLU = new Intl.DateTimeFormat("ro-RO", { timeZone: FUS, weekday: "long", day: "numeric", month: "long" });
+
+/** „Bună dimineața” până la 12, „Bună ziua” până la 18, apoi „Bună seara” (ora României). */
+export function salut(acum: Date): string {
+  const h = Number(ORA_RO.format(acum));
+  return h < 12 ? "Bună dimineața" : h < 18 ? "Bună ziua" : "Bună seara";
+}
+
+/** „Luni, 16 noiembrie”. */
+export function ziTitlu(acum: Date): string {
+  const s = ZI_TITLU.format(acum);
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

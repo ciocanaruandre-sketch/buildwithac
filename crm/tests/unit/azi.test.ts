@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { randuriAzi, textIntrat, type DateAzi, type RandAzi } from "@/lib/azi";
+import { cifreSus, ordoneaza, placi, randuriAzi, salut, textIntrat, urmatorul, ziTitlu, type DateAzi, type RandAzi } from "@/lib/azi";
 import type { Transa } from "@/lib/finante";
 import type { Rol } from "@/lib/tipuri";
 
@@ -331,5 +331,117 @@ describe("pagina Azi: temele rolului", () => {
   it("cheile sunt unice", () => {
     const r = randuriAzi(plin(), ADMIN, ACUM);
     expect(new Set(r.map((x) => x.cheie)).size).toBe(r.length);
+  });
+});
+
+describe("pagina Azi: ordinea, plăcile, cifrele", () => {
+  const rand = (x: Partial<RandAzi>): RandAzi => ({
+    cheie: `x:${n++}`,
+    tip: "task",
+    tema: "lucru",
+    urgenta: "azi",
+    la: null,
+    curand: false,
+    nume: "N",
+    numeAscuns: false,
+    client: null,
+    descriere: [],
+    suma: null,
+    cand: "",
+    href: "/",
+    telefonNorm: null,
+    ...x,
+  });
+
+  it("ordinea: curând, întârziate de la cea mai veche (lead nou primul la egalitate), azi cu oră, azi fără oră, urmează, comisioane, vânzări", () => {
+    const T = ACUM.getTime();
+    const r = [
+      rand({ cheie: "vanzare", tip: "vanzare", urgenta: "cand_ai_timp", la: T - 40 * ZI }),
+      rand({ cheie: "comision-r", tip: "comision", urgenta: "cand_ai_timp", nume: "Radu Stan" }),
+      rand({ cheie: "comision-m", tip: "comision", urgenta: "cand_ai_timp", nume: "Mara Ionescu" }),
+      rand({ cheie: "urmeaza-2", urgenta: "urmeaza", la: T + 2 * ZI }),
+      rand({ cheie: "urmeaza-1", urgenta: "urmeaza", la: T + ZI }),
+      rand({ cheie: "azi-fara", urgenta: "azi", la: null }),
+      rand({ cheie: "azi-16", tip: "callback", urgenta: "azi", la: T + 6 * H }),
+      rand({ cheie: "azi-11", tip: "callback", urgenta: "azi", la: T + H }),
+      rand({ cheie: "task-3z", urgenta: "intarziat", la: T - 3 * ZI }),
+      rand({ cheie: "lead-3z", tip: "lead_nou", urgenta: "intarziat", la: T - 3 * ZI }),
+      rand({ cheie: "callback-1z", tip: "callback", urgenta: "intarziat", la: T - ZI }),
+      rand({ cheie: "curand", tip: "discutie", urgenta: "azi", la: T + 10 * MIN, curand: true }),
+    ];
+    expect(ordoneaza(r).map((x) => x.cheie)).toEqual(["curand", "lead-3z", "task-3z", "callback-1z", "azi-11", "azi-16", "azi-fara", "urmeaza-1", "urmeaza-2", "comision-m", "comision-r", "vanzare"]);
+  });
+
+  it("urmatorul: după ultimul revine la primul; de la null e al doilea; cu un singur rând nu există", () => {
+    const r = [rand({ cheie: "a" }), rand({ cheie: "b" }), rand({ cheie: "c" })];
+    expect(urmatorul(r, "a")).toBe("b");
+    expect(urmatorul(r, "c")).toBe("a");
+    expect(urmatorul(r, null)).toBe("b");
+    expect(urmatorul(r, "nu-mai-e")).toBe("b");
+    expect(urmatorul([rand({ cheie: "a" })], "a")).toBeNull();
+    expect(urmatorul([], null)).toBeNull();
+  });
+
+  it("plăcile: doar temele cu rânduri, în ordine; întârziatele întâi; rezumatele", () => {
+    const p = placi([
+      rand({ tema: "bani", tip: "rata", urgenta: "urmeaza" }),
+      rand({ tema: "bani", tip: "comision", urgenta: "cand_ai_timp" }),
+      rand({ tema: "sunat", tip: "lead_nou" }),
+      rand({ tema: "sunat", tip: "lead_nou" }),
+      rand({ tema: "sunat", tip: "lead_nou" }),
+      rand({ tema: "sunat", tip: "callback" }),
+      rand({ tema: "sunat", tip: "callback" }),
+      rand({ tema: "discutii", tip: "discutie", urgenta: "azi" }),
+      rand({ tema: "discutii", tip: "discutie", urgenta: "urmeaza" }),
+    ]);
+    expect(p).toEqual([
+      { tema: "sunat", nume: "De sunat", total: 5, intarziate: 0, rezumat: "3 noi · 2 callback" },
+      { tema: "discutii", nume: "Discuții", total: 2, intarziate: 0, rezumat: "1 azi" },
+      { tema: "bani", nume: "Bani", total: 2, intarziate: 0, rezumat: "1 rată · 1 comision" },
+    ]);
+    expect(placi([rand({ tema: "discutii", tip: "discutie", urgenta: "urmeaza" })])[0].rezumat).toBe("1 mâine");
+    expect(placi([rand({ urgenta: "intarziat" }), rand({ urgenta: "intarziat" }), rand({})])[0]).toMatchObject({ intarziate: 2, rezumat: "2 întârziate" });
+    expect(placi([rand({ urgenta: "intarziat" })])[0].rezumat).toBe("1 întârziată");
+    expect(placi([...Array(20)].map(() => rand({})).concat(rand({ tip: "termen" })))[0].rezumat).toBe("20 de task-uri · 1 alta");
+    expect(placi([rand({ tema: "sunat", tip: "lead_nou" })])[0].rezumat).toBe("1 nou");
+  });
+
+  it("cifrele de sus: fără cele cu 0; singular și plural", () => {
+    expect(
+      cifreSus([
+        rand({ tema: "sunat", tip: "lead_nou", urgenta: "intarziat" }),
+        rand({ tema: "sunat", tip: "callback" }),
+        rand({ tema: "discutii", tip: "discutie", urgenta: "azi" }),
+        rand({ tema: "discutii", tip: "discutie", urgenta: "urmeaza" }),
+        rand({ tip: "task", urgenta: "intarziat" }),
+        rand({ tip: "task", urgenta: "azi" }),
+        rand({ tip: "task", urgenta: "azi" }),
+        rand({ tema: "bani", tip: "rata", urgenta: "urmeaza" }),
+        rand({ tema: "bani", tip: "rata", urgenta: "intarziat" }),
+        rand({ tema: "bani", tip: "rata", urgenta: "azi" }),
+      ]),
+    ).toEqual([
+      { text: "3 întârziate", culoare: "red" },
+      { text: "2 de sunat", culoare: "amber" },
+      { text: "1 discuție azi", culoare: "blue" },
+      { text: "2 task-uri azi", culoare: "violet" },
+      { text: "3 rate de încasat", culoare: "green" },
+    ]);
+    expect(cifreSus([rand({ urgenta: "intarziat" })])).toEqual([{ text: "1 întârziată", culoare: "red" }]);
+    expect(cifreSus([])).toEqual([]);
+  });
+
+  it("salutul după ora României, iarna și vara", () => {
+    expect(salut(new Date("2026-11-16T09:59:00Z"))).toBe("Bună dimineața");
+    expect(salut(new Date("2026-11-16T10:00:00Z"))).toBe("Bună ziua");
+    expect(salut(new Date("2026-11-16T16:00:00Z"))).toBe("Bună seara");
+    expect(salut(new Date("2026-07-16T08:59:00Z"))).toBe("Bună dimineața");
+    expect(salut(new Date("2026-07-16T09:00:00Z"))).toBe("Bună ziua");
+    expect(salut(new Date("2026-07-16T15:00:00Z"))).toBe("Bună seara");
+  });
+
+  it("ziTitlu: „Luni, 16 noiembrie”, după ziua României", () => {
+    expect(ziTitlu(ACUM)).toBe("Luni, 16 noiembrie");
+    expect(ziTitlu(new Date("2026-11-16T22:30:00Z"))).toBe("Marți, 17 noiembrie");
   });
 });
