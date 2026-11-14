@@ -83,6 +83,33 @@ test("Admin: scrie suma cheltuită, verdictul se schimbă", async ({ page }) => 
   await expect(c.getByRole("button", { name: `Cheltuit pe ${r.nume}` })).toHaveText("500 lei");
 });
 
+test("Admin: Escape în câmpul de cheltuit renunță, fără să salveze", async ({ page }) => {
+  const r = await reclama({ lead_uri: 1, cheltuit: 100 });
+  await intraCa(page, "admin");
+  await page.goto("/reclame");
+  const c = card(page, r.nume);
+  await c.getByRole("button", { name: `Cheltuit pe ${r.nume}` }).click();
+  await c.getByRole("textbox", { name: `Cheltuit pe ${r.nume} (lei)` }).fill("999");
+  await c.getByRole("textbox", { name: `Cheltuit pe ${r.nume} (lei)` }).press("Escape");
+  await expect(c.getByRole("button", { name: `Cheltuit pe ${r.nume}` })).toHaveText("100 lei");
+  await page.reload();
+  await expect(card(page, r.nume).getByRole("button", { name: `Cheltuit pe ${r.nume}` })).toHaveText("100 lei");
+  expect((await db().from("reclame").select("cheltuit_lei").eq("id", r.id).single()).data!.cheltuit_lei).toBe(100);
+});
+
+test("Admin: un lead din link de reclamă, dar nelegat, nu apare ca adăugat de mână", async ({ page }) => {
+  await reclama({ lead_uri: 1, cheltuit: 100 });
+  const l = await leadNou({ sursa: "reclama_meta" });
+  deSters.push(l.id);
+  const cer = await db()
+    .from("cereri")
+    .insert({ lead_id: l.id, sursa: "reclama_meta", raspunsuri: [], utm: { utm_source: "ig", utm_medium: "reclama", utm_campaign: CAMPANIE, utm_content: "Nelegată" } });
+  if (cer.error) throw cer.error;
+  await intraCa(page, "admin");
+  await page.goto("/reclame");
+  await expect(page.getByTestId("nelegate")).toContainText(/din reclame nu s-a(u)? legat de\s+reclama lor/);
+});
+
 test("Admin: + Reclamă adaugă o reclamă fără lead-uri", async ({ page }) => {
   const n = nume();
   await intraCa(page, "admin");

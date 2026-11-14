@@ -150,6 +150,19 @@ describe("intrarea din reclame", () => {
     expect((await admin().from("reclame").select("id").eq("campanie", camp("existent"))).data).toEqual([]);
   });
 
+  it("un client care trimite din reclamă → nu se leagă, rămâne client", async () => {
+    const t = tel();
+    const id = await trimite(t, {});
+    await admin().from("lead_uri").update({ stare: "programat" }).eq("id", id);
+    await admin().from("lead_uri").update({ stare: "client" }).eq("id", id);
+    const a2 = await trimite(t, { utm_source: "ig", utm_medium: "reclama", utm_campaign: camp("client"), utm_content: "Clip" });
+    expect(a2).toBe(id);
+    expect((await admin().from("lead_uri").select("stare").eq("id", id).single()).data!.stare).toBe("client");
+    expect(await legatura(id)).toBeNull();
+    expect((await admin().from("reclame").select("id").eq("campanie", camp("client"))).data).toEqual([]);
+    await admin().from("clienti").delete().eq("lead_id", id);
+  });
+
   it("aceeași reclamă cu nume lung → o singură reclamă", async () => {
     const utm = { utm_source: "tiktok", utm_medium: "reclama", utm_campaign: camp("lung"), utm_content: "ș".repeat(150) };
     const a = await trimite(tel(), utm);

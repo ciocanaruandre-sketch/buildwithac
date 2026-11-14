@@ -73,6 +73,8 @@ describe("verdict", () => {
   it("niciun client", () => {
     expect(verdict(MACHETA[1])).toEqual({ ton: "red", text: "Niciun client încă. 9 lead-uri, 42 lei fiecare." });
     expect(verdict(r({ lead_uri: 0, clienti: 0, incasat_lei: 0 }))).toEqual({ ton: "red", text: "Niciun lead încă." });
+    expect(verdict(r({ lead_uri: 1, clienti: 0, incasat_lei: 0, cheltuit_lei: 40 }))).toEqual({ ton: "red", text: "Niciun client încă. 1 lead, 40 lei." });
+    expect(verdict(r({ lead_uri: 20, clienti: 0, incasat_lei: 0, cheltuit_lei: 400 }))).toEqual({ ton: "red", text: "Niciun client încă. 20 de lead-uri, 20 lei fiecare." });
   });
   it("fără sumă", () => {
     expect(verdict(MACHETA[3])).toEqual({ ton: "amber", text: "Scrie cât ai cheltuit ca să vezi dacă merită." });
@@ -99,7 +101,13 @@ describe("ordoneaza și totaluri", () => {
     const t = totaluri(MACHETA);
     expect(t).toMatchObject({ cheltuit: 1750, lead_uri: 44, clienti: 5, incasat: 9200, mai_vin: 4300, reclame: 5 });
     expect(t.peClient).toBe(350);
-    expect(t.peLead).toBeCloseTo(1750 / 44);
+    // reclama fără sumă (3 lead-uri) nu intră în costul pe lead
+    expect(t.peLead).toBeCloseTo(1750 / 41);
+  });
+  it("costul pe lead și pe client, doar din reclamele cu sumă", () => {
+    const t = totaluri([r({ cheltuit_lei: 100, lead_uri: 2, clienti: 1 }), r({ id: "b", cheltuit_lei: null, lead_uri: 8, clienti: 3 })]);
+    expect(t).toMatchObject({ cheltuit: 100, lead_uri: 10, clienti: 4, peLead: 50, peClient: 100 });
+    expect(totaluri([r({ cheltuit_lei: null, lead_uri: 5 })])).toMatchObject({ peLead: null, peClient: null });
   });
   it("fără reclame, totalurile sunt zero", () => {
     expect(totaluri([])).toMatchObject({ cheltuit: 0, lead_uri: 0, peLead: null, peClient: null });

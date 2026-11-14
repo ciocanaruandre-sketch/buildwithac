@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { seteazaCheltuit } from "@/app/(app)/reclame/actiuni";
 import { useActiune } from "@/components/finante/useActiune";
 import { lei } from "@/lib/proiecte";
@@ -10,6 +10,8 @@ export function Cheltuit({ id, suma, nume }: { id: string; suma: number | null; 
   const [scrie, setScrie] = useState(false);
   const [text, setText] = useState("");
   const { mesaj, setMesaj, lucreaza, fa } = useActiune();
+  // Escape închide câmpul, iar câmpul care dispare pierde focusul: blur-ul de atunci nu trebuie să salveze
+  const renunta = useRef(false);
 
   if (!scrie) {
     return (
@@ -21,6 +23,7 @@ export function Cheltuit({ id, suma, nume }: { id: string; suma: number | null; 
         }`}
         onClick={() => {
           setText(suma === null ? "" : String(suma));
+          renunta.current = false;
           setScrie(true);
         }}
       >
@@ -44,12 +47,13 @@ export function Cheltuit({ id, suma, nume }: { id: string; suma: number | null; 
         onKeyDown={(e) => {
           if (e.key === "Enter") salveaza();
           if (e.key === "Escape") {
+            renunta.current = true;
             setScrie(false);
             setMesaj(null);
           }
         }}
         onBlur={() => {
-          if (!lucreaza) salveaza();
+          if (!lucreaza && !renunta.current) salveaza();
         }}
       />
       {mesaj && (

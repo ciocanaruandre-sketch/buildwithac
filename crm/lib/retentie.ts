@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/baza.types";
+import { leadUri } from "@/lib/afisare";
 import { descriereTransa, linkTransa, transeIntarziate, type TransaIntarziata } from "@/lib/alerte-finante";
 import { CRM } from "@/lib/config";
 import { escapa, trimiteEmail, type Email } from "@/lib/email";
@@ -57,7 +58,6 @@ async function citesteTot(db: Db, tabel: Tabel): Promise<unknown[]> {
   }
 }
 
-const lead = (n: number) => (n === 1 ? "1 lead" : `${n} lead-uri`);
 
 export type LeadCareExpira = { id: string; nume: string; stare: Stare; intrat_la: string };
 
@@ -102,7 +102,7 @@ export function construiesteCopia(
   const json = JSON.stringify({ facuta_la: acum.toISOString(), tabele }, null, 1);
   const randuri = [
     `Copia de luni a CRM-ului e atașată (${nume}). Păstreaz-o într-un loc sigur: are datele oamenilor.`,
-    ...(sterse ? [`Am șters ${lead(sterse)} mai vechi de ${ZILE_PASTRARE} de zile, cum promite pagina de confidențialitate.`] : []),
+    ...(sterse ? [`Am șters ${leadUri(sterse)} mai vechi de ${ZILE_PASTRARE} de zile, cum promite pagina de confidențialitate.`] : []),
   ];
   const titlu = `Se șterg în următoarele 7 zile (${expira.length}). Dacă vreunul e încă în lucru, cere-i o confirmare nouă:`;
   const descriere = (l: LeadCareExpira) => `${l.nume} · ${ETICHETE.stare[l.stare]} · se șterge pe ${ziuaStergerii(l.intrat_la)}`;
