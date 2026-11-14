@@ -1,7 +1,13 @@
-export type NumeIconita = "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta" | "filmare" | "finante" | "reclame";
+export type NumeIconita = "azi" | "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta" | "filmare" | "finante" | "reclame";
 
 /** Desenele din prototip/crm-tema.html (i-inbox, i-users, i-check, i-cal, i-team, i-search), plus ieșirea. */
 const DESENE: Record<NumeIconita, React.ReactNode> = {
+  azi: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
   "lead-uri": (
     <>
       <path d="M3 13l3-8h12l3 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />

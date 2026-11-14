@@ -4,6 +4,7 @@ import { leadNou, stergeLead } from "./date";
 
 test("callerul vede numărătoarea și lead-urile din seed", async ({ page }) => {
   await intraCa(page, "caller");
+  await page.goto("/lead-uri");
   await expect(page.getByRole("link", { name: /Nou \d+/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Elena Marin · Cafeneaua Boabe" })).toBeVisible();
 });
@@ -34,6 +35,7 @@ test("„Îmi iau lead-ul” îl mută în „Ale mele”", async ({ page }) => 
   const l = await leadNou();
   try {
     await intraCa(page, "caller");
+    await page.goto("/lead-uri");
     const rand = page.getByRole("row", { name: new RegExp(l.nume) });
     await rand.getByRole("button", { name: "Îmi iau lead-ul" }).click();
     await expect(rand.getByRole("button", { name: "Îmi iau lead-ul" })).toHaveCount(0);
@@ -46,6 +48,7 @@ test("„Îmi iau lead-ul” îl mută în „Ale mele”", async ({ page }) => 
 
 test("WhatsApp și telefonul sunt linkuri directe", async ({ page }) => {
   await intraCa(page, "caller");
+  await page.goto("/lead-uri");
   const rand = page.getByRole("row", { name: /Elena Marin/ });
   await expect(rand.getByRole("link", { name: "WhatsApp" })).toHaveAttribute("href", /^https:\/\/wa\.me\/40700/);
   await expect(rand.getByRole("link", { name: "Sună" })).toHaveAttribute("href", /^tel:\+40700/);

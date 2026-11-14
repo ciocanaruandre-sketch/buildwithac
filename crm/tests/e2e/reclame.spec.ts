@@ -159,14 +159,14 @@ test("caller și constructor nu văd Reclame în meniu, iar /reclame dă 404", a
   }
 });
 
-test("390px: meniul de jos are 7 intrări vizibile, cardurile pe o coloană, fără derulare orizontală", async ({ page }) => {
+test("390px: meniul de jos are 8 intrări vizibile, cardurile pe o coloană, fără derulare orizontală", async ({ page }) => {
   const a = await reclama({ lead_uri: 1, cheltuit: null });
   const b = await reclama({ lead_uri: 2, cheltuit: null });
   await page.setViewportSize({ width: 390, height: 844 });
   await intraCa(page, "admin");
   await page.goto("/reclame");
   const jos = page.getByRole("navigation", { name: "Navigare" }).filter({ visible: true });
-  await expect(jos.getByRole("link")).toHaveCount(7);
+  await expect(jos.getByRole("link")).toHaveCount(8);
   await expect(jos.getByRole("link", { name: "Reclame" })).toBeVisible();
   const x1 = (await card(page, a.nume).boundingBox())!.x;
   const x2 = (await card(page, b.nume).boundingBox())!.x;

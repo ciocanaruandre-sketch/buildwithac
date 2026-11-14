@@ -68,7 +68,7 @@ test("contul oprit nu mai intră, apoi pornit din nou intră", async ({ page, br
   await altul.getByLabel("E-mail").fill(om.email);
   await altul.getByLabel("Parola").fill(process.env.CRM_PAROLA_TEST!);
   await altul.getByRole("button", { name: "Intră" }).click();
-  await expect(altul).toHaveURL(/\/lead-uri/);
+  await expect(altul).toHaveURL(/\/azi$/);
 });
 
 test("lead-urile unui om oprit se mută toate la altcineva", async ({ page }) => {
