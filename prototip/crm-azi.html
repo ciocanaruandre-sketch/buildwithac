@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM: pagina Azi (variante)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141417; --panel:#1c1c20; --panel-2:#232328; --line:rgba(255,255,255,.07);
+  --ink:#f1f1f3; --ink-2:#b4b4bb; --ink-3:#8a8a92;
+  --glass:rgba(30,30,34,.55); --glass-bd:rgba(255,255,255,.07);
+  --r:16px; --r-sm:10px; --r-xl:22px;
+  --sel:rgba(255,255,255,.08); --seg:rgba(255,255,255,.05); --btn:rgba(255,255,255,.07);
+  --amber:#e3a43c; --amber-t:#ffb52e; --green:#4fbf8a; --red-t:#ff7a66; --blue:#6b9bd1; --tt:#5fd4d0; --violet:#b48ce0;
+  --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;min-height:100vh}
+button{font:inherit;color:inherit}
+.wall{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.wall i{position:absolute;border-radius:50%;filter:blur(100px);opacity:.10}
+.wall .w1{width:640px;height:640px;left:-140px;top:-200px;background:#ffb52e}
+.wall .w2{width:560px;height:560px;right:-160px;top:28%;background:#e53222}
+
+.switch{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:10px 12px;background:rgba(10,10,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.switch .grp{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--seg)}
+.switch button{border:0;background:none;padding:6px 13px;border-radius:999px;font:550 12.5px Inter;color:var(--ink-3);cursor:pointer}
+.switch button.on{background:var(--sel);color:var(--ink)}
+.switch .t{font:600 12px Inter;color:var(--ink-3)}
+
+.app{position:relative;z-index:1;display:flex;gap:20px;max-width:1280px;margin:0 auto;padding:18px 20px 80px}
+.side{width:220px;flex:none;border-radius:var(--r-xl);padding:16px 10px;background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(28px);align-self:flex-start;position:sticky;top:70px}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 14px;font:600 15px Inter}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--grad);display:block}
+.brand small{display:block;font:500 11.5px Inter;color:var(--ink-3)}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);font:500 13.5px Inter}
+.nav.on{background:var(--sel);color:var(--ink)}
+.nav .nou{margin-left:auto;font-size:10.5px;color:var(--amber-t)}
+.main{flex:1;min-width:0}
+body.tel .app{max-width:390px;padding:14px 14px 90px;border-left:1px solid var(--line);border-right:1px solid var(--line);min-height:100vh}
+body.tel .side{display:none}
+.jos{display:none}
+body.tel .jos{display:flex;position:fixed;bottom:10px;left:50%;transform:translateX(-50%);width:370px;justify-content:space-around;padding:8px 6px;border-radius:22px;background:rgba(30,30,34,.85);backdrop-filter:blur(20px);border:1px solid var(--glass-bd);z-index:40}
+.jos span{font:500 10px Inter;color:var(--ink-3);text-align:center}
+.jos span.on{color:var(--amber-t)}
+
+h1{font:700 26px/1.15 Inter;letter-spacing:-.025em;margin-bottom:4px}
+.sub{color:var(--ink-3);font-size:13px;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--btn);color:var(--ink);font:550 12.5px Inter;border:0;cursor:pointer;white-space:nowrap}
+.btn.pri{background:#e3a43c;color:#1a1408}
+.btn.ok{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font:500 11px Inter;white-space:nowrap;background:var(--btn);color:var(--ink-2)}
+.chip.c{background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.panel{position:relative;background:var(--panel);border-radius:var(--r);border:1px solid var(--line)}
+.muted{color:var(--ink-3)}
+.red{color:var(--red-t)} .amb{color:var(--amber-t)} .grn{color:var(--green)}
+
+/* culorile temelor */
+.t-sunat{--c:var(--amber-t)} .t-disc{--c:var(--blue)} .t-lucru{--c:var(--violet)} .t-bani{--c:var(--green)}
+
+/* rândul de sus */
+.rezumat{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.rezumat span{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:var(--seg);font:550 12.5px Inter;color:var(--ink-2)}
+.rezumat span b{font:650 14px Inter;color:var(--ink)}
+.rezumat span i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.rezumat span.rau{background:color-mix(in srgb,var(--red-t) 12%,transparent);color:var(--red-t)}
+.rezumat span.rau b{color:var(--red-t)}
+
+/* un rând de listă, comun */
+.it{display:flex;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);transition:opacity .35s,transform .35s}
+.it:first-child{border-top:0}
+.it.dus{opacity:0;transform:translateX(12px)}
+.it .mij{flex:1;min-width:0}
+.it .n{font:550 13.5px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it small{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .cand{font:500 12px Inter;color:var(--ink-3);white-space:nowrap;text-align:right}
+.it .cand.red{color:var(--red-t)} .it .cand.amb{color:var(--amber-t)}
+.it .act{display:flex;gap:6px;flex:none}
+.it .pct{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+body.tel .it{flex-wrap:wrap;gap:6px 10px}
+body.tel .it .mij{flex-basis:calc(100% - 100px)}
+body.tel .it .act{width:100%;padding-left:17px}
+.gol{padding:14px;color:var(--ink-3);font-size:12.5px}
+
+.var{display:none}
+body.vA .var.A, body.vB .var.B, body.vC .var.C{display:block}
+
+/* A · pe teme */
+.gridA{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:1100px){.gridA{grid-template-columns:minmax(0,1fr)}}
+body.tel .gridA{grid-template-columns:1fr}
+.colA{display:flex;flex-direction:column;gap:14px}
+.cap{display:flex;align-items:center;gap:9px;padding:13px 14px 9px}
+.cap h3{font:650 14.5px Inter}
+.cap .nr{font:600 11.5px Inter;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.cap .tot{margin-left:auto;font:500 12px Inter;color:var(--ink-3)}
+.subcap{padding:10px 14px 2px;font:600 11.5px Inter;color:var(--ink-3);border-top:1px solid var(--line)}
+.panel > .subcap:nth-child(2){border-top:0}
+
+/* B · o singură listă */
+.filtreB{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.filtreB button{border:0;padding:6px 12px;border-radius:999px;background:var(--seg);font:550 12.5px Inter;color:var(--ink-3);cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.filtreB button i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.filtreB button.on{background:var(--sel);color:var(--ink)}
+.grupB{margin-bottom:14px}
+.grupB .gh{display:flex;align-items:baseline;gap:8px;padding:0 4px 7px;font:650 13px Inter}
+.grupB .gh small{font:500 12px Inter;color:var(--ink-3)}
+.grupB.intarziate .gh{color:var(--red-t)}
+.grupB.intarziate .panel{border-color:color-mix(in srgb,var(--red-t) 28%,transparent)}
+.it .eti{flex:none;width:92px}
+body.tel .it .eti{display:none}
+
+/* C · acum + teme */
+.acum{padding:18px 20px;margin-bottom:16px;overflow:hidden}
+.acum::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--grad)}
+.acum .lb{font:600 12px Inter;color:var(--amber-t);margin-bottom:6px;display:flex;gap:8px;align-items:center}
+.acum .n{font:700 21px/1.2 Inter;letter-spacing:-.02em}
+.acum .d{color:var(--ink-2);font-size:13px;margin:4px 0 14px}
+.acum .act{display:flex;flex-wrap:wrap;gap:8px}
+.acum .act .btn{padding:9px 16px;font-size:13px}
+.acum .dupa{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+.acum .dupa b{color:var(--ink-2);font-weight:550}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+body.tel .tiles{grid-template-columns:1fr 1fr}
+.tile{padding:12px 14px;cursor:pointer;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);font:inherit;color:inherit}
+.tile.on{border-color:color-mix(in srgb,var(--c) 55%,transparent);background:color-mix(in srgb,var(--c) 7%,var(--panel))}
+.tile .lb{font:550 12.5px Inter;color:var(--ink-2);display:flex;gap:7px;align-items:center}
+.tile .lb i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.tile b{display:block;font:700 26px Inter;letter-spacing:-.03em;margin:4px 0 1px}
+.tile small{font-size:11.5px;color:var(--ink-3)}
+.tile small.red{color:var(--red-t)}
+
+.nota-proto{max-width:760px;margin:26px auto 0;font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.nota-proto b{color:var(--ink-2)}
+</style>
+</head>
+<body class="vA">
+<div class="wall"><i class="w1"></i><i class="w2"></i></div>
+
+<div class="switch">
+  <span class="t">Varianta</span>
+  <div class="grp" id="var"><button data-v="A" class="on">A · Pe teme</button><button data-v="B">B · O singură listă</button><button data-v="C">C · Acum + restul</button></div>
+  <div class="grp" id="lat"><button data-l="lap" class="on">Laptop</button><button data-l="tel">Telefon</button></div>
+  <span class="t">Cine intră</span>
+  <div class="grp" id="rol"><button data-r="admin" class="on">Andrei (Admin)</button><button data-r="caller">Mara (Caller)</button><button data-r="closer">Vlad (Closer)</button><button data-r="constructor">Radu (Constructor)</button></div>
+</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i></i><div>buildwithac<small>CRM</small></div></div>
+    <div class="nav on">Azi <span class="nou">nou</span></div>
+    <div class="nav">Lead-uri</div>
+    <div class="nav">Clienți</div>
+    <div class="nav">Task-urile mele</div>
+    <div class="nav">Program</div>
+    <div class="nav">Finanțe</div>
+    <div class="nav">Reclame</div>
+    <div class="nav">Echipa</div>
+  </aside>
+
+  <main class="main">
+    <h1 id="salut">Bună dimineața, Andrei</h1>
+    <div class="sub">Luni, 16 noiembrie · ce ai de făcut azi</div>
+    <div class="rezumat" id="rez"></div>
+
+    <div class="var A"><div class="gridA"><div class="colA" id="a1"></div><div class="colA" id="a2"></div></div></div>
+    <div class="var B"><div class="filtreB" id="fB"></div><div id="tB"></div></div>
+    <div class="var C"><div class="panel acum" id="acum"></div><div class="tiles" id="tiles"></div><div class="panel" id="listaC"></div></div>
+
+    <p class="nota-proto"><b>De probă aici:</b> apasă pe „✓ Gata”, „✓ Am încasat”, „✓ Plătit” sau „Sună” și rândul dispare, iar cifrele de sus scad. Așa se golește pagina pe parcursul zilei. Schimbă „Cine intră” ca să vezi ce vede fiecare rol: callerul doar apelurile lui, closerul și discuțiile, constructorul doar lucrul lui, fără bani. Fiecare rând duce la fișa lui (lead, client sau Finanțe). Datele sunt inventate.</p>
+  </main>
+</div>
+
+<div class="jos"><span class="on">Azi</span><span>Lead-uri</span><span>Clienți</span><span>Task-uri</span><span>Program</span><span>Finanțe</span></div>
+
+<script>
+/* t = tema (sunat, disc, lucru, bani); s = bucata; u = urgența (intarziat, azi, curand, liber); r = rolurile care o văd */
+const D=[
+  {id:1,t:'sunat',s:'noi',u:'intarziat',n:'Cosmin Ilie',d:'Sesiune 1 la 1 · Reclamă TikTok',c:'intrat ieri, 18:40',cc:'red',a:['suna','wa'],r:['admin','caller','closer']},
+  {id:2,t:'sunat',s:'noi',u:'azi',n:'Elena Dobre',d:'Automatizare · Formularul de pe site',c:'acum 2 ore',cc:'amb',a:['suna','wa'],r:['admin','caller','closer']},
+  {id:3,t:'sunat',s:'noi',u:'azi',n:'Bogdan Marin',d:'Site · Reclamă Meta · „Clip cafenea”',c:'acum 25 min',a:['suna','wa'],r:['admin','caller','closer']},
+  {id:4,t:'sunat',s:'callback',u:'intarziat',n:'Ana Popescu',d:'Callback · Site · „sună după 16, e la salon”',c:'trebuia ieri, 16:00',cc:'red',a:['suna','wa'],r:['admin','caller']},
+  {id:5,t:'sunat',s:'callback',u:'azi',n:'Mihai Toma',d:'Callback · Automatizare',c:'azi, 11:30',a:['suna','wa'],r:['admin','caller','closer']},
+  {id:6,t:'sunat',s:'callback',u:'azi',n:'Raluca Stan',d:'Callback · Site',c:'azi, 17:00',a:['suna','wa'],r:['admin','caller']},
+
+  {id:7,t:'disc',s:'disc',u:'azi',n:'Ioana Rusu',d:'Discuție · Site pentru clinică · cu tine',c:'azi, 14:00',cc:'amb',a:['deschide'],r:['admin','closer']},
+  {id:8,t:'disc',s:'disc',u:'curand',n:'Dan Pavel',d:'Discuție · Automatizare · cu Vlad',c:'mâine, 10:30',a:['deschide'],r:['admin','closer']},
+
+  {id:9,t:'lucru',s:'task',u:'intarziat',n:'Trimite schița homepage-ului',d:'Atelier Ceramică · Radu',c:'termen 12 nov',cc:'red',a:['gata'],r:['admin','constructor']},
+  {id:10,t:'lucru',s:'task',u:'azi',n:'Conectează domeniul',d:'Florăria Iris · tu',c:'azi',a:['gata'],r:['admin']},
+  {id:11,t:'lucru',s:'task',u:'curand',n:'Testează programările pe WhatsApp',d:'Salon Lumière · Radu',c:'joi',a:['gata'],r:['admin','constructor']},
+  {id:12,t:'lucru',s:'termen',u:'intarziat',n:'Cafeneaua Boabe · Site',d:'Construcție · 60% gata',c:'predare depășită cu 2 zile',cc:'red',a:['deschide'],r:['admin','constructor']},
+  {id:13,t:'lucru',s:'termen',u:'curand',n:'Florăria Iris · Site',d:'Revizii · 80% gata',c:'predare peste 3 zile',cc:'amb',a:['deschide'],r:['admin']},
+  {id:14,t:'lucru',s:'cerere',u:'azi',n:'Laura Ene · Atelier Ceramică',d:'Cerere nouă de la client: Automatizare',c:'ieri, 21:10',a:['deschide'],r:['admin']},
+  {id:15,t:'lucru',s:'livrare',u:'azi',n:'Schița v2 · Florăria Iris',d:'Livrare de refăcut · „mai mult verde”',c:'de 2 zile',a:['deschide'],r:['admin','constructor']},
+  {id:16,t:'lucru',s:'livrare',u:'curand',n:'Homepage final · Cafeneaua Boabe',d:'Trimisă, fără răspuns · scrie-i clientului',c:'de 6 zile',cc:'amb',a:['wa'],r:['admin']},
+
+  {id:17,t:'bani',s:'rata',u:'intarziat',n:'Cafeneaua Boabe · tranșa 2',d:'1.500 lei · Site',c:'întârzie 5 zile',cc:'red',a:['incasat','wa'],r:['admin']},
+  {id:18,t:'bani',s:'rata',u:'curand',n:'Salon Lumière · avans',d:'800 lei · Automatizare',c:'joi',a:['incasat'],r:['admin']},
+  {id:19,t:'bani',s:'rata',u:'curand',n:'Florăria Iris · mentenanță noiembrie',d:'150 lei',c:'20 nov',a:['incasat'],r:['admin']},
+  {id:20,t:'bani',s:'comision',u:'liber',n:'Radu Stan',d:'Comision · Atelier Ceramică, tranșa 1',c:'450 lei',a:['platit'],r:['admin']},
+  {id:21,t:'bani',s:'comision',u:'liber',n:'Mara Ionescu',d:'Comision · Salon Lumière, programarea',c:'200 lei',a:['platit'],r:['admin']},
+  {id:22,t:'bani',s:'vanzare',u:'liber',n:'Andreea Pop · Florăria Iris',d:'Site livrat acum 6 săptămâni · propune o automatizare',c:'a doua vânzare',a:['wa'],r:['admin']},
+  {id:23,t:'bani',s:'vanzare',u:'liber',n:'Cabinet Dr. Matei',d:'Automatizare livrată acum 2 luni · propune site-ul',c:'a doua vânzare',a:['wa'],r:['admin']},
+];
+const TEME={sunat:'De sunat',disc:'Discuții',lucru:'Lucru',bani:'Bani'};
+const BUC={noi:'Lead-uri noi, încă nesunate',callback:'Callback-uri',disc:'Discuții',task:'Task-uri',termen:'Termene de predare',cerere:'Cereri noi de la clienți',livrare:'Livrări care așteaptă',rata:'Rate de încasat',comision:'Comisioane de plătit echipei',vanzare:'A doua vânzare'};
+const ETI={noi:'Lead nou',callback:'Callback',disc:'Discuție',task:'Task',termen:'Termen',cerere:'Cerere nouă',livrare:'Livrare',rata:'Rată',comision:'Comision',vanzare:'Vânzare'};
+const BTN={suna:'<button class="btn pri" data-f>Sună</button>',wa:'<button class="btn">WhatsApp</button>',deschide:'<button class="btn">Deschide</button>',gata:'<button class="btn ok" data-f>✓ Gata</button>',incasat:'<button class="btn ok" data-f>✓ Am încasat</button>',platit:'<button class="btn ok" data-f>✓ Plătit</button>'};
+const NUME={admin:'Andrei',caller:'Mara',closer:'Vlad',constructor:'Radu'};
+let rol='admin', filtruB='tot', tileC=null;
+const facute=new Set();
+const vede=()=>D.filter(x=>x.r.includes(rol)&&!facute.has(x.id));
+
+function rand(x,{eti=false}={}){
+  return `<div class="it t-${x.t}" data-id="${x.id}">
+    ${eti?`<span class="eti"><span class="chip c">${ETI[x.s]}</span></span>`:'<span class="pct"></span>'}
+    <div class="mij"><div class="n">${x.n}</div><small>${x.d}</small></div>
+    <span class="cand ${x.cc||''}">${x.c}</span>
+    <span class="act">${x.a.map(a=>BTN[a]).join('')}</span>
+  </div>`;
+}
+
+function rezumat(){
+  const v=vede(), n=f=>v.filter(f).length;
+  const intarz=n(x=>x.u==='intarziat');
+  const p=[];
+  if(intarz) p.push(`<span class="rau"><b>${intarz}</b> întârziate</span>`);
+  const ap=n(x=>x.t==='sunat'&&x.u!=='curand'); if(ap) p.push(`<span class="t-sunat"><i></i><b>${ap}</b> de sunat</span>`);
+  const di=n(x=>x.t==='disc'&&x.u==='azi'); if(di) p.push(`<span class="t-disc"><i></i><b>${di}</b> ${di===1?'discuție':'discuții'} azi</span>`);
+  const ta=n(x=>x.s==='task'&&x.u!=='curand'); if(ta) p.push(`<span class="t-lucru"><i></i><b>${ta}</b> ${ta===1?'task':'task-uri'} azi</span>`);
+  const ra=n(x=>x.s==='rata'); if(ra) p.push(`<span class="t-bani"><i></i><b>${ra}</b> ${ra===1?'rată':'rate'} de încasat</span>`);
+  document.getElementById('rez').innerHTML=p.join('')||'<span class="grn">Nimic urgent. Zi liberă de alergat după lucruri.</span>';
+}
+
+/* A · pe teme */
+function A(){
+  const v=vede();
+  const card=t=>{
+    const it=v.filter(x=>x.t===t); if(!it.length) return '';
+    const urg=it.filter(x=>x.u==='intarziat').length;
+    let h=`<div class="panel t-${t}"><div class="cap"><h3>${TEME[t]}</h3><span class="nr">${it.length}</span>${urg?`<span class="tot red">${urg} întârziate</span>`:''}</div>`;
+    const ord=['intarziat','azi','curand','liber'];
+    const buc=[...new Set(it.map(x=>x.s))];
+    for(const b of buc){
+      const rr=it.filter(x=>x.s===b).sort((p,q)=>ord.indexOf(p.u)-ord.indexOf(q.u));
+      if(buc.length>1) h+=`<div class="subcap">${BUC[b]}</div>`;
+      h+=rr.map(x=>rand(x)).join('');
+    }
+    return h+'</div>';
+  };
+  document.getElementById('a1').innerHTML=card('sunat')+card('disc');
+  document.getElementById('a2').innerHTML=card('lucru')+card('bani');
+  if(rol==='constructor'){document.getElementById('a1').innerHTML=card('lucru');document.getElementById('a2').innerHTML=''}
+}
+
+/* B · o singură listă, după urgență */
+function B(){
+  const v=vede();
+  const teme=[...new Set(v.map(x=>x.t))];
+  if(filtruB!=='tot'&&!teme.includes(filtruB)) filtruB='tot';
+  document.getElementById('fB').innerHTML=`<button data-t="tot" class="${filtruB==='tot'?'on':''}">Tot · ${v.length}</button>`+
+    teme.map(t=>`<button class="t-${t} ${filtruB===t?'on':''}" data-t="${t}"><i></i>${TEME[t]} · ${v.filter(x=>x.t===t).length}</button>`).join('');
+  const f=v.filter(x=>filtruB==='tot'||x.t===filtruB);
+  const G=[['intarziat','Întârziate','fă-le primele'],['azi','Azi',''],['curand','În următoarele zile',''],['liber','Când ai timp','nu ard, dar aduc bani']];
+  document.getElementById('tB').innerHTML=G.map(([u,ti,s])=>{
+    const rr=f.filter(x=>x.u===u); if(!rr.length) return '';
+    return `<div class="grupB ${u==='intarziat'?'intarziate':''}"><div class="gh">${ti} <small>${rr.length}${s?' · '+s:''}</small></div><div class="panel">${rr.map(x=>rand(x,{eti:true})).join('')}</div></div>`;
+  }).join('')||'<div class="panel gol">Gata tot. Bravo.</div>';
+  document.querySelectorAll('#fB button').forEach(b=>b.onclick=()=>{filtruB=b.dataset.t;B()});
+}
+
+/* C · cel mai urgent sus, restul pe teme */
+function C(){
+  const v=vede();
+  const ord=['intarziat','azi','curand','liber'];
+  const prim=[...v].sort((p,q)=>ord.indexOf(p.u)-ord.indexOf(q.u))[0];
+  const el=document.getElementById('acum');
+  if(prim){
+    const rest=v.filter(x=>x!==prim&&x.u==='intarziat').length;
+    el.innerHTML=`<div class="lb">Acum <span class="chip c t-${prim.t}">${ETI[prim.s]}</span></div>
+      <div class="n">${prim.n}</div><div class="d">${prim.d} · <span class="${prim.cc||''}">${prim.c}</span></div>
+      <div class="act it" data-id="${prim.id}" style="padding:0;border:0">${prim.a.map(a=>BTN[a]).join('')}<button class="btn">Mai târziu</button></div>
+      <div class="dupa">${rest?`<b>Încă ${rest} întârziate</b> după asta. `:''}Apasă pe o temă de mai jos ca să vezi tot.</div>`;
+  } else el.innerHTML='<div class="n grn">Nimic urgent acum.</div>';
+  const teme=[...new Set(v.map(x=>x.t))];
+  if(!teme.includes(tileC)) tileC=teme[0];
+  const sub={sunat:x=>`${x.filter(i=>i.s==='noi').length} noi · ${x.filter(i=>i.s==='callback').length} callback`,disc:x=>`${x.filter(i=>i.u==='azi').length} azi`,lucru:x=>`${x.filter(i=>i.s==='task').length} task-uri`,bani:x=>`${x.filter(i=>i.s==='rata').length} rate`};
+  document.getElementById('tiles').innerHTML=teme.map(t=>{
+    const x=v.filter(i=>i.t===t), u=x.filter(i=>i.u==='intarziat').length;
+    return `<button class="tile t-${t} ${tileC===t?'on':''}" data-t="${t}"><span class="lb"><i></i>${TEME[t]}</span><b>${x.length}</b><small class="${u?'red':''}">${u?u+' întârziate':sub[t](x)}</small></button>`;
+  }).join('');
+  const ordL=[...v.filter(x=>x.t===tileC)].sort((p,q)=>ord.indexOf(p.u)-ord.indexOf(q.u));
+  document.getElementById('listaC').innerHTML=ordL.map(x=>rand(x,{eti:true})).join('')||'<div class="gol">Nimic aici.</div>';
+  document.querySelectorAll('#tiles .tile').forEach(b=>b.onclick=()=>{tileC=b.dataset.t;C()});
+}
+
+function tot(){
+  document.getElementById('salut').textContent='Bună dimineața, '+NUME[rol];
+  rezumat();A();B();C();
+}
+tot();
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-f]'); if(!b) return;
+  const it=b.closest('[data-id]'); if(!it) return;
+  document.querySelectorAll(`.it[data-id="${it.dataset.id}"]`).forEach(x=>x.classList.add('dus'));
+  setTimeout(()=>{facute.add(+it.dataset.id);tot()},350);
+});
+
+const body=document.body;
+function grp(id,fn){document.querySelectorAll('#'+id+' button').forEach(x=>x.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(y=>y.classList.toggle('on',y===x));fn(x)})}
+grp('var',x=>{body.classList.remove('vA','vB','vC');body.classList.add('v'+x.dataset.v)});
+grp('lat',x=>body.classList.toggle('tel',x.dataset.l==='tel'));
+grp('rol',x=>{rol=x.dataset.r;facute.clear();tot()});
+</script>
+</body>
+</html>
