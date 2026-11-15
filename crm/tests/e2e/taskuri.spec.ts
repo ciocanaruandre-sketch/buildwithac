@@ -85,7 +85,7 @@ test("callerul n-are „Task-urile mele” și nu intră pe pagină", async ({ p
   await intraCa(page, "caller");
   await expect(page.getByRole("link", { name: "Task-urile mele" })).toHaveCount(0);
   await page.goto("/taskuri");
-  await expect(page).toHaveURL(/\/lead-uri$/);
+  await expect(page).toHaveURL(/\/azi$/);
 });
 
 test("Echipa: task-urile unui constructor oprit trec la Admin cu „Mută tot la…”", async ({ page }) => {

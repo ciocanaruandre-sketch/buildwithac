@@ -18,9 +18,9 @@ export const eu = cache(async (): Promise<Eu> => {
   return p;
 });
 
-/** Doar pentru paginile unor roluri; ceilalți ajung la pagina lor. */
+/** Doar pentru paginile unor roluri; ceilalți ajung pe „Azi”, prima pagină a fiecăruia. */
 export async function cerRol(...roluri: Rol[]): Promise<Eu> {
   const om = await eu();
-  if (!roluri.includes(om.rol)) redirect(om.rol === "constructor" ? "/clienti" : "/lead-uri");
+  if (!roluri.includes(om.rol)) redirect("/azi");
   return om;
 }

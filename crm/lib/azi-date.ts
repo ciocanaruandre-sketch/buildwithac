@@ -58,7 +58,7 @@ export async function citesteAzi(om: Eu, acum: Date): Promise<DateAzi> {
     taskuri: (taskuri.data ?? []).filter((k) => !k.proiecte.inchis_la).map((k) => ({ id: k.id, titlu: k.titlu, om_id: k.om_id, termen: k.termen, proiect_id: k.proiect_id, proiect: k.proiecte.titlu, client_id: k.proiecte.client_id, client: k.proiecte.clienti.nume })),
     proiecte: (proiecte.data ?? []).map(({ clienti: c, ...p }) => ({ ...p, client: c.nume, telefon: c.telefon })),
     oameniProiect: oameniProiect.data ?? [],
-    stadii: (stadii.data ?? []).map((e) => ({ proiect_id: e.proiect_id, la: e.la, in: (e.detalii as { in?: Stadiu }).in ?? "discutie" })),
+    stadii: (stadii.data ?? []).map((e) => ({ proiect_id: e.proiect_id, la: e.la, in: (e.detalii as { in?: Stadiu }).in ?? "discutie", de: (e.detalii as { de?: Stadiu }).de })),
     cereri: (cereri.data ?? []).map((c) => ({ lead_id: c.lead_id, primita_la: c.primita_la })),
     clienti: clienti.data ?? [],
     livrari: livrari.data ?? [],

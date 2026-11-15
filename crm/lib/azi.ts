@@ -44,7 +44,8 @@ export type DateAzi = {
   proiecte: { id: string; titlu: string; client_id: string; client: string; telefon: string | null; serviciu: Serviciu; stadiu: Stadiu; termen: string | null; inchis_la: string | null; creat_la: string }[];
   oameniProiect: { proiect_id: string; om_id: string }[];
   /** evenimente_proiect cu tip = 'stadiu' */
-  stadii: { proiect_id: string; la: string; in: Stadiu }[];
+  /** `de`: stadiul din care s-a mutat (lipsește la evenimentele vechi, fără el). */
+  stadii: { proiect_id: string; la: string; in: Stadiu; de?: Stadiu }[];
   cereri: { lead_id: string; primita_la: string }[];
   clienti: { id: string; nume: string; lead_id: string | null }[];
   livrari: { id: string; titlu: string; stare: "trimis" | "aprobat" | "de_refacut"; adaugat_la: string; proiect_id: string }[];
@@ -284,12 +285,22 @@ export function randuriAzi(d: DateAzi, om: { id: string; rol: Rol }, acum: Date)
       });
     }
 
-    // a doua vânzare: un rând pe client, după cea mai nouă livrare
+    // a doua vânzare: un rând pe client, după cea mai nouă livrare.
+    // Ziua livrării = prima intrare în Livrat/Mentenanță din șirul neîntrerupt de acum: Livrat → Mentenanță nu repornește numărătoarea.
+    const LIVRARE: Stadiu[] = ["livrat", "mentenanta"];
+    const ziuaLivrarii = (p: DateAzi["proiecte"][number]) => {
+      let start: number | null = null;
+      for (const s of d.stadii.filter((x) => x.proiect_id === p.id).sort((a, b) => ms(a.la) - ms(b.la))) {
+        if (!LIVRARE.includes(s.in)) start = null;
+        // venit din Livrat/Mentenanță: livrarea e înainte de fereastra citită (62 de zile), deci prea veche
+        else if (start === null) start = s.de && LIVRARE.includes(s.de) ? -Infinity : ms(s.la);
+      }
+      return start ?? ms(p.creat_la);
+    };
     const vanzari = new Map<string, { p: DateAzi["proiecte"][number]; livratLa: number }>();
     for (const p of d.proiecte) {
       if (p.stadiu !== "livrat" && p.stadiu !== "mentenanta") continue;
-      const ev = d.stadii.filter((s) => s.proiect_id === p.id && (s.in === "livrat" || s.in === "mentenanta")).reduce((m, s) => Math.max(m, ms(s.la)), 0);
-      const livratLa = ev || ms(p.creat_la);
+      const livratLa = ziuaLivrarii(p);
       const zile = (t - livratLa) / ZI;
       if (zile < 30 || zile >= 61) continue;
       if (d.proiecte.some((x) => x.client_id === p.client_id && ms(x.creat_la) > livratLa)) continue;

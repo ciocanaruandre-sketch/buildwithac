@@ -81,7 +81,7 @@ test("cine n-are voie: constructorul din afara proiectului primește 404, caller
   await page.context().clearCookies();
   await intraCa(page, "caller");
   await page.goto(`/clienti/${c.clientId}`);
-  await expect(page).toHaveURL(/\/lead-uri$/);
+  await expect(page).toHaveURL(/\/azi$/);
 });
 
 test("preț scris greșit → mesaj, iar prețul rămâne necompletat", async ({ page }) => {

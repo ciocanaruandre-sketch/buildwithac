@@ -107,5 +107,5 @@ test("«Mută tot la…»: când omul are procent pe un proiect cu tranșe, mesa
 test("callerul nu intră pe Echipa", async ({ page }) => {
   await intraCa(page, "caller");
   await page.goto("/echipa");
-  await expect(page).toHaveURL(/\/lead-uri$/);
+  await expect(page).toHaveURL(/\/azi$/);
 });

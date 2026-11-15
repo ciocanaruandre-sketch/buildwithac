@@ -313,6 +313,25 @@ describe("pagina Azi: Bani", () => {
     expect(r.find((x) => x.nume === "c30")!).toMatchObject({ descriere: ["Site livrat acum 4 săptămâni", "propune o automatizare"], urgenta: "cand_ai_timp", cand: "când ai timp", href: "/clienti/c30", numeAscuns: true });
     expect(r.find((x) => x.nume === "cFara")!.descriere).toEqual(["Automatizare livrată acum 6 săptămâni", "propune un site"]);
   });
+
+  it("vânzarea: Livrat → Mentenanță nu repornește numărătoarea; o livrare dinainte de fereastră nu mai apare", () => {
+    const d = cu((x) => {
+      // livrat acum 40 de zile, trecut în mentenanță acum 30 → se numără de la 40
+      x.proiecte.push(proiect({ id: "a-p", client_id: "a", client: "a", stadiu: "mentenanta", creat_la: peste(-100 * ZI) }));
+      x.stadii.push({ proiect_id: "a-p", la: peste(-40 * ZI), in: "livrat", de: "constructie" }, { proiect_id: "a-p", la: peste(-30 * ZI), in: "mentenanta", de: "livrat" });
+      // livrat acum 70 de zile (în afara ferestrei), trecut în mentenanță acum 50 → prea vechi
+      x.proiecte.push(proiect({ id: "b-p", client_id: "b", client: "b", stadiu: "mentenanta", creat_la: peste(-100 * ZI) }));
+      x.stadii.push({ proiect_id: "b-p", la: peste(-50 * ZI), in: "mentenanta", de: "livrat" });
+      // întors în construcție și livrat iar acum 35 de zile → se numără de la 35
+      x.proiecte.push(proiect({ id: "c-p", client_id: "c", client: "c", stadiu: "livrat", creat_la: peste(-100 * ZI) }));
+      x.stadii.push({ proiect_id: "c-p", la: peste(-55 * ZI), in: "livrat", de: "constructie" }, { proiect_id: "c-p", la: peste(-45 * ZI), in: "constructie", de: "livrat" }, { proiect_id: "c-p", la: peste(-35 * ZI), in: "livrat", de: "constructie" });
+    });
+    const r = deTip(randuriAzi(d, ADMIN, ACUM), "vanzare");
+    expect(r.map((x) => [x.nume, x.descriere[0]])).toEqual([
+      ["a", "Site livrat acum 5 săptămâni"],
+      ["c", "Site livrat acum 5 săptămâni"],
+    ]);
+  });
 });
 
 describe("pagina Azi: temele rolului", () => {
