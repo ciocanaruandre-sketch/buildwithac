@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { aplicaActiune } from "@/app/(app)/lead-uri/[id]/actiuni";
+import { ETICHETA_MOTIV, MOTIVE, type MotivCategorie } from "@/lib/motive";
 import type { Actiune } from "@/lib/stari";
 import { ETICHETE_CALLBACK, laOraRomaniei, scurtaturaCallback, type ScurtaturaCallback } from "@/lib/timp";
 
@@ -25,17 +26,19 @@ export function ButoaneActiuni({ id, actiuni, faraPanou = false, laSucces }: { i
   const [deschis, setDeschis] = useState<Deschis>(null);
   const [mesaj, setMesaj] = useState<string | null>(null);
   const [motiv, setMotiv] = useState("");
+  const [categorie, setCategorie] = useState<MotivCategorie | undefined>();
   const [zi, setZi] = useState("");
   const [ora, setOra] = useState("10:00");
   const [lucreaza, porneste] = useTransition();
 
-  const fa = (a: Exclude<Actiune, "ia_lead" | "programeaza">, extra?: { callbackLa?: string; motiv?: string }) =>
+  const fa = (a: Exclude<Actiune, "ia_lead" | "programeaza">, extra?: { callbackLa?: string; categorie?: MotivCategorie; motiv?: string }) =>
     porneste(async () => {
       const r = await aplicaActiune(id, a, extra);
       if (!r.ok) return setMesaj(r.mesaj);
       setMesaj(null);
       setDeschis(null);
       setMotiv("");
+      setCategorie(undefined);
       laSucces?.();
       router.refresh();
     });
@@ -59,8 +62,10 @@ export function ButoaneActiuni({ id, actiuni, faraPanou = false, laSucces }: { i
               disabled={lucreaza}
               onClick={() => {
                 setMesaj(null);
-                if (a === "callback" || a === "pierdut" || a === "descalificat") setDeschis(deschis === a ? null : a);
-                else fa(a);
+                if (a === "callback" || a === "pierdut" || a === "descalificat") {
+                  setDeschis(deschis === a ? null : a);
+                  setCategorie(undefined);
+                } else fa(a);
               }}
             >
               {ETICHETA[a]}
@@ -90,14 +95,38 @@ export function ButoaneActiuni({ id, actiuni, faraPanou = false, laSucces }: { i
       )}
 
       {(deschis === "pierdut" || deschis === "descalificat") && (
-        <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-line pt-3">
-          <label className="flex min-w-60 flex-1 flex-col gap-1">
-            <span className="lbl">Motivul</span>
-            <input className="camp" value={motiv} onChange={(e) => setMotiv(e.target.value)} placeholder={deschis === "pierdut" ? "A ales pe altcineva, buget…" : "Număr greșit, nu e interesat…"} />
-          </label>
-          <button type="button" className="btn pri" disabled={lucreaza} onClick={() => fa(deschis, { motiv })}>
-            Confirmă
-          </button>
+        <div className="mt-3 border-t border-line pt-3">
+          <span className="lbl" id="motivul">
+            Motivul
+          </span>
+          <div className="mt-1.5 flex flex-wrap gap-1.5" role="group" aria-labelledby="motivul">
+            {MOTIVE[deschis].map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={`chip cursor-pointer ${categorie === m ? "amber" : "hover:text-ink"}`}
+                aria-pressed={categorie === m}
+                disabled={lucreaza}
+                onClick={() => {
+                  setMesaj(null);
+                  setCategorie(m);
+                }}
+              >
+                {ETICHETA_MOTIV[m]}
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 flex flex-wrap items-end gap-2">
+            {categorie === "altceva" && (
+              <label className="flex min-w-60 flex-1 flex-col gap-1">
+                <span className="lbl">Ce s-a întâmplat</span>
+                <input className="camp" value={motiv} onChange={(e) => setMotiv(e.target.value)} placeholder="Pe scurt, ca să știi și peste o lună" />
+              </label>
+            )}
+            <button type="button" className="btn pri" disabled={lucreaza} onClick={() => fa(deschis, { categorie, motiv })}>
+              Confirmă
+            </button>
+          </div>
         </div>
       )}
 

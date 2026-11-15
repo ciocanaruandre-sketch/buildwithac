@@ -12,11 +12,12 @@ import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, type Eveniment } from "@/lib/parcurs";
 import { reclamaDinUtm, type ReclamaUtm } from "@/lib/reclame";
+import { textMotiv } from "@/lib/motive";
 import { actiuniPermise } from "@/lib/stari";
 import { supabase } from "@/lib/supabase/server";
 import { ETICHETE, type Stare } from "@/lib/tipuri";
 
-type Lead = { stare: Stare; caller_id: string | null; callback_la: string | null; incercari: number; motiv: string | null };
+type Lead = { stare: Stare; caller_id: string | null; callback_la: string | null; incercari: number; motiv: string | null; motiv_categorie: string | null };
 
 /** Ce e de făcut acum, într-o frază. */
 function urmeaza(l: Lead, acum: Date, discutie: string | null): string {
@@ -38,7 +39,7 @@ function urmeaza(l: Lead, acum: Date, discutie: string | null): string {
       return "E client.";
     case "pierdut":
     case "descalificat":
-      return `${ETICHETE.stare[l.stare]}${l.motiv ? `: ${l.motiv}` : ""}.`;
+      return `${ETICHETE.stare[l.stare]}${textMotiv(l.motiv_categorie, l.motiv) ? `: ${textMotiv(l.motiv_categorie, l.motiv)}` : ""}.`;
   }
 }
 
@@ -229,7 +230,7 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                     {kv("Stare", ETICHETE.stare[l.stare])}
                     {kv("Încercări", String(l.incercari))}
                     {kv("Callback", l.callback_la ? cand(l.callback_la, acum) : "—")}
-                    {kv("Motiv", l.motiv ?? "—")}
+                    {kv("Motiv", textMotiv(l.motiv_categorie, l.motiv) ?? "—")}
                     {kv("Caller", nume(l.caller_id))}
                     {kv("Closer", nume(l.closer_id))}
                     {kv("Intrat", cand(l.intrat_la, acum))}
