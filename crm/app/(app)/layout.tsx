@@ -13,11 +13,12 @@ function legaturiPentru(rol: Rol): Legatura[] {
   const clienti: Legatura = { href: "/clienti", eticheta: "Clienți", iconita: "clienti" };
   const finante: Legatura = { href: "/finante", eticheta: "Finanțe", iconita: "finante" };
   const azi: Legatura = { href: "/azi", eticheta: "Azi", iconita: "azi" };
-  if (rol === "constructor") return [azi, clienti, taskuri, finante];
+  const kpi: Legatura = { href: "/kpi", eticheta: "KPI", iconita: "kpi" };
+  if (rol === "constructor") return [azi, clienti, taskuri, kpi, finante];
   const l: Legatura[] = [azi, { href: "/lead-uri", eticheta: "Lead-uri", iconita: "lead-uri" }, clienti];
   if (rol === "admin") l.push(taskuri);
   if (rol === "closer" || rol === "admin") l.push({ href: "/program", eticheta: "Program", iconita: "program" });
-  l.push(finante);
+  l.push(kpi, finante);
   if (rol === "admin") l.push({ href: "/reclame", eticheta: "Reclame", iconita: "reclame" }, { href: "/echipa", eticheta: "Echipa", iconita: "echipa" });
   return l;
 }

@@ -1,4 +1,4 @@
-export type NumeIconita = "azi" | "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta" | "filmare" | "finante" | "reclame";
+export type NumeIconita = "azi" | "lead-uri" | "clienti" | "taskuri" | "program" | "echipa" | "iesi" | "cauta" | "filmare" | "finante" | "reclame" | "kpi";
 
 /** Desenele din prototip/crm-tema.html (i-inbox, i-users, i-check, i-cal, i-team, i-search), plus ieșirea. */
 const DESENE: Record<NumeIconita, React.ReactNode> = {
@@ -25,6 +25,11 @@ const DESENE: Record<NumeIconita, React.ReactNode> = {
     <>
       <circle cx="12" cy="12" r="9" />
       <path d="M8 12l3 3 5-6" />
+    </>
+  ),
+  kpi: (
+    <>
+      <path d="M6 20V13M12 20V5M18 20v-9" />
     </>
   ),
   program: (
