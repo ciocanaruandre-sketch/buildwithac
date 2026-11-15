@@ -388,6 +388,26 @@ export function discutiiDemo(o: Optiuni, leaduri: LeadDemo[]): { nr: number; inc
 }
 
 /**
+ * Discuțiile care au avut loc deja (lead-urile trecute de „programat”), la ora din Parcurs, ca pe fișă să apară
+ * panoul „Discuția” cu „N-a venit”. Când două ar cădea peste aceeași jumătate de oră a closerului, a doua se mută mai devreme.
+ */
+export function discutiiTrecuteDemo(o: Optiuni, leaduri: LeadDemo[]): { nr: number; closer: ContTest; incepe: Date; minute: 30 }[] {
+  const JUMATATE = 30 * 60_000;
+  const ocupat = discutiiDemo(o, leaduri).map((d) => ({ closer: leaduri.find((l) => l.nr === d.nr)?.closer ?? "closer", t: d.incepe.getTime() }));
+  const rez: { nr: number; closer: ContTest; incepe: Date; minute: 30 }[] = [];
+  for (const l of [...leaduri].sort((a, b) => a.nr - b.nr)) {
+    const p = l.parcurs.find((e) => e.tip === "programat");
+    if (l.stare === "programat" || typeof p?.detalii?.discutieAcumZile !== "number") continue;
+    const closer = l.closer ?? "closer";
+    let t = laOra(o.acum, p.detalii.discutieAcumZile).getTime();
+    while (ocupat.some((x) => x.closer === closer && Math.abs(x.t - t) < JUMATATE)) t -= JUMATATE;
+    ocupat.push({ closer, t });
+    rez.push({ nr: l.nr, closer, incepe: new Date(t), minute: 30 });
+  }
+  return rez;
+}
+
+/**
  * Discuția de azi: la prima jumătate de oră plină de peste cel puțin o oră, între 10:00 și 17:30 (fără 14:00,
  * ora discuției din datele de test), doar într-o zi lucrătoare. null dacă nu mai e loc azi.
  */

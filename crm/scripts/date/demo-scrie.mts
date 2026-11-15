@@ -3,8 +3,8 @@ import type { Json } from "../../lib/baza.types";
 import type { ContTest } from "../../lib/echipa-test";
 import { client, db, verifica, type Ids } from "./baza.mjs";
 import { planDePlata } from "../../lib/finante";
-import { clientiDemo, discutiiDemo, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, RECLAME_DEMO, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, type ProiectDemo, ziDupa } from "./demo-date";
-import { istoricKpiDemo } from "./demo-istoric";
+import { clientiDemo, discutiiDemo, discutiiTrecuteDemo, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, RECLAME_DEMO, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, type ProiectDemo, ziDupa } from "./demo-date";
+import { istoricKpiDemo, ocupateDemo } from "./demo-istoric";
 
 const DE_MANA = ["recomandare", "cold_calling", "dm_instagram", "dm_tiktok", "altceva"];
 
@@ -24,6 +24,7 @@ export async function scrieLeaduriDemo(o: Optiuni, ids: Ids): Promise<(LeadDemo 
   const la = (z: number) => laOra(o.acum, z).toISOString();
   const leaduri = leaduriDemo(o);
   const discutii = new Map(discutiiDemo(o, leaduri).map((d) => [d.nr, d]));
+  const trecute = new Map(discutiiTrecuteDemo(o, leaduri).map((d) => [d.nr, d]));
   const scrise: (LeadDemo & { id: string })[] = [];
 
   for (const l of leaduri) {
@@ -72,6 +73,22 @@ export async function scrieLeaduriDemo(o: Optiuni, ids: Ids): Promise<(LeadDemo 
           creat_la: la(programat?.acumZile ?? 1),
           incepe_la: d.incepe.toISOString(),
           sfarseste_la: new Date(d.incepe.getTime() + d.minute * 60_000).toISOString(),
+        }),
+      );
+    }
+
+    // discuția care a avut loc deja (oferta, clientul, pierdutul de după ea): pe fișă apare panoul „Discuția”
+    const t = trecute.get(l.nr);
+    if (t) {
+      const programat = l.parcurs.find((e) => e.tip === "programat");
+      verifica(
+        await db.from("discutii").insert({
+          lead_id: id,
+          closer_id: ids[t.closer],
+          creat_de: l.caller ? ids[l.caller] : ids.admin,
+          creat_la: la(programat?.acumZile ?? 1),
+          incepe_la: t.incepe.toISOString(),
+          sfarseste_la: new Date(t.incepe.getTime() + t.minute * 60_000).toISOString(),
         }),
       );
     }
@@ -225,7 +242,7 @@ export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
  * Clienții de aici sunt doar în cifre (fără fișă de client și fără bani). Întoarce câte lead-uri a scris.
  */
 export async function scrieIstoricKpi(o: Optiuni, ids: Ids): Promise<number> {
-  const { leaduri } = istoricKpiDemo(o);
+  const { leaduri } = istoricKpiDemo(o, ocupateDemo(o));
   const id = (c: unknown) => (c ? ids[c as ContTest] : null);
   for (let i = 0; i < leaduri.length; i += 100) {
     const bucata = leaduri.slice(i, i + 100);

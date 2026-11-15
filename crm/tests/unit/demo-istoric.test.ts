@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { MOTIVE } from "../../lib/motive";
 import { ziuaRomaniei } from "../../lib/timp";
-import { istoricKpiDemo } from "../../scripts/date/demo-istoric";
+import { discutiiDemo, discutiiTrecuteDemo, leaduriDemo } from "../../scripts/date/demo-date";
+import { istoricKpiDemo, ocupateDemo } from "../../scripts/date/demo-istoric";
 
 const ACUMURI = [new Date("2026-11-12T09:00:00Z"), new Date("2026-11-15T18:00:00Z"), new Date("2027-03-02T07:30:00Z"), new Date("2026-08-31T20:00:00Z")];
 const luna = (iso: string) => ziuaRomaniei(new Date(iso)).slice(0, 7);
@@ -64,6 +65,18 @@ describe("firma demo: istoricul pentru KPI", () => {
       expect(d.some((x) => !x.neprezentat)).toBe(true);
     });
   }
+
+  it("ocolește discuțiile lead-urilor demo (aceeași bază, același closer)", () => {
+    for (const singur of [false, true]) {
+      const o = { acum: ACUMURI[1], singur };
+      const L = leaduriDemo(o);
+      const demo = [...discutiiTrecuteDemo(o, L), ...discutiiDemo(o, L).map((d) => ({ ...d, closer: L.find((l) => l.nr === d.nr)!.closer ?? "closer" }))];
+      expect(ocupateDemo(o)).toHaveLength(demo.length);
+      const ist = istoricKpiDemo(o, ocupateDemo(o)).leaduri.flatMap((l) => l.discutii);
+      for (const d of ist)
+        for (const x of demo) if (x.closer === d.closer) expect(Math.abs(new Date(d.incepe).getTime() - x.incepe.getTime())).toBeGreaterThanOrEqual(30 * 60_000);
+    }
+  });
 
   it("singur: totul e al adminului", () => {
     const { leaduri } = istoricKpiDemo({ acum: ACUMURI[0], singur: true });

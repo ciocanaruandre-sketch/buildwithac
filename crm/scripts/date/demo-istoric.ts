@@ -5,7 +5,7 @@ import type { ContTest } from "../../lib/echipa-test";
 import { MOTIVE, type MotivCategorie } from "../../lib/motive";
 import { laOraRomaniei, ziuaPeste, ziuaRomaniei } from "../../lib/timp";
 import type { Serviciu, Stare, Sursa } from "../../lib/tipuri";
-import type { Optiuni } from "./demo-date";
+import { discutiiDemo, discutiiTrecuteDemo, leaduriDemo, type Optiuni } from "./demo-date";
 
 export type EvenimentIstoric = { tip: string; autor: ContTest | null; la: string; detalii: Record<string, unknown> };
 export type DiscutieIstoric = { closer: ContTest; incepe: string; neprezentat: boolean };
@@ -22,6 +22,16 @@ export type LeadIstoric = {
   discutii: DiscutieIstoric[];
 };
 export type IstoricDemo = { leaduri: LeadIstoric[] };
+export type Ocupata = { closer: ContTest; incepe: Date };
+
+/** Discuțiile lead-urilor demo (ținute și viitoare): istoricul nu pune altele peste ele, la același closer. */
+export function ocupateDemo(o: Optiuni): Ocupata[] {
+  const L = leaduriDemo(o);
+  return [
+    ...discutiiTrecuteDemo(o, L).map((d) => ({ closer: d.closer, incepe: d.incepe })),
+    ...discutiiDemo(o, L).map((d) => ({ closer: L.find((l) => l.nr === d.nr)?.closer ?? "closer", incepe: d.incepe })),
+  ];
+}
 
 const MIN = 60_000;
 const ORA = 60 * MIN;
@@ -59,7 +69,7 @@ function inceputLuna(acum: Date, inapoi: number): Date {
 }
 
 /** Istoricul pe cele 6 luni întregi dinainte plus luna curentă, cam 1–3 lead-uri pe zi, toate în trecut. */
-export function istoricKpiDemo(o: Optiuni): IstoricDemo {
+export function istoricKpiDemo(o: Optiuni, ocupate: Ocupata[] = []): IstoricDemo {
   const acum = o.acum;
   const r = aleator(Math.floor(inceputLuna(acum, 0).getTime() / ORA));
   const alege = <T,>(lista: [T, number][]): T => {
@@ -84,7 +94,7 @@ export function istoricKpiDemo(o: Optiuni): IstoricDemo {
         if (m === 14 * 60) continue;
         const t = laOraRomaniei(z, `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`).getTime();
         const cheie = `${closer}|${t}`;
-        if (t < dupa || ocupat.has(cheie)) continue;
+        if (t < dupa || ocupat.has(cheie) || ocupate.some((x) => x.closer === closer && Math.abs(x.incepe.getTime() - t) < 30 * MIN)) continue;
         ocupat.add(cheie);
         return t;
       }
