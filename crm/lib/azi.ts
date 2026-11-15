@@ -225,7 +225,7 @@ export function randuriAzi(d: DateAzi, om: { id: string; rol: Rol }, acum: Date)
         if (!c.lead_id) continue;
         const ultima = d.cereri.filter((x) => x.lead_id === c.lead_id).reduce((m, x) => (ms(x.primita_la) > m ? ms(x.primita_la) : m), 0);
         const celMaiNou = d.proiecte.filter((p) => p.client_id === c.id).reduce((m, p) => Math.max(m, ms(p.creat_la)), 0);
-        if (!ultima || ultima <= celMaiNou) continue;
+        if (!ultima || !celMaiNou || ultima <= celMaiNou) continue;
         r.push({ ...gol, cheie: `cerere:${c.id}`, tip: "cerere", tema: "lucru", urgenta: "azi", la: null, nume: c.nume, numeAscuns: true, descriere: ["a trimis iar formularul"], cand: cand(new Date(ultima), acum), href: `/clienti/${c.id}` });
       }
     }

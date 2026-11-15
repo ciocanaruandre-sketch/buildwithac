@@ -15,10 +15,13 @@ import { linkTelefon, linkWhatsApp } from "@/lib/telefon";
 /** Lead liber la un caller sau closer: întâi îl ia, apoi sună. Adminul sună direct. */
 export const trebuieLuat = (r: RandAzi, om: OmAzi) => Boolean(r.lead && r.lead.caller_id === null && (om.rol === "caller" || om.rol === "closer"));
 
-/** Butoanele unui rând din „Azi”, după tipul lui. `laApel` aduce lead-ul în „Acum”, cu butoanele de rezultat. */
-export function ButoaneAzi({ rand: r, om, laApel, mare = false }: { rand: RandAzi; om: OmAzi; laApel: (cheie: string) => void; mare?: boolean }) {
+/**
+ * Butoanele unui rând din „Azi”, după tipul lui. `laApel` aduce lead-ul în „Acum”, cu butoanele de rezultat.
+ * `laAviz` urcă în pagină mesajul „L-a luat deja…”: după refresh, rândul dispare, iar mesajul trebuie să rămână.
+ */
+export function ButoaneAzi({ rand: r, om, laApel, laAviz, mare = false }: { rand: RandAzi; om: OmAzi; laApel: (cheie: string) => void; laAviz: (mesaj: string) => void; mare?: boolean }) {
   const router = useRouter();
-  const { mesaj, setMesaj, lucreaza, fa } = useActiune();
+  const { mesaj, lucreaza, fa } = useActiune();
   const [iaAcum, porneste] = useTransition();
   const cls = `btn ${mare ? "" : "mic"}`;
   const tel = r.telefonNorm;
@@ -52,10 +55,9 @@ export function ButoaneAzi({ rand: r, om, laApel, mare = false }: { rand: RandAz
             porneste(async () => {
               const rez = await iaLead(r.lead!.id);
               if (!rez.ok) {
-                setMesaj(rez.mesaj);
+                laAviz(rez.mesaj);
                 return router.refresh();
               }
-              setMesaj(null);
               laApel(r.cheie);
               router.refresh();
               if (tel) window.location.href = linkTelefon(tel);

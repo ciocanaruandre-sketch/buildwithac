@@ -232,6 +232,14 @@ describe("pagina Azi: Lucru", () => {
     expect(deTip(randuriAzi(d, RADU, ACUM), "cerere")).toHaveLength(0);
   });
 
+  it("clientul fără niciun proiect nu primește „Cerere nouă” (ca pe pagina clientului)", () => {
+    const d = cu((x) => {
+      x.clienti.push({ id: "c1", nume: "Laura Ene · Atelier Ceramică", lead_id: "L1" });
+      x.cereri.push({ lead_id: "L1", primita_la: peste(-2 * H) });
+    });
+    expect(deTip(randuriAzi(d, ADMIN, ACUM), "cerere")).toHaveLength(0);
+  });
+
   it("livrarea trimisă acum 5 zile apare, acum 4 nu; „de refăcut”; proiect închis: nimic; constructorul doar refacerile lui", () => {
     const deschis = proiect({ id: "p1" });
     const inchis = proiect({ id: "p2", inchis_la: peste(-ZI) });

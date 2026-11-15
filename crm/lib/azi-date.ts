@@ -28,11 +28,13 @@ export async function citesteAzi(om: Eu, acum: Date): Promise<DateAzi> {
     teme.includes("discutii")
       ? db
           .from("discutii")
-          .select("id, lead_id, closer_id, incepe_la, lead_uri (nume, telefon_norm, serviciu)")
+          // discuția cu rezultatul trecut (lead-ul nu mai e „programat”) iese imediat, nu după 15 minute
+          .select("id, lead_id, closer_id, incepe_la, lead_uri!inner (nume, telefon_norm, serviciu, stare)")
+          .eq("lead_uri.stare", "programat")
           .gte("incepe_la", new Date(acum.getTime() - 15 * 60_000).toISOString())
           .lt("incepe_la", poimaine)
       : nimic,
-    lucru ? db.from("taskuri").select("id, titlu, om_id, termen, proiect_id, proiecte (titlu, client_id, clienti (nume))").eq("gata", false).not("termen", "is", null).lte("termen", pana7) : nimic,
+    lucru ? db.from("taskuri").select("id, titlu, om_id, termen, proiect_id, proiecte (titlu, client_id, inchis_la, clienti (nume))").eq("gata", false).not("termen", "is", null).lte("termen", pana7) : nimic,
     lucru || bani ? db.from("proiecte").select("id, titlu, client_id, serviciu, stadiu, termen, inchis_la, creat_la, clienti (nume, telefon)") : nimic,
     lucru && !admin ? db.from("proiect_oameni").select("proiect_id, om_id").eq("om_id", om.id) : nimic,
     // pentru a doua vânzare ajung evenimentele din ultimele 62 de zile
@@ -51,8 +53,9 @@ export async function citesteAzi(om: Eu, acum: Date): Promise<DateAzi> {
 
   return {
     leaduri: leaduri.data ?? [],
-    discutii: (discutii.data ?? []).flatMap((x) => (x.lead_uri ? [{ id: x.id, lead_id: x.lead_id, closer_id: x.closer_id, incepe_la: x.incepe_la, lead: x.lead_uri }] : [])),
-    taskuri: (taskuri.data ?? []).map((k) => ({ id: k.id, titlu: k.titlu, om_id: k.om_id, termen: k.termen, proiect_id: k.proiect_id, proiect: k.proiecte.titlu, client_id: k.proiecte.client_id, client: k.proiecte.clienti.nume })),
+    discutii: (discutii.data ?? []).flatMap((x) => (x.lead_uri ? [{ id: x.id, lead_id: x.lead_id, closer_id: x.closer_id, incepe_la: x.incepe_la, lead: { nume: x.lead_uri.nume, telefon_norm: x.lead_uri.telefon_norm, serviciu: x.lead_uri.serviciu } }] : [])),
+    // task-urile de pe proiecte închise nu mai cer nimic (ca termenele și livrările)
+    taskuri: (taskuri.data ?? []).filter((k) => !k.proiecte.inchis_la).map((k) => ({ id: k.id, titlu: k.titlu, om_id: k.om_id, termen: k.termen, proiect_id: k.proiect_id, proiect: k.proiecte.titlu, client_id: k.proiecte.client_id, client: k.proiecte.clienti.nume })),
     proiecte: (proiecte.data ?? []).map(({ clienti: c, ...p }) => ({ ...p, client: c.nume, telefon: c.telefon })),
     oameniProiect: oameniProiect.data ?? [],
     stadii: (stadii.data ?? []).map((e) => ({ proiect_id: e.proiect_id, la: e.la, in: (e.detalii as { in?: Stadiu }).in ?? "discutie" })),

@@ -146,6 +146,9 @@ test.describe("acțiunile de pe „Azi”", () => {
     await acum(page).getByRole("button", { name: "Ia lead-ul și sună" }).click();
     await expect(acum(page).getByRole("alert")).toHaveText("L-a luat deja Vlad Petrescu.");
     await expect(acum(page).getByRole("button", { name: "Nu răspunde" })).toHaveCount(0);
+    // după refresh, lead-ul lui Vlad dispare din „Acum”, dar mesajul rămâne
+    await expect(acum(page)).not.toContainText(liber.nume);
+    await expect(acum(page).getByRole("alert")).toHaveText("L-a luat deja Vlad Petrescu.");
   });
 
   test("lead fără telefon: fără „Sună”, dar cu „Treci rezultatul”", async ({ page }) => {

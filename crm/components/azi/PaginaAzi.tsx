@@ -45,12 +45,20 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi, om }: { randuri: R
   // „Acum”: rândul ales cu „Mai târziu” sau adus din listă cu „Sună”; altfel primul. Nu se salvează: la refresh, ordinea revine.
   const [acumCheie, setAcumCheie] = useState<string | null>(null);
   const [rezultat, setRezultat] = useState(false);
+  // „L-a luat deja…”: stă pe cardul „Acum” până la următoarea acțiune, chiar dacă lead-ul a dispărut după refresh.
+  const [aviz, setAviz] = useState<string | null>(null);
   const tema = placi.some((p) => p.tema === temaAleasa) ? temaAleasa! : (placi[0]?.tema ?? null);
   const acum = randuri.find((r) => r.cheie === acumCheie) ?? randuri[0] ?? null;
   const urm = acum ? urmatorul(randuri, acum.cheie) : null;
   const laApel = (cheie: string) => {
     setAcumCheie(cheie);
     setRezultat(true);
+    setAviz(null);
+  };
+  const laAviz = (mesaj: string) => {
+    setAviz(mesaj);
+    setAcumCheie(null);
+    setRezultat(false);
   };
   const poateRezultat = Boolean(acum?.lead && actiuniPermise(acum.lead, om.rol, om.id).some((a) => a !== "ia_lead"));
   const intarziateDupa = randuri.filter((r) => r.urgenta === "intarziat" && r !== acum).length;
@@ -74,6 +82,11 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi, om }: { randuri: R
 
       <section data-testid="acum" aria-label="Acum" className="panel relative mb-4 overflow-hidden px-5 py-[18px]">
         <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: "var(--grad)" }} />
+        {aviz && (
+          <p role="alert" className="mb-2.5 text-[12.5px] text-red-t">
+            {aviz}
+          </p>
+        )}
         {acum ? (
           <>
             <div className="mb-1.5 flex items-center gap-2 text-[12px] font-semibold text-amber">
@@ -94,7 +107,7 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi, om }: { randuri: R
               <span className={culoareCand(acum)}>{acum.cand}</span>
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <ButoaneAzi key={acum.cheie} rand={acum} om={om} laApel={laApel} mare />
+              <ButoaneAzi key={acum.cheie} rand={acum} om={om} laApel={laApel} laAviz={laAviz} mare />
               {urm && (
                 <button
                   type="button"
@@ -102,6 +115,7 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi, om }: { randuri: R
                   onClick={() => {
                     setAcumCheie(urm);
                     setRezultat(false);
+                    setAviz(null);
                   }}
                 >
                   Mai târziu
@@ -124,6 +138,7 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi, om }: { randuri: R
                   laSucces={() => {
                     setAcumCheie(null);
                     setRezultat(false);
+                    setAviz(null);
                   }}
                 />
               </div>
@@ -187,7 +202,7 @@ export function PaginaAzi({ randuri, placi, cifre, salut, zi, om }: { randuri: R
               )}
               <span className={`flex-none text-right text-[12px] font-medium whitespace-nowrap ${culoareCand(r)}`}>{r.cand}</span>
               <div className="flex-none max-md:basis-full">
-                <ButoaneAzi rand={r} om={om} laApel={laApel} />
+                <ButoaneAzi rand={r} om={om} laApel={laApel} laAviz={laAviz} />
               </div>
             </li>
           ))}
