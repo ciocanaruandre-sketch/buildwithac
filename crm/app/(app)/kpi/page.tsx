@@ -81,14 +81,14 @@ function PlaciInchideri({ a, b, fataDe, cuBani }: { a: KpiInchideri | null; b: K
   const ib = b ? rata(b.clienti, b.au_venit) : null;
   return (
     <Placi>
-      <Placa eticheta="Discuții avute" valoare={a?.au_venit ?? 0} comparatie={comparatie(a?.au_venit ?? 0, b?.au_venit ?? 0, "sus", "procent")} fataDe={fataDe} />
+      <Placa eticheta="Discuții ținute" valoare={a?.au_venit ?? 0} comparatie={comparatie(a?.au_venit ?? 0, b?.au_venit ?? 0, "sus", "procent")} fataDe={fataDe} />
       <Placa
         eticheta="Rata de prezentare"
         valoare={afiseaza(pa, numarIntreg)}
         unitate={pa === null ? undefined : "%"}
         comparatie={comparatie(pa, pb, "sus", "pp")}
         fataDe={fataDe}
-        explicatie={`au venit ${a?.au_venit ?? 0} din ${a?.programate ?? 0} programați`}
+        explicatie={`${a?.au_venit ?? 0} ținute din ${a?.programate ?? 0} programate`}
       />
       <Placa
         eticheta="Rata de închidere"
@@ -176,7 +176,7 @@ function miniOm(d: DateKpi, om: OmKpi, cuBani: boolean): Mini[] {
   if (areInchideri) {
     const p = rata(inc.au_venit, inc.programate);
     m.push(
-      { eticheta: "Au venit", valoare: p === null ? "—" : `${p}%`, nota: `${inc.au_venit} din ${inc.programate}` },
+      { eticheta: "Discuții ținute", valoare: p === null ? "—" : `${p}%`, nota: `${inc.au_venit} din ${inc.programate}` },
       { eticheta: "Clienți", valoare: inc.clienti },
     );
     if (cuBani) m.push({ eticheta: "Vândut", valoare: sumaLei(inc.vandut_lei) });
@@ -261,7 +261,7 @@ function Sectiunea({ s, d, rol, eu: omul, fataDe, numeOm }: { s: Sectiune; d: Da
         { eticheta: "Sunate", nr: p?.sunate ?? 0 },
         { eticheta: "Au răspuns", nr: p?.au_raspuns ?? 0 },
         { eticheta: "Discuție programată", nr: p?.programate ?? 0 },
-        { eticheta: "Au venit la discuție", nr: p?.au_venit ?? 0 },
+        { eticheta: "Discuții ținute", nr: p?.au_venit ?? 0 },
         { eticheta: "Ofertă trimisă", nr: p?.oferta ?? 0 },
         { eticheta: "Clienți", nr: p?.clienti ?? 0 },
       ];
@@ -304,7 +304,7 @@ function Sectiunea({ s, d, rol, eu: omul, fataDe, numeOm }: { s: Sectiune; d: Da
           {admin && (
             <Panou titlu="Pe oameni">
               <TabelOameni
-                coloane={["Cine închide", "Programate", "Au venit", "Clienți", "Vândut"]}
+                coloane={["Cine închide", "Programate", "Discuții ținute", "Clienți", "Vândut"]}
                 randuri={pe(d.acum.inchideri).map((o) => {
                   const r = rand(d.acum.inchideri, o.id)!;
                   return { ...o, celule: [r.programate, `${r.au_venit} · ${afiseaza(rata(r.au_venit, r.programate), (n) => `${n}%`)}`, r.clienti, sumaLei(r.vandut_lei)] };
