@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { GET as zilnic } from "@/app/api/cron/zilnic/route";
-import { copieSaptamanala, stergeVechi } from "@/lib/retentie";
+import { anonimizeazaVechi, copieSaptamanala } from "@/lib/retentie";
 import { admin, clientDeTest, idDe, leadDeTest, sterge } from "./ajutor";
 
 const lead_uri: string[] = [];
@@ -10,23 +10,23 @@ afterAll(async () => {
 
 const ziInUrma = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();
 
-describe("stergeVechi", () => {
-  it("șterge lead-urile mai vechi de 90 de zile (cu cererile lor), nu și clienții", async () => {
-    const vechi = await leadDeTest({ stare: "pierdut", motiv: "Prea scump", intrat_la: ziInUrma(91) });
-    const recent = await leadDeTest({ stare: "pierdut", motiv: "Prea scump", intrat_la: ziInUrma(89) });
-    const client = await leadDeTest({ stare: "client", intrat_la: ziInUrma(200) });
+describe("anonimizeazaVechi", () => {
+  it("anonimizează lead-urile mai vechi de 365 de zile, nu și clienții", async () => {
+    const vechi = await leadDeTest({ stare: "pierdut", motiv: "Prea scump", intrat_la: ziInUrma(366) });
+    const recent = await leadDeTest({ stare: "pierdut", motiv: "Prea scump", intrat_la: ziInUrma(364) });
+    const client = await leadDeTest({ stare: "client", intrat_la: ziInUrma(400) });
     lead_uri.push(vechi.id, recent.id, client.id);
     const c = await admin().from("cereri").insert({ lead_id: vechi.id, sursa: "formular_site" }).select("id").single();
     expect(c.error).toBeNull();
 
-    const n = await stergeVechi(admin(), new Date());
+    const n = await anonimizeazaVechi(admin(), new Date());
     expect(n).toBeGreaterThanOrEqual(1);
 
-    const { data } = await admin().from("lead_uri").select("id").in("id", lead_uri);
-    const ramase = (data ?? []).map((l) => l.id);
-    expect(ramase).not.toContain(vechi.id);
-    expect(ramase).toContain(recent.id);
-    expect(ramase).toContain(client.id);
+    const { data } = await admin().from("lead_uri").select("id, anonimizat_la").in("id", lead_uri);
+    const fara = (data ?? []).filter((l) => l.anonimizat_la).map((l) => l.id);
+    expect(fara).toContain(vechi.id);
+    expect(fara).not.toContain(recent.id);
+    expect(fara).not.toContain(client.id);
     const { data: cereri } = await admin().from("cereri").select("id").eq("id", c.data!.id);
     expect(cereri).toHaveLength(0);
   });
@@ -35,7 +35,7 @@ describe("stergeVechi", () => {
 describe("copieSaptamanala", () => {
   it("trimite la Resend toate tabelele, ca atașament", async () => {
     const l = await leadDeTest();
-    const expira = await leadDeTest({ stare: "callback", intrat_la: ziInUrma(85) });
+    const expira = await leadDeTest({ stare: "callback", intrat_la: ziInUrma(360) });
     lead_uri.push(l.id, expira.id);
     const vechi = process.env.RESEND_API_KEY;
     process.env.RESEND_API_KEY = "re_test";
@@ -100,10 +100,10 @@ describe("ruta /api/cron/zilnic", () => {
     expect(gresit.status).toBe(401);
   });
 
-  it("cu secretul → 200 și câte a șters", async () => {
+  it("cu secretul → 200 și din câte a scos datele", async () => {
     process.env.CRON_SECRET = "secret-de-test";
     const r = await zilnic(new Request("http://localhost/api/cron/zilnic", { headers: { authorization: "Bearer secret-de-test" } }));
     expect(r.status).toBe(200);
-    expect(await r.json()).toMatchObject({ sterse: expect.any(Number) });
+    expect(await r.json()).toMatchObject({ anonimizate: expect.any(Number) });
   });
 });

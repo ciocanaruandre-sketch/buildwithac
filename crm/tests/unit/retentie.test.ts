@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CRM } from "@/lib/config";
-import { clientiDeSters, construiesteCopia, dataLimita, eLuni, ZILE_DUPA_COLABORARE, ZILE_PASTRARE } from "@/lib/retentie";
+import { clientiDeSters, construiesteCopia, dataLimita, eLuni, ZILE_DUPA_COLABORARE, ZILE_PASTRARE, ziuaAnonimizarii } from "@/lib/retentie";
 
 describe("clienții cu colaborarea încheiată", () => {
   const acum = new Date("2027-12-01T04:00:00Z");
@@ -36,12 +36,17 @@ describe("clienții cu colaborarea încheiată", () => {
 });
 
 describe("retenția", () => {
-  it("se păstrează 90 de zile", () => {
-    expect(ZILE_PASTRARE).toBe(90);
+  it("se păstrează un an", () => {
+    expect(ZILE_PASTRARE).toBe(365);
   });
 
-  it("dataLimita = acum − 90 de zile", () => {
-    expect(dataLimita(new Date("2026-11-10T04:00:00Z")).toISOString()).toBe("2026-08-12T04:00:00.000Z");
+  it("dataLimita = acum − 365 de zile", () => {
+    expect(dataLimita(new Date("2026-11-10T04:00:00Z")).toISOString()).toBe("2025-11-10T04:00:00.000Z");
+  });
+
+  it("ziuaAnonimizarii: prima rulare a jobului (04:00 UTC) după un an", () => {
+    expect(ziuaAnonimizarii("2025-11-12T10:00:00Z")).toBe("2026-11-13");
+    expect(ziuaAnonimizarii("2025-11-12T03:00:00Z")).toBe("2026-11-12");
   });
 
   it("eLuni se uită la ora României", () => {
@@ -63,20 +68,22 @@ describe("construiesteCopia", () => {
     expect(e.text).not.toContain("șters");
   });
 
-  it("spune câte lead-uri a șters, dacă a șters", () => {
-    expect(construiesteCopia(tabele, new Date("2026-11-09T04:00:00Z"), 1).text).toContain("Am șters 1 lead mai vechi de 90 de zile");
-    expect(construiesteCopia(tabele, new Date("2026-11-09T04:00:00Z"), 3).text).toContain("Am șters 3 lead-uri mai vechi de 90 de zile");
+  it("spune din câte lead-uri a scos datele personale, dacă a scos", () => {
+    expect(construiesteCopia(tabele, new Date("2026-11-09T04:00:00Z"), 1).text).toContain("Am scos datele personale din 1 lead mai vechi de un an");
+    expect(construiesteCopia(tabele, new Date("2026-11-09T04:00:00Z"), 2).text).toContain(
+      "Am scos datele personale din 2 lead-uri mai vechi de un an, cum promite pagina de confidențialitate.",
+    );
   });
 
-  it("arată lead-urile care se șterg în următoarele 7 zile, cu link la fișă", () => {
+  it("arată lead-urile care rămân fără nume în următoarele 7 zile, cu link la fișă", () => {
     const acum = new Date("2026-11-09T04:00:00Z");
-    const expira = [{ id: "abc", nume: "Ion <Pop>", stare: "oferta_trimisa" as const, intrat_la: "2026-08-12T10:00:00Z" }];
+    const expira = [{ id: "abc", nume: "Ion <Pop>", stare: "oferta_trimisa" as const, intrat_la: "2025-11-12T10:00:00Z" }];
     const e = construiesteCopia(tabele, acum, 0, expira);
-    expect(e.text).toContain("Se șterg în următoarele 7 zile (1)");
-    expect(e.text).toContain("Ion <Pop> · Ofertă trimisă · se șterge pe 2026-11-11");
+    expect(e.text).toContain("Rămân fără nume în următoarele 7 zile (1). Dacă vreunul e încă în lucru, cere-i o confirmare nouă:");
+    expect(e.text).toContain("Ion <Pop> · Ofertă trimisă · rămâne fără nume pe 2026-11-13");
     expect(e.text).toContain("https://crm.buildwithac.ro/lead-uri/abc");
     expect(e.html).toContain("Ion &lt;Pop&gt;");
-    expect(construiesteCopia(tabele, acum, 0, []).text).not.toContain("Se șterg");
+    expect(construiesteCopia(tabele, acum, 0, []).text).not.toContain("Rămân fără nume");
   });
 
   it("fără ş/ţ cu sedilă", () => {

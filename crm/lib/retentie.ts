@@ -7,8 +7,8 @@ import { escapa, trimiteEmail, type Email } from "@/lib/email";
 import { FUS, ziuaRomaniei } from "@/lib/timp";
 import { ETICHETE, type Stare } from "@/lib/tipuri";
 
-/** Promisiunea de pe site: cererile care nu ajung la colaborare se păstrează 90 de zile. */
-export const ZILE_PASTRARE = 90;
+/** Promisiunea de pe site: cererile care nu ajung la colaborare se păstrează un an, apoi rămân fără nume. */
+export const ZILE_PASTRARE = 365;
 
 /** Promisiunea de pe site pentru clienți: cât durează colaborarea plus un an după ultimul proiect. */
 export const ZILE_DUPA_COLABORARE = 365;
@@ -37,11 +37,15 @@ export const dataLimita = (acum: Date): Date => new Date(acum.getTime() - ZILE_P
 const ZI_SAPTAMANA = new Intl.DateTimeFormat("en-US", { timeZone: FUS, weekday: "short" });
 export const eLuni = (acum: Date): boolean => ZI_SAPTAMANA.format(acum) === "Mon";
 
-/** Lead-urile care nu sunt „client” și au intrat de peste 90 de zile. Cererile, notițele, Parcursul și discuțiile pleacă prin „on delete cascade”. */
-export async function stergeVechi(db: Db, acum: Date): Promise<number> {
-  const { data, error } = await db.from("lead_uri").delete().neq("stare", "client").lt("intrat_la", dataLimita(acum).toISOString()).select("id");
+/**
+ * Lead-urile care nu sunt „client” și au intrat de peste un an rămân fără nume (funcția `anonimizeaza_vechi`):
+ * pleacă numele, contactul, motivul scris, cererile și notițele; rămân starea și Parcursul, pentru cifre.
+ * `acum` rămâne în semnătură pentru simetrie cu restul jobului: baza numără anul după ceasul ei.
+ */
+export async function anonimizeazaVechi(db: Db, _acum: Date): Promise<number> {
+  const { data, error } = await db.rpc("anonimizeaza_vechi", { zile: ZILE_PASTRARE });
   if (error) throw error;
-  return data.length;
+  return data;
 }
 
 const PAGINA = 1000; // cât dă PostgREST dintr-o cerere
@@ -61,8 +65,8 @@ async function citesteTot(db: Db, tabel: Tabel): Promise<unknown[]> {
 
 export type LeadCareExpira = { id: string; nume: string; stare: Stare; intrat_la: string };
 
-/** Ziua (în România) în care jobul de la 04:00 UTC șterge lead-ul. */
-export function ziuaStergerii(intrat_la: string): string {
+/** Ziua (în România) în care jobul de la 04:00 UTC lasă lead-ul fără nume. */
+export function ziuaAnonimizarii(intrat_la: string): string {
   const limita = new Date(new Date(intrat_la).getTime() + ZILE_PASTRARE * 86_400_000);
   const rulare = new Date(Date.UTC(limita.getUTCFullYear(), limita.getUTCMonth(), limita.getUTCDate(), 4));
   if (rulare < limita) rulare.setUTCDate(rulare.getUTCDate() + 1);
@@ -88,11 +92,11 @@ export function clientiDeSters(proiecte: { client_id: string; inchis_la: string 
 
 export type ClientDeSters = { id: string; nume: string };
 
-/** E-mailul de luni, cu toate tabelele într-un JSON atașat, lead-urile care se șterg săptămâna asta și clienții de șters de mână. */
+/** E-mailul de luni, cu toate tabelele într-un JSON atașat, lead-urile care rămân fără nume săptămâna asta și clienții de șters de mână. */
 export function construiesteCopia(
   tabele: Record<string, unknown[]>,
   acum: Date,
-  sterse: number,
+  anonimizate: number,
   expira: LeadCareExpira[] = [],
   deSters: ClientDeSters[] = [],
   intarziate: TransaIntarziata[] = [],
@@ -102,10 +106,10 @@ export function construiesteCopia(
   const json = JSON.stringify({ facuta_la: acum.toISOString(), tabele }, null, 1);
   const randuri = [
     `Copia de luni a CRM-ului e atașată (${nume}). Păstreaz-o într-un loc sigur: are datele oamenilor.`,
-    ...(sterse ? [`Am șters ${leadUri(sterse)} mai vechi de ${ZILE_PASTRARE} de zile, cum promite pagina de confidențialitate.`] : []),
+    ...(anonimizate ? [`Am scos datele personale din ${leadUri(anonimizate)} mai vechi de un an, cum promite pagina de confidențialitate.`] : []),
   ];
-  const titlu = `Se șterg în următoarele 7 zile (${expira.length}). Dacă vreunul e încă în lucru, cere-i o confirmare nouă:`;
-  const descriere = (l: LeadCareExpira) => `${l.nume} · ${ETICHETE.stare[l.stare]} · se șterge pe ${ziuaStergerii(l.intrat_la)}`;
+  const titlu = `Rămân fără nume în următoarele 7 zile (${expira.length}). Dacă vreunul e încă în lucru, cere-i o confirmare nouă:`;
+  const descriere = (l: LeadCareExpira) => `${l.nume} · ${ETICHETE.stare[l.stare]} · rămâne fără nume pe ${ziuaAnonimizarii(l.intrat_la)}`;
   const link = (l: LeadCareExpira) => `${CRM.url}/lead-uri/${l.id}`;
   const lista = [titlu, ...expira.map((l) => `- ${descriere(l)}\n  ${link(l)}`)].join("\n");
   const titluClienti = `Clienți cu colaborarea încheiată de peste un an (${deSters.length}). Șterge-i din fișa lor, cum promite pagina de confidențialitate:`;
@@ -134,13 +138,14 @@ export function construiesteCopia(
   };
 }
 
-/** Lead-urile care nu sunt „client” și se șterg în următoarele 7 zile. */
+/** Lead-urile care nu sunt „client”, încă au nume și rămân fără nume în următoarele 7 zile. */
 export async function careExpira(db: Db, acum: Date): Promise<LeadCareExpira[]> {
   const peste7 = new Date(acum.getTime() + 7 * 86_400_000);
   const { data, error } = await db
     .from("lead_uri")
     .select("id, nume, stare, intrat_la")
     .neq("stare", "client")
+    .is("anonimizat_la", null)
     .lt("intrat_la", dataLimita(peste7).toISOString())
     .order("intrat_la");
   if (error) throw error;
@@ -148,7 +153,7 @@ export async function careExpira(db: Db, acum: Date): Promise<LeadCareExpira[]> 
 }
 
 /** Citește toate tabelele și le trimite lui Andrei. Fără cheie Resend sau la eroare întoarce false. */
-export async function copieSaptamanala(db: Db, f: typeof fetch = fetch, o: { acum?: Date; sterse?: number } = {}): Promise<boolean> {
+export async function copieSaptamanala(db: Db, f: typeof fetch = fetch, o: { acum?: Date; anonimizate?: number } = {}): Promise<boolean> {
   const acum = o.acum ?? new Date();
   const tabele: Record<string, unknown[]> = {};
   for (const t of TABELE) tabele[t] = await citesteTot(db, t);
@@ -158,7 +163,7 @@ export async function copieSaptamanala(db: Db, f: typeof fetch = fetch, o: { acu
       ...construiesteCopia(
         tabele,
         acum,
-        o.sterse ?? 0,
+        o.anonimizate ?? 0,
         await careExpira(db, acum),
         await clientiCuColaborareaIncheiata(db, acum),
         await transeIntarziate(db, ziuaRomaniei(acum), false),

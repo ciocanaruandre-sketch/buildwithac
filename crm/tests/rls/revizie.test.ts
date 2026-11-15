@@ -140,7 +140,7 @@ describe("discuția programată ține pasul cu lead-ul", () => {
   });
 });
 
-describe("cele 90 de zile", () => {
+describe("anul de păstrare", () => {
   it("o cerere nouă pe un lead deschis repornește numărătoarea", async () => {
     const l = await leadDeTest({ stare: "callback", intrat_la: ziInUrma(80) });
     lead_uri.push(l.id);

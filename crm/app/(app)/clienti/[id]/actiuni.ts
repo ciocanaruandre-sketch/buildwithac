@@ -139,7 +139,7 @@ export async function inchideProiect(proiectId: string, inchis: boolean): Promis
 /**
  * Doar Adminul: șterge definitiv clientul. Ordinea contează:
  * 1) fișierele din Storage (dacă nu pleacă, nu ștergem nimic); 2) lead-ul din care a venit
- * (altfel rămâne pe veci în starea „client”, pe care jobul de 90 de zile n-o atinge); 3) clientul, cu tot ce ține de el.
+ * (altfel rămâne pe veci în starea „client”, pe care jobul de un an n-o atinge); 3) clientul, cu tot ce ține de el.
  */
 export async function stergeClient(clientId: string): Promise<Rezultat> {
   const om = await eu();
