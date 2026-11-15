@@ -4,6 +4,7 @@ import type { ContTest } from "../../lib/echipa-test";
 import { client, db, verifica, type Ids } from "./baza.mjs";
 import { planDePlata } from "../../lib/finante";
 import { clientiDemo, discutiiDemo, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, RECLAME_DEMO, telefonDemo, telefonNormDemo, type EvenimentDemo, type LeadDemo, laCallback, laOra, type Optiuni, type ProiectDemo, ziDupa } from "./demo-date";
+import { istoricKpiDemo } from "./demo-istoric";
 
 const DE_MANA = ["recomandare", "cold_calling", "dm_instagram", "dm_tiktok", "altceva"];
 
@@ -151,6 +152,8 @@ async function scrieFinante(o: Optiuni, proiectId: string, p: ProiectDemo): Prom
 export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
   const la = (z: number) => laOra(o.acum, z).toISOString();
   const termen = (n: number | null) => (n === null ? null : ziDupa(o.acum, n));
+  // bifat cu o zi înainte de termen (la termen, pentru KPI), dar niciodată în viitor
+  const gataLa = (n: number | null) => new Date(Math.min(new Date(`${ziDupa(o.acum, (n ?? 0) - 1)}T12:00:00Z`).getTime(), o.acum.getTime() - 3_600_000)).toISOString();
   const leaduri = leaduriDemo(o);
   let proiecte = 0;
 
@@ -196,7 +199,9 @@ export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
       if (p.procentRadu !== undefined) verifica(await db.from("proiect_oameni").upsert({ proiect_id: id, om_id: ids.constructor, procent: p.procentRadu, adaugat_la: la(p.creatAcumZile - 0.1) }));
       const inceput = la(p.creatAcumZile - 0.2);
       verifica(
-        await db.from("taskuri").insert(p.taskuri.map((t) => ({ proiect_id: id, titlu: t.titlu, om_id: ids[t.om], termen: termen(t.termenPesteZile), gata: t.gata, creat_de: ids.admin, creat_la: inceput }))),
+        await db.from("taskuri").insert(
+          p.taskuri.map((t) => ({ proiect_id: id, titlu: t.titlu, om_id: ids[t.om], termen: termen(t.termenPesteZile), gata: t.gata, gata_la: t.gata ? gataLa(t.termenPesteZile) : null, creat_de: ids.admin, creat_la: inceput })),
+        ),
       );
       if (p.materiale.length)
         verifica(await db.from("materiale").insert(p.materiale.map((m) => ({ proiect_id: id, titlu: m.titlu, url: m.url, nota: m.nota ?? null, adaugat_de: ids[m.om], adaugat_la: inceput }))));
@@ -213,4 +218,69 @@ export async function scrieClientiDemo(o: Optiuni, ids: Ids): Promise<number> {
     }
   }
   return proiecte;
+}
+
+/**
+ * Istoricul pe 6 luni pentru pagina KPI: lead-uri fără nume (anonimizate), deci în cifre, dar nu și în liste.
+ * Clienții de aici sunt doar în cifre (fără fișă de client și fără bani). Întoarce câte lead-uri a scris.
+ */
+export async function scrieIstoricKpi(o: Optiuni, ids: Ids): Promise<number> {
+  const { leaduri } = istoricKpiDemo(o);
+  const id = (c: unknown) => (c ? ids[c as ContTest] : null);
+  for (let i = 0; i < leaduri.length; i += 100) {
+    const bucata = leaduri.slice(i, i + 100);
+    const ins = await db
+      .from("lead_uri")
+      .insert(
+        bucata.map((l) => ({
+          nume: "Lead șters",
+          serviciu: l.serviciu,
+          sursa: l.sursa,
+          stare: l.stare,
+          intrat_la: l.intrat,
+          creat_la: l.intrat,
+          caller_id: id(l.caller),
+          closer_id: id(l.closer),
+          creat_de: null,
+          motiv_categorie: l.categorie,
+          incercari: l.parcurs.filter((e) => e.tip === "incercare").length,
+          anonimizat_la: o.acum.toISOString(),
+        })),
+      )
+      .select("id");
+    if (ins.error) throw ins.error;
+    const lid = ins.data.map((x) => x.id);
+    if (lid.length !== bucata.length) throw new Error("Lead-urile din istoric nu s-au scris toate.");
+    // evenimentul „creat” pus de trigger are ora de acum: pleacă, vine Parcursul cu orele lui
+    verifica(await db.from("evenimente").delete().in("lead_id", lid));
+    verifica(
+      await db.from("evenimente").insert(
+        bucata.flatMap((l, k) =>
+          l.parcurs.map((e) => ({
+            lead_id: lid[k],
+            tip: e.tip,
+            autor_id: id(e.autor),
+            la: e.la,
+            detalii: (e.tip === "caller" || e.tip === "closer" ? { de: id(e.detalii.de), in: id(e.detalii.in) } : e.tip === "programat" ? { ...e.detalii, closer: id(e.detalii.closer) } : e.detalii) as Json,
+          })),
+        ),
+      ),
+    );
+    const discutii = bucata.flatMap((l, k) =>
+      l.discutii.map((d) => {
+        const t = new Date(d.incepe).getTime();
+        return {
+          lead_id: lid[k],
+          closer_id: ids[d.closer],
+          creat_de: id(l.caller) ?? ids.admin,
+          creat_la: new Date(t - 24 * 3_600_000).toISOString(),
+          incepe_la: d.incepe,
+          sfarseste_la: new Date(t + 30 * 60_000).toISOString(),
+          neprezentat_la: d.neprezentat ? new Date(t + 40 * 60_000).toISOString() : null,
+        };
+      }),
+    );
+    if (discutii.length) verifica(await db.from("discutii").insert(discutii));
+  }
+  return leaduri.length;
 }

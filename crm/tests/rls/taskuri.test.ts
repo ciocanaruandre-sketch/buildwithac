@@ -54,6 +54,20 @@ describe("taskuri", () => {
     expect(inapoi.data).toEqual({ gata: false, gata_la: null });
   });
 
+  it("gata_la dat de cheia de serviciu (datele demo) rămâne; cel dat din aplicație, nu", async () => {
+    const eu = await idDe("constructor");
+    const p = await proiect(eu);
+    const cand = "2026-10-02T12:00:00.000Z";
+    const { data, error } = await admin().from("taskuri").insert({ proiect_id: p, titlu: "Vechi", om_id: eu, gata: true, gata_la: cand }).select("gata_la").single();
+    expect(error).toBeNull();
+    expect(new Date(data!.gata_la!).toISOString()).toBe(cand);
+
+    const c = await conecteazaCa("constructor");
+    const ins = await c.from("taskuri").insert({ proiect_id: p, titlu: "Al meu", om_id: eu, gata: true, gata_la: cand }).select("gata_la").single();
+    expect(ins.error).toBeNull();
+    expect(Math.abs(new Date(ins.data!.gata_la!).getTime() - Date.now())).toBeLessThan(600_000);
+  });
+
   it("task-ul nu se poate da unui om din afara proiectului, dar se poate da Adminului", async () => {
     const eu = await idDe("constructor");
     const p = await proiect(eu);

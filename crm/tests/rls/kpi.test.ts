@@ -111,6 +111,16 @@ describe("kpi_apeluri", () => {
     expect(Number(r.incercari_pana_raspunde)).toBe(2);
   });
 
+  it("„au răspuns” vine doar dintr-un apel: oferta, clientul și pierdutul de după discuție nu-i dau closerului răspunsuri", async () => {
+    const closer = await omTemporar("closer");
+    const l = await intrat(M(15, 8), { closer_id: closer });
+    await ev(l.id, "stare", M(18, 12), closer, { de: "programat", in: "oferta_trimisa" });
+    await ev(l.id, "stare", M(22, 12), closer, { de: "oferta_trimisa", in: "client" });
+    const l2 = await intrat(M(15, 9), { closer_id: closer });
+    await ev(l2.id, "stare", M(18, 13), closer, { de: "programat", in: "pierdut", categorie: "prea_scump" });
+    expect(randOm(await rpcAdmin("kpi_apeluri"), closer)?.au_raspuns ?? 0).toBe(0);
+  });
+
   it("callerul vede doar rândul lui, chiar fără activitate", async () => {
     const { data, error } = await (await conecteazaCa("caller")).rpc("kpi_apeluri", P);
     expect(error).toBeNull();
