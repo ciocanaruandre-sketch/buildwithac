@@ -40,9 +40,9 @@ export const eLuni = (acum: Date): boolean => ZI_SAPTAMANA.format(acum) === "Mon
 /**
  * Lead-urile care nu sunt „client” și au intrat de peste un an rămân fără nume (funcția `anonimizeaza_vechi`):
  * pleacă numele, contactul, motivul scris, cererile și notițele; rămân starea și Parcursul, pentru cifre.
- * `acum` rămâne în semnătură pentru simetrie cu restul jobului: baza numără anul după ceasul ei.
+ * Anul îl numără baza, după ceasul ei.
  */
-export async function anonimizeazaVechi(db: Db, _acum: Date): Promise<number> {
+export async function anonimizeazaVechi(db: Db): Promise<number> {
   const { data, error } = await db.rpc("anonimizeaza_vechi", { zile: ZILE_PASTRARE });
   if (error) throw error;
   return data;

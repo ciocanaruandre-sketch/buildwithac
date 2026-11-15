@@ -24,7 +24,7 @@ export async function GET(cerere: Request) {
   const acum = new Date();
   const db = admin();
   try {
-    const anonimizate = await anonimizeazaVechi(db, acum);
+    const anonimizate = await anonimizeazaVechi(db);
     // fișierele rămase de la clienții șterși; o eroare aici nu oprește copia de luni
     const orfane = await curataFisiereOrfane(db).catch((e) => {
       console.error("cron zilnic: fișierele orfane", e);

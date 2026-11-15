@@ -19,7 +19,7 @@ describe("anonimizeazaVechi", () => {
     const c = await admin().from("cereri").insert({ lead_id: vechi.id, sursa: "formular_site" }).select("id").single();
     expect(c.error).toBeNull();
 
-    const n = await anonimizeazaVechi(admin(), new Date());
+    const n = await anonimizeazaVechi(admin());
     expect(n).toBeGreaterThanOrEqual(1);
 
     const { data } = await admin().from("lead_uri").select("id, anonimizat_la").in("id", lead_uri);
