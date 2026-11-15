@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 // textul se actualizează când operatorul devine PFA (datele stau în lib/config.ts)
-const ACTUALIZAT = "10 noiembrie 2026";
+const ACTUALIZAT = "15 noiembrie 2026";
 
 export default function Confidentialitate() {
   const op = SITE.operatorDate;
@@ -56,7 +56,7 @@ export default function Confidentialitate() {
         <p>Adresa de e-mail rămâne în lista de abonați până te dezabonezi sau îmi ceri să o șterg. Dacă nu confirmi abonarea, adresa nu primește e-mailuri. Dacă nu confirmi abonarea în 30 de zile, îți șterg adresa: o dată pe lună scot din listă adresele neconfirmate mai vechi de 30 de zile.</p>
         <p>Răspunsurile din formularele pentru clienți le păstrez cât lucrăm împreună și încă un an după ultimul proiect, ca să te pot ajuta cu modificări. Dacă nu ajungem să lucrăm împreună, le șterg după 90 de zile. Le șterg de mână, din Tally și din e-mail, o dată pe lună.</p>
         <p>Fișa proiectului din CRM o păstrez cât lucrăm împreună și încă un an după ultimul proiect. Când trece anul, CRM-ul îmi amintește, iar eu o șterg. Fișierele se șterg odată cu ea. Copia de siguranță de luni nu conține fișierele.</p>
-        <p>Cererile din formularul de contact le păstrez 90 de zile de la ultima ta cerere, dacă nu ajungem să lucrăm împreună. Dacă ajungem, se aplică regula de mai sus. Te sun doar despre cererea ta, nu pentru reclame. Dacă îmi spui că nu mai vrei, îți șterg cererea pe loc. Din CRM se șterg singure, în fiecare noapte. Din e-mail le șterg de mână, o dată pe lună.</p>
+        <p>Cererile din formularul de contact le păstrez un an de la ultima ta cerere, dacă nu ajungem să lucrăm împreună: dacă revii, nu o luăm de la zero. După un an îți scot numele, telefonul, e-mailul și tot ce mi-ai scris; rămâne doar un istoric fără nume (când a venit cererea și cât de departe am ajuns), pentru statisticile mele. Dacă ajungem să lucrăm împreună, se aplică regula de mai sus. Te sun doar despre cererea ta, nu pentru reclame. Dacă îmi spui că nu mai vrei, îți șterg cererea pe loc, cu tot cu istoric. Din CRM se scot singure, în fiecare noapte. Din e-mail le șterg de mână, o dată pe lună.</p>
         <p>În fiecare luni primesc pe e-mail o copie de siguranță a CRM-ului, ca să nu pierd datele dacă se strică ceva. Copiile vechi le șterg tot o dată pe lună, deci o cerere ștearsă din CRM mai poate rămâne într-o copie cel mult două luni.</p>
 
         <h2>Ce se salvează în browserul tău</h2>
