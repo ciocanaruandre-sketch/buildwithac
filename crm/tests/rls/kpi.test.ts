@@ -10,6 +10,8 @@ const P = { de: DE, pana: PANA };
 /** 2001-03-<zi>, ora României (+02 până pe 25 martie). */
 const M = (zi: number, ora = 10, min = 0) => new Date(Date.UTC(2001, 2, zi, ora - 2, min)).toISOString();
 const IAN = (zi: number) => new Date(Date.UTC(2001, 0, zi, 8)).toISOString();
+const FEB = (zi: number) => new Date(Date.UTC(2001, 1, zi, 8)).toISOString();
+const APR = (zi: number) => new Date(Date.UTC(2001, 3, zi, 7)).toISOString();
 
 const deSters: string[] = [];
 afterEach(async () => {
@@ -121,6 +123,17 @@ describe("kpi_apeluri", () => {
     expect(randOm(await rpcAdmin("kpi_apeluri"), closer)?.au_raspuns ?? 0).toBe(0);
   });
 
+  it("rata de programare pe răspunsurile perioadei: programat mai târziu intră, răspuns de dinainte nu", async () => {
+    const om = await omTemporar("caller");
+    const vechi = await intrat(FEB(20), { caller_id: om });
+    await ev(vechi.id, "stare", FEB(27), om, { de: "nou", in: "a_raspuns" });
+    await ev(vechi.id, "programat", M(2), om, { closer: om, la: M(6) });
+    const nou = await intrat(M(29), { caller_id: om });
+    await ev(nou.id, "stare", M(30), om, { de: "nou", in: "a_raspuns" });
+    await ev(nou.id, "programat", APR(2), om, { closer: om, la: APR(6) });
+    expect(randOm(await rpcAdmin("kpi_apeluri"), om)).toMatchObject({ au_raspuns: 1, programate: 1, programate_din_raspuns: 1 });
+  });
+
   it("callerul vede doar rândul lui, chiar fără activitate", async () => {
     const { data, error } = await (await conecteazaCa("caller")).rpc("kpi_apeluri", P);
     expect(error).toBeNull();
@@ -147,6 +160,14 @@ describe("kpi_palnie și kpi_surse", () => {
     expect(inainte).toMatchObject({ intrari: 1, sunate: 1, au_raspuns: 1, oferta: 1, clienti: 1 });
     const surse = await rpcAdmin("kpi_surse");
     expect(surse).toEqual([{ sursa: "reclama_meta", intrari: 1, clienti: 1 }]);
+  });
+
+  it("o treaptă nu e mai mare decât cea dinainte: cine a ajuns mai departe a trecut și pe aici", async () => {
+    const om = await omTemporar("caller");
+    const l = await intrat(M(10), { caller_id: om });
+    await ev(l.id, "stare", M(11), om, { de: "nou", in: "a_raspuns" });
+    await ev(l.id, "stare", M(12), om, { de: "a_raspuns", in: "oferta_trimisa" });
+    expect((await rpcAdmin("kpi_palnie"))[0]).toMatchObject({ intrari: 1, sunate: 1, au_raspuns: 1, programate: 1, au_venit: 1, oferta: 1, clienti: 0 });
   });
 
   it("callerul nu primește nimic din pâlnie și surse", async () => {
@@ -189,6 +210,17 @@ describe("kpi_inchideri", () => {
     const r = await rpcAdmin("kpi_inchideri");
     expect(Number(randOm(r, closer)?.vandut_lei)).toBe(3000);
     expect(Number(total(r)?.vandut_lei)).toBe(3000);
+  });
+
+  it("rata de închidere pe discuțiile perioadei: clientul de după perioadă intră, discuția de dinainte nu", async () => {
+    const closer = await omTemporar("closer");
+    const a = await intrat(M(2), { closer_id: closer, stare: "client" });
+    await discutie(a.id, closer, M(5, 10));
+    await ev(a.id, "stare", APR(3), closer, { de: "oferta_trimisa", in: "client" });
+    const b = await intrat(FEB(10), { closer_id: closer, stare: "client" });
+    await discutie(b.id, closer, FEB(25));
+    await ev(b.id, "stare", M(3), closer, { de: "oferta_trimisa", in: "client" });
+    expect(randOm(await rpcAdmin("kpi_inchideri"), closer)).toMatchObject({ au_venit: 1, clienti: 1, clienti_din_discutii: 1 });
   });
 
   it("closerul vede doar rândul lui, fără bani", async () => {

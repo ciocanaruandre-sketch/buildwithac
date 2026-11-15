@@ -10,10 +10,14 @@ type Db = SupabaseClient<Database>;
 export type KpiApeluri = {
   om_id: string | null; luate: number; apeluri: number; au_raspuns: number; programate: number;
   minute_primul_apel: number | null; nesunate_24h: number; incercari_pana_raspunde: number | null;
+  /** Dintre cei care au răspuns în perioadă, câți s-au programat (și după perioadă). */
+  programate_din_raspuns: number;
 };
 export type KpiInchideri = {
   om_id: string | null; programate: number; au_venit: number; clienti: number;
   vandut_lei: number | null; fara_pret: number | null; zile_pana_la_client: number | null;
+  /** Dintre discuțiile ținute în perioadă, câte lead-uri s-au făcut clienți (și după perioadă). */
+  clienti_din_discutii: number;
 };
 export type KpiPalnie = { intrari: number; sunate: number; au_raspuns: number; programate: number; au_venit: number; oferta: number; clienti: number };
 export type KpiPierderi = { stare: "pierdut" | "descalificat"; categorie: string; nr: number };

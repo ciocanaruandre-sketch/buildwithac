@@ -42,8 +42,9 @@ function rand<T extends { om_id: string | null }>(r: T[], om: string | null): T 
 // ───────────── plăcile secțiunilor ─────────────
 
 function PlaciApeluri({ a, b, fataDe }: { a: KpiApeluri | null; b: KpiApeluri | null; fataDe: string }) {
-  const ra = a ? rata(a.programate, a.au_raspuns) : null;
-  const rb = b ? rata(b.programate, b.au_raspuns) : null;
+  // pe răspunsurile perioadei: cine a răspuns acum și s-a programat (și după), ca să nu treacă de 100%
+  const ra = a ? rata(a.programate_din_raspuns, a.au_raspuns) : null;
+  const rb = b ? rata(b.programate_din_raspuns, b.au_raspuns) : null;
   return (
     <Placi>
       <Placa eticheta="Apeluri" valoare={a?.apeluri ?? 0} comparatie={comparatie(a?.apeluri ?? 0, b?.apeluri ?? 0, "sus", "procent")} fataDe={fataDe} />
@@ -54,7 +55,7 @@ function PlaciApeluri({ a, b, fataDe }: { a: KpiApeluri | null; b: KpiApeluri | 
         unitate={ra === null ? undefined : "%"}
         comparatie={comparatie(ra, rb, "sus", "pp")}
         fataDe={fataDe}
-        explicatie={`din cei care au răspuns (${a?.programate ?? 0} din ${a?.au_raspuns ?? 0})`}
+        explicatie={`${a?.programate_din_raspuns ?? 0} din ${a?.au_raspuns ?? 0} care au răspuns s-au programat`}
       />
       <Placa
         eticheta="Timp până la primul apel"
@@ -77,8 +78,9 @@ function PlaciApeluri({ a, b, fataDe }: { a: KpiApeluri | null; b: KpiApeluri | 
 function PlaciInchideri({ a, b, fataDe, cuBani }: { a: KpiInchideri | null; b: KpiInchideri | null; fataDe: string; cuBani: boolean }) {
   const pa = a ? rata(a.au_venit, a.programate) : null;
   const pb = b ? rata(b.au_venit, b.programate) : null;
-  const ia = a ? rata(a.clienti, a.au_venit) : null;
-  const ib = b ? rata(b.clienti, b.au_venit) : null;
+  // pe discuțiile perioadei: câte s-au făcut clienți (și după perioadă), ca să nu treacă de 100%
+  const ia = a ? rata(a.clienti_din_discutii, a.au_venit) : null;
+  const ib = b ? rata(b.clienti_din_discutii, b.au_venit) : null;
   return (
     <Placi>
       <Placa eticheta="Discuții ținute" valoare={a?.au_venit ?? 0} comparatie={comparatie(a?.au_venit ?? 0, b?.au_venit ?? 0, "sus", "procent")} fataDe={fataDe} />
@@ -96,7 +98,7 @@ function PlaciInchideri({ a, b, fataDe, cuBani }: { a: KpiInchideri | null; b: K
         unitate={ia === null ? undefined : "%"}
         comparatie={comparatie(ia, ib, "sus", "pp")}
         fataDe={fataDe}
-        explicatie={`${a?.clienti ?? 0} ${a?.clienti === 1 ? "client" : "clienți"} din ${a?.au_venit ?? 0} discuții`}
+        explicatie={`din ${a?.au_venit ?? 0} discuții ținute, ${a?.clienti_din_discutii ?? 0} s-au făcut clienți`}
       />
       {cuBani && (
         <Placa
@@ -166,7 +168,7 @@ function miniOm(d: DateKpi, om: OmKpi, cuBani: boolean): Mini[] {
   const areInchideri = inc && (inc.programate || inc.clienti || inc.vandut_lei);
   const areProiecte = pr && (pr.livrate || pr.livrari_trimise || pr.taskuri_cu_termen);
   if (areApeluri) {
-    const r = rata(ap.programate, ap.au_raspuns);
+    const r = rata(ap.programate_din_raspuns, ap.au_raspuns);
     m.push(
       { eticheta: "Apeluri", valoare: ap.apeluri, nota: miniSageata(comparatie(ap.apeluri, apAnt?.apeluri ?? 0, "sus", "procent")) },
       { eticheta: "Programate", valoare: ap.programate, nota: r === null ? null : `${r}% din răspunsuri` },
@@ -430,7 +432,6 @@ export default async function Kpi({ searchParams }: PageProps<"/kpi">) {
   const prezAnt = incAnt ? rata(incAnt.au_venit, incAnt.programate) : null;
   const pal = d.acum.palnie;
   const palAnt = d.ant.palnie;
-  const clientiDin = pal ? rata(pal.clienti, pal.intrari) : null;
 
   return (
     <>
@@ -462,10 +463,10 @@ export default async function Kpi({ searchParams }: PageProps<"/kpi">) {
             <Placa
               mare
               eticheta="Clienți noi"
-              valoare={pal?.clienti ?? 0}
-              comparatie={comparatie(pal?.clienti ?? 0, palAnt?.clienti ?? 0, "sus", "procent")}
+              valoare={inc?.clienti ?? 0}
+              comparatie={comparatie(inc?.clienti ?? 0, incAnt?.clienti ?? 0, "sus", "procent")}
               fataDe={fataDe}
-              explicatie={clientiDin === null ? undefined : `${clientiDin}% din lead-uri`}
+              explicatie="semnați în perioadă"
             />
             <Placa
               mare

@@ -1214,6 +1214,7 @@ export type Database = {
           nesunate_24h: number
           om_id: string
           programate: number
+          programate_din_raspuns: number
         }[]
       }
       kpi_bani: {
@@ -1231,6 +1232,7 @@ export type Database = {
         Returns: {
           au_venit: number
           clienti: number
+          clienti_din_discutii: number
           fara_pret: number
           om_id: string
           programate: number
