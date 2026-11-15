@@ -176,6 +176,14 @@ describe("pagina Azi: Discuții", () => {
     expect(r.find((x) => x.cheie === `discutie:${aIoanei.id}`)!.descriere).toEqual(["Site", "cu Ioana"]);
     expect(r.find((x) => x.cheie === `discutie:${aMea.id}`)!).toMatchObject({ descriere: ["Site", "cu tine"], href: `/lead-uri/${aMea.lead_id}`, numeAscuns: true });
   });
+
+  it("discuția începută are discutieId (pentru „N-a venit”); cea viitoare, nu", () => {
+    const inceputa = disc(peste(-5 * MIN));
+    const viitoare = disc(peste(2 * H));
+    const r = randuriAzi(cu((x) => x.discutii.push(inceputa, viitoare)), IOANA, ACUM);
+    expect(r.find((x) => x.cheie === `discutie:${inceputa.id}`)?.discutieId).toBe(inceputa.id);
+    expect(r.find((x) => x.cheie === `discutie:${viitoare.id}`)?.discutieId).toBeUndefined();
+  });
 });
 
 describe("pagina Azi: Lucru", () => {

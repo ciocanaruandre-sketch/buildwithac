@@ -68,6 +68,19 @@ export async function programeaza(id: string, closerId: string, incepe: string):
   return { ok: true };
 }
 
+/**
+ * „N-a venit” pe o discuție începută (da = true) sau anularea lui (da = false). Baza verifică: doar closerul
+ * discuției sau Adminul. Lead-ul programat fără altă discuție viitoare trece în Callback, la același closer.
+ */
+export async function marcheazaNeprezentat(discutieId: string, da: boolean): Promise<Rezultat> {
+  await eu();
+  const db = await supabase();
+  const { error } = await db.rpc("marcheaza_neprezentat", { d: discutieId, da });
+  if (error) return { ok: false, mesaj: error.code === "42501" && error.message ? error.message : NEPERMIS };
+  revalidatePath("/azi");
+  return { ok: true };
+}
+
 /** Doar Adminul: mută lead-ul la alt caller sau closer (sau îl lasă liber). */
 export async function mutaLead(id: string, camp: "caller_id" | "closer_id", la: string | null): Promise<Rezultat> {
   const om = await eu();

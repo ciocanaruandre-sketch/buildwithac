@@ -28,6 +28,10 @@ export function descrieEveniment(e: Eveniment, nume: (id: unknown) => string): s
       return `Redeschis: a revenit cu o cerere nouă · ${ETICHETE.sursa[d.sursa as Sursa] ?? ""}`;
     case "programat":
       return `Discuție programată cu ${nume(d.closer)}: ${candLung(String(d.la))}`;
+    case "neprezentat":
+      return "N-a venit la discuție";
+    case "neprezentat_anulat":
+      return "«N-a venit» anulat";
     default:
       return e.tip;
   }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { bifeazaTask } from "@/app/(app)/clienti/[id]/actiuni-taskuri";
 import { platesteTot } from "@/app/(app)/finante/actiuni";
+import { marcheazaNeprezentat } from "@/app/(app)/lead-uri/[id]/actiuni";
 import { iaLead } from "@/app/(app)/lead-uri/actiuni";
 import type { OmAzi } from "@/components/azi/PaginaAzi";
 import { Incaseaza } from "@/components/finante/Incaseaza";
@@ -75,6 +76,18 @@ export function ButoaneAzi({ rand: r, om, laApel, laAviz, mare = false }: { rand
             {whatsapp}
           </>
         )
+      );
+      break;
+    case "discutie":
+      butoane = (
+        <>
+          {r.discutieId && (
+            <button type="button" className={cls} disabled={lucreaza} onClick={() => fa(() => marcheazaNeprezentat(r.discutieId!, true))}>
+              N-a venit
+            </button>
+          )}
+          {deschide}
+        </>
       );
       break;
     case "task":
