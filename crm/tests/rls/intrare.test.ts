@@ -50,7 +50,7 @@ describe("primesteCerere", () => {
     expect(data).toHaveLength(1);
   });
 
-  it("un lead pierdut care revine se redeschide, cu cele 90 de zile de la zero", async () => {
+  it("un lead pierdut care revine se redeschide, cu anul de păstrare de la zero", async () => {
     const email = `revine${unic()}@exemplu.ro`;
     const vechi = new Date(Date.now() - 40 * 86_400_000).toISOString();
     const { data: l } = await admin()

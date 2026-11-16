@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { intraCa, type Cont } from "./ajutor";
-import { clientNou, db, idDe, leadNou, punePeProiect, stergeLead, ziPeste } from "./date";
+import { clientNou, db, discutieInceputa, idDe, leadNou, punePeProiect, stergeLead, ziPeste } from "./date";
 
 let deSters: string[] = [];
 test.afterEach(async () => {
@@ -171,4 +171,18 @@ test.describe("acțiunile de pe „Azi”", () => {
     await expect(randuri(page).filter({ hasText: "E2E de bifat" })).toHaveCount(0);
     expect((await db().from("taskuri").select("gata").eq("id", data.id).single()).data!.gata).toBe(true);
   });
+});
+
+test("discuția începută de câteva minute are „N-a venit” în „Azi”", async ({ page }) => {
+  const closer = await idDe("closer");
+  const l = await lead({ caller_id: await idDe("caller"), closer_id: closer, stare: "programat" });
+  await discutieInceputa(l.id, closer, 3, 13);
+  await intraCa(page, "closer");
+  // discuția de acum stă în cardul „Acum” sau în listă
+  const rand = page.locator('[data-testid="acum"], [data-testid="rand-azi"]').filter({ hasText: l.nume });
+  await expect(rand.getByRole("button", { name: "N-a venit" })).toBeVisible();
+  await rand.getByRole("button", { name: "N-a venit" }).click();
+  // lead-ul trece în Callback: rândul discuției pleacă, vine cel de callback
+  await expect(rand.getByRole("button", { name: "N-a venit" })).toHaveCount(0);
+  await expect(rand.first()).toContainText("Callback");
 });

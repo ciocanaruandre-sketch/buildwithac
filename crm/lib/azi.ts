@@ -34,6 +34,8 @@ export type RandAzi = {
   taskId?: string;
   transa?: { id: string; suma: number };
   comision?: { omId: string; poatePlati: boolean };
+  /** discuția a început: rândul are „N-a venit” */
+  discutieId?: string;
 };
 
 /** Ce citește pagina din bază, pentru omul conectat (lib/azi-date.ts). */
@@ -179,6 +181,7 @@ export function randuriAzi(d: DateAzi, om: { id: string; rol: Rol }, acum: Date)
         cand: cand(x.incepe_la, acum),
         href: `/lead-uri/${x.lead_id}`,
         telefonNorm: x.lead.telefon_norm,
+        ...(incepe <= t ? { discutieId: x.id } : {}),
       });
     }
   }

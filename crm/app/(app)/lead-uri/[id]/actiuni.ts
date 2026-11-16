@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { eu } from "@/lib/eu";
+import { motivValid, type MotivCategorie } from "@/lib/motive";
 import { actiuniPermise, stareDupa, type Actiune } from "@/lib/stari";
 import { supabase } from "@/lib/supabase/server";
 import type { Database } from "@/lib/baza.types";
@@ -11,13 +12,18 @@ type Schimbare = Database["public"]["Tables"]["lead_uri"]["Update"];
 const NEPERMIS = "Nu ai voie să faci asta pe lead-ul ăsta.";
 
 /** Un buton din fișă: mută lead-ul în starea potrivită. Baza de date verifică din nou (RLS + trigger). */
-export async function aplicaActiune(id: string, a: Exclude<Actiune, "ia_lead" | "programeaza">, extra: { callbackLa?: string; motiv?: string } = {}): Promise<Rezultat> {
+export async function aplicaActiune(
+  id: string,
+  a: Exclude<Actiune, "ia_lead" | "programeaza">,
+  extra: { callbackLa?: string; categorie?: MotivCategorie; motiv?: string } = {},
+): Promise<Rezultat> {
   const om = await eu();
   const db = await supabase();
   const { data: l } = await db.from("lead_uri").select("stare, caller_id, closer_id, incercari").eq("id", id).maybeSingle();
   if (!l || !actiuniPermise(l, om.rol, om.id).includes(a)) return { ok: false, mesaj: NEPERMIS };
 
-  const schimbare: Schimbare = { stare: stareDupa(a), callback_la: null };
+  // motivul ține doar de „Pierdut”/„Descalificat”: orice altă mutare îl golește
+  const schimbare: Schimbare = { stare: stareDupa(a), callback_la: null, motiv: null, motiv_categorie: null };
   if (a === "nu_raspunde") schimbare.incercari = l.incercari + 1;
   if (a === "callback") {
     const la = extra.callbackLa ? new Date(extra.callbackLa) : null;
@@ -26,8 +32,10 @@ export async function aplicaActiune(id: string, a: Exclude<Actiune, "ia_lead" | 
   }
   if (a === "pierdut" || a === "descalificat") {
     const motiv = extra.motiv?.trim() ?? "";
-    if (motiv.length < 3) return { ok: false, mesaj: "Scrie motivul." };
-    schimbare.motiv = motiv.slice(0, 500);
+    const gresit = motivValid(a, extra.categorie, motiv);
+    if (gresit) return { ok: false, mesaj: gresit };
+    schimbare.motiv_categorie = extra.categorie!;
+    schimbare.motiv = extra.categorie === "altceva" ? motiv.slice(0, 500) : null;
   }
 
   const { error } = await db.from("lead_uri").update(schimbare).eq("id", id);
@@ -57,6 +65,19 @@ export async function programeaza(id: string, closerId: string, incepe: string):
   if (error?.code === "23P01") return { ok: false, mesaj: "Ora asta tocmai s-a ocupat. Alege alta." };
   if (error) return { ok: false, mesaj: error.message || NEPERMIS };
   revalidatePath(`/lead-uri/${id}`);
+  return { ok: true };
+}
+
+/**
+ * „N-a venit” pe o discuție începută (da = true) sau anularea lui (da = false). Baza verifică: doar closerul
+ * discuției sau Adminul. Lead-ul programat fără altă discuție viitoare trece în Callback, la același closer.
+ */
+export async function marcheazaNeprezentat(discutieId: string, da: boolean): Promise<Rezultat> {
+  await eu();
+  const db = await supabase();
+  const { error } = await db.rpc("marcheaza_neprezentat", { d: discutieId, da });
+  if (error) return { ok: false, mesaj: error.code === "42501" && error.message ? error.message : NEPERMIS };
+  revalidatePath("/azi");
   return { ok: true };
 }
 

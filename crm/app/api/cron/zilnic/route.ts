@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { trimiteAlerteIntarziere } from "@/lib/alerte-finante";
 import { curataFisiereOrfane } from "@/lib/fisiere-bucket";
-import { copieSaptamanala, eLuni, stergeVechi } from "@/lib/retentie";
+import { anonimizeazaVechi, copieSaptamanala, eLuni } from "@/lib/retentie";
 import { admin } from "@/lib/supabase/admin";
 import { ziuaPeste } from "@/lib/timp";
 
@@ -16,7 +16,7 @@ function autorizat(cerere: Request): boolean {
 }
 
 /**
- * Jobul zilnic din vercel.json: șterge lead-urile mai vechi de 90 de zile (cererea la Supabase îl ține și treaz),
+ * Jobul zilnic din vercel.json: lasă fără nume lead-urile mai vechi de un an (cererea la Supabase îl ține și treaz),
  * face tranșele de mentenanță ale lunii următoare, anunță tranșele întârziate, iar lunea îi trimite lui Andrei copia datelor.
  */
 export async function GET(cerere: Request) {
@@ -24,7 +24,7 @@ export async function GET(cerere: Request) {
   const acum = new Date();
   const db = admin();
   try {
-    const sterse = await stergeVechi(db, acum);
+    const anonimizate = await anonimizeazaVechi(db);
     // fișierele rămase de la clienții șterși; o eroare aici nu oprește copia de luni
     const orfane = await curataFisiereOrfane(db).catch((e) => {
       console.error("cron zilnic: fișierele orfane", e);
@@ -42,9 +42,9 @@ export async function GET(cerere: Request) {
       console.error("cron zilnic: alertele de întârziere", e);
       return null;
     });
-    const copie = eLuni(acum) ? await copieSaptamanala(db, fetch, { acum, sterse }) : null;
+    const copie = eLuni(acum) ? await copieSaptamanala(db, fetch, { acum, anonimizate }) : null;
     if (copie === false) console.error("cron zilnic: copia de luni n-a plecat");
-    return Response.json({ sterse, orfane, mentenanta, alerte, copie });
+    return Response.json({ anonimizate, orfane, mentenanta, alerte, copie });
   } catch (e) {
     console.error("cron zilnic:", e);
     return Response.json({ eroare: "baza" }, { status: 500 });

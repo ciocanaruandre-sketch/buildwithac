@@ -26,10 +26,10 @@ test("adminul vede „Echipa”, callerul nu", async ({ page, browser }) => {
   await alt.close();
 });
 
-test("callerul care deschide /echipa ajunge la lead-uri", async ({ page }) => {
+test("callerul care deschide /echipa ajunge la „Azi”", async ({ page }) => {
   await intraCa(page, "caller");
   await page.goto("/echipa");
-  await expect(page).toHaveURL(/\/lead-uri/);
+  await expect(page).toHaveURL(/\/azi$/);
 });
 
 test("„Ieși” închide sesiunea", async ({ page }) => {

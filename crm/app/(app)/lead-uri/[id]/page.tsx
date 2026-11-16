@@ -3,6 +3,7 @@ import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ButoaneActiuni } from "@/components/ButoaneActiuni";
+import { DiscutiaAvuta } from "@/components/DiscutiaAvuta";
 import { ButoaneRand } from "@/components/ButoaneRand";
 import { FormularNotita } from "@/components/FormularNotita";
 import { MutaLa } from "@/components/MutaLa";
@@ -12,11 +13,12 @@ import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, type Eveniment } from "@/lib/parcurs";
 import { reclamaDinUtm, type ReclamaUtm } from "@/lib/reclame";
+import { textMotiv } from "@/lib/motive";
 import { actiuniPermise } from "@/lib/stari";
 import { supabase } from "@/lib/supabase/server";
 import { ETICHETE, type Stare } from "@/lib/tipuri";
 
-type Lead = { stare: Stare; caller_id: string | null; callback_la: string | null; incercari: number; motiv: string | null };
+type Lead = { stare: Stare; caller_id: string | null; callback_la: string | null; incercari: number; motiv: string | null; motiv_categorie: string | null };
 
 /** Ce e de făcut acum, într-o frază. */
 function urmeaza(l: Lead, acum: Date, discutie: string | null): string {
@@ -38,7 +40,7 @@ function urmeaza(l: Lead, acum: Date, discutie: string | null): string {
       return "E client.";
     case "pierdut":
     case "descalificat":
-      return `${ETICHETE.stare[l.stare]}${l.motiv ? `: ${l.motiv}` : ""}.`;
+      return `${ETICHETE.stare[l.stare]}${textMotiv(l.motiv_categorie, l.motiv) ? `: ${textMotiv(l.motiv_categorie, l.motiv)}` : ""}.`;
   }
 }
 
@@ -71,6 +73,20 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
 
   const { data: discutie } = await db.from("discutii").select("incepe_la, closer_id").eq("lead_id", id).gt("sfarseste_la", acum.toISOString()).order("incepe_la").limit(1).maybeSingle();
   const textDiscutie = discutie ? `Discuție programată: ${candLung(discutie.incepe_la)} cu ${nume(discutie.closer_id)}` : null;
+  // ultima discuție deja începută (30 de zile): „N-a venit”, doar pentru closerul ei și Admin; clientul a venit, evident
+  const { data: avuta } =
+    l.stare === "client" || om.rol === "caller"
+      ? { data: null }
+      : await db
+          .from("discutii")
+          .select("id, incepe_la, closer_id, neprezentat_la")
+          .eq("lead_id", id)
+          .lte("incepe_la", acum.toISOString())
+          .gte("incepe_la", new Date(acum.getTime() - 30 * 86_400_000).toISOString())
+          .order("incepe_la", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+  const discutiaAvuta = avuta && (om.rol === "admin" || avuta.closer_id === om.id) ? avuta : null;
 
   // fișa clientului o deschide doar Adminul (și constructorii de pe proiect, care nu ajung aici)
   const clientId = l.stare === "client" && om.rol === "admin" ? (await db.from("clienti").select("id").eq("lead_id", id).maybeSingle()).data?.id : undefined;
@@ -104,6 +120,14 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
               </Link>
             )}
           </div>
+
+          {discutiaAvuta && (
+            <DiscutiaAvuta
+              id={discutiaAvuta.id}
+              text={`Discuția de ${cand(discutiaAvuta.incepe_la, acum)}, cu ${nume(discutiaAvuta.closer_id).split(/\s+/)[0]}`}
+              neprezentat={Boolean(discutiaAvuta.neprezentat_la)}
+            />
+          )}
 
           <div className="panel px-4 pt-3.5 pb-3.5">
             <p className="lbl">Contact</p>
@@ -229,7 +253,7 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
                     {kv("Stare", ETICHETE.stare[l.stare])}
                     {kv("Încercări", String(l.incercari))}
                     {kv("Callback", l.callback_la ? cand(l.callback_la, acum) : "—")}
-                    {kv("Motiv", l.motiv ?? "—")}
+                    {kv("Motiv", textMotiv(l.motiv_categorie, l.motiv) ?? "—")}
                     {kv("Caller", nume(l.caller_id))}
                     {kv("Closer", nume(l.closer_id))}
                     {kv("Intrat", cand(l.intrat_la, acum))}

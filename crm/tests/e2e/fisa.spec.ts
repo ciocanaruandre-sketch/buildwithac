@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { intraCa } from "./ajutor";
-import { db, idDe, leadNou, stergeLead } from "./date";
+import { db, discutieInceputa, idDe, leadNou, stergeLead } from "./date";
 
 let deSters: string[] = [];
 test.afterEach(async () => {
@@ -40,10 +40,27 @@ test("callerul nu vede „Client”; „Descalificat” cere motivul", async ({ 
   await expect(page.getByRole("button", { name: "Client" })).toHaveCount(0);
   await page.getByRole("button", { name: "Descalificat" }).click();
   await page.getByRole("button", { name: "Confirmă" }).click();
+  await expect(page.getByText("Alege motivul.")).toBeVisible();
+  await page.getByRole("button", { name: "Altceva", exact: true }).click();
+  await page.getByRole("button", { name: "Confirmă" }).click();
   await expect(page.getByText("Scrie motivul.")).toBeVisible();
-  await page.getByLabel("Motivul").fill("Număr greșit");
+  await page.getByLabel("Ce s-a întâmplat").fill("Vinde, nu cumpără");
   await page.getByRole("button", { name: "Confirmă" }).click();
   await expect(page.getByTestId("stare")).toHaveText("Descalificat");
+  await expect(page.getByTestId("parcurs").getByText("Stare: A răspuns → Descalificat · Altceva: Vinde, nu cumpără")).toBeVisible();
+});
+
+test("closerul marchează „Pierdut” cu motivul fix „Prea scump”", async ({ page }) => {
+  const l = await lead({ nume: "E2E Motiv", caller_id: await idDe("caller"), closer_id: await idDe("closer"), stare: "programat" });
+  await intraCa(page, "closer");
+  await page.goto(`/lead-uri/${l.id}`);
+  await page.getByRole("button", { name: "Pierdut" }).click();
+  await page.getByRole("button", { name: "Confirmă" }).click();
+  await expect(page.getByText("Alege motivul.")).toBeVisible();
+  await page.getByRole("button", { name: "Prea scump" }).click();
+  await page.getByRole("button", { name: "Confirmă" }).click();
+  await expect(page.getByTestId("stare")).toHaveText("Pierdut");
+  await expect(page.getByTestId("parcurs").getByText("Stare: Programat → Pierdut · Prea scump")).toBeVisible();
 });
 
 test("notița apare cu numele celui care a scris-o", async ({ page }) => {
@@ -97,4 +114,30 @@ test("fișa unui lead din reclamă arată Meta · campanie · reclamă", async (
   } finally {
     await db().from("reclame").delete().eq("campanie", campanie);
   }
+});
+
+test("„N-a venit” mută lead-ul în Callback; „Anulează «N-a venit»” lasă urma în Parcurs", async ({ page }) => {
+  const closer = await idDe("closer");
+  const l = await lead({ nume: "E2E Neprezentat", caller_id: await idDe("caller"), closer_id: closer, stare: "programat" });
+  await discutieInceputa(l.id, closer, 20, 40);
+  await intraCa(page, "closer");
+  await page.goto(`/lead-uri/${l.id}`);
+  const panou = page.getByTestId("discutia-avuta");
+  await expect(panou).toContainText(/Discuția de (azi|ieri), \d{2}:\d{2}, cu Ioana/);
+  await panou.getByRole("button", { name: "N-a venit" }).click();
+  await expect(page.getByTestId("stare")).toHaveText("Callback");
+  await expect(page.getByTestId("parcurs").getByText("N-a venit la discuție")).toBeVisible();
+  await panou.getByRole("button", { name: "Anulează «N-a venit»" }).click();
+  await expect(page.getByTestId("parcurs").getByText("«N-a venit» anulat")).toBeVisible();
+  await expect(panou.getByRole("button", { name: "N-a venit" })).toBeVisible();
+});
+
+test("callerul nu vede „N-a venit”", async ({ page }) => {
+  const closer = await idDe("closer");
+  const l = await lead({ caller_id: await idDe("caller"), closer_id: closer, stare: "programat" });
+  await discutieInceputa(l.id, closer, 45, 65);
+  await intraCa(page, "caller");
+  await page.goto(`/lead-uri/${l.id}`);
+  await expect(page.getByTestId("stare")).toHaveText("Programat");
+  await expect(page.getByRole("button", { name: "N-a venit" })).toHaveCount(0);
 });

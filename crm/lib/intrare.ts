@@ -60,10 +60,10 @@ export async function primesteCerere(c: CerereNoua, db: Db): Promise<Rezultat> {
     if (cer.error) throw cer.error;
 
     if (decizie === "redeschide") {
-      const { error } = await db.from("lead_uri").update({ stare: "nou", intrat_la: new Date().toISOString(), motiv: null, callback_la: null }).eq("id", id);
+      const { error } = await db.from("lead_uri").update({ stare: "nou", intrat_la: new Date().toISOString(), motiv: null, motiv_categorie: null, callback_la: null }).eq("id", id);
       if (error) throw error;
     }
-    // cele 90 de zile se numără de la ultima cerere (promisiunea de pe site)
+    // anul se numără de la ultima cerere (promisiunea de pe site)
     if (decizie === "leaga_de_lead") {
       const { error } = await db.from("lead_uri").update({ intrat_la: new Date().toISOString() }).eq("id", id);
       if (error) throw error;

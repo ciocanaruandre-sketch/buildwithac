@@ -31,6 +31,7 @@ export async function citesteAzi(om: Eu, acum: Date): Promise<DateAzi> {
           // discuția cu rezultatul trecut (lead-ul nu mai e „programat”) iese imediat, nu după 15 minute
           .select("id, lead_id, closer_id, incepe_la, lead_uri!inner (nume, telefon_norm, serviciu, stare)")
           .eq("lead_uri.stare", "programat")
+          .is("neprezentat_la", null)
           .gte("incepe_la", new Date(acum.getTime() - 15 * 60_000).toISOString())
           .lt("incepe_la", poimaine)
       : nimic,

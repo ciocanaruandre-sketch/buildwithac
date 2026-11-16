@@ -332,6 +332,7 @@ export type Database = {
           id: string
           incepe_la: string
           lead_id: string
+          neprezentat_la: string | null
           sfarseste_la: string
         }
         Insert: {
@@ -341,6 +342,7 @@ export type Database = {
           id?: string
           incepe_la: string
           lead_id: string
+          neprezentat_la?: string | null
           sfarseste_la: string
         }
         Update: {
@@ -350,6 +352,7 @@ export type Database = {
           id?: string
           incepe_la?: string
           lead_id?: string
+          neprezentat_la?: string | null
           sfarseste_la?: string
         }
         Relationships: [
@@ -462,6 +465,7 @@ export type Database = {
       }
       lead_uri: {
         Row: {
+          anonimizat_la: string | null
           callback_la: string | null
           caller_id: string | null
           closer_id: string | null
@@ -473,6 +477,7 @@ export type Database = {
           incercari: number
           intrat_la: string
           motiv: string | null
+          motiv_categorie: string | null
           nume: string
           serviciu: Database["public"]["Enums"]["serviciu"]
           stare: Database["public"]["Enums"]["stare"]
@@ -481,6 +486,7 @@ export type Database = {
           telefon_norm: string | null
         }
         Insert: {
+          anonimizat_la?: string | null
           callback_la?: string | null
           caller_id?: string | null
           closer_id?: string | null
@@ -492,6 +498,7 @@ export type Database = {
           incercari?: number
           intrat_la?: string
           motiv?: string | null
+          motiv_categorie?: string | null
           nume: string
           serviciu: Database["public"]["Enums"]["serviciu"]
           stare?: Database["public"]["Enums"]["stare"]
@@ -500,6 +507,7 @@ export type Database = {
           telefon_norm?: string | null
         }
         Update: {
+          anonimizat_la?: string | null
           callback_la?: string | null
           caller_id?: string | null
           closer_id?: string | null
@@ -511,6 +519,7 @@ export type Database = {
           incercari?: number
           intrat_la?: string
           motiv?: string | null
+          motiv_categorie?: string | null
           nume?: string
           serviciu?: Database["public"]["Enums"]["serviciu"]
           stare?: Database["public"]["Enums"]["stare"]
@@ -1140,6 +1149,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      anonimizeaza_vechi: { Args: { zile: number }; Returns: number }
       anuleaza_incasare: { Args: { t: string }; Returns: undefined }
       atribuie_reclama: {
         Args: {
@@ -1184,8 +1194,117 @@ export type Database = {
         Args: { peste?: boolean; suma: number; t: string; zi: string }
         Returns: string
       }
+      kpi_apel_ev: {
+        Args: never
+        Returns: {
+          apel_nou: boolean
+          autor_id: string
+          la: string
+          lead_id: string
+        }[]
+      }
+      kpi_apeluri: {
+        Args: { de: string; pana: string }
+        Returns: {
+          apeluri: number
+          au_raspuns: number
+          incercari_pana_raspunde: number
+          luate: number
+          minute_primul_apel: number
+          nesunate_24h: number
+          om_id: string
+          programate: number
+          programate_din_raspuns: number
+        }[]
+      }
+      kpi_bani: {
+        Args: { de: string; pana: string }
+        Returns: {
+          incasat_lei: number
+          intarziat_lei: number
+          mentenanta_lei: number
+          transe_intarziate: number
+          valoare_medie_lei: number
+        }[]
+      }
+      kpi_inchideri: {
+        Args: { de: string; pana: string }
+        Returns: {
+          au_venit: number
+          clienti: number
+          clienti_din_discutii: number
+          fara_pret: number
+          om_id: string
+          programate: number
+          vandut_lei: number
+          zile_pana_la_client: number
+        }[]
+      }
+      kpi_intrari: {
+        Args: { de: string; pana: string }
+        Returns: {
+          la: string
+          lead_id: string
+          pana_la: string
+          sursa: string
+        }[]
+      }
+      kpi_luni: {
+        Args: { luni: number }
+        Returns: {
+          clienti_noi: number
+          incasat_lei: number
+          luna: string
+        }[]
+      }
+      kpi_palnie: {
+        Args: { de: string; pana: string }
+        Returns: {
+          au_raspuns: number
+          au_venit: number
+          clienti: number
+          intrari: number
+          oferta: number
+          programate: number
+          sunate: number
+        }[]
+      }
+      kpi_pierderi: {
+        Args: { de: string; pana: string }
+        Returns: {
+          categorie: string
+          nr: number
+          stare: string
+        }[]
+      }
+      kpi_proiecte: {
+        Args: { de: string; pana: string }
+        Returns: {
+          livrari_refacute: number
+          livrari_trimise: number
+          livrate: number
+          om_id: string
+          taskuri_cu_termen: number
+          taskuri_la_termen: number
+          zile_durata: number
+        }[]
+      }
+      kpi_rol: { Args: never; Returns: Database["public"]["Enums"]["rol"] }
+      kpi_surse: {
+        Args: { de: string; pana: string }
+        Returns: {
+          clienti: number
+          intrari: number
+          sursa: string
+        }[]
+      }
+      kpi_zi: { Args: { z: string }; Returns: string }
       lei_text: { Args: { n: number }; Returns: string }
       lucreaza_la: { Args: { p: string }; Returns: boolean }
+      marcheaza_neprezentat: {
+        Args: { d: string; da: boolean }
+        Returns: undefined
+      }
       muta_lead_uri: { Args: { de: string; la: string }; Returns: Json }
       muta_taskuri: { Args: { de: string; la: string }; Returns: number }
       oameni_proiect: {

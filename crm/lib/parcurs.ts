@@ -1,4 +1,5 @@
 import { cand, candLung } from "@/lib/afisare";
+import { textMotiv } from "@/lib/motive";
 import { ETICHETE, type Stadiu, type Stare, type StareLivrare, type Sursa } from "@/lib/tipuri";
 
 export type Eveniment = { tip: string; detalii: Record<string, unknown>; la: string; autor_id: string | null };
@@ -9,8 +10,10 @@ export function descrieEveniment(e: Eveniment, nume: (id: unknown) => string): s
   switch (e.tip) {
     case "creat":
       return `A intrat în CRM · ${ETICHETE.sursa[d.sursa as Sursa] ?? "sursă necunoscută"}`;
-    case "stare":
-      return `Stare: ${ETICHETE.stare[d.de as Stare]} → ${ETICHETE.stare[d.in as Stare]}${d.motiv ? ` · ${String(d.motiv)}` : ""}`;
+    case "stare": {
+      const motiv = textMotiv(d.categorie as string | undefined, d.motiv as string | undefined);
+      return `Stare: ${ETICHETE.stare[d.de as Stare]} → ${ETICHETE.stare[d.in as Stare]}${motiv ? ` · ${motiv}` : ""}`;
+    }
     case "incercare":
       return `Nu a răspuns · încercarea ${String(d.nr)}`;
     case "caller":
@@ -25,6 +28,10 @@ export function descrieEveniment(e: Eveniment, nume: (id: unknown) => string): s
       return `Redeschis: a revenit cu o cerere nouă · ${ETICHETE.sursa[d.sursa as Sursa] ?? ""}`;
     case "programat":
       return `Discuție programată cu ${nume(d.closer)}: ${candLung(String(d.la))}`;
+    case "neprezentat":
+      return "N-a venit la discuție";
+    case "neprezentat_anulat":
+      return "«N-a venit» anulat";
     default:
       return e.tip;
   }

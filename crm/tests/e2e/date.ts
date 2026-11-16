@@ -57,3 +57,22 @@ export function ziPeste(n: number): string {
   const [a, l, z] = azi.split("-").map(Number);
   return new Date(Date.UTC(a, l - 1, z + n)).toISOString().slice(0, 10);
 }
+
+/**
+ * O discuție de un minut, începută acum `minute` minute. Dacă se lovește de altă discuție a closerului
+ * (datele demo), încearcă minutele de dinainte, până la `pana`.
+ */
+export async function discutieInceputa(lead_id: string, closer_id: string, minute: number, pana = minute + 10) {
+  for (let m = minute; m <= pana; m++) {
+    const incepe = new Date(Date.now() - m * 60_000);
+    incepe.setSeconds(7, 0);
+    const { data, error } = await db()
+      .from("discutii")
+      .insert({ lead_id, closer_id, incepe_la: incepe.toISOString(), sfarseste_la: new Date(incepe.getTime() + 60_000).toISOString() })
+      .select("id")
+      .single();
+    if (!error) return data.id;
+    if (error.code !== "23P01") throw error;
+  }
+  throw new Error(`Closerul n-are niciun minut liber între ${minute} și ${pana} minute în urmă.`);
+}

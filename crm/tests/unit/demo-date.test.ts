@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { normalizeazaTelefon } from "../../lib/telefon";
 import { planDePlata } from "../../lib/finante";
 import { verdict, type CifreReclama } from "../../lib/reclame";
-import { clientiDemo, discutiiDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, RECLAME_DEMO, telefonDemo, telefonNormDemo, ziDupa } from "../../scripts/date/demo-date";
+import { clientiDemo, discutiiDemo, discutiiTrecuteDemo, laCallback, laOra, laOraRomaniei, leaduriDemo, planDemo, PROCENTE_BAZA_DEMO, RECLAME_DEMO, telefonDemo, telefonNormDemo, ziDupa } from "../../scripts/date/demo-date";
 
 const acum = new Date("2026-11-12T09:00:00Z"); // o miercuri
 const L = leaduriDemo({ acum, singur: false });
@@ -355,5 +355,30 @@ describe("firma demo: pagina Azi", () => {
       }),
     );
     expect(livrat).toBe(true);
+  });
+});
+
+describe("firma demo: discuțiile deja ținute", () => {
+  const T = discutiiTrecuteDemo({ acum, singur: false }, L);
+  it("fiecare lead trecut de „programat” își are discuția în bază, la ora din Parcurs, în trecut", () => {
+    const cu = L.filter((l) => l.stare !== "programat" && l.parcurs.some((e) => e.tip === "programat"));
+    expect(cu.length).toBeGreaterThan(0);
+    expect(new Set(T.map((d) => d.nr))).toEqual(new Set(cu.map((l) => l.nr)));
+    for (const d of T) {
+      expect(d.incepe.getTime()).toBeLessThan(acum.getTime());
+      const z = L.find((l) => l.nr === d.nr)!.parcurs.find((e) => e.tip === "programat")!.detalii!.discutieAcumZile as number;
+      expect(Math.abs(d.incepe.getTime() - laOra(acum, z).getTime())).toBeLessThanOrEqual(3 * 3_600_000);
+    }
+  });
+  it("nu se suprapun la același closer, nici cu cele viitoare", () => {
+    const toate = [...T, ...discutiiDemo({ acum, singur: false }, L).map((d) => ({ ...d, closer: L.find((l) => l.nr === d.nr)!.closer ?? "closer" }))];
+    for (const c of new Set(toate.map((d) => d.closer))) {
+      const t = toate.filter((d) => d.closer === c).map((d) => d.incepe.getTime()).sort((a, b) => a - b);
+      t.slice(1).forEach((x, i) => expect(x - t[i]).toBeGreaterThanOrEqual(30 * 60_000));
+    }
+  });
+  it("măcar un lead care nu e client are discuția în ultimele 30 de zile (panoul „Discuția” de pe fișă)", () => {
+    const recente = T.filter((d) => acum.getTime() - d.incepe.getTime() < 30 * 86_400_000 && L.find((l) => l.nr === d.nr)!.stare !== "client");
+    expect(recente.length).toBeGreaterThan(0);
   });
 });
