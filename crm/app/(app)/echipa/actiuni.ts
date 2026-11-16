@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { leadUri } from "@/lib/afisare";
+import { deconecteaza } from "@/lib/calendar/coada";
 import { trimiteEmail } from "@/lib/email";
 import { eu } from "@/lib/eu";
 import { mesajDinBaza } from "@/lib/erori";
@@ -92,6 +94,8 @@ export async function seteazaActiv(id: string, activ: boolean): Promise<Rezultat
     await db.from("profiluri").update({ activ: !activ }).eq("id", id);
     return { ok: false, mesaj: "Contul n-a putut fi schimbat. Încearcă din nou." };
   }
+  // contul oprit: discuțiile puse de CRM ies din Google Calendar-ul lui, iar legătura se uită
+  if (!activ) after(() => deconecteaza(admin(), id).then(() => undefined, (e) => console.error("calendar: oprirea contului", e)));
   revalidatePath("/echipa");
   return { ok: true };
 }

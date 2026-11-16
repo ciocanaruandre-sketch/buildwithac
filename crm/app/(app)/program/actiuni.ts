@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { deconecteaza } from "@/lib/calendar/coada";
 import { eu } from "@/lib/eu";
 import type { ZiProgram } from "@/lib/sloturi";
+import { admin } from "@/lib/supabase/admin";
 import { supabase } from "@/lib/supabase/server";
 
 export type Rezultat = { ok: true } | { ok: false; mesaj: string };
@@ -20,4 +22,17 @@ export async function salveazaProgram(closerId: string, zile: ZiProgram[], durat
   if (error) return { ok: false, mesaj: error.message || "Nu poți schimba programul ăsta." };
   revalidatePath("/program");
   return { ok: true };
+}
+
+/** „Deconectează” Google Calendar: doar pentru sine. Scoate din calendar ce a pus CRM-ul, apoi uită cheia. */
+export async function deconecteazaGoogle(): Promise<Rezultat & { nesterse?: number }> {
+  const om = await eu();
+  try {
+    const { nesterse } = await deconecteaza(admin(), om.id);
+    revalidatePath("/program");
+    return { ok: true, nesterse };
+  } catch (e) {
+    console.error("calendar: deconectarea", e);
+    return { ok: false, mesaj: "Deconectarea n-a mers. Încearcă din nou." };
+  }
 }

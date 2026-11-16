@@ -1,5 +1,6 @@
 import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
+import { CardGoogle, type StareGoogle } from "@/components/calendar/CardGoogle";
 import { FormularProgram } from "@/components/FormularProgram";
 import { cerRol } from "@/lib/eu";
 import type { ZiProgram } from "@/lib/sloturi";
@@ -7,13 +8,20 @@ import { supabase } from "@/lib/supabase/server";
 
 export default async function Program({ searchParams }: PageProps<"/program">) {
   const om = await cerRol("admin", "closer");
-  const { closer } = await searchParams;
+  const { closer, google } = await searchParams;
   const db = await supabase();
   const { data: closeri } = await db.from("profiluri").select("id, nume, durata_discutie_min").eq("activ", true).in("rol", ["closer", "admin"]).order("nume");
   // closerul își vede doar programul lui; Adminul alege
   const id = om.rol === "admin" && typeof closer === "string" && closeri?.some((c) => c.id === closer) ? closer : om.id;
   const ales = closeri?.find((c) => c.id === id);
-  const { data: program } = await db.from("program_closer").select("zi, de_la, pana_la").eq("closer_id", id);
+  const [{ data: program }, { data: stari }] = await Promise.all([
+    db.from("program_closer").select("zi, de_la, pana_la").eq("closer_id", id),
+    // fără cheile Google, cardul nu apare și CRM-ul merge ca înainte
+    process.env.GOOGLE_CLIENT_ID ? db.rpc("calendar_stari") : Promise.resolve({ data: null }),
+  ]);
+  const g = stari?.find((s) => s.om_id === id);
+  const stareGoogle: StareGoogle = !g?.conectat ? "neconectat" : g.stare === "cazut" ? "cazut" : "ok";
+  const mesaj = google === "ok" || google === "anulat" || google === "eroare" ? google : null;
 
   return (
     <>
@@ -28,6 +36,9 @@ export default async function Program({ searchParams }: PageProps<"/program">) {
             </Link>
           ))}
         </div>
+      )}
+      {stari && (
+        <CardGoogle stare={stareGoogle} email={g?.email ?? null} alCuiNume={id === om.id ? null : (ales?.nume ?? "")} mesaj={id === om.id ? mesaj : null} />
       )}
       <FormularProgram key={id} closerId={id} program={(program ?? []) as ZiProgram[]} durata={ales?.durata_discutie_min ?? 30} />
     </>
