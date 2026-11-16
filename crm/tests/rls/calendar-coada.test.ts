@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { cripteaza } from "@/lib/calendar/criptare";
-import { deconecteaza, golesteCoada, ocupatGoogle, stareRand } from "@/lib/calendar/coada";
+import { cripteaza, decripteaza } from "@/lib/calendar/criptare";
+import { deconecteaza, golesteCoada, ocupatGoogle, salveazaConexiune, stareRand } from "@/lib/calendar/coada";
 import { idEveniment } from "@/lib/calendar/google";
 import { admin, idDe, leadDeTest, omTemporar, sterge, stergeTemporari } from "./ajutor";
 
@@ -120,12 +120,47 @@ describe("coada calendarului", () => {
     expect(await golesteCoada(admin(), rau.f, { discutie: id })).toEqual({ facute: 0, esuate: 1 });
     expect((await discutie(id)).calendar_stare).toBe("eroare");
     const [rand] = await coada(id);
-    expect(rand).toMatchObject({ incercari: 1, luat_la: null });
+    expect(rand.incercari).toBe(1);
     expect(rand.ultima_eroare).toBeTruthy();
 
+    // imediat după, rândul așteaptă (4 minute după prima eroare)
+    const g = google();
+    expect(await golesteCoada(admin(), g.f, { discutie: id })).toEqual({ facute: 0, esuate: 0 });
+    expect(g.apeluri).toEqual([]);
+
+    await admin().from("calendar_coada").update({ luat_la: new Date(Date.now() - 5 * 60_000).toISOString() }).eq("discutie_id", id);
     await golesteCoada(admin(), google().f, { discutie: id });
     expect((await discutie(id)).calendar_stare).toBe("ok");
     expect(await coada(id)).toEqual([]);
+  });
+
+  it("rândurile care pică des așteaptă tot mai mult, trec după cele noi și, după 10 încercări, se opresc", async () => {
+    const om = await omTemporar("closer");
+    await conecteaza(om);
+    const vechi = await discutieNoua(om, peste(1350 + r(), 6));
+    const nou = await discutieNoua(om, peste(1350 + r(), 8));
+    const mort = await discutieNoua(om, peste(1350 + r(), 10));
+    const acum = (minute: number) => new Date(Date.now() - minute * 60_000).toISOString();
+    // a picat de 3 ori, ultima dată acum 20 de minute (așteaptă 16): poate fi luat, dar după cel nou
+    await admin().from("calendar_coada").update({ incercari: 3, luat_la: acum(20) }).eq("discutie_id", vechi);
+    await admin().from("calendar_coada").update({ incercari: 10, luat_la: acum(3 * 24 * 60) }).eq("discutie_id", mort);
+    const g = google();
+    expect(await golesteCoada(admin(), g.f, { om, limita: 1 })).toEqual({ facute: 1, esuate: 0 });
+    expect((await discutie(nou)).calendar_stare).toBe("ok");
+    expect(await golesteCoada(admin(), g.f, { om })).toEqual({ facute: 1, esuate: 0 });
+    expect((await discutie(vechi)).calendar_stare).toBe("ok");
+    expect(await coada(mort)).toHaveLength(1);
+
+    // a picat de 3 ori acum 10 minute: încă așteaptă
+    const alta = await discutieNoua(om, peste(1350 + r(), 12));
+    await admin().from("calendar_coada").update({ incercari: 3, luat_la: acum(10) }).eq("discutie_id", alta);
+    expect(await golesteCoada(admin(), g.f, { discutie: alta })).toEqual({ facute: 0, esuate: 0 });
+
+    // repus în coadă (ora schimbată), cel oprit pornește de la zero
+    const la = peste(1360 + r(), 10);
+    await admin().from("discutii").update({ incepe_la: la, sfarseste_la: plus30(la) }).eq("id", mort);
+    expect((await coada(mort))[0]).toMatchObject({ incercari: 0, luat_la: null });
+    await admin().from("google_conexiuni").delete().eq("om_id", om);
   });
 
   it("invalid_grant: legătura cade, discuția are eroare", async () => {
@@ -263,6 +298,45 @@ describe("coada calendarului", () => {
     expect(await deconecteaza(admin(), closer, g.f)).toEqual({ nesterse: 1 });
     expect((await admin().from("google_conexiuni").select("om_id").eq("om_id", closer)).data).toEqual([]);
     expect((await discutie(id)).google_event_id).toBeNull();
+  });
+
+  it("deconecteaza nu mai creează în Google ce urmează să șteargă", async () => {
+    const om = await omTemporar("closer");
+    const altul = await omTemporar("closer");
+    await conecteaza(om);
+    // una abia programată (în coadă, încă nu în Google), una venită de la alt closer, cu evenimentul la acela
+    const noua = await discutieNoua(om, peste(1450 + r(), 6));
+    const venita = await discutieNoua(om, peste(1450 + r(), 8));
+    await admin().from("discutii").update({ google_event_id: `ev-venit-${run}`, google_om_id: altul }).eq("id", venita);
+    const g = google();
+    expect(await deconecteaza(admin(), om, g.f)).toEqual({ nesterse: 0 });
+    expect(g.evenimente().filter((a) => a.metoda !== "DELETE")).toEqual([]);
+    expect(await coada(noua)).toEqual([]);
+    expect(await coada(venita)).toEqual([]);
+    expect((await discutie(noua)).calendar_stare).toBe("neconectat");
+    expect(await discutie(venita)).toEqual({ google_event_id: null, google_om_id: null, calendar_stare: "neconectat" });
+    // evenimentul din calendarul celuilalt se șterge acolo
+    const { data } = await admin().from("calendar_coada").select("actiune, om_id").eq("event_id", `ev-venit-${run}`);
+    expect(data).toEqual([{ actiune: "sterge", om_id: altul }]);
+  });
+
+  it("reconectarea cu alt cont Google retrage cheia veche; cu același cont, nu; ștergerile omului pornesc din nou", async () => {
+    const om = await omTemporar("closer");
+    await conecteaza(om, "vechi");
+    await admin().from("calendar_coada").insert({ actiune: "sterge", om_id: om, event_id: `ev-rec-${run}`, incercari: 5, luat_la: new Date().toISOString() });
+    const g = google();
+    await salveazaConexiune(admin(), om, { refresh: "nou", email: `alt-${run}@exemplu.ro` }, g.f);
+    const revocate = () => g.apeluri.filter((a) => a.url.includes("/revoke")).map((a) => new URL(a.url).searchParams.get("token"));
+    expect(revocate()).toEqual(["vechi"]);
+    await salveazaConexiune(admin(), om, { refresh: "nou2", email: `alt-${run}@exemplu.ro` }, g.f);
+    expect(revocate()).toEqual(["vechi"]);
+    const { data: con } = await admin().from("google_conexiuni").select("refresh_criptat, email, stare").eq("om_id", om).single();
+    expect(decripteaza(con!.refresh_criptat)).toBe("nou2");
+    expect(con).toMatchObject({ email: `alt-${run}@exemplu.ro`, stare: "ok" });
+    const { data: rand } = await admin().from("calendar_coada").select("incercari, luat_la").eq("event_id", `ev-rec-${run}`).single();
+    expect(rand).toEqual({ incercari: 0, luat_la: null });
+    await admin().from("calendar_coada").delete().eq("event_id", `ev-rec-${run}`);
+    await admin().from("google_conexiuni").delete().eq("om_id", om);
   });
 
   it("ocupatGoogle: ok, neconectat, nu_pot", async () => {

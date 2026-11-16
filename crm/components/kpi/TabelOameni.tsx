@@ -8,7 +8,7 @@ export function TabelOameni({
   total,
 }: {
   coloane: string[];
-  randuri: { id: string; nume: string; rol: Rol; celule: React.ReactNode[] }[];
+  randuri: { id: string; nume: string; rol: Rol; plecat?: boolean; celule: React.ReactNode[] }[];
   total: React.ReactNode[] | null;
 }) {
   const td = "border-b border-line px-2 py-2.5 text-right whitespace-nowrap num";
@@ -30,7 +30,7 @@ export function TabelOameni({
               <td className="border-b border-line px-2 py-2.5 whitespace-nowrap">
                 <span className="flex items-center gap-2">
                   <span className="grid h-6 w-6 place-items-center rounded-full bg-bg-3 text-[10.5px] font-semibold text-ink-2">{initiale(r.nume)}</span>
-                  {r.nume} <small className="text-[11px] text-ink-3">{ETICHETE.rol[r.rol]}</small>
+                  {r.nume} <small className="text-[11px] text-ink-3">{ETICHETE.rol[r.rol]}{r.plecat ? " · plecat" : ""}</small>
                 </span>
               </td>
               {r.celule.map((c, i) => (

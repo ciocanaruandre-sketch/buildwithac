@@ -67,6 +67,19 @@ describe("primesteCerere", () => {
     expect(new Date(dupa!.intrat_la).getTime()).toBeGreaterThan(Date.now() - 60_000);
   });
 
+  it("același telefon, după ce lead-ul vechi a rămas fără nume → lead nou, nu redeschis", async () => {
+    const national = `78${unic().padStart(7, "0").slice(-7)}`;
+    const a = await primesteCerere(cerere({ telefon: `0${national}` }), admin());
+    deSters.push(a.id);
+    const vechi = new Date(Date.now() - 400 * 86_400_000).toISOString();
+    expect((await admin().from("lead_uri").update({ stare: "pierdut", intrat_la: vechi }).eq("id", a.id)).error).toBeNull();
+    expect((await admin().rpc("anonimizeaza_vechi", { zile: 365 })).error).toBeNull();
+    const b = await primesteCerere(cerere({ telefon: `+40${national}` }), admin());
+    deSters.push(b.id);
+    expect(b.decizie).toBe("lead_nou");
+    expect(b.id).not.toBe(a.id);
+  });
+
   it("fără telefon și fără e-mail nu scrie nimic și spune de ce", async () => {
     await expect(primesteCerere(cerere(), admin())).rejects.toThrow(/telefon/);
   });

@@ -133,7 +133,7 @@ describe("„N-a venit”", () => {
     expect(data?.stare).toBe("programat");
   });
 
-  it("anularea golește neprezentat_la și nu schimbă starea", async () => {
+  it("anularea golește neprezentat_la și întoarce lead-ul în Programat, fără apel în cifre", async () => {
     const closer = await idDe("closer");
     const l = await leadDeTest({ stare: "programat", closer_id: closer });
     deSters.push(l.id);
@@ -143,10 +143,25 @@ describe("„N-a venit”", () => {
     expect((await db.rpc("marcheaza_neprezentat", { d, da: false })).error).toBeNull();
     const { data: ds } = await admin().from("discutii").select("neprezentat_la").eq("id", d).single();
     expect(ds?.neprezentat_la).toBeNull();
+    const { data: lead } = await admin().from("lead_uri").select("stare, callback_la").eq("id", l.id).single();
+    expect(lead).toEqual({ stare: "programat", callback_la: null });
+    const { data: ev } = await admin().from("evenimente").select("tip").eq("lead_id", l.id).order("id");
+    // „N-a venit” și anularea rămân în Parcurs; mutările de stare dintre ele, nu
+    expect(ev!.map((e) => e.tip)).toEqual(["creat", "neprezentat", "neprezentat_anulat"]);
+  });
+
+  it("anularea nu mută lead-ul dacă s-a lucrat pe el după „N-a venit”", async () => {
+    const closer = await idDe("closer");
+    const l = await leadDeTest({ stare: "programat", closer_id: closer });
+    deSters.push(l.id);
+    const d = await discutie(l.id, closer, -35);
+    const db = await conecteazaCa("closer");
+    expect((await db.rpc("marcheaza_neprezentat", { d, da: true })).error).toBeNull();
+    const cb = new Date(Date.now() + 2 * 86_400_000).toISOString();
+    expect((await admin().from("lead_uri").update({ callback_la: cb }).eq("id", l.id)).error).toBeNull();
+    expect((await db.rpc("marcheaza_neprezentat", { d, da: false })).error).toBeNull();
     const { data: lead } = await admin().from("lead_uri").select("stare").eq("id", l.id).single();
     expect(lead?.stare).toBe("callback");
-    const { data: ev } = await admin().from("evenimente").select("id").eq("lead_id", l.id).eq("tip", "neprezentat_anulat");
-    expect(ev).toHaveLength(1);
   });
 
   it("callerul nu poate marca N-a venit", async () => {
@@ -167,6 +182,16 @@ describe("categoria motivului", () => {
     expect(u.error).toBeNull();
     const { data } = await admin().from("evenimente").select("detalii").eq("lead_id", l.id).eq("tip", "stare").single();
     expect((data?.detalii as { categorie: string }).categorie).toBe("prea_scump");
+  });
+
+  it("ieșit din Pierdut, lead-ul pierde motivul, iar Parcursul nu-l mai duce", async () => {
+    const l = await leadDeTest({ stare: "pierdut", motiv_categorie: "altceva", motiv: "Text vechi" });
+    deSters.push(l.id);
+    expect((await admin().from("lead_uri").update({ stare: "a_raspuns" }).eq("id", l.id)).error).toBeNull();
+    const { data: lead } = await admin().from("lead_uri").select("motiv, motiv_categorie").eq("id", l.id).single();
+    expect(lead).toEqual({ motiv: null, motiv_categorie: null });
+    const { data } = await admin().from("evenimente").select("detalii").eq("lead_id", l.id).eq("tip", "stare").single();
+    expect(data?.detalii).toEqual({ de: "pierdut", in: "a_raspuns" });
   });
 
   it("categoria necunoscută e refuzată", async () => {

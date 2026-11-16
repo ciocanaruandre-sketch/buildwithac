@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deconecteazaGoogle } from "@/app/(app)/program/actiuni";
 import { Ascuns } from "@/components/Ascuns";
@@ -34,7 +35,12 @@ export function CardGoogle({
 }) {
   const [sigur, setSigur] = useState(false);
   const [rezultat, setRezultat] = useState<string | null>(null);
+  // după „Deconectează”, mesajul venit de la conectare nu mai e adevărat
+  const [faraMesaj, setFaraMesaj] = useState(false);
   const [lucreaza, porneste] = useTransition();
+  const router = useRouter();
+  const cale = usePathname();
+  const parametri = useSearchParams();
 
   if (alCuiNume) {
     return (
@@ -51,12 +57,19 @@ export function CardGoogle({
       const r = await deconecteazaGoogle();
       setSigur(false);
       if (!r.ok) return setRezultat(r.mesaj);
+      setFaraMesaj(true);
+      // și din adresă, ca să nu revină la reîncărcare
+      if (parametri.has("google")) {
+        const p = new URLSearchParams(parametri);
+        p.delete("google");
+        router.replace(p.size ? `${cale}?${p}` : cale, { scroll: false });
+      }
       setRezultat(r.nesterse ? textNesterse(r.nesterse) : null);
     });
 
   return (
     <>
-      {mesaj && !rezultat && (
+      {mesaj && !rezultat && !faraMesaj && (
         <p role="status" className={`mb-2 text-[13px] ${mesaj === "ok" ? "text-green" : "text-ink-2"}`}>{MESAJE[mesaj]}</p>
       )}
       {rezultat && <p role="alert" className="mb-2 alerta px-3 py-2 text-[13px] text-ink-2">{rezultat}</p>}
