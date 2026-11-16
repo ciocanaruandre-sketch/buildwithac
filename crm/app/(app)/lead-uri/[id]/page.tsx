@@ -3,6 +3,7 @@ import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ButoaneActiuni } from "@/components/ButoaneActiuni";
+import { RandCalendar, type StareRand } from "@/components/calendar/RandCalendar";
 import { DiscutiaAvuta } from "@/components/DiscutiaAvuta";
 import { ButoaneRand } from "@/components/ButoaneRand";
 import { FormularNotita } from "@/components/FormularNotita";
@@ -10,11 +11,13 @@ import { MutaLa } from "@/components/MutaLa";
 import { StergeLead } from "@/components/StergeLead";
 import { Taburi } from "@/components/Taburi";
 import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
+import { sincronizeazaDupa } from "@/lib/calendar/dupa";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, type Eveniment } from "@/lib/parcurs";
 import { reclamaDinUtm, type ReclamaUtm } from "@/lib/reclame";
 import { textMotiv } from "@/lib/motive";
 import { actiuniPermise } from "@/lib/stari";
+import { admin } from "@/lib/supabase/admin";
 import { supabase } from "@/lib/supabase/server";
 import { ETICHETE, type Stare } from "@/lib/tipuri";
 
@@ -44,6 +47,17 @@ function urmeaza(l: Lead, acum: Date, discutie: string | null): string {
   }
 }
 
+/**
+ * Rândul „Google Calendar” de sub discuție. Cât e în așteptare (null), nu arată nimic 2 minute de la ultima punere
+ * în coadă (sau de la programare); după aceea, „N-a ajuns în calendar”.
+ */
+async function stareDinCalendar(d: { id: string; calendar_stare: string | null; creat_la: string }, acum: Date): Promise<StareRand | null> {
+  if (d.calendar_stare === "ok" || d.calendar_stare === "eroare" || d.calendar_stare === "neconectat") return d.calendar_stare;
+  const { data: rand } = await admin().from("calendar_coada").select("creat_la").eq("actiune", "scrie").eq("discutie_id", d.id).maybeSingle();
+  const din = new Date(rand?.creat_la ?? d.creat_la).getTime();
+  return acum.getTime() - din > 2 * 60_000 ? "eroare" : null;
+}
+
 export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) {
   const om = await cerRol("admin", "caller", "closer");
   const { id } = await params;
@@ -71,8 +85,18 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
   const reclama: ReclamaUtm | null =
     (legata as ReclamaUtm | null | undefined) ?? (l.sursa === "reclama_meta" || l.sursa === "reclama_tiktok" ? reclamaDinUtm(primulUtm ?? {}) : null);
 
-  const { data: discutie } = await db.from("discutii").select("incepe_la, closer_id").eq("lead_id", id).gt("sfarseste_la", acum.toISOString()).order("incepe_la").limit(1).maybeSingle();
+  const { data: discutie } = await db
+    .from("discutii")
+    .select("id, incepe_la, closer_id, calendar_stare, creat_la")
+    .eq("lead_id", id)
+    .gt("sfarseste_la", acum.toISOString())
+    .order("incepe_la")
+    .limit(1)
+    .maybeSingle();
   const textDiscutie = discutie ? `Discuție programată: ${candLung(discutie.incepe_la)} cu ${nume(discutie.closer_id)}` : null;
+  const stareCalendar = discutie && process.env.GOOGLE_CLIENT_ID ? await stareDinCalendar(discutie, acum) : null;
+  // ce a rămas în coadă pentru discuția asta ajunge în Google după ce pagina pleacă spre om
+  if (discutie && discutie.calendar_stare !== "ok") sincronizeazaDupa({ discutie: discutie.id });
   // ultima discuție deja începută (30 de zile): „N-a venit”, doar pentru closerul ei și Admin; clientul a venit, evident
   const { data: avuta } =
     l.stare === "client" || om.rol === "caller"
@@ -114,6 +138,9 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
           <div className="panel alerta px-4 py-3.5" data-testid="urmeaza">
             <p className="lbl">Acum / Urmează</p>
             <p className="mt-1.5 text-[15.5px] leading-snug font-semibold tracking-[-.01em]">{urmeaza(l, acum, textDiscutie)}</p>
+            {discutie && stareCalendar && (
+              <RandCalendar discutieId={discutie.id} stare={stareCalendar} closerNume={nume(discutie.closer_id).split(/\s+/)[0]} />
+            )}
             {clientId && (
               <Link href={`/clienti/${clientId}`} className="mt-1.5 inline-block text-[13px] text-amber">
                 Deschide fișa clientului →

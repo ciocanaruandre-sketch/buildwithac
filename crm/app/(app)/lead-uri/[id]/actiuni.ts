@@ -1,9 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { golesteCoada } from "@/lib/calendar/coada";
+import { sincronizeazaDupa } from "@/lib/calendar/dupa";
 import { eu } from "@/lib/eu";
 import { motivValid, type MotivCategorie } from "@/lib/motive";
 import { actiuniPermise, stareDupa, type Actiune } from "@/lib/stari";
+import { admin } from "@/lib/supabase/admin";
 import { supabase } from "@/lib/supabase/server";
 import type { Database } from "@/lib/baza.types";
 
@@ -40,6 +43,8 @@ export async function aplicaActiune(
 
   const { error } = await db.from("lead_uri").update(schimbare).eq("id", id);
   if (error) return { ok: false, mesaj: NEPERMIS };
+  // lead-ul ieșit din „programat” își pierde discuția viitoare: pleacă și din Google Calendar
+  sincronizeazaDupa();
   revalidatePath(`/lead-uri/${id}`);
   return { ok: true };
 }
@@ -64,6 +69,7 @@ export async function programeaza(id: string, closerId: string, incepe: string):
   const { error } = await db.rpc("programeaza_discutie", { p_lead: id, p_closer: closerId, p_incepe: incepe });
   if (error?.code === "23P01") return { ok: false, mesaj: "Ora asta tocmai s-a ocupat. Alege alta." };
   if (error) return { ok: false, mesaj: error.message || NEPERMIS };
+  sincronizeazaDupa();
   revalidatePath(`/lead-uri/${id}`);
   return { ok: true };
 }
@@ -77,6 +83,7 @@ export async function marcheazaNeprezentat(discutieId: string, da: boolean): Pro
   const db = await supabase();
   const { error } = await db.rpc("marcheaza_neprezentat", { d: discutieId, da });
   if (error) return { ok: false, mesaj: error.code === "42501" && error.message ? error.message : NEPERMIS };
+  sincronizeazaDupa();
   revalidatePath("/azi");
   return { ok: true };
 }
@@ -91,6 +98,7 @@ export async function mutaLead(id: string, camp: "caller_id" | "closer_id", la: 
   // discuția programată trece și ea la closerul nou (trigger-ul discutii_dupa_lead)
   if (error?.code === "23P01") return { ok: false, mesaj: "Closerul ales are deja o discuție la ora aceea. Reprogramează întâi discuția." };
   if (error) return { ok: false, mesaj: NEPERMIS };
+  sincronizeazaDupa();
   revalidatePath(`/lead-uri/${id}`);
   return { ok: true };
 }
@@ -105,6 +113,27 @@ export async function stergeLead(id: string): Promise<Rezultat> {
   if (l.stare === "client") return { ok: false, mesaj: "E client: nu se șterge de aici." };
   const { data: sterse, error } = await db.from("lead_uri").delete().eq("id", id).select("id");
   if (error || !sterse?.length) return { ok: false, mesaj: "Lead-ul n-a putut fi șters. Încearcă din nou." };
+  sincronizeazaDupa();
   revalidatePath("/lead-uri");
+  return { ok: true };
+}
+
+/** „Reîncearcă” pe fișă: discuția intră acum în Google Calendar (se așteaptă răspunsul lui Google). */
+export async function reincearcaCalendar(discutieId: string): Promise<Rezultat> {
+  await eu();
+  // omul trebuie să vadă discuția (RLS); abia apoi lucrează cheia de serviciu
+  const { data: d } = await (await supabase()).from("discutii").select("id, lead_id").eq("id", discutieId).maybeSingle();
+  if (!d) return { ok: false, mesaj: NEPERMIS };
+  const db = admin();
+  const { data: rand } = await db.from("calendar_coada").select("id").eq("actiune", "scrie").eq("discutie_id", d.id).maybeSingle();
+  if (!rand) await db.from("calendar_coada").insert({ actiune: "scrie", discutie_id: d.id });
+  else await db.from("calendar_coada").update({ luat_la: null }).eq("id", rand.id);
+  try {
+    await golesteCoada(db, fetch, { discutie: d.id });
+  } catch (e) {
+    console.error("calendar: reîncercarea", e);
+    return { ok: false, mesaj: "N-a mers nici acum. Încearcă puțin mai târziu." };
+  }
+  revalidatePath(`/lead-uri/${d.lead_id}`);
   return { ok: true };
 }

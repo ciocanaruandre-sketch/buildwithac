@@ -2,12 +2,15 @@ import { BaraSus } from "@/components/BaraSus";
 import { PaginaAzi } from "@/components/azi/PaginaAzi";
 import { cifreSus, ordoneaza, placi, randuriAzi, salut, ziTitlu } from "@/lib/azi";
 import { citesteAzi } from "@/lib/azi-date";
+import { sincronizeazaDupa } from "@/lib/calendar/dupa";
 import { eu } from "@/lib/eu";
 
 /** „Azi”: ce ai de făcut acum și în zilele următoare. Prima pagină după intrare, la toate rolurile. */
 export default async function Azi() {
   const om = await eu();
   const acum = new Date();
+  // ce a rămas în coada calendarului ajunge în Google după ce pagina pleacă spre om
+  sincronizeazaDupa();
   const randuri = ordoneaza(randuriAzi(await citesteAzi(om, acum), om, acum));
   return (
     <>

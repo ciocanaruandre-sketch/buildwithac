@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { after } from "next/server";
 import { leadUri } from "@/lib/afisare";
 import { deconecteaza } from "@/lib/calendar/coada";
+import { sincronizeazaDupa } from "@/lib/calendar/dupa";
 import { trimiteEmail } from "@/lib/email";
 import { eu } from "@/lib/eu";
 import { mesajDinBaza } from "@/lib/erori";
@@ -133,6 +134,8 @@ export async function mutaTot(de: string, la: string): Promise<{ ok: true; mutat
   const r = data as { lead_uri: number; discutii: number; discutii_ramase: number };
   let mesaj = `Am mutat ${leadUri(r.lead_uri)}.`;
   if (r.discutii) mesaj += ` Și ${r.discutii === 1 ? "o discuție programată" : `${r.discutii} discuții programate`}.`;
+  // discuțiile mutate pleacă din calendarul celui vechi și intră în al celui nou
+  if (r.discutii) sincronizeazaDupa({ limita: 100 });
   if (r.discutii_ramase) mesaj += ` ${r.discutii_ramase === 1 ? "O discuție a rămas" : `${r.discutii_ramase} discuții au rămas`}: ora e ocupată la cel nou. Reprogramează din fișa lead-ului.`;
   revalidatePath("/echipa");
   return { ok: true, mutate: r.lead_uri, mesaj: mesaj + nota };

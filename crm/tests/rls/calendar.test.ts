@@ -139,6 +139,18 @@ describe("calendarul: coada umplută de trigger-e", () => {
   });
 });
 
+describe("calendarul: re-armarea", () => {
+  it("un „scrie” pus din nou își mută creat_la în prezent (regula celor 2 minute de pe fișă)", async () => {
+    const { leadId, discutieId } = await programeaza(840 + r(), 6);
+    const vechi = new Date(Date.now() - 10 * 60_000).toISOString();
+    await admin().from("calendar_coada").update({ creat_la: vechi }).eq("discutie_id", discutieId);
+    await admin().from("lead_uri").update({ nume: "Nume nou" }).eq("id", leadId);
+    const [rand] = await admin().from("calendar_coada").select("creat_la, versiune").eq("discutie_id", discutieId).then((x) => x.data!);
+    expect(new Date(rand.creat_la).getTime()).toBeGreaterThan(Date.now() - 60_000);
+    expect(rand.versiune).toBe(1);
+  });
+});
+
 describe("calendarul: cheile și stările", () => {
   it("nimeni nu citește cheile", async () => {
     const a = await conecteazaCa("admin");

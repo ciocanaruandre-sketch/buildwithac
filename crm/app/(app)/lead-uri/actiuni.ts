@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { sincronizeazaDupa } from "@/lib/calendar/dupa";
 import { eu } from "@/lib/eu";
 import { supabase } from "@/lib/supabase/server";
 
@@ -17,6 +18,7 @@ export async function iaLead(id: string): Promise<Rezultat> {
     const nume = (l?.caller as { nume: string } | null)?.nume;
     return { ok: false, mesaj: nume ? `L-a luat deja ${nume}.` : "Lead-ul nu mai e liber." };
   }
+  sincronizeazaDupa();
   revalidatePath("/lead-uri");
   return { ok: true };
 }
