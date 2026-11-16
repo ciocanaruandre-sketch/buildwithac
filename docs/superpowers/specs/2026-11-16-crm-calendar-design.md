@@ -46,7 +46,8 @@ Discuțiile programate în CRM ajung singure în Google Calendar-ul closerului, 
 - „Conectează Google Calendar” → ecranul Google (alegi contul, accepți) → înapoi pe „Program”, cu cardul „conectat”, adresa contului și „Deconectează”.
 - Cardul are trei stări (macheta, ecranul 2): **neconectat** (buton auriu), **conectat** (bifă verde), **legătura a căzut** (Google refuză cheia, de exemplu după schimbarea parolei: „Conectează din nou”; discuțiile rămase neajunse intră după reconectare).
 - Doar omul însuși se poate conecta. Adminul, când se uită la programul altcuiva, vede doar starea.
-- **Deconectează**: CRM-ul uită cheia și o revocă la Google. Evenimentele deja create rămân în calendar; de acum nu se mai sincronizează **[apelul meu]**.
+- **Deconectează**: întâi CRM-ul șterge din calendar **toate evenimentele create de el** (trecute și viitoare), apoi uită cheia și o revocă la Google. Așa nu rămâne în calendar nicio discuție care se anulează sau se mută după deconectare și niciun nume care ar trebui să dispară după un an. Dacă ștergerea pică pe alocuri, deconectarea se face oricum, iar cardul spune câte evenimente n-au putut fi șterse („șterge-le de mână din Google Calendar”) **[apelul meu, după verificarea constructorului]**.
+- **Ștergerea unui om** (din „Echipa”): înainte de ștergere, aceeași curățenie ca la „Deconectează”, cu aceeași regulă dacă pică **[apelul meu]**.
 - Drepturile cerute la Google: doar crearea/schimbarea evenimentelor și citirea „ocupat/liber” (fără citirea conținutului calendarului). Numele exacte ale scope-urilor le verifică constructorul în documentația Google.
 
 ### 4.2 Evenimentul
@@ -66,10 +67,13 @@ Discuțiile se schimbă pe multe drumuri care nu trec prin pagina „Programeaz�
 
 Pentru fiecare discuție se ține în bază: id-ul evenimentului din Google, al cui calendar e și starea (în calendar / n-a ajuns / closerul n-are conectat). De aici vine rândul de pe fișă.
 
-**Lead șters sau anonimizat după 1 an:** evenimentele lui se șterg și din Google, ca promisiunea de pe `/confidentialitate` („după un an, fără nume”) să rămână adevărată și în calendar **[apelul meu, de confirmat de Andrei la citire]**.
+**Lead șters sau anonimizat după 1 an:** evenimentele lui se șterg și din Google, ca promisiunea de pe `/confidentialitate` („după un an, fără nume”) să rămână adevărată și în calendar **[Andrei: „da, e bine”]**. Anonimizarea (`anonimizeaza_vechi`) schimbă doar `lead_uri`, nu `discutii`: e nevoie de un declanșator separat (când se pune `anonimizat_la`) care pune în coadă ștergerea tuturor evenimentelor lead-ului, inclusiv a celor trecute. Dacă closerul s-a deconectat între timp, evenimentele au fost deja șterse la deconectare (4.1).
+**Clienții** nu se anonimizează (se păstrează pe durata colaborării + 1 an, ca restul datelor lor din CRM); evenimentele lor rămân în calendar, ca fișa lor **[apelul meu]**.
+**Datele lead-ului schimbate** (nume, telefon): evenimentele viitoare se actualizează; cele trecute nu **[apelul constructorului, notat]**.
 
 ### 4.4 Orele ocupate (Google → CRM)
-- La deschiderea „Programează discuția” cu un closer ales, CRM-ul cere la Google „ocupat/liber” pentru următoarele 14 zile, din calendarul principal. Răspunsul nu se păstrează nicăieri.
+- La deschiderea „Programează discuția” cu un closer ales, CRM-ul cere la Google „ocupat/liber” pentru următoarele 14 zile, **doar din calendarul principal** al contului conectat. Răspunsul nu se păstrează nicăieri.
+- **Ce prinde și ce nu:** programările de lucru le pune Andrei în calendarul buildwithac; cele personale stau în alt calendar, personal, pe care CRM-ul nu-l citește. Andrei: „cele personale le pun în alt calendar, personal, nu se intersectează […] deci e bine.” Fără citirea altor calendare, fără drept de listare a calendarelor.
 - Ora care se suprapune cu ceva ocupat apare **gri, tăiată, cu contur punctat** (varianta A), cu `title` „Ocupat în Google Calendar”. Discuțiile CRM: același aspect, `title` „Altă discuție”. Legenda: „liberă” / „ocupată (Google Calendar sau altă discuție)”.
 - Dacă Google nu răspunde în ~3 secunde sau legătura a căzut: alerta galbenă „Nu pot citi acum Google Calendar-ul lui {Nume}. Vezi doar programul din CRM. Poți programa, dar verifică-i ora la telefon.” Dacă closerul nu s-a conectat: „{Nume} n-a conectat Google Calendar…” (textele din machetă).
 - La salvare, CRM-ul nu reverifică Google (doar baza, ca acum). Riscul (cineva își pune ceva în calendar în cele câteva secunde dintre deschidere și click) e acceptat **[apelul meu]**.
