@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM: calendarul (variante)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141417; --panel:#1c1c20; --panel-2:#232328; --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+  --ink:#f1f1f3; --ink-2:#b4b4bb; --ink-3:#8a8a92;
+  --glass:rgba(30,30,34,.55); --glass-bd:rgba(255,255,255,.07);
+  --r:16px; --r-sm:10px; --r-xl:22px;
+  --sel:rgba(255,255,255,.08); --seg:rgba(255,255,255,.05); --btn:rgba(255,255,255,.07); --thumb:rgba(255,255,255,.12);
+  --amber:#e3a43c; --amber-t:#ffb52e; --green:#4fbf8a; --red-t:#ff7a66; --blue:#6b9bd1;
+  --urm:rgba(255,181,46,.07); --urm-bd:rgba(255,181,46,.22);
+  --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;min-height:100vh}
+button{font:inherit;color:inherit}
+.wall{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.wall i{position:absolute;border-radius:50%;opacity:.10}
+.wall .w1{width:640px;height:640px;left:-140px;top:-200px;background:radial-gradient(closest-side,#ffb52e,transparent)}
+.wall .w2{width:560px;height:560px;right:-160px;top:28%;background:radial-gradient(closest-side,#e53222,transparent)}
+
+.switch{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:10px 12px;background:rgba(10,10,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.switch .grp{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--seg);flex-wrap:wrap}
+.switch button{border:0;background:none;padding:6px 13px;border-radius:999px;font:550 12.5px Inter;color:var(--ink-3);cursor:pointer}
+.switch button.on{background:var(--sel);color:var(--ink)}
+.switch .t{font:600 12px Inter;color:var(--ink-3)}
+
+.app{position:relative;z-index:1;display:flex;gap:20px;max-width:1280px;margin:0 auto;padding:18px 20px 80px}
+.side{width:220px;flex:none;border-radius:var(--r-xl);padding:16px 10px;background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(28px);align-self:flex-start;position:sticky;top:70px}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 14px;font:600 15px Inter}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--grad);display:block}
+.brand small{display:block;font:500 11.5px Inter;color:var(--ink-3)}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);font:500 13.5px Inter}
+.nav.on{background:var(--sel);color:var(--ink)}
+.main{flex:1;min-width:0}
+body.tel .app{max-width:390px;padding:14px 14px 90px;border-left:1px solid var(--line);border-right:1px solid var(--line);min-height:100vh}
+body.tel .side{display:none}
+
+.crumb{font:500 12.5px Inter;color:var(--ink-3);margin-bottom:10px}
+h1{font:700 28px/1.15 Inter;letter-spacing:-.025em;margin-bottom:6px}
+body.tel h1{font-size:24px}
+.sub{color:var(--ink-2);font-size:13px;margin-bottom:16px;max-width:600px}
+.lbl{font:600 12.5px Inter;color:var(--ink-3);margin-bottom:8px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:999px;background:var(--btn);color:var(--ink);font:550 13px Inter;border:0;cursor:pointer;white-space:nowrap}
+.btn.pri{background:#e3a43c;color:#1a1206;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 3px 10px rgba(227,164,60,.16)}
+.btn.mic{padding:4px 10px;font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--btn);color:var(--ink-2);font:500 12px Inter;white-space:nowrap}
+.chip.green{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
+.chip.red{background:color-mix(in srgb,var(--red-t) 15%,transparent);color:var(--red-t)}
+.chip.amber{background:color-mix(in srgb,var(--amber-t) 15%,transparent);color:var(--amber-t)}
+.panel{position:relative;background:var(--panel);border-radius:var(--r);border:1px solid var(--line)}
+.alerta{background:var(--urm);border:1px solid var(--urm-bd);border-radius:var(--r-sm);padding:10px 14px;font-size:13px;color:var(--ink-2);margin-bottom:14px}
+.alerta b{color:var(--amber-t);font-weight:600}
+.muted{color:var(--ink-3)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.ecran{display:none} body.e-prog .ecran.prog, body.e-program .ecran.program, body.e-fisa .ecran.fisa{display:block}
+.nota{margin-top:22px;font-size:12.5px;color:var(--ink-3);max-width:640px;border-top:1px dashed var(--line-2);padding-top:12px}
+.nota b{color:var(--ink-2)}
+
+/* Ecranul 1: sloturile */
+.zile{display:grid;gap:12px;grid-template-columns:repeat(4,minmax(0,1fr))}
+body.tel .zile{grid-template-columns:1fr}
+.zi{padding:14px}
+.sl{display:flex;flex-wrap:wrap;gap:6px}
+.s{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:0;background:var(--btn);color:var(--ink);font:500 13px Inter;font-variant-numeric:tabular-nums;cursor:pointer}
+.s:hover{background:var(--thumb)}
+.s.ales{background:var(--amber-t);color:#1a1206}
+/* varianta A: gri, tăiat */
+.vA .s.oc{background:transparent;border:1px dashed var(--line-2);color:var(--ink-3);text-decoration:line-through;cursor:default;opacity:.7}
+/* varianta B: gri, cu „ocupat” */
+.vB .s.oc{background:rgba(255,255,255,.03);color:var(--ink-3);cursor:default;opacity:.75}
+.vB .s.oc small{font:500 10.5px Inter;color:var(--ink-3);opacity:.85}
+/* varianta C: zi ca în calendar, ocupatul e o bandă */
+.vC .sl{flex-direction:column;flex-wrap:nowrap;gap:5px}
+.vC .s{justify-content:flex-start;border-radius:var(--r-sm);width:100%}
+.vC .bloc{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r-sm);font:500 12.5px Inter;color:var(--ink-3);background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 6px,rgba(255,255,255,.015) 6px 12px);border:1px solid var(--line)}
+.vC .bloc b{font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.vC .bloc.crm{border-color:rgba(255,181,46,.18)}
+.leg{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 12px;font-size:12px;color:var(--ink-3)}
+.leg span{display:inline-flex;align-items:center;gap:6px}
+.leg i{width:22px;height:14px;border-radius:999px;display:inline-block;background:var(--btn)}
+.vA .leg i.oc{background:transparent;border:1px dashed var(--line-2)}
+.vB .leg i.oc{background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.vC .leg i.oc{border-radius:4px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 3px,rgba(255,255,255,.02) 3px 6px)}
+
+/* Ecranul 2: Program */
+.gcal{padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.gcal .ic{width:40px;height:40px;border-radius:10px;background:#fff;display:grid;place-items:center;flex:none}
+.gcal .ic span{font:700 13px Inter;color:#1a73e8}
+.gcal .tx{flex:1;min-width:220px}
+.gcal .tx b{display:block;font-weight:600;margin-bottom:2px}
+.gcal .tx p{font-size:13px;color:var(--ink-2)}
+.program{padding:6px 18px}
+.program div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.program div:last-child{border-bottom:0}
+.program dt{color:var(--ink-3)}
+.program dd{font-variant-numeric:tabular-nums}
+
+/* Ecranul 3: fișa */
+.disc{padding:16px 18px;max-width:560px}
+.disc .sus{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px}
+.disc .ora{font:700 20px Inter;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.disc .cine{font-size:13px;color:var(--ink-2)}
+.disc .jos{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body class="vA e-prog">
+<div class="wall"><i class="w1"></i><i class="w2"></i></div>
+
+<div class="switch">
+  <span class="t">Ecran</span>
+  <div class="grp" id="ecr"><button data-e="prog" class="on">1 · Programează discuția</button><button data-e="program">2 · Program</button><button data-e="fisa">3 · Fișa lead-ului</button></div>
+  <span class="t">Ora ocupată</span>
+  <div class="grp" id="var"><button data-v="A" class="on">A · Gri tăiat</button><button data-v="B">B · Gri cu „ocupat”</button><button data-v="C">C · Ziua ca în calendar</button></div>
+  <span class="t">Google</span>
+  <div class="grp" id="st"><button data-s="ok" class="on">Conectat</button><button data-s="nu">Neconectat</button><button data-s="cazut">Legătura a căzut</button></div>
+  <div class="grp" id="lat"><button data-l="lap" class="on">Laptop</button><button data-l="tel">Telefon</button></div>
+</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i></i><div>buildwithac<small>CRM</small></div></div>
+    <div class="nav">Azi</div>
+    <div class="nav" id="navLead">Lead-uri</div>
+    <div class="nav">Clienți</div>
+    <div class="nav" id="navProg">Program</div>
+    <div class="nav">Finanțe</div>
+    <div class="nav">Reclame</div>
+    <div class="nav">KPI</div>
+    <div class="nav">Echipa</div>
+  </aside>
+
+  <main class="main">
+    <!-- 1 · Programează -->
+    <section class="ecran prog">
+      <p class="crumb">Lead-uri / Cafeneaua Colț / Programează</p>
+      <h1>Programează discuția</h1>
+      <p class="lbl" style="margin-top:14px">1. Closerul</p>
+      <div class="row"><button class="btn pri">Andrei</button><button class="btn">Vlad</button></div>
+      <div id="avertProg"></div>
+      <p class="lbl">2. Ora · discuții de 30 de minute, ora României</p>
+      <div class="leg"><span><i></i>liberă</span><span><i class="oc"></i>ocupată (Google Calendar sau altă discuție)</span></div>
+      <div class="zile" id="zile"></div>
+      <p class="nota"><b>Ce vezi:</b> luni la 12 Andrei are ceva în Google Calendar (CRM-ul nu știe ce), iar la 14 are deja o discuție programată din CRM. Azi, orele astea pur și simplu lipsesc din listă; în macheta asta apar gri, ca să se vadă de ce nu se pot alege. Click pe o oră liberă = o alegi.</p>
+    </section>
+
+    <!-- 2 · Program -->
+    <section class="ecran program">
+      <p class="crumb">Program</p>
+      <h1>Programul meu</h1>
+      <p class="sub">Zilele și orele în care poți ține discuții. Callerii văd doar orele libere din intervalele astea, ora României.</p>
+      <div class="panel gcal" id="gcal"></div>
+      <p class="lbl">Orele de lucru</p>
+      <dl class="panel program">
+        <div><dt>Luni</dt><dd>10:00 – 17:00</dd></div>
+        <div><dt>Marți</dt><dd>10:00 – 17:00</dd></div>
+        <div><dt>Miercuri</dt><dd>10:00 – 17:00</dd></div>
+        <div><dt>Joi</dt><dd>10:00 – 14:00</dd></div>
+        <div><dt>Vineri</dt><dd class="muted">liber</dd></div>
+        <div><dt>Durata unei discuții</dt><dd>30 de minute</dd></div>
+      </dl>
+      <p class="nota"><b>Ce vezi:</b> cardul Google stă deasupra programului, pe aceeași pagină. Schimbă „Google” din bara de sus ca să vezi cum arată neconectat și când legătura a căzut (de exemplu, ți-ai schimbat parola Google).</p>
+    </section>
+
+    <!-- 3 · Fișa -->
+    <section class="ecran fisa">
+      <p class="crumb">Lead-uri / Cafeneaua Colț</p>
+      <h1>Cafeneaua Colț</h1>
+      <p class="sub">Ioana Marin · 0722 xxx xxx · Site făcut de la zero</p>
+      <p class="lbl">Discuția</p>
+      <div class="panel disc">
+        <div class="sus">
+          <div><div class="ora">Luni, 17 noiembrie · 11:00</div><div class="cine">30 de minute · cu Andrei · programată de Mara</div></div>
+        </div>
+        <div class="jos" id="jos"></div>
+      </div>
+      <p class="nota"><b>Ce vezi:</b> sub discuție, un rând mic spune dacă a ajuns în Google Calendar. Dacă Google n-a răspuns, discuția rămâne programată în CRM, iar rândul devine roșu, cu „Reîncearcă”. Restul fișei rămâne cum e acum.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+const ORE=[];for(let h=10;h<17;h++){ORE.push(`${h}:00`,`${h}:30`)}
+const ZILE=[
+  {zi:'Luni, 17 noiembrie',pana:'17:00',oc:{'12:00':'g','12:30':'g','14:00':'c'},bl:[['12:00','13:00','g'],['14:00','14:30','c']]},
+  {zi:'Marți, 18 noiembrie',pana:'17:00',oc:{'15:00':'g','15:30':'g','16:00':'g'},bl:[['15:00','16:30','g']]},
+  {zi:'Miercuri, 19 noiembrie',pana:'17:00',oc:{'10:00':'g','10:30':'g'},bl:[['10:00','11:00','g']]},
+  {zi:'Joi, 20 noiembrie',pana:'14:00',oc:{'11:30':'c'},bl:[['11:30','12:00','c']]},
+];
+let ales=null, stare='ok';
+const body=document.body;
+const v=()=>['A','B','C'].find(x=>body.classList.contains('v'+x));
+
+function zile(){
+  const ok=stare==='ok';
+  document.getElementById('zile').innerHTML=ZILE.map(z=>{
+    const ore=ORE.filter(o=>o<z.pana);
+    const oc=o=>{const t=z.oc[o];return t==='c'||(t==='g'&&ok)?t:null};
+    let h;
+    if(v()==='C'){
+      h='';let i=0;
+      while(i<ore.length){
+        const o=ore[i], t=oc(o);
+        if(!t){h+=`<button class="s ${ales===z.zi+o?'ales':''}" data-k="${z.zi+o}">${o}</button>`;i++;continue}
+        const b=z.bl.find(x=>x[0]===o);
+        h+=`<div class="bloc ${t==='c'?'crm':''}"><b>${b[0]} – ${b[1]}</b>${t==='c'?'altă discuție':'ocupat'}</div>`;
+        while(i<ore.length&&ore[i]<b[1])i++;
+      }
+    }else{
+      h=ore.map(o=>{const t=oc(o);
+        if(t) return `<span class="s oc" title="${t==='c'?'Altă discuție':'Ocupat în Google Calendar'}">${o}${v()==='B'?` <small>${t==='c'?'discuție':'ocupat'}</small>`:''}</span>`;
+        return `<button class="s ${ales===z.zi+o?'ales':''}" data-k="${z.zi+o}">${o}</button>`}).join('');
+    }
+    return `<div class="panel zi"><p class="lbl">${z.zi}</p><div class="sl">${h}</div></div>`;
+  }).join('');
+  document.querySelectorAll('#zile button.s').forEach(b=>b.onclick=()=>{ales=b.dataset.k;zile()});
+}
+
+function avert(){
+  const a=document.getElementById('avertProg');
+  a.innerHTML= stare==='nu' ? `<div class="alerta"><b>Andrei n-a conectat Google Calendar.</b> Vezi orele din programul lui din CRM; ce are în Google nu apare aici.</div>`
+    : stare==='cazut' ? `<div class="alerta"><b>Nu pot citi acum Google Calendar-ul lui Andrei.</b> Vezi doar programul din CRM. Poți programa, dar verifică-i ora la telefon.</div>` : '';
+}
+
+function gcal(){
+  const g=document.getElementById('gcal');
+  const ic=`<div class="ic"><span>31</span></div>`;
+  g.innerHTML= stare==='ok'
+    ? `${ic}<div class="tx"><b>Google Calendar · conectat <span class="chip green" style="margin-left:6px">✓</span></b><p>contul Gmail buildwithac · discuțiile tale intră acolo singure, iar orele ocupate de acolo apar gri la „Programează”.</p></div><button class="btn mic">Deconectează</button>`
+    : stare==='nu'
+    ? `${ic}<div class="tx"><b>Google Calendar</b><p>Conectează-l ca discuțiile programate să-ți apară în calendar, cu memento pe telefon, iar orele în care ești ocupat să nu mai poată fi alese.</p></div><button class="btn pri">Conectează Google Calendar</button>`
+    : `${ic}<div class="tx"><b>Google Calendar · legătura a căzut <span class="chip red" style="margin-left:6px">!</span></b><p>Google nu mai primește discuțiile tale (se întâmplă după schimbarea parolei). Conectează-l din nou; discuțiile programate între timp intră singure.</p></div><button class="btn pri">Conectează din nou</button>`;
+}
+
+function jos(){
+  const j=document.getElementById('jos');
+  j.innerHTML= stare==='ok'
+    ? `<span class="chip green">✓ În Google Calendar</span><span class="muted" style="font-size:12.5px">la Andrei</span><span style="flex:1"></span><button class="btn mic">Reprogramează</button><button class="btn mic">N-a venit</button>`
+    : stare==='nu'
+    ? `<span class="chip">Andrei n-are Google Calendar conectat</span><span style="flex:1"></span><button class="btn mic">Reprogramează</button><button class="btn mic">N-a venit</button>`
+    : `<span class="chip red">N-a ajuns în calendar</span><button class="btn mic">Reîncearcă</button><span style="flex:1"></span><button class="btn mic">Reprogramează</button><button class="btn mic">N-a venit</button>`;
+}
+
+function nav(){
+  const e=['prog','program','fisa'].find(x=>body.classList.contains('e-'+x));
+  document.getElementById('navLead').classList.toggle('on',e!=='program');
+  document.getElementById('navProg').classList.toggle('on',e==='program');
+}
+function tot(){zile();avert();gcal();jos();nav()}
+tot();
+
+function grp(id,fn){document.querySelectorAll('#'+id+' button').forEach(x=>x.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(y=>y.classList.toggle('on',y===x));fn(x);tot()})}
+grp('var',x=>{body.classList.remove('vA','vB','vC');body.classList.add('v'+x.dataset.v)});
+grp('ecr',x=>{body.classList.remove('e-prog','e-program','e-fisa');body.classList.add('e-'+x.dataset.e);scrollTo(0,0)});
+grp('st',x=>{stare=x.dataset.s});
+grp('lat',x=>body.classList.toggle('tel',x.dataset.l==='tel'));
+</script>
+</body>
+</html>
