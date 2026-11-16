@@ -100,6 +100,22 @@ export function zile(n: number): string {
 export const procent = (n: number) => `${n}%`;
 export const numar = (n: number) => String(Math.round(n * 10) / 10).replace(".", ",");
 
+export type OmTabel = { id: string; nume: string; rol: Rol; activ: boolean };
+
+/**
+ * Oamenii din tabelele „Pe oameni”: cei care au un rând în cifre, activii întâi, apoi cei plecați (marcați),
+ * fiecare grup după nume. Cei plecați intră în totaluri, deci apar și aici.
+ */
+export function peOameni(randuri: { om_id: string | null }[], oameni: OmTabel[]): (OmTabel & { plecat: boolean })[] {
+  const dupaId = new Map(oameni.map((o) => [o.id, o]));
+  return randuri
+    .flatMap((r) => {
+      const o = r.om_id ? dupaId.get(r.om_id) : undefined;
+      return o ? [{ ...o, plecat: !o.activ }] : [];
+    })
+    .sort((a, b) => Number(a.plecat) - Number(b.plecat) || a.nume.localeCompare(b.nume, "ro"));
+}
+
 export type Sectiune = "palnie" | "apeluri" | "inchideri" | "pierderi" | "proiecte" | "bani";
 
 const SECTIUNI: Record<Rol, Sectiune[]> = {

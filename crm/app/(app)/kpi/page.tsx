@@ -18,6 +18,7 @@ import {
   numar,
   parsezaPerioada,
   PERIOADE,
+  peOameni,
   rata,
   sectiuniPentru,
   TITLU_SECTIUNE,
@@ -249,11 +250,10 @@ function Pierderi({ d }: { d: DateKpi }) {
   );
 }
 
-function Sectiunea({ s, d, rol, eu: omul, fataDe, numeOm }: { s: Sectiune; d: DateKpi; rol: OmKpi["rol"]; eu: OmKpi; fataDe: string; numeOm: Map<string, OmKpi> }) {
+function Sectiunea({ s, d, rol, eu: omul, fataDe }: { s: Sectiune; d: DateKpi; rol: OmKpi["rol"]; eu: OmKpi; fataDe: string }) {
   const admin = rol === "admin";
   const cine = admin ? null : omul.id;
-  const pe = (r: { om_id: string | null }[]) =>
-    r.flatMap((x) => (x.om_id && numeOm.get(x.om_id) ? [numeOm.get(x.om_id)!] : [])).sort((a, b) => a.nume.localeCompare(b.nume, "ro"));
+  const pe = (r: { om_id: string | null }[]) => peOameni(r, d.toti);
 
   switch (s) {
     case "palnie": {
@@ -506,7 +506,7 @@ export default async function Kpi({ searchParams }: PageProps<"/kpi">) {
       {sectiuniPentru(omul.rol).map((s) => (
         <section key={s}>
           {sep(titluSectiune(s))}
-          <Sectiunea s={s} d={d} rol={omul.rol} eu={omul} fataDe={fataDe} numeOm={numeOm} />
+          <Sectiunea s={s} d={d} rol={omul.rol} eu={omul} fataDe={fataDe} />
         </section>
       ))}
     </>

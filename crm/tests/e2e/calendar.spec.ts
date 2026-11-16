@@ -32,7 +32,9 @@ test.afterEach(async () => {
 test("cardul „conectat” și „Deconectează”", async ({ page }) => {
   await conecteaza(await idDe("closer"));
   await intraCa(page, "closer");
-  await page.goto("/program");
+  // ca la întoarcerea de la Google
+  await page.goto("/program?google=ok");
+  await expect(page.getByText("Gata, calendarul e conectat.")).toBeVisible();
   const card = page.getByTestId("card-google");
   await expect(card).toContainText("Google Calendar · conectat");
   await expect(card).toContainText("test@exemplu.ro");
@@ -40,6 +42,10 @@ test("cardul „conectat” și „Deconectează”", async ({ page }) => {
   await expect(card).toContainText("Scot din Google Calendar toate discuțiile puse de CRM");
   await card.getByRole("button", { name: "Da, deconectează" }).click();
   await expect(card.getByRole("link", { name: "Conectează Google Calendar" })).toBeVisible();
+  // mesajul de la conectare nu mai are ce căuta, nici după reîncărcare
+  await expect(page.getByText("Gata, calendarul e conectat.")).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByText("Gata, calendarul e conectat.")).toHaveCount(0);
 });
 
 test("ora de 12 e gri", async ({ page }) => {

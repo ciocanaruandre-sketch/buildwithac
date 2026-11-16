@@ -80,8 +80,8 @@ describe("livrările", () => {
 
     const { data } = await admin().from("evenimente_proiect").select("tip, detalii, autor_id").eq("proiect_id", p).in("tip", ["livrat", "livrare_stare"]).order("id");
     expect(data).toEqual([
-      { tip: "livrat", detalii: { titlu: "Schița (v2)" }, autor_id: await idDe("constructor") },
-      { tip: "livrare_stare", detalii: { titlu: "Schița (v2)", in: "aprobat" }, autor_id: await idDe("constructor") },
+      { tip: "livrat", detalii: { titlu: "Schița (v2)", livrare: ins.data!.id }, autor_id: await idDe("constructor") },
+      { tip: "livrare_stare", detalii: { titlu: "Schița (v2)", in: "aprobat", livrare: ins.data!.id }, autor_id: await idDe("constructor") },
     ]);
   });
 

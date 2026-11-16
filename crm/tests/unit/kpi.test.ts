@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { afiseaza, comparatie, durata, intervale, lei, parsezaPerioada, rata, sectiuniPentru, TITLU_SECTIUNE, zile } from "@/lib/kpi";
+import { afiseaza, comparatie, durata, intervale, lei, parsezaPerioada, peOameni, rata, sectiuniPentru, TITLU_SECTIUNE, zile } from "@/lib/kpi";
 
 const iso = (d: Date) => d.toISOString();
 
@@ -32,6 +32,16 @@ describe("intervale", () => {
     const i = intervale("sapt", new Date("2026-10-28T10:00:00Z")); // miercuri
     expect(iso(i.de)).toBe("2026-10-25T22:00:00.000Z"); // luni 26 oct., 00:00 (+02)
     expect(iso(i.deAnt)).toBe("2026-10-18T21:00:00.000Z"); // luni 19 oct., 00:00 (+03)
+  });
+
+  it("săptămâna peste ultima duminică din martie (ora de vară)", () => {
+    const i = intervale("sapt", new Date("2026-04-01T10:00:00Z")); // miercuri
+    expect(iso(i.de)).toBe("2026-03-29T21:00:00.000Z"); // luni 30 mar., 00:00 (+03)
+    expect(iso(i.deAnt)).toBe("2026-03-22T22:00:00.000Z"); // luni 23 mar., 00:00 (+02)
+    // duminică 29 martie, după schimbarea orei: săptămâna a început luni, încă pe +02
+    const dum = intervale("sapt", new Date("2026-03-29T12:00:00Z"));
+    expect(iso(dum.de)).toBe("2026-03-22T22:00:00.000Z");
+    expect(iso(dum.deAnt)).toBe("2026-03-15T22:00:00.000Z");
   });
 });
 
@@ -84,5 +94,23 @@ describe("rolurile și link-ul", () => {
     expect(parsezaPerioada(undefined)).toBe("luna");
     expect(parsezaPerioada("sapt")).toBe("sapt");
     expect(parsezaPerioada("3l")).toBe("3l");
+  });
+});
+
+describe("peOameni", () => {
+  const oameni = [
+    { id: "b", nume: "Bogdan", rol: "caller" as const, activ: true },
+    { id: "a", nume: "Ana", rol: "caller" as const, activ: true },
+    { id: "z", nume: "Zoe", rol: "closer" as const, activ: false },
+    { id: "c", nume: "Cristi", rol: "caller" as const, activ: false },
+  ];
+  it("arată și oamenii plecați cu activitate, marcați, după cei activi; totalul și necunoscuții nu", () => {
+    const r = peOameni([{ om_id: null }, { om_id: "z" }, { om_id: "b" }, { om_id: "x" }, { om_id: "a" }, { om_id: "c" }], oameni);
+    expect(r.map((o) => [o.nume, o.plecat])).toEqual([
+      ["Ana", false],
+      ["Bogdan", false],
+      ["Cristi", true],
+      ["Zoe", true],
+    ]);
   });
 });

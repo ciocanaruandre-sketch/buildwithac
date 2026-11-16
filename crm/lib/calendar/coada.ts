@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/baza.types";
-import { decripteaza } from "@/lib/calendar/criptare";
+import { cripteaza, decripteaza } from "@/lib/calendar/criptare";
 import { corpEveniment } from "@/lib/calendar/eveniment";
 import { GoogleCazut, idEveniment, ocupat, revoca, scrieEveniment, stergeEveniment, tokenAcces, type Interval } from "@/lib/calendar/google";
 
@@ -142,11 +142,11 @@ export async function golesteCoada(
       facute++;
     } catch (e) {
       esuate++;
-      const cazut = e instanceof LegaturaCazuta;
-      // la legătura căzută rândul se ia din nou abia peste 2 minute (după reconectare intră singur)
+      // rândul rămâne „luat” acum: baza îl dă din nou abia după o pauză care crește cu încercările
+      // (calendar_ia_din_coada); după reconectare sau „Reîncearcă” pornește imediat
       await db
         .from("calendar_coada")
-        .update({ incercari: r.incercari + 1, ultima_eroare: String((e as Error)?.message ?? e).slice(0, 500), luat_la: cazut ? new Date().toISOString() : null })
+        .update({ incercari: r.incercari + 1, ultima_eroare: String((e as Error)?.message ?? e).slice(0, 500), luat_la: new Date().toISOString() })
         .eq("id", r.id)
         .eq("versiune", r.versiune);
       if (r.actiune === "scrie") await db.from("discutii").update({ calendar_stare: "eroare" }).eq("id", r.discutie_id!);
@@ -160,6 +160,21 @@ export async function golesteCoada(
  * Ce n-a putut fi șters se numără; deconectarea se face oricum.
  */
 export async function deconecteaza(db: Db, omId: string, f: typeof fetch = fetch): Promise<{ nesterse: number }> {
+  // ce aștepta să intre în calendarul omului nu se mai creează (ar fi șters imediat). Discuțiile venite de la
+  // alt closer au evenimentul la acela: se șterge acolo.
+  const { data: ale } = await db.from("discutii").select("id, google_event_id, google_om_id").eq("closer_id", omId);
+  const { data: scrie } = await db
+    .from("calendar_coada")
+    .select("discutie_id")
+    .eq("actiune", "scrie")
+    .in("discutie_id", (ale ?? []).map((d) => d.id));
+  const inCoada = new Set((scrie ?? []).map((r) => r.discutie_id));
+  const laAltii = (ale ?? []).filter((d) => inCoada.has(d.id) && d.google_event_id && d.google_om_id && d.google_om_id !== omId);
+  if (laAltii.length) {
+    await db.from("calendar_coada").insert(laAltii.map((d) => ({ actiune: "sterge", om_id: d.google_om_id!, event_id: d.google_event_id! })));
+    await db.from("discutii").update({ google_event_id: null, google_om_id: null }).in("id", laAltii.map((d) => d.id));
+  }
+  if (inCoada.size) await db.from("calendar_coada").delete().eq("actiune", "scrie").in("discutie_id", [...inCoada]);
   await golesteCoada(db, f, { om: omId, limita: 200 }).catch((e) => console.error("calendar: deconectare, coada", e));
 
   const { data: con } = await db.from("google_conexiuni").select("refresh_criptat").eq("om_id", omId).maybeSingle();
@@ -196,6 +211,28 @@ export async function deconecteaza(db: Db, omId: string, f: typeof fetch = fetch
   if (refresh) await revoca(refresh, f);
   await db.from("google_conexiuni").delete().eq("om_id", omId);
   return { nesterse };
+}
+
+/**
+ * Păstrează cheia nouă după conectare. Cheia veche se retrage doar dacă era a altui cont Google: la același
+ * cont, retragerea ar opri și cheia nouă (Google retrage tot accesul dat aplicației). Ștergerile omului rămase
+ * în coadă și discuțiile lui viitoare pornesc imediat.
+ */
+export async function salveazaConexiune(db: Db, omId: string, c: { refresh: string; email: string }, f: typeof fetch = fetch) {
+  const { data: veche } = await db.from("google_conexiuni").select("refresh_criptat, email").eq("om_id", omId).maybeSingle();
+  const { error } = await db
+    .from("google_conexiuni")
+    .upsert({ om_id: omId, email: c.email, refresh_criptat: cripteaza(c.refresh), stare: "ok", conectat_la: new Date().toISOString() });
+  if (error) throw error;
+  if (veche && veche.email !== c.email) {
+    try {
+      await revoca(decripteaza(veche.refresh_criptat), f);
+    } catch (e) {
+      console.error("calendar: cheia veche", e);
+    }
+  }
+  await db.from("calendar_coada").update({ luat_la: null, incercari: 0 }).eq("actiune", "sterge").eq("om_id", omId);
+  await db.rpc("calendar_pune_viitoare", { p_om: omId });
 }
 
 export type OcupatGoogle = { stare: "ok"; ocupate: Interval[] } | { stare: "neconectat" | "nu_pot" };

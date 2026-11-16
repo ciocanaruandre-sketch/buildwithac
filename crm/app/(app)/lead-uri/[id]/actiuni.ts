@@ -127,7 +127,7 @@ export async function reincearcaCalendar(discutieId: string): Promise<Rezultat> 
   const db = admin();
   const { data: rand } = await db.from("calendar_coada").select("id").eq("actiune", "scrie").eq("discutie_id", d.id).maybeSingle();
   if (!rand) await db.from("calendar_coada").insert({ actiune: "scrie", discutie_id: d.id });
-  else await db.from("calendar_coada").update({ luat_la: null }).eq("id", rand.id);
+  else await db.from("calendar_coada").update({ luat_la: null, incercari: 0 }).eq("id", rand.id);
   const nuMerge = { ok: false as const, mesaj: "N-a mers nici acum. Încearcă puțin mai târziu." };
   try {
     const { esuate } = await golesteCoada(db, fetch, { discutie: d.id });

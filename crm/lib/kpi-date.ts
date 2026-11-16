@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/baza.types";
-import { intervale, sectiuniPentru, type Perioada, type Sectiune } from "@/lib/kpi";
+import { intervale, sectiuniPentru, type OmTabel, type Perioada, type Sectiune } from "@/lib/kpi";
 import type { Rol } from "@/lib/tipuri";
 
 type Db = SupabaseClient<Database>;
@@ -39,7 +39,8 @@ export type Seturi = {
   bani: KpiBani | null;
 };
 export type OmKpi = { id: string; nume: string; rol: Rol };
-export type DateKpi = { acum: Seturi; ant: Seturi; luni: KpiLuni[] | null; oameni: OmKpi[] };
+/** `oameni`: cardurile echipei (doar activii). `toti`: și cei plecați, pentru tabelele „Pe oameni”. */
+export type DateKpi = { acum: Seturi; ant: Seturi; luni: KpiLuni[] | null; oameni: OmKpi[]; toti: OmTabel[] };
 
 /** Ce funcții cheamă fiecare secțiune. Cardurile echipei folosesc aceleași rânduri. */
 const FUNCTII: Record<Sectiune, (keyof Seturi)[]> = {
@@ -82,7 +83,7 @@ async function seturi(db: Db, rol: Rol, de: Date, pana: Date): Promise<Seturi> {
 export async function citesteKpi(db: Db, rol: Rol, eu: OmKpi, p: Perioada, acum: Date): Promise<DateKpi> {
   const i = intervale(p, acum);
   const admin = rol === "admin";
-  const [a, b, luni, oameni] = await Promise.all([
+  const [a, b, luni, toti] = await Promise.all([
     seturi(db, rol, i.de, i.pana),
     seturi(db, rol, i.deAnt, i.panaAnt),
     admin
@@ -94,14 +95,13 @@ export async function citesteKpi(db: Db, rol: Rol, eu: OmKpi, p: Perioada, acum:
     admin
       ? db
           .from("profiluri")
-          .select("id, nume, rol")
-          .eq("activ", true)
+          .select("id, nume, rol, activ")
           .order("nume")
           .then(({ data, error }) => {
             if (error) throw error;
-            return data as OmKpi[];
+            return data as OmTabel[];
           })
-      : Promise.resolve([eu]),
+      : Promise.resolve([{ ...eu, activ: true }]),
   ]);
-  return { acum: a, ant: b, luni, oameni };
+  return { acum: a, ant: b, luni, oameni: toti.filter((o) => o.activ).map(({ id, nume, rol }) => ({ id, nume, rol })), toti };
 }

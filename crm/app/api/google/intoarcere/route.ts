@@ -1,7 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import { golesteCoada } from "@/lib/calendar/coada";
-import { cripteaza } from "@/lib/calendar/criptare";
+import { golesteCoada, salveazaConexiune } from "@/lib/calendar/coada";
 import { drepturiLipsa, revoca, schimbaCod } from "@/lib/calendar/google";
 import { cerRol } from "@/lib/eu";
 import { admin } from "@/lib/supabase/admin";
@@ -37,16 +36,12 @@ export async function GET(cerere: Request) {
       await revoca(refresh);
       return inapoi("fara_drepturi");
     }
-    const { error } = await db
-      .from("google_conexiuni")
-      .upsert({ om_id: om.id, email, refresh_criptat: cripteaza(refresh), stare: "ok", conectat_la: new Date().toISOString() });
-    if (error) throw error;
+    // pune și discuțiile viitoare care nu sunt încă în Google (programate înainte sau cât legătura era căzută)
+    await salveazaConexiune(db, om.id, { refresh, email });
   } catch (e) {
     console.error("calendar: conectarea", e);
     return inapoi("eroare");
   }
-  // discuțiile viitoare care nu sunt încă în Google (programate înainte sau cât legătura era căzută)
-  await db.rpc("calendar_pune_viitoare", { p_om: om.id });
   await golesteCoada(db, fetch, { om: om.id, limita: 100 }).catch((e) => console.error("calendar: după conectare", e));
   return inapoi("ok");
 }
