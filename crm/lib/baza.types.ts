@@ -113,6 +113,45 @@ export type Database = {
           },
         ]
       }
+      calendar_coada: {
+        Row: {
+          actiune: string
+          creat_la: string
+          discutie_id: string | null
+          event_id: string | null
+          id: number
+          incercari: number
+          luat_la: string | null
+          om_id: string | null
+          ultima_eroare: string | null
+          versiune: number
+        }
+        Insert: {
+          actiune: string
+          creat_la?: string
+          discutie_id?: string | null
+          event_id?: string | null
+          id?: never
+          incercari?: number
+          luat_la?: string | null
+          om_id?: string | null
+          ultima_eroare?: string | null
+          versiune?: number
+        }
+        Update: {
+          actiune?: string
+          creat_la?: string
+          discutie_id?: string | null
+          event_id?: string | null
+          id?: never
+          incercari?: number
+          luat_la?: string | null
+          om_id?: string | null
+          ultima_eroare?: string | null
+          versiune?: number
+        }
+        Relationships: []
+      }
       cereri: {
         Row: {
           id: string
@@ -326,9 +365,12 @@ export type Database = {
       }
       discutii: {
         Row: {
+          calendar_stare: string | null
           closer_id: string
           creat_de: string | null
           creat_la: string
+          google_event_id: string | null
+          google_om_id: string | null
           id: string
           incepe_la: string
           lead_id: string
@@ -336,9 +378,12 @@ export type Database = {
           sfarseste_la: string
         }
         Insert: {
+          calendar_stare?: string | null
           closer_id: string
           creat_de?: string | null
           creat_la?: string
+          google_event_id?: string | null
+          google_om_id?: string | null
           id?: string
           incepe_la: string
           lead_id: string
@@ -346,9 +391,12 @@ export type Database = {
           sfarseste_la: string
         }
         Update: {
+          calendar_stare?: string | null
           closer_id?: string
           creat_de?: string | null
           creat_la?: string
+          google_event_id?: string | null
+          google_om_id?: string | null
           id?: string
           incepe_la?: string
           lead_id?: string
@@ -459,6 +507,38 @@ export type Database = {
             columns: ["proiect_id"]
             isOneToOne: false
             referencedRelation: "proiecte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_conexiuni: {
+        Row: {
+          conectat_la: string
+          email: string
+          om_id: string
+          refresh_criptat: string
+          stare: string
+        }
+        Insert: {
+          conectat_la?: string
+          email: string
+          om_id: string
+          refresh_criptat: string
+          stare?: string
+        }
+        Update: {
+          conectat_la?: string
+          email?: string
+          om_id?: string
+          refresh_criptat?: string
+          stare?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_conexiuni_om_id_fkey"
+            columns: ["om_id"]
+            isOneToOne: true
+            referencedRelation: "profiluri"
             referencedColumns: ["id"]
           },
         ]
@@ -1162,6 +1242,38 @@ export type Database = {
       }
       azi_ro: { Args: never; Returns: string }
       cale_fisier_valida: { Args: { cale: string }; Returns: boolean }
+      calendar_ia_din_coada: {
+        Args: { limita: number; p_discutie?: string; p_om?: string }
+        Returns: {
+          actiune: string
+          creat_la: string
+          discutie_id: string | null
+          event_id: string | null
+          id: number
+          incercari: number
+          luat_la: string | null
+          om_id: string | null
+          ultima_eroare: string | null
+          versiune: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "calendar_coada"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      calendar_pune_scrie: { Args: { p_discutie: string }; Returns: undefined }
+      calendar_pune_viitoare: { Args: { p_om: string }; Returns: number }
+      calendar_stari: {
+        Args: never
+        Returns: {
+          conectat: boolean
+          email: string
+          om_id: string
+          stare: string
+        }[]
+      }
       comisioane_viitoare: {
         Args: never
         Returns: {
