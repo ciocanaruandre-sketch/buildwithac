@@ -125,6 +125,19 @@ describe("kpi_apeluri", () => {
     expect(Number(r.incercari_pana_raspunde)).toBe(1);
   });
 
+  it("Nu răspunde la 9:00 și răspuns la 9:03 e o încercare, oricine sună a doua oară", async () => {
+    const om = await omTemporar("caller");
+    const alt = await omTemporar("caller");
+    for (const [zi, alDoilea] of [[18, om], [19, alt]] as const) {
+      const l = await intrat(M(zi, 8), { caller_id: om });
+      await ev(l.id, "stare", M(zi, 9), om, { de: "nou", in: "fara_raspuns" });
+      await ev(l.id, "incercare", M(zi, 9), om, { nr: 1 });
+      await ev(l.id, "stare", M(zi, 9, 3), alDoilea, { de: "fara_raspuns", in: "a_raspuns" });
+    }
+    expect(Number(randOm(await rpcAdmin("kpi_apeluri"), om)?.incercari_pana_raspunde)).toBe(1);
+    expect(Number(randOm(await rpcAdmin("kpi_apeluri"), alt)?.incercari_pana_raspunde)).toBe(1);
+  });
+
   it("„au răspuns” vine doar dintr-un apel: oferta, clientul și pierdutul de după discuție nu-i dau closerului răspunsuri", async () => {
     const closer = await omTemporar("closer");
     const l = await intrat(M(15, 8), { closer_id: closer });

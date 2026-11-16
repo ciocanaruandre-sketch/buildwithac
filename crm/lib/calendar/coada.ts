@@ -162,14 +162,17 @@ export async function golesteCoada(
 export async function deconecteaza(db: Db, omId: string, f: typeof fetch = fetch): Promise<{ nesterse: number }> {
   // ce aștepta să intre în calendarul omului nu se mai creează (ar fi șters imediat). Discuțiile venite de la
   // alt closer au evenimentul la acela: se șterge acolo.
-  const { data: ale } = await db.from("discutii").select("id, google_event_id, google_om_id").eq("closer_id", omId);
-  const { data: scrie } = await db
-    .from("calendar_coada")
-    .select("discutie_id")
-    .eq("actiune", "scrie")
-    .in("discutie_id", (ale ?? []).map((d) => d.id));
-  const inCoada = new Set((scrie ?? []).map((r) => r.discutie_id));
-  const laAltii = (ale ?? []).filter((d) => inCoada.has(d.id) && d.google_event_id && d.google_om_id && d.google_om_id !== omId);
+  // Întâi coada (e mică), apoi doar discuțiile din ea: lista tuturor discuțiilor omului ar lungi adresa cererii
+  // peste limită după câteva sute.
+  const { data: scrie, error: eScrie } = await db.from("calendar_coada").select("discutie_id").eq("actiune", "scrie");
+  if (eScrie) throw eScrie;
+  const idsScrie = [...new Set((scrie ?? []).map((r) => r.discutie_id!).filter(Boolean))];
+  const { data: ale, error: eAle } = idsScrie.length
+    ? await db.from("discutii").select("id, google_event_id, google_om_id").eq("closer_id", omId).in("id", idsScrie)
+    : { data: [], error: null };
+  if (eAle) throw eAle;
+  const inCoada = new Set((ale ?? []).map((d) => d.id));
+  const laAltii = (ale ?? []).filter((d) => d.google_event_id && d.google_om_id && d.google_om_id !== omId);
   if (laAltii.length) {
     await db.from("calendar_coada").insert(laAltii.map((d) => ({ actiune: "sterge", om_id: d.google_om_id!, event_id: d.google_event_id! })));
     await db.from("discutii").update({ google_event_id: null, google_om_id: null }).in("id", laAltii.map((d) => d.id));
