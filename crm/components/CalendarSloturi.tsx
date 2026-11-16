@@ -4,8 +4,20 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { programeaza } from "@/app/(app)/lead-uri/[id]/actiuni";
 
-/** Orele libere ale closerului, pe zile. Un click programează. */
-export function CalendarSloturi({ leadId, closerId, zile }: { leadId: string; closerId: string; zile: { zi: string; sloturi: { la: string; ora: string }[] }[] }) {
+import type { Slot } from "@/lib/sloturi";
+
+const TITLU = { google: "Ocupat în Google Calendar", discutie: "Altă discuție" } as const;
+
+/** Orele closerului, pe zile: cele libere se apasă (un click programează), cele ocupate sunt gri, tăiate. */
+export function CalendarSloturi({
+  leadId,
+  closerId,
+  zile,
+}: {
+  leadId: string;
+  closerId: string;
+  zile: { zi: string; sloturi: { la: string; ora: string; ocupat: Slot["ocupat"] }[] }[];
+}) {
   const router = useRouter();
   const [mesaj, setMesaj] = useState<string | null>(null);
   const [lucreaza, porneste] = useTransition();
@@ -22,10 +34,13 @@ export function CalendarSloturi({ leadId, closerId, zile }: { leadId: string; cl
     });
   };
 
-  if (!zile.length) return <p className="text-[13px] text-ink-3">Closerul n-are ore libere în următoarele 14 zile. Alege alt closer sau roagă-l să-și completeze programul.</p>;
+  const libere = zile.some((z) => z.sloturi.some((s) => !s.ocupat));
 
   return (
     <>
+      {!libere && (
+        <p className="mb-3 text-[13px] text-ink-3">Closerul n-are ore libere în următoarele 14 zile. Alege alt closer sau roagă-l să-și completeze programul.</p>
+      )}
       {mesaj && (
         <p role="alert" className="mb-3 text-[13px] text-red-t">
           {mesaj}
@@ -36,11 +51,17 @@ export function CalendarSloturi({ leadId, closerId, zile }: { leadId: string; cl
           <div key={z.zi} className="panel p-3.5">
             <p className="lbl mb-2">{z.zi}</p>
             <div className="flex flex-wrap gap-1.5">
-              {z.sloturi.map((s) => (
-                <button key={s.la} type="button" data-testid="slot" data-la={s.la} aria-pressed={ales === s.la} className={`chip slot num cursor-pointer ${ales === s.la ? "ales" : ""}`} disabled={lucreaza} onClick={() => alege(s.la)}>
-                  {s.ora}
-                </button>
-              ))}
+              {z.sloturi.map((s) =>
+                s.ocupat ? (
+                  <span key={s.la} className="chip slot ocupat num" data-testid="slot-ocupat" title={TITLU[s.ocupat]}>
+                    {s.ora}
+                  </span>
+                ) : (
+                  <button key={s.la} type="button" data-testid="slot" data-la={s.la} aria-pressed={ales === s.la} className={`chip slot num cursor-pointer ${ales === s.la ? "ales" : ""}`} disabled={lucreaza} onClick={() => alege(s.la)}>
+                    {s.ora}
+                  </button>
+                ),
+              )}
             </div>
           </div>
         ))}
