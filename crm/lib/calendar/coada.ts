@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/baza.types";
 import { decripteaza } from "@/lib/calendar/criptare";
 import { corpEveniment } from "@/lib/calendar/eveniment";
-import { GoogleCazut, ocupat, revoca, scrieEveniment, stergeEveniment, tokenAcces, type Interval } from "@/lib/calendar/google";
+import { GoogleCazut, idEveniment, ocupat, revoca, scrieEveniment, stergeEveniment, tokenAcces, type Interval } from "@/lib/calendar/google";
 
 // Golirea cozii calendarului: ce au pus trigger-ele din baza de date ajunge în Google.
 // Rulează doar cu cheia de serviciu (admin()): tabelele cheilor și ale cozii n-au drepturi pentru utilizatori.
@@ -83,7 +83,7 @@ async function faScrie(db: Db, r: Rand, chei: ReturnType<typeof cheiDeAcces>, f:
   });
   let id: string;
   try {
-    id = await scrieEveniment(a.acces, corp, eventId, f);
+    id = await scrieEveniment(a.acces, corp, eventId, f, idEveniment(d.id));
   } catch (e) {
     if (e instanceof GoogleCazut) await chei.cade(d.closer_id);
     throw e;
@@ -118,7 +118,7 @@ async function faSterge(db: Db, r: Rand, chei: ReturnType<typeof cheiDeAcces>, f
 export async function golesteCoada(
   db: Db,
   f: typeof fetch = fetch,
-  o: { discutie?: string; om?: string; limita?: number } = {},
+  o: { discutie?: string; om?: string; limita?: number; pana?: number } = {},
 ): Promise<{ facute: number; esuate: number }> {
   const { data: randuri, error } = await db.rpc("calendar_ia_din_coada", {
     limita: o.limita ?? 20,
@@ -129,7 +129,13 @@ export async function golesteCoada(
   const chei = cheiDeAcces(db, f);
   let facute = 0;
   let esuate = 0;
-  for (const r of randuri ?? []) {
+  for (const [i, r] of (randuri ?? []).entries()) {
+    // termenul (jobul zilnic are timp limitat): ce n-a apucat rămâne liber pentru data viitoare
+    if (o.pana !== undefined && Date.now() >= o.pana) {
+      const ramase = (randuri ?? []).slice(i).map((x) => x.id);
+      await db.from("calendar_coada").update({ luat_la: null }).in("id", ramase);
+      break;
+    }
     try {
       if (r.actiune === "scrie") await faScrie(db, r, chei, f);
       else await faSterge(db, r, chei, f);
@@ -218,4 +224,22 @@ export async function ocupatGoogle(db: Db, omId: string, de: Date, pana: Date, f
   } finally {
     clearTimeout(ceas);
   }
+}
+
+export type StareRand = "ok" | "eroare" | "neconectat";
+
+/**
+ * Rândul „Google Calendar” de sub discuție, pe fișă. Cât e în așteptare, nu arată nimic 2 minute de la ultima
+ * punere în coadă; după aceea, „eroare” („N-a ajuns în calendar”). O discuție fără loc în coadă (programată
+ * înainte de calendar) e pusă acum în coadă, ca să nu rămână roșie la nesfârșit.
+ */
+export async function stareRand(db: Db, d: { id: string; calendar_stare: string | null; creat_la: string }, acum: Date): Promise<StareRand | null> {
+  if (d.calendar_stare === "ok" || d.calendar_stare === "eroare" || d.calendar_stare === "neconectat") return d.calendar_stare;
+  const { data: rand } = await db.from("calendar_coada").select("creat_la").eq("actiune", "scrie").eq("discutie_id", d.id).maybeSingle();
+  if (!rand) {
+    // un „scrie” pus între timp de altcineva lovește indexul unic: e tot ce ne trebuie
+    await db.from("calendar_coada").insert({ actiune: "scrie", discutie_id: d.id });
+    return null;
+  }
+  return acum.getTime() - new Date(rand.creat_la).getTime() > 2 * 60_000 ? "eroare" : null;
 }

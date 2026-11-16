@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { reincearcaCalendar } from "@/app/(app)/lead-uri/[id]/actiuni";
-
-export type StareRand = "ok" | "eroare" | "neconectat";
+import type { StareRand } from "@/lib/calendar/coada";
 
 /** Sub discuția viitoare: a ajuns sau nu în Google Calendar-ul closerului. */
 export function RandCalendar({ discutieId, stare, closerNume }: { discutieId: string; stare: StareRand; closerNume: string }) {

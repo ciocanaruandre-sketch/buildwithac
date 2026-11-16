@@ -17,6 +17,22 @@ export const SCOPURI = [
   "https://www.googleapis.com/auth/calendar.freebusy",
 ];
 
+const DREPTURI_CALENDAR = SCOPURI.filter((s) => s.includes("/auth/calendar"));
+
+/** Drepturile de calendar pe care omul nu le-a bifat pe ecranul Google (`scope` din răspunsul la token). */
+export function drepturiLipsa(scope: string): string[] {
+  const date = new Set(scope.split(/\s+/));
+  return DREPTURI_CALENDAR.filter((s) => !date.has(s));
+}
+
+/**
+ * Id-ul evenimentului, ales de noi din id-ul discuției (Google primește litere a–v și cifre, 5–1024 caractere).
+ * Așa, un al doilea POST pentru aceeași discuție (reîncercare, răspuns pierdut, două servere) primește 409, nu face dublură.
+ */
+export function idEveniment(discutieId: string): string {
+  return discutieId.replace(/-/g, "").toLowerCase();
+}
+
 /** Google a refuzat cheia (omul a scos accesul, și-a schimbat parola): trebuie conectat din nou. */
 export class GoogleCazut extends Error {}
 /** Orice altă problemă cu Google (pică, tace, răspuns ciudat): se reîncearcă. */
@@ -68,8 +84,8 @@ async function cerereToken(parametri: Record<string, string>, f: typeof fetch) {
   return date;
 }
 
-/** Codul primit la întoarcere → cheia de lungă durată și adresa contului. */
-export async function schimbaCod(cod: string, redirect: string, f: typeof fetch = fetch): Promise<{ refresh: string; email: string }> {
+/** Codul primit la întoarcere → cheia de lungă durată, adresa contului și drepturile bifate. */
+export async function schimbaCod(cod: string, redirect: string, f: typeof fetch = fetch): Promise<{ refresh: string; email: string; scope: string }> {
   const d = await cerereToken({ grant_type: "authorization_code", code: cod, redirect_uri: redirect }, f);
   // id_token vine direct de la Google, prin TLS: partea din mijloc se citește fără verificarea semnăturii
   let email: unknown;
@@ -79,7 +95,7 @@ export async function schimbaCod(cod: string, redirect: string, f: typeof fetch 
     email = undefined;
   }
   if (!d.refresh_token || typeof email !== "string") throw new GoogleEroare("Google n-a dat cheia sau adresa contului.");
-  return { refresh: d.refresh_token, email };
+  return { refresh: d.refresh_token, email, scope: d.scope ?? "" };
 }
 
 export async function tokenAcces(refresh: string, f: typeof fetch = fetch): Promise<string> {
@@ -103,14 +119,28 @@ async function cerereApi(url: string, acces: string, init: RequestInit, f: typeo
   return r;
 }
 
-/** Creează evenimentul (fără id) sau îl schimbă (cu id). Dacă evenimentul nu mai e în calendar, îl creează din nou. */
-export async function scrieEveniment(acces: string, corp: object, eventId: string | null, f: typeof fetch = fetch): Promise<string> {
+/** Schimbă evenimentul și îl confirmă (dacă fusese șters din calendar, revine). `null` dacă nu există deloc. */
+async function patch(acces: string, corp: object, eventId: string, f: typeof fetch): Promise<string | null> {
+  const r = await cerereApi(`${evenimente()}/${encodeURIComponent(eventId)}`, acces, { method: "PATCH", body: JSON.stringify({ ...corp, status: "confirmed" }) }, f);
+  if (r.ok) return ((await r.json()) as { id: string }).id;
+  if (r.status === 404 || r.status === 410) return null;
+  throw new GoogleEroare(`Google a răspuns ${r.status} la schimbarea evenimentului.`);
+}
+
+/**
+ * Creează evenimentul (fără `eventId`) sau îl schimbă (cu `eventId`). Dacă nu mai e în calendar, îl creează din nou.
+ * Cu `idNou`, crearea folosește id-ul ăsta: dacă există deja (409), îl schimbă în loc să facă unul al doilea.
+ */
+export async function scrieEveniment(acces: string, corp: object, eventId: string | null, f: typeof fetch = fetch, idNou?: string): Promise<string> {
   if (eventId) {
-    const r = await cerereApi(`${evenimente()}/${encodeURIComponent(eventId)}`, acces, { method: "PATCH", body: JSON.stringify(corp) }, f);
-    if (r.ok) return ((await r.json()) as { id: string }).id;
-    if (r.status !== 404 && r.status !== 410) throw new GoogleEroare(`Google a răspuns ${r.status} la schimbarea evenimentului.`);
+    const id = await patch(acces, corp, eventId, f);
+    if (id) return id;
   }
-  const r = await cerereApi(evenimente(), acces, { method: "POST", body: JSON.stringify(corp) }, f);
+  const r = await cerereApi(evenimente(), acces, { method: "POST", body: JSON.stringify(idNou ? { ...corp, id: idNou } : corp) }, f);
+  if (r.status === 409 && idNou) {
+    const id = await patch(acces, corp, idNou, f);
+    if (id) return id;
+  }
   if (!r.ok) throw new GoogleEroare(`Google a răspuns ${r.status} la crearea evenimentului.`);
   const { id } = (await r.json()) as { id?: string };
   if (!id) throw new GoogleEroare("Google n-a dat id-ul evenimentului.");

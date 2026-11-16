@@ -1,7 +1,8 @@
 import { randomBytes } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { cripteaza } from "@/lib/calendar/criptare";
-import { deconecteaza, golesteCoada, ocupatGoogle } from "@/lib/calendar/coada";
+import { deconecteaza, golesteCoada, ocupatGoogle, stareRand } from "@/lib/calendar/coada";
+import { idEveniment } from "@/lib/calendar/google";
 import { admin, idDe, leadDeTest, omTemporar, sterge, stergeTemporari } from "./ajutor";
 
 if (!process.env.GOOGLE_CHEIE_CRIPTARE) process.env.GOOGLE_CHEIE_CRIPTARE = randomBytes(32).toString("base64");
@@ -9,9 +10,13 @@ if (!process.env.GOOGLE_CHEIE_CRIPTARE) process.env.GOOGLE_CHEIE_CRIPTARE = rand
 type Apel = { metoda: string; url: string; corp: string };
 type Regula = (a: Apel) => Response | Error | undefined;
 
-/** Google fals: token → a1, POST eveniment → ev-<n>, PATCH → același id, DELETE → 204, revoke → 200. Regulile pot schimba răspunsul. */
+/**
+ * Google fals: token → a1; POST eveniment → id-ul trimis (409 dacă există deja) sau ev-<n>; PATCH → același id;
+ * DELETE → 204; revoke → 200. `creat` ține minte evenimentele create. Regulile pot schimba răspunsul.
+ */
 function google(...reguli: Regula[]) {
   const apeluri: Apel[] = [];
+  const creat = new Set<string>();
   let n = 0;
   const f = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const a = { metoda: init?.method ?? "GET", url: String(input), corp: typeof init?.body === "string" ? init.body : "" };
@@ -25,13 +30,18 @@ function google(...reguli: Regula[]) {
     if (a.url.includes("/token")) return Response.json({ access_token: "a1" });
     if (a.url.includes("/revoke")) return new Response(null, { status: 200 });
     if (a.url.endsWith("/freeBusy")) return Response.json({ calendars: { primary: { busy: [{ start: "2026-12-01T10:00:00Z", end: "2026-12-01T11:00:00Z" }] } } });
-    if (a.metoda === "POST") return Response.json({ id: `ev-${++n}` });
+    if (a.metoda === "POST") {
+      const id = (JSON.parse(a.corp || "{}") as { id?: string }).id ?? `ev-${++n}`;
+      if (creat.has(id)) return Response.json({ error: { code: 409 } }, { status: 409 });
+      creat.add(id);
+      return Response.json({ id });
+    }
     if (a.metoda === "PATCH") return Response.json({ id: a.url.split("/").pop() });
     if (a.metoda === "DELETE") return new Response(null, { status: 204 });
     throw new Error(`Google fals: n-am răspuns pentru ${a.metoda} ${a.url}`);
   }) as typeof fetch;
   const evenimente = () => apeluri.filter((a) => a.url.includes("/events"));
-  return { f, apeluri, evenimente };
+  return { f, apeluri, evenimente, creat };
 }
 
 const run = Date.now();
@@ -73,6 +83,7 @@ afterAll(async () => {
   for (const id of lead) await sterge(id);
   if (discutii.length) await admin().from("calendar_coada").delete().in("discutie_id", discutii);
   await admin().from("calendar_coada").delete().like("event_id", "ev-%");
+  if (discutii.length) await admin().from("calendar_coada").delete().in("event_id", discutii.map(idEveniment));
   await admin().from("google_conexiuni").delete().eq("email", `test-${run}@exemplu.ro`);
   await stergeTemporari();
 });
@@ -88,7 +99,8 @@ describe("coada calendarului", () => {
     const post = g.evenimente();
     expect(post.map((a) => a.metoda)).toEqual(["POST"]);
     expect(JSON.parse(post[0].corp).summary).toBe("Discuție · Cafeneaua Colț");
-    expect(await discutie(id)).toEqual({ google_event_id: "ev-1", google_om_id: closer, calendar_stare: "ok" });
+    expect(JSON.parse(post[0].corp).id).toBe(idEveniment(id));
+    expect(await discutie(id)).toEqual({ google_event_id: idEveniment(id), google_om_id: closer, calendar_stare: "ok" });
     expect(await coada(id)).toEqual([]);
 
     // reprogramarea face PATCH pe același eveniment
@@ -97,7 +109,7 @@ describe("coada calendarului", () => {
     expect((await discutie(id)).calendar_stare).toBeNull();
     const g2 = google();
     await golesteCoada(admin(), g2.f, { discutie: id });
-    expect(g2.evenimente().map((a) => `${a.metoda} ${a.url.split("/").pop()}`)).toEqual(["PATCH ev-1"]);
+    expect(g2.evenimente().map((a) => `${a.metoda} ${a.url.split("/").pop()}`)).toEqual([`PATCH ${idEveniment(id)}`]);
     expect((await discutie(id)).calendar_stare).toBe("ok");
   });
 
@@ -177,6 +189,52 @@ describe("coada calendarului", () => {
     }) as typeof fetch;
     await golesteCoada(admin(), f, { discutie: id });
     expect(g.evenimente().map((a) => a.metoda)).toEqual(["POST", "DELETE"]);
+  });
+
+  it("„Reîncearcă” cât alt server creează evenimentul: tot un singur eveniment", async () => {
+    await conecteaza(closer);
+    const id = await discutieNoua(closer, peste(1050 + r(), 6));
+    // Google lent la creare: primul server ține rândul cât așteaptă
+    const g = google();
+    let inZbor: () => void = () => undefined;
+    const aPornit = new Promise<void>((rez) => (inZbor = rez));
+    const lent = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "POST" && String(input).endsWith("/events")) {
+        inZbor();
+        await new Promise((rez) => setTimeout(rez, 600));
+      }
+      return g.f(input, init);
+    }) as typeof fetch;
+    const primul = golesteCoada(admin(), lent, { discutie: id });
+    await aPornit;
+    // „Reîncearcă” eliberează rândul și golește din nou, cât primul încă așteaptă
+    await admin().from("calendar_coada").update({ luat_la: null }).eq("discutie_id", id);
+    const alDoilea = golesteCoada(admin(), g.f, { discutie: id });
+    await Promise.all([primul, alDoilea]);
+    expect([...g.creat]).toEqual([idEveniment(id)]);
+    expect((await discutie(id)).google_event_id).toBe(idEveniment(id));
+  });
+
+  it("cu termenul depășit nu mai ia rânduri și le lasă libere", async () => {
+    await conecteaza(closer);
+    const id = await discutieNoua(closer, peste(1150 + r(), 6));
+    const g = google();
+    expect(await golesteCoada(admin(), g.f, { discutie: id, pana: Date.now() - 1 })).toEqual({ facute: 0, esuate: 0 });
+    expect(g.apeluri).toEqual([]);
+    const [rand] = await coada(id);
+    expect(rand.luat_la).toBeNull();
+  });
+
+  it("rândul de pe fișă: o discuție de dinainte, fără loc în coadă, intră în coadă (nu rămâne roșie)", async () => {
+    const id = await discutieNoua(closer, peste(1250 + r(), 6));
+    await admin().from("calendar_coada").delete().eq("discutie_id", id);
+    const veche = { id, calendar_stare: null, creat_la: new Date(Date.now() - 3_600_000).toISOString() };
+    expect(await stareRand(admin(), veche, new Date())).toBeNull();
+    expect((await coada(id)).map((x) => x.actiune)).toEqual(["scrie"]);
+    // rândul din coadă are acum peste 2 minute: abia atunci „eroare”
+    await admin().from("calendar_coada").update({ creat_la: new Date(Date.now() - 3 * 60_000).toISOString() }).eq("discutie_id", id);
+    expect(await stareRand(admin(), veche, new Date())).toBe("eroare");
+    expect(await stareRand(admin(), { ...veche, calendar_stare: "neconectat" }, new Date())).toBe("neconectat");
   });
 
   it("deconecteaza șterge toate evenimentele, și pe cele trecute", async () => {

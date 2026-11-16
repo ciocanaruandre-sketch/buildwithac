@@ -5,6 +5,8 @@ import { createServer } from "node:http";
 const PORT = Number(process.env.PORT_GOOGLE_FALS ?? 3199);
 let pica = false;
 let n = 0;
+const create = new Set();
+const SCOPE = "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.events.owned https://www.googleapis.com/auth/calendar.freebusy";
 
 /** 12:00 în România, ca moment UTC, pentru ziua dată („2026-12-01”). */
 function amiazaRomaniei(zi) {
@@ -44,7 +46,7 @@ createServer(async (req, res) => {
   if (pica) return trimite(503, { error: "indisponibil" });
 
   if (url.pathname === "/token") {
-    return trimite(200, { access_token: "fals", id_token: `x.${b64({ email: "test@exemplu.ro" })}.y`, refresh_token: "r" });
+    return trimite(200, { access_token: "fals", id_token: `x.${b64({ email: "test@exemplu.ro" })}.y`, refresh_token: "r", scope: SCOPE });
   }
   if (url.pathname === "/revoke") return trimite(200, {});
   if (url.pathname === "/calendar/v3/freeBusy") {
@@ -53,7 +55,13 @@ createServer(async (req, res) => {
   }
   if (url.pathname.startsWith("/calendar/v3/calendars/primary/events")) {
     const id = url.pathname.split("/events/")[1];
-    if (req.method === "POST") return trimite(200, { id: `ev-${++n}` });
+    if (req.method === "POST") {
+      // ca Google: un id ales de noi care există deja → 409
+      const ales = JSON.parse(corp || "{}").id ?? `ev-${++n}`;
+      if (create.has(ales)) return trimite(409, { error: { code: 409, message: "duplicate" } });
+      create.add(ales);
+      return trimite(200, { id: ales });
+    }
     if (req.method === "PATCH") return trimite(200, { id });
     if (req.method === "DELETE") return trimite(204);
   }

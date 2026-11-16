@@ -3,7 +3,7 @@ import { BaraSus } from "@/components/BaraSus";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ButoaneActiuni } from "@/components/ButoaneActiuni";
-import { RandCalendar, type StareRand } from "@/components/calendar/RandCalendar";
+import { RandCalendar } from "@/components/calendar/RandCalendar";
 import { DiscutiaAvuta } from "@/components/DiscutiaAvuta";
 import { ButoaneRand } from "@/components/ButoaneRand";
 import { FormularNotita } from "@/components/FormularNotita";
@@ -11,6 +11,7 @@ import { MutaLa } from "@/components/MutaLa";
 import { StergeLead } from "@/components/StergeLead";
 import { Taburi } from "@/components/Taburi";
 import { CULOARE_STARE, cand, candLung } from "@/lib/afisare";
+import { stareRand } from "@/lib/calendar/coada";
 import { sincronizeazaDupa } from "@/lib/calendar/dupa";
 import { cerRol } from "@/lib/eu";
 import { descrieEveniment, type Eveniment } from "@/lib/parcurs";
@@ -45,17 +46,6 @@ function urmeaza(l: Lead, acum: Date, discutie: string | null): string {
     case "descalificat":
       return `${ETICHETE.stare[l.stare]}${textMotiv(l.motiv_categorie, l.motiv) ? `: ${textMotiv(l.motiv_categorie, l.motiv)}` : ""}.`;
   }
-}
-
-/**
- * Rândul „Google Calendar” de sub discuție. Cât e în așteptare (null), nu arată nimic 2 minute de la ultima punere
- * în coadă (sau de la programare); după aceea, „N-a ajuns în calendar”.
- */
-async function stareDinCalendar(d: { id: string; calendar_stare: string | null; creat_la: string }, acum: Date): Promise<StareRand | null> {
-  if (d.calendar_stare === "ok" || d.calendar_stare === "eroare" || d.calendar_stare === "neconectat") return d.calendar_stare;
-  const { data: rand } = await admin().from("calendar_coada").select("creat_la").eq("actiune", "scrie").eq("discutie_id", d.id).maybeSingle();
-  const din = new Date(rand?.creat_la ?? d.creat_la).getTime();
-  return acum.getTime() - din > 2 * 60_000 ? "eroare" : null;
 }
 
 export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) {
@@ -94,7 +84,7 @@ export default async function FisaLead({ params }: PageProps<"/lead-uri/[id]">) 
     .limit(1)
     .maybeSingle();
   const textDiscutie = discutie ? `Discuție programată: ${candLung(discutie.incepe_la)} cu ${nume(discutie.closer_id)}` : null;
-  const stareCalendar = discutie && process.env.GOOGLE_CLIENT_ID ? await stareDinCalendar(discutie, acum) : null;
+  const stareCalendar = discutie && process.env.GOOGLE_CLIENT_ID ? await stareRand(admin(), discutie, acum) : null;
   // ce a rămas în coadă pentru discuția asta ajunge în Google după ce pagina pleacă spre om
   if (discutie && discutie.calendar_stare !== "ok") sincronizeazaDupa({ discutie: discutie.id });
   // ultima discuție deja începută (30 de zile): „N-a venit”, doar pentru closerul ei și Admin; clientul a venit, evident

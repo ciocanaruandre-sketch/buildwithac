@@ -128,12 +128,13 @@ export async function reincearcaCalendar(discutieId: string): Promise<Rezultat> 
   const { data: rand } = await db.from("calendar_coada").select("id").eq("actiune", "scrie").eq("discutie_id", d.id).maybeSingle();
   if (!rand) await db.from("calendar_coada").insert({ actiune: "scrie", discutie_id: d.id });
   else await db.from("calendar_coada").update({ luat_la: null }).eq("id", rand.id);
+  const nuMerge = { ok: false as const, mesaj: "N-a mers nici acum. Încearcă puțin mai târziu." };
   try {
-    await golesteCoada(db, fetch, { discutie: d.id });
+    const { esuate } = await golesteCoada(db, fetch, { discutie: d.id });
+    revalidatePath(`/lead-uri/${d.lead_id}`);
+    return esuate ? nuMerge : { ok: true };
   } catch (e) {
     console.error("calendar: reîncercarea", e);
-    return { ok: false, mesaj: "N-a mers nici acum. Încearcă puțin mai târziu." };
+    return nuMerge;
   }
-  revalidatePath(`/lead-uri/${d.lead_id}`);
-  return { ok: true };
 }

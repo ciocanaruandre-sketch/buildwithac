@@ -3,6 +3,8 @@ import {
   GoogleCazut,
   GoogleEroare,
   SCOPURI,
+  drepturiLipsa,
+  idEveniment,
   ocupat,
   revoca,
   schimbaCod,
@@ -57,7 +59,7 @@ describe("clientul Google", () => {
 
   it("schimbaCod întoarce cheia și e-mailul din id_token", async () => {
     const { f, cereri } = fals(json({ access_token: "a", refresh_token: "r1", id_token: `x.${b64({ email: "andrei@gmail.com" })}.y` }));
-    expect(await schimbaCod("cod1", "http://localhost:3000/cb", f)).toEqual({ refresh: "r1", email: "andrei@gmail.com" });
+    expect(await schimbaCod("cod1", "http://localhost:3000/cb", f)).toMatchObject({ refresh: "r1", email: "andrei@gmail.com" });
     const corp = new URLSearchParams(cereri[0].corp);
     expect(cereri[0].metoda).toBe("POST");
     expect(corp.get("grant_type")).toBe("authorization_code");
@@ -105,6 +107,45 @@ describe("clientul Google", () => {
     const b = fals(new Response("", { status: 404 }), json({ id: "ev2" }));
     expect(await scrieEveniment("a1", { summary: "x" }, "ev1", b.f)).toBe("ev2");
     expect(b.cereri.map((c) => c.metoda)).toEqual(["PATCH", "POST"]);
+  });
+
+  it("scrieEveniment cu id ales trimite id-ul în POST (un al doilea POST nu face dublură)", async () => {
+    const { f, cereri } = fals(json({ id: "abc123def" }));
+    expect(await scrieEveniment("a1", { summary: "x" }, null, f, "abc123def")).toBe("abc123def");
+    expect(JSON.parse(cereri[0].corp).id).toBe("abc123def");
+  });
+
+  it("POST cu 409 (id-ul există deja) face PATCH pe el și îl confirmă", async () => {
+    const { f, cereri } = fals(new Response("", { status: 409 }), json({ id: "abc123def" }));
+    expect(await scrieEveniment("a1", { summary: "x" }, null, f, "abc123def")).toBe("abc123def");
+    expect(cereri.map((c) => c.metoda)).toEqual(["POST", "PATCH"]);
+    expect(cereri[1].url).toBe("https://www.googleapis.com/calendar/v3/calendars/primary/events/abc123def");
+    expect(JSON.parse(cereri[1].corp)).toMatchObject({ summary: "x", status: "confirmed" });
+  });
+
+  it("PATCH confirmă și el evenimentul (poate fi anulat între timp)", async () => {
+    const { f, cereri } = fals(json({ id: "ev1" }));
+    await scrieEveniment("a1", { summary: "x" }, "ev1", f);
+    expect(JSON.parse(cereri[0].corp).status).toBe("confirmed");
+  });
+
+  it("idEveniment: din id-ul discuției, doar caractere primite de Google", () => {
+    const id = idEveniment("8b1f2c3d-0000-4000-8000-00000000000a");
+    expect(id).toBe("8b1f2c3d00004000800000000000000a");
+    expect(id).toMatch(/^[0-9a-v]{5,1024}$/);
+  });
+
+  it("drepturiLipsa: ce n-a bifat omul pe ecranul Google", () => {
+    expect(drepturiLipsa("openid https://www.googleapis.com/auth/userinfo.email")).toEqual([
+      "https://www.googleapis.com/auth/calendar.events.owned",
+      "https://www.googleapis.com/auth/calendar.freebusy",
+    ]);
+    expect(drepturiLipsa(SCOPURI.join(" ") + " https://www.googleapis.com/auth/userinfo.email")).toEqual([]);
+  });
+
+  it("schimbaCod întoarce și drepturile date", async () => {
+    const { f } = fals(json({ refresh_token: "r1", scope: "openid https://www.googleapis.com/auth/calendar.freebusy", id_token: `x.${b64({ email: "a@b.ro" })}.y` }));
+    expect((await schimbaCod("c", "r", f)).scope).toBe("openid https://www.googleapis.com/auth/calendar.freebusy");
   });
 
   it("scrieEveniment cu 500 aruncă GoogleEroare", async () => {

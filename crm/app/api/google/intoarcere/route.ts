@@ -2,7 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { golesteCoada } from "@/lib/calendar/coada";
 import { cripteaza } from "@/lib/calendar/criptare";
-import { schimbaCod } from "@/lib/calendar/google";
+import { drepturiLipsa, revoca, schimbaCod } from "@/lib/calendar/google";
 import { cerRol } from "@/lib/eu";
 import { admin } from "@/lib/supabase/admin";
 
@@ -18,7 +18,7 @@ function aceeasi(a: string, b: string) {
 export async function GET(cerere: Request) {
   const om = await cerRol("admin", "closer");
   const url = new URL(cerere.url);
-  const inapoi = (google: "ok" | "anulat" | "eroare") => Response.redirect(`${url.origin}/program?google=${google}`, 303);
+  const inapoi = (google: "ok" | "anulat" | "eroare" | "fara_drepturi") => Response.redirect(`${url.origin}/program?google=${google}`, 303);
 
   const borcan = await cookies();
   const asteptata = borcan.get("google_stare")?.value;
@@ -31,7 +31,12 @@ export async function GET(cerere: Request) {
 
   const db = admin();
   try {
-    const { refresh, email } = await schimbaCod(cod, `${url.origin}/api/google/intoarcere`);
+    const { refresh, email, scope } = await schimbaCod(cod, `${url.origin}/api/google/intoarcere`);
+    // pe ecranul Google, omul poate debifa accesul la calendar: atunci nimic n-ar merge, deși cardul ar zice „conectat”
+    if (drepturiLipsa(scope).length) {
+      await revoca(refresh);
+      return inapoi("fara_drepturi");
+    }
     const { error } = await db
       .from("google_conexiuni")
       .upsert({ om_id: om.id, email, refresh_criptat: cripteaza(refresh), stare: "ok", conectat_la: new Date().toISOString() });

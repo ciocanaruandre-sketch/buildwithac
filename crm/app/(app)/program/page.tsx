@@ -21,7 +21,7 @@ export default async function Program({ searchParams }: PageProps<"/program">) {
   ]);
   const g = stari?.find((s) => s.om_id === id);
   const stareGoogle: StareGoogle = !g?.conectat ? "neconectat" : g.stare === "cazut" ? "cazut" : "ok";
-  const mesaj = google === "ok" || google === "anulat" || google === "eroare" ? google : null;
+  const mesaj = google === "ok" || google === "anulat" || google === "eroare" || google === "fara_drepturi" ? google : null;
 
   return (
     <>

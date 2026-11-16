@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { deconecteazaGoogle } from "@/app/(app)/program/actiuni";
 import { Ascuns } from "@/components/Ascuns";
+import { textNesterse } from "@/lib/calendar/texte";
 
 export type StareGoogle = "neconectat" | "ok" | "cazut";
 
@@ -10,6 +11,7 @@ const MESAJE = {
   ok: "Gata, calendarul e conectat.",
   anulat: "N-ai dat acces. Calendarul nu e conectat.",
   eroare: "Conectarea n-a mers. Încearcă din nou.",
+  fara_drepturi: "N-ai bifat accesul la calendar. Conectează din nou și bifează tot pe ecranul Google.",
 } as const;
 
 const Icon = () => (
@@ -49,7 +51,7 @@ export function CardGoogle({
       const r = await deconecteazaGoogle();
       setSigur(false);
       if (!r.ok) return setRezultat(r.mesaj);
-      setRezultat(r.nesterse ? `${r.nesterse} evenimente n-au putut fi șterse. Șterge-le de mână din Google Calendar.` : null);
+      setRezultat(r.nesterse ? textNesterse(r.nesterse) : null);
     });
 
   return (

@@ -88,6 +88,10 @@ test("Google pică: „N-a ajuns în calendar”, apoi „Reîncearcă”", asyn
       await expect(rand).toContainText("N-a ajuns în calendar", { timeout: 1_000 });
     }).toPass({ timeout: 20_000 });
 
+    // „Reîncearcă” cu Google încă picat: spune că n-a mers
+    await rand.getByRole("button", { name: "Reîncearcă" }).click();
+    await expect(rand).toContainText("N-a mers nici acum");
+
     await pica(false);
     await rand.getByRole("button", { name: "Reîncearcă" }).click();
     await expect(rand).toContainText("✓ În Google Calendar");
