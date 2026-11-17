@@ -1,0 +1,164 @@
+---
+titlu: "Clipuri făcute de Claude, pe vocea ta"
+slug: clipuri-cu-claude-pe-vocea-ta
+cuvant: CLIPURI
+descriere: "Claude scrie scriptul, tu îl citești, iar el face clipul cu HyperFrames, cu subtitrări pe cuvintele tale. Stilul îl alegi într-un Style Lab."
+ceGasesti:
+  - "Promptul pentru scriptul unui clip de 30 de secunde"
+  - "Cum înregistrezi vocea ca să iasă curată"
+  - "Subtitrări puse exact pe cuvintele tale, în română"
+  - "Style Lab: votezi variante, iar stilul rămâne pentru toate clipurile"
+durata: "2 ore"
+nivel: "începător"
+unelte: ["Claude Code", "HyperFrames", "Parakeet", "FFmpeg"]
+actualizat: 2026-11-17
+publicat: 2026-11-17
+imagine: cover.webp
+pdf: false
+---
+
+Clipurile mele nu le mai editez eu. Claude scrie scriptul, eu îl citesc cu vocea mea, iar el construiește cadrele cu HyperFrames: animațiile, subtitrările, tranzițiile și sunetele, toate puse pe secunda la care spun fiecare cuvânt. HyperFrames e unealta care transformă o pagină web animată în clip MP4.
+
+Ghidul are patru părți: pregătești totul (pașii 1–3), scrii și înregistrezi scriptul (pașii 4–8), faci clipul (pașii 9–13) și îl înveți pe Claude stilul tău, într-un Style Lab (pașii 14–18).
+
+**Nu trebuie să ții minte comenzi.** După ce instalezi HyperFrames, îi spui lui Claude în cuvinte ce vrei, iar el alege singur ce rulează. La unii pași îți las și comanda, ca variantă.
+
+Pornesc de la ghidul [Animații video din câteva cuvinte](/ghiduri/animatii-video-cu-claude): acolo instalezi Claude Code și HyperFrames și faci primul clip, un intro cu logo-ul tău. Dacă l-ai făcut, ai deja tot ce-ți trebuie pentru pasul 2.
+
+<DeCeAiNevoie>
+- Cont Claude Pro: 20 $/lună (17 $/lună cu plata pe un an). Claude Code nu e inclus în planul gratuit.
+- Claude Code în VS Code sau în terminal.
+- HyperFrames: gratuit, open source.
+- Parakeet, programul care îți transcrie vocea: gratuit, ocupă cam 640 MB pe disc.
+- Node.js 22 sau mai nou și FFmpeg: gratuite. Dacă lipsesc, le instalează Claude.
+- Un microfon. Cel de la căști ajunge.
+- Două ore, cu tot cu instalări și înregistrare.
+</DeCeAiNevoie>
+
+<Pas titlu="Deschizi un dosar pentru clipuri">
+Toate clipurile tale stau într-un singur dosar, fiecare în subdosarul lui. Acolo stă și stilul pe care îl alegi la final, ca să-l folosească toate clipurile. Fă un dosar gol, de exemplu `studio-clipuri`, apoi în VS Code alege **File → Open Folder** și deschide-l.
+</Pas>
+
+<Pas titlu="Instalezi HyperFrames">
+Dacă ai făcut ghidul [Animații video](/ghiduri/animatii-video-cu-claude), sari peste pasul ăsta: pluginul e instalat pentru toate proiectele.
+
+Dacă nu, fă pașii 2–5 din ghidul ăla: adaugi sursa `heygen-com/hyperframes`, instalezi pluginul HyperFrames, verifici modelul și îi ceri lui Claude să instaleze Node.js și FFmpeg. Apoi deschide o conversație nouă, ca să vadă Claude pluginul.
+</Pas>
+
+<Pas titlu="Instalezi Parakeet">
+Parakeet ascultă înregistrarea și scrie fiecare cuvânt, cu secunda la care l-ai spus. Din timpii ăștia ies subtitrările. Știe româna și merge pe calculatorul tău, fără cont. Scrie-i lui Claude:
+
+<Prompt>Instalează Parakeet pentru HyperFrames, ca să-mi poți transcrie vocea în română. La final spune-mi dacă e gata.</Prompt>
+
+Descărcarea are cam 640 MB și se face o singură dată. Varianta din terminal: `npx hyperframes models install parakeet`.
+
+<DacaNuMerge>Dacă instalarea pică, poți merge mai departe fără Parakeet: HyperFrames folosește atunci Whisper, alt program de transcriere. Citește atenția de la pasul 9.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Îi ceri lui Claude scriptul">
+Un clip de 30 de secunde înseamnă cam 85 de cuvinte citite liniștit. Schimbă textul dintre paranteze drepte cu ideea ta.
+
+<Prompt>Vreau un clip vertical de 30 de secunde pentru TikTok și Instagram, despre [ideea ta, într-o frază]. Scrie-mi scriptul pe care îl citesc cu vocea mea: cam 85 de cuvinte, fraze scurte, prima frază să oprească scrollul, ultima să-i spună omului ce să facă (de exemplu, să mă urmărească). Scrie cum vorbesc, nu cum se scrie. Fă un subdosar pentru clip și salvează scriptul acolo, în script.md.</Prompt>
+</Pas>
+
+<Pas titlu="Citești scriptul cu voce tare">
+Citește-l o dată, cu voce tare, înainte să-l înregistrezi. Unde te poticnești sau unde nu sună ca tine, spune-i lui Claude ce să schimbe:
+
+<Prompt>A doua frază e prea lungă și „[cuvântul]” nu-l folosesc niciodată. Rescrie-le mai simplu.</Prompt>
+
+Numele englezești (Claude, HyperFrames) le citești cum le spui de obicei. Subtitrările le scriu oricum corect, din script.
+</Pas>
+
+<Pas titlu="Pui volumul microfonului la 50–60%">
+Un microfon dat prea tare taie vârfurile vocii: se aude un hârșâit pe silabele puternice și nu se mai repară după. Pe Windows: **Settings → System → Sound**, alege microfonul la **Input** și pune **Volume** la 50–60. Pe Mac: **System Settings → Sound → Input**, **Input volume** cam la jumătate.
+
+<GresealaMea>Prima mea înregistrare am făcut-o cu volumul de intrare la maxim. A ieșit cu mii de vârfuri tăiate, iar programele de curățat sunetul nu le-au mai putut repara. Am reînregistrat tot. Acum îl țin la 50–60%.</GresealaMea>
+</Pas>
+
+<Pas titlu="Înregistrezi vocea">
+Stai într-o cameră liniștită, cu telefonul pe silențios. Pe Windows deschide **Sound Recorder**, pe Mac **Voice Memos**. Citește scriptul de la cap la coadă, într-un singur fișier.
+
+Dacă greșești, reia toată fraza. Dacă iese prea rău, oprește și începe din nou: un fișier curat e mai ușor de lucrat decât unul cu reluări în el.
+</Pas>
+
+<Pas titlu="Pui înregistrarea în dosarul clipului">
+Copiază fișierul în subdosarul clipului, lângă `script.md`, și numește-l `voce.m4a` (sau păstrează-i extensia, dacă e alta).
+
+Sound Recorder salvează înregistrările în **Documents → Sound Recordings**. Din Voice Memos, trage înregistrarea direct în dosar.
+</Pas>
+
+<Pas titlu="Ceri transcrierea, cu scriptul alături">
+Transcrierea dă timpii cuvintelor, dar încurcă numele englezești: la mine, „Claude” a ieșit „clot cod”. De aceea Claude ia cuvintele din script și din transcriere doar timpii.
+
+<Prompt>Am pus vocea mea în voce.m4a. Transcrie-o în română, cu timpii fiecărui cuvânt. Pentru subtitrări folosește cuvintele exacte din script.md; din transcriere ia doar timpii. Spune-mi dacă am zis undeva altceva decât în script.</Prompt>
+
+Varianta din terminal, în subdosarul clipului: `npx hyperframes transcribe voce.m4a --json`.
+
+<Atentie>Fără Parakeet, transcrierea merge cu Whisper, iar modelul lui implicit e făcut pentru engleză: o voce în română o **traduce** în engleză. Dacă ai sărit pasul 3, spune-i lui Claude să folosească Whisper cu modelul `small` și limba `ro`.</Atentie>
+</Pas>
+
+<Pas titlu="Aprobi planul cadrelor">
+Înainte să construiască, Claude îți arată ce se vede pe ecran la fiecare frază. E mai ușor de schimbat un plan decât un clip făcut.
+
+<Prompt>Din script și timpi, fă-mi planul clipului: împarte-l în cadre, cam unul pe frază, și scrie pentru fiecare ce se vede pe ecran. Arată-mi planul înainte să construiești ceva.</Prompt>
+
+Citește-l și spune-i ce vrei altfel, cadru cu cadru. Când ți-e bine, treci la pasul următor.
+</Pas>
+
+<Pas titlu="Îi ceri lui Claude să construiască clipul">
+<Prompt>Planul e bun. Construiește clipul cu HyperFrames: vertical, 1080×1920, cu vocea mea din voce.m4a. Subtitrările apar cuvânt cu cuvânt, exact când le spun. Pune tranziții între cadre și sunete scurte pe tranziții. Ține textul departe de marginea de jos și de cea din dreapta, unde TikTok pune butoanele. Când e gata, deschide-mi previzualizarea.</Prompt>
+
+Durează mai mult decât intro-ul din ghidul cu animații, pentru că sunt mai multe cadre. La un clip cu multe cadre, Claude poate împărți munca la mai mulți agenți, adică alte instanțe Claude, care fac câte câteva cadre în paralel. Decide singur.
+
+<Atentie>Sunetele pe care le ia Claude fără cont vin de pe Openverse, cu licența CC BY: ai voie să le folosești, dar trebuie să scrii autorul în descrierea postării. Cere-i lui Claude lista autorilor înainte să postezi.</Atentie>
+</Pas>
+
+<Pas titlu="Ajustezi, o schimbare pe rând">
+Previzualizarea se deschide în browser, la o adresă de forma `http://localhost:3002`, doar pe calculatorul tău. Urmărește clipul de câteva ori, cu sonorul pornit. Apoi spune-i lui Claude exact ce vrei altfel, cu elementul și secunda:
+
+<Prompt>La secunda 12, subtitrarea vine înaintea cuvântului. Pune-o exact pe cuvânt și fă subtitrările cu o treime mai mari.</Prompt>
+
+Varianta din terminal, în subdosarul clipului: `npx hyperframes preview`.
+
+<Atentie>Mai multe schimbări într-un mesaj se amestecă și nu mai știi care a stricat ce. O schimbare, te uiți, apoi următoarea.</Atentie>
+</Pas>
+
+<Pas titlu="Randezi clipul în MP4">
+<Prompt>Randează clipul în MP4, cu numele clip.mp4.</Prompt>
+
+`clip.mp4` apare în subdosarul clipului. Trimite-ți-l pe telefon și uită-te la el pe ecranul mic: textul trebuie să se citească fără să apropii telefonul de ochi.
+
+Varianta din terminal: `npx hyperframes render --output clip.mp4`.
+</Pas>
+
+<Pas titlu="Ceri un Style Lab">
+Primul clip are stilul ales de Claude. Ca să aibă stilul tău, îi arăți ce-ți place. Style Lab e o pagină în care Claude îți pune variante una lângă alta, iar tu votezi.
+
+<Prompt>Fă-mi un Style Lab pentru clipurile mele: o pagină style-lab.html, în dosarul principal. Trei secțiuni: subtitrări, titluri și tranziții, câte 4 variante diferite în fiecare. Fiecare variantă rulează în buclă, pe un ecran de telefon 9:16, cu o frază din scriptul clipului. Sub fiecare variantă pune trei butoane: Păstrez, Poate și Nu, plus un loc pentru o notă. Jos, un buton care copiază toate voturile ca text. Deschide-mi pagina în browser.</Prompt>
+</Pas>
+
+<Pas titlu="Votezi variantele">
+Uită-te la fiecare variantă și apasă **Păstrez**, **Poate** sau **Nu**. Unde ceva e aproape, scrie în notă ce ai schimba („mai mare”, „fără umbră”). La final apasă butonul de copiere și lipește voturile în conversație:
+
+<Prompt>Uite voturile mele: [lipește aici]. Fă o rundă nouă: păstrează ce am ales, încearcă alte versiuni pentru ce e la Poate și renunță la ce e la Nu.</Prompt>
+
+Repetă până ți-e bine. Eu am avut nevoie de cinci runde.
+</Pas>
+
+<Pas titlu="Salvezi stilul ales">
+<Prompt>Scrie stilul ales în STYLE.md, în dosarul principal: pentru subtitrări, titluri, tranziții, culori și fonturi, exact ce am ales, cu valorile din cod (mărimi, culori, durate, efecte), ca să-l poți refolosi identic la orice clip.</Prompt>
+
+Citește fișierul. Dacă ceva nu e cum ai votat, spune-i lui Claude.
+</Pas>
+
+<Pas titlu="Legi stilul de toate clipurile">
+CLAUDE.md e un fișier pe care Claude Code îl citește singur la începutul fiecărei conversații din dosar. Dacă scrie acolo să folosească STYLE.md, nu mai trebuie să-i amintești.
+
+<Prompt>Adaugă în CLAUDE.md, în dosarul principal, regula: înainte de orice clip nou, citește STYLE.md și folosește stilul de acolo. Dacă fișierul nu există, fă-l.</Prompt>
+</Pas>
+
+<Pas titlu="Refaci clipul în stilul tău">
+<Prompt>Refă primul clip în stilul din STYLE.md și randează-l ca clip-v2.mp4.</Prompt>
+
+Pune cele două variante una lângă alta, pe telefon. De acum, orice clip nou pornește de la pasul 4, deja în stilul tău.
+</Pas>
