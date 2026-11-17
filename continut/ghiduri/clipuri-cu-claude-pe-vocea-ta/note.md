@@ -33,3 +33,8 @@ Sursa: clipul lui Andrei „Claude face clipuri” (2026-11-16), făcut în stud
 - Cât din limita Pro consumă un clip de 30 s cu ~9 cadre (depinde de clip).
 - Construcția cap-coadă a unui clip pe 0.9.63 (n-am construit cadre: ar consuma mult).
 - Numele exacte din Windows pentru volumul microfonului sunt din Windows 11 în engleză (Settings → System → Sound → Input); pe un Windows în română: Setări → Sistem → Sunet → Intrare.
+
+## PDF
+- Link-ul pentru Instagram: https://buildwithac.ro/pdf/clipuri-cu-claude-pe-vocea-ta-24ebba8ef187.pdf (copie în `PDF ghiduri/clipuri-cu-claude-pe-vocea-ta.pdf`), făcut pe 2026-11-17.
+- Captura Style Lab (pasul 14) nu e pusă: pagina locală ia rundele din contul Claude al lui Andrei, iar extensia Chrome era deconectată. Se poate adăuga ca `<CeVezi>` mai târziu.
+- Lipsește `clip:` (link-ul TikTok), Andrei încă nu l-a dat.
