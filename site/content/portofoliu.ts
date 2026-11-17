@@ -8,11 +8,12 @@ export type ElementPortofoliu = {
   link?: string;
 };
 
-// provizoriu: pozele sunt de pe Unsplash; capturile reale le trimite Andrei
+// automatizările: capturi reale din n8n-ul lui Andrei; ImobSearch și conceptele: poze Unsplash
 export const PORTOFOLIU: ElementPortofoliu[] = [
   { titlu: "ImobSearch", imagine: "/portofoliu/imobsearch.webp", tip: "proiect", descriere: "Agregator imobiliar: anunțurile de pe mai multe site-uri, într-un singur loc, cu alerte." },
-  { titlu: "Răspunsuri automate la clienți", imagine: "/portofoliu/raspunsuri.webp", tip: "automatizare", descriere: "E-mailurile primite sunt sortate și primesc un răspuns-ciornă în 30 de secunde." },
-  { titlu: "Facturi din e-mail în tabel", imagine: "/portofoliu/facturi.webp", tip: "automatizare", descriere: "Facturile din atașamente ajung singure într-un tabel, cu sumă și dată." },
+  { titlu: "Lead-uri pentru o agenție imobiliară", imagine: "/portofoliu/imobiliare-leaduri.webp", tip: "automatizare", descriere: "Fiecare cerere primește un scor de la AI. Agentul află pe Telegram, iar clientul primește pe e-mail 3 proprietăți potrivite, apoi follow-up până răspunde." },
+  { titlu: "Pacienții care n-au venit", imagine: "/portofoliu/clinica-noshow.webp", tip: "automatizare", descriere: "Seara, clinica vede cine a lipsit de la programare. Pacientul primește un SMS să se reprogrameze, iar clinica primește raportul zilei pe Telegram." },
+  { titlu: "Carusele de Instagram, din știri", imagine: "/portofoliu/instagram-carusele.webp", tip: "automatizare", descriere: "Citește dimineața noutățile din AI, alege subiectul și scrie caruselul în română. Slide-urile ajung în Drive, iar previzualizarea pe Telegram." },
   { titlu: "Clinică stomatologică", imagine: "/portofoliu/cabinet.webp", tip: "concept", descriere: "Prima vizită explicată pas cu pas, tarife și programare.", link: "/concepte/clinica" },
   { titlu: "Frizerie", imagine: "/portofoliu/frizerie.webp", tip: "concept", descriere: "Prețuri la vedere și programare direct din pagină.", link: "/concepte/frizerie" },
   { titlu: "Salon de tatuaje", imagine: "/portofoliu/tatuaje.webp", tip: "concept", descriere: "Lucrările expuse ca tablouri, iar ideea se trimite din site.", link: "/concepte/tatuaje" },
