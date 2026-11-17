@@ -56,16 +56,13 @@ test.describe("pentru cine și clipuri", () => {
     await expect(cine.locator(".path .eb")).toHaveText(["Înveți AI", "Ai o firmă"]);
   });
 
-  test("clipurile duc pe TikTok, fără playere încorporate", async ({ page }) => {
-    const { CLIPURI } = await import("../../content/clipuri");
+  test("peretele are doar coperte, fără link-uri și fără playere; butonul duce la profil", async ({ page }) => {
     await page.goto("/");
-    const linkuri = page.locator("#tiktok .clip");
-    expect(await linkuri.count()).toBeGreaterThan(0);
-    const adrese = new Set(CLIPURI.map((c) => c.url));
-    for (const a of await linkuri.all()) {
-      expect(adrese.has((await a.getAttribute("href"))!)).toBe(true);
-      await expect(a).toHaveAttribute("target", "_blank");
-    }
+    const perete = page.locator("#tiktok");
+    expect(await perete.locator(".clip img").count()).toBeGreaterThan(0);
+    await expect(perete.locator(".clip a, a.clip")).toHaveCount(0);
+    await expect(perete.locator("a")).toHaveCount(1);
+    await expect(perete.locator("a")).toHaveAttribute("target", "_blank");
     await expect(page.locator("iframe")).toHaveCount(0);
   });
 });
