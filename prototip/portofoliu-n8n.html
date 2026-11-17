@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portofoliu · automatizările din n8n</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Inter:wght@400;600;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0b0908; --cream:#f6efe3; --muted:#a99d92; --grad:linear-gradient(90deg,#ffb52e,#f26a21 45%,#e53222); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #2b2724; color: var(--cream); font-family: Inter, sans-serif; }
+  .bara { position: sticky; top: 0; z-index: 5; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 12px; background: #151110; border-bottom: 1px solid #3a302a; }
+  .bara button { font: 600 13px Inter; padding: 9px 14px; border-radius: 999px; border: 1px solid #5a4a40; background: transparent; color: var(--cream); cursor: pointer; }
+  .bara button.on { background: var(--grad); border-color: transparent; color: #fff; }
+  .nota { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 16px 0; max-width: 760px; margin: 0 auto; }
+  .scena { display: flex; gap: 40px; justify-content: center; align-items: flex-start; padding: 24px 16px 80px; flex-wrap: wrap; }
+  .tel { width: 390px; background: var(--ink); border-radius: 28px; padding: 60px 20px 70px; overflow: hidden; box-shadow: 0 0 0 8px #000; }
+  .eticheta { color: var(--muted); font-size: 12px; text-align: center; margin-bottom: 8px; }
+  .eb { color: #f26a21; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; }
+  h2 { font-family: Unbounded; font-weight: 800; font-size: 30px; letter-spacing: -.04em; line-height: 1.05; margin: 10px 0 0; }
+  .gtxt { font-family: 'Instrument Serif'; font-style: italic; font-weight: 400; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .pa { display: grid; gap: 42px; margin-top: 40px; }
+  .it { position: relative; background: var(--cream); color: #1b0f0a; padding: 12px 12px 18px; box-shadow: 0 30px 60px rgba(0,0,0,.55); }
+  .it:nth-child(odd) { transform: rotate(-1.6deg); }
+  .it:nth-child(even) { transform: rotate(1.4deg) translateY(18px); }
+  .tp { position: absolute; top: -12px; left: 50%; width: 90px; height: 24px; margin-left: -45px; background: rgba(255,226,170,.85); transform: rotate(-3deg); z-index: 1; }
+  .im { position: relative; height: 200px; overflow: hidden; background: #1b1716; }
+  .im img.cv { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .im img.cv.ingust { object-fit: contain; }
+  .ctag { position: absolute; left: 10px; top: 10px; z-index: 2; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: #2a120c; color: #ff9a5c; }
+  .gol { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #8a7d72; font-size: 13px; padding: 20px; border: 2px dashed #3a302a; margin: 8px; }
+  h3 { font-family: Unbounded; font-weight: 600; font-size: 18px; margin: 14px 4px 6px; letter-spacing: -.02em; }
+  .it p { font-size: 13px; color: #6b5a4d; margin: 0 4px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="bara" role="tablist">
+  <span style="align-self:center;color:#a99d92;font-size:13px">Content Pipeline:</span>
+  <button data-v="continut-mijloc" class="on">1 · mijlocul (etapele AI)</button>
+  <button data-v="continut-final">2 · finalul (Drive, Telegram)</button>
+  <button data-v="continut-tot">3 · tot, îngust</button>
+</div>
+<p class="nota">Varianta A (tot fluxul), cu capturile tale. Imobiliare și No-show sunt întregi; Content Pipeline e prea lat, alege ce parte intră.</p>
+<div class="scena">
+  <div>
+    <div class="eticheta">telefon · 390px</div>
+    <div class="tel">
+      <div class="eb">Portofoliu</div>
+      <h2>Ce am construit <span class="gtxt">cu AI.</span></h2>
+      <div class="pa">
+        <article class="it"><span class="tp"></span>
+          <div class="im"><img class="cv" src="portofoliu-n8n/imobiliare.webp" alt=""><span class="ctag">Automatizare n8n</span></div>
+          <h3>Lead-uri pentru o agenție imobiliară</h3>
+          <p>Fiecare cerere primește un scor de la AI. Agentul află pe Telegram, iar clientul primește pe e-mail 3 proprietăți potrivite, apoi follow-up până răspunde.</p>
+        </article>
+        <article class="it"><span class="tp"></span>
+          <div class="im"><img class="cv" src="portofoliu-n8n/noshow.webp" alt=""><span class="ctag">Automatizare n8n</span></div>
+          <h3>Pacienții care n-au venit</h3>
+          <p>Seara, clinica vede cine a lipsit de la programare. Pacientul primește un SMS să se reprogrameze, iar clinica primește raportul zilei pe Telegram.</p>
+        </article>
+        <article class="it"><span class="tp"></span>
+          <div class="im"><img class="cv" id="cont" src="portofoliu-n8n/continut-mijloc.webp" alt=""><span class="ctag">Automatizare n8n</span></div>
+          <h3>Carusele de Instagram, din știri</h3>
+          <p>Citește dimineața noutățile din AI, alege subiectul și scrie caruselul în română. Slide-urile ajung în Drive, iar previzualizarea pe Telegram.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const img = document.getElementById('cont');
+  function aplica(v) {
+    img.src = 'portofoliu-n8n/' + v + '.webp';
+    img.classList.toggle('ingust', v === 'continut-tot');
+    document.querySelectorAll('.bara button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  }
+  document.querySelectorAll('.bara button').forEach(b => b.onclick = () => aplica(b.dataset.v));
+</script>
+</body>
+</html>
