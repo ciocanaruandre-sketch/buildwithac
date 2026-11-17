@@ -6,6 +6,7 @@
 export const COPERTE: string[] = [
   "/clipuri/site-uri-fara-aer-de-ai.webp",
   "/clipuri/animatii-opus.webp",
+  "/clipuri/claude-face-clipuri.webp",
   "/clipuri/github-trending.webp",
   "/clipuri/cv-uri.webp",
   "/clipuri/claude-duet.webp",

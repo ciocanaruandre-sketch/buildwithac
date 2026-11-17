@@ -37,4 +37,4 @@ Sursa: clipul lui Andrei „Claude face clipuri” (2026-11-16), făcut în stud
 ## PDF
 - Link-ul pentru Instagram: https://buildwithac.ro/pdf/clipuri-cu-claude-pe-vocea-ta-24ebba8ef187.pdf (copie în `PDF ghiduri/clipuri-cu-claude-pe-vocea-ta.pdf`), făcut pe 2026-11-17.
 - Captura Style Lab (pasul 14) nu e pusă: pagina locală ia rundele din contul Claude al lui Andrei, iar extensia Chrome era deconectată. Se poate adăuga ca `<CeVezi>` mai târziu.
-- Lipsește `clip:` (link-ul TikTok), Andrei încă nu l-a dat.
+- Link-ul TikTok (`clip:`): https://www.tiktok.com/@buildwithac.ai/video/7708806387182144790 (2026-11-17). Coperta de pe peretele de clipuri: cadrul de la 2,5 s, decupat 3:4.
