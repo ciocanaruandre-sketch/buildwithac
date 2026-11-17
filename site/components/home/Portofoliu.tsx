@@ -9,7 +9,7 @@ const ETICHETE: Record<ElementPortofoliu["tip"], string> = {
 };
 
 // varianta A · colaj (aleasă de Andrei): foi crem cu bandă adezivă, primul proiect pe toată lățimea;
-// pe desktop, un rând pe tip: automatizările câte două, conceptele câte trei
+// pe desktop, un rând pe tip: automatizările și conceptele câte trei
 export function Portofoliu() {
   return (
     <section className="port bgs" id="portofoliu">
