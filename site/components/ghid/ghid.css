@@ -62,8 +62,11 @@
 /* bara de progres lipită sus */
 .sbar { position: fixed; top: 70px; left: 50%; z-index: 58; display: flex; align-items: center; gap: 12px; padding: 9px 14px 9px 16px; border-radius: 999px; background: rgba(20,15,12,.9); backdrop-filter: blur(14px); border: 1px solid rgba(242,106,33,.4); font-size: 13px; font-weight: 600; transform: translate(-50%, -20px); opacity: 0; pointer-events: none; transition: all .35s; white-space: nowrap; }
 .sbar.on { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
-.sbar .segs { display: flex; gap: 4px; }
-.sbar .segs a { width: 22px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.15); transition: background .3s; }
+/* pe telefon, cu mulți pași, bara se strânge în ecran: segmentele se subțiază, textul rămâne întreg */
+.sbar { width: max-content; max-width: calc(100vw - 24px); }
+.sbar > span { flex: none; }
+.sbar .segs { display: flex; gap: 4px; flex: 0 1 auto; min-width: 0; }
+.sbar .segs a { flex: 0 1 22px; min-width: 4px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.15); transition: background .3s; }
 .sbar .segs a.d { background: var(--grad); }
 
 /* textul ghidului */
