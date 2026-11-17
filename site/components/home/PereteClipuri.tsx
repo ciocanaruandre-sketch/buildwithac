@@ -5,16 +5,13 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { CLIPURI } from "@/content/clipuri";
+import { COPERTE } from "@/content/clipuri";
 import { SITE } from "@/lib/config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const Titlu = ({ text }: { text: string }) =>
-  text.split("*").map((bucata, i) => (i % 2 ? <em key={i}>{bucata}</em> : bucata));
-
-// 5 coloane × 4 clipuri, luate pe rând din listă
-const COLOANE = [0, 1, 2, 3, 4].map((c) => [0, 1, 2, 3].map((k) => CLIPURI[(c * 2 + k) % CLIPURI.length]));
+// 5 coloane × 6 coperte (3:4, mai scurte ca 9:16), luate pe rând din listă; coloanele vecine sunt decalate cu 2
+const COLOANE = [0, 1, 2, 3, 4].map((c) => [0, 1, 2, 3, 4, 5].map((k) => COPERTE[(c * 2 + k) % COPERTE.length]));
 
 export function PereteClipuri() {
   const radacina = useRef<HTMLElement>(null);
@@ -30,11 +27,10 @@ export function PereteClipuri() {
       <div className="tilt">
         {COLOANE.map((col, c) => (
           <div className="wcol" key={c}>
-            {col.map((clip, k) => (
-              <a key={k} className="clip" href={clip.url} target="_blank" rel="noopener" tabIndex={-1} aria-hidden>
-                <Image src={clip.coperta} alt="" fill sizes="(max-width: 700px) 170px, 260px" />
-                <span><Titlu text={clip.titlu} /></span>
-              </a>
+            {col.map((coperta, k) => (
+              <div key={k} className="clip" aria-hidden>
+                <Image src={coperta} alt="" fill sizes="(max-width: 700px) 170px, 260px" />
+              </div>
             ))}
           </div>
         ))}
