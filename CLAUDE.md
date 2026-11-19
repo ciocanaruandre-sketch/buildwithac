@@ -68,6 +68,13 @@ Subiectul și ideea, da. Textul și designul, cuvânt cu cuvânt, nu.
 ## Portofoliul
 Doar munca lui Andrei. Site-urile-concept sunt marcate clar „Concept”.
 
+## Lucrul pentru clienți
+- Toate serviciile pentru clienți se lucrează de aici. Regulile fiecărui serviciu stau în `servicii/<serviciu>/` (gata: `site-uri/`; urmează automatizările și sesiunile).
+- Fiecare client are `clienti/<slug>/`: `fisa.md` și `jurnal.md` intră în git; `materiale/` și `site/cod/` **nu** (`.gitignore`).
+- Codul fiecărui site e un depozit separat (`site-<slug>`, privat), pornit din `servicii/site-uri/sablon/` cu `porneste.mjs`. Clientul nu vede niciodată codul buildwithac.
+- Datele personale ale clienților (persoana de contact, e-mailul ei) stau doar în CRM și în `materiale/`; în fișă intră doar ce se publică.
+- Skill-urile: `client-nou` (mereu primul) → `site-client`, iar la „doar site-ul”, `predare-site`.
+
 ## Codul
 - Aplicația e în `site/` (Next.js 16, App Router, TypeScript, Tailwind, GSAP + Lenis). **Înainte de cod Next.js, citește `site/AGENTS.md`**: versiunea are API-uri noi.
 - Domeniul, e-mailurile, link-urile sociale și operatorul de date stau **doar** în `site/lib/config.ts`.
@@ -103,3 +110,6 @@ Doar munca lui Andrei. Site-urile-concept sunt marcate clar „Concept”.
 | Montajul imaginii hero | `prototip/montaj/` (`compose.py`; pașii în `docs/progres-brainstorming.md`) |
 | Logo-ul | `C:\Instagram Content Pipeline\buildwithacai\brand\logo-transparent.png` |
 | Planurile și specificația | `docs/superpowers/` |
+| Serviciile pentru clienți (regulile, pașii) | `servicii/` |
+| Șablonul site-urilor pentru clienți | `servicii/site-uri/sablon/` |
+| Clienții (fișa, jurnalul; codul site-ului e git separat) | `clienti/` |
