@@ -66,10 +66,13 @@ export function porneste({ radacina, slug, nume, domeniu }) {
   for (const f of CU_MARCAJE) {
     const cale = join(dest, f);
     if (!existsSync(cale)) continue;
+    // în cod, numele intră ca șir JSON (ghilimelele din „Salon "Bella"” nu strică fișierul);
+    // funcțiile de înlocuire opresc interpretarea lui „$&” și a celorlalte tipare cu $
     const text = readFileSync(cale, "utf8")
-      .replaceAll("__NUME_FIRMA__", nume.trim())
-      .replaceAll("__SLUG__", slug)
-      .replaceAll("__DOMENIU__", domeniu);
+      .replaceAll('"__NUME_FIRMA__"', () => JSON.stringify(nume.trim()))
+      .replaceAll("__NUME_FIRMA__", () => nume.trim())
+      .replaceAll("__SLUG__", () => slug)
+      .replaceAll("__DOMENIU__", () => domeniu);
     writeFileSync(cale, text);
   }
 

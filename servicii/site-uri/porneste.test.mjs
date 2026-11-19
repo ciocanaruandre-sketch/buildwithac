@@ -67,6 +67,15 @@ test("slug greșit nu creează nimic", () => {
   assert.equal(existsSync(join(radacina, "clienti")), false);
 });
 
+test("numele cu ghilimele și $ rămâne cod valid", () => {
+  const radacina = radacinaDeTest();
+  const nume = 'Bistro "La $& Ana"';
+  const dest = porneste({ radacina, slug: "bistro-la-ana", nume });
+  const config = readFileSync(join(dest, "lib", "config.ts"), "utf8");
+  assert.ok(config.includes(`nume: ${JSON.stringify(nume)}`), config);
+  assert.match(readFileSync(join(dest, "CLAUDE.md"), "utf8"), /Bistro "La \$& Ana"/);
+});
+
 test("domeniul dat", () => {
   const radacina = radacinaDeTest();
   const dest = porneste({ radacina, slug: "cafeneaua-colt", nume: "Cafeneaua Colț", domeniu: "colt.ro" });
