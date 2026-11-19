@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "e2e": "playwright test",
-    "verifica": "tsc --noEmit -p . && eslint && vitest run && playwright test"
+    "verifica": "next typegen && tsc --noEmit -p . && eslint && vitest run && playwright test"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
