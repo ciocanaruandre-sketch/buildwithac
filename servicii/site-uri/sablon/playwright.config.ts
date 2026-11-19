@@ -5,5 +5,6 @@ export default defineConfig({
   reporter: [["list"]],
   use: { baseURL: "http://localhost:3300" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: { command: "npm run dev", port: 3300, reuseExistingServer: false, timeout: 120_000 },
+  // cu `npm run dev` deja pornit pe 3300, testele îl folosesc pe acela
+  webServer: { command: "npm run dev", port: 3300, reuseExistingServer: !process.env.CI, timeout: 120_000 },
 });
