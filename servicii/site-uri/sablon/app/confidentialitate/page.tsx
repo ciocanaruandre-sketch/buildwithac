@@ -4,7 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FIRMA } from "@/lib/config";
 
-export const metadata: Metadata = { title: `Confidențialitate · ${FIRMA.nume}` };
+export const metadata: Metadata = {
+  title: `Confidențialitate · ${FIRMA.nume}`,
+  alternates: { canonical: "/confidentialitate" },
+};
 
 export default function Confidentialitate() {
   return (

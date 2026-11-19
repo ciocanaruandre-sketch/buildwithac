@@ -22,7 +22,7 @@ Nu există `clienti/<slug>/fisa.md`? Oprește-te și pornește `client-nou`.
 5. **Depozitul și proiectul Vercel**, după `servicii/site-uri/lansare.md`, părțile A–C: pașii lui Andrei, unul câte unul, cu numele exacte ale butoanelor. Vercel trebuie să fie pe **Pro**.
 6. **Shareable Link** pentru client (lansare, partea C). Clientul alege varianta.
 7. Varianta aleasă intră în `main`; ramura `variante` se șterge (local și pe GitHub).
-8. **Construirea.** Tot conținutul (texte, prețuri, program, poze) **doar** în `lib/continut.ts`. Pozele: ale clientului sau Unsplash, cu sursa în `clienti/<slug>/jurnal.md`.
+8. **Construirea.** Tot conținutul (texte, prețuri, program, poze) **doar** în `lib/continut.ts`. Pozele: ale clientului sau Unsplash, cu sursa în `clienti/<slug>/jurnal.md`. Înlocuiește și cele două imagini provizorii din șablon: `public/og.jpg` (1200×630, ce apare când cineva trimite link-ul pe WhatsApp sau Facebook) și `app/icon.png` (iconița din fila browserului), din logo-ul și pozele firmei.
 9. `npm run verifica` trece în `cod/`.
 10. Push → previzualizarea → link-ul pentru client → corecturile (înapoi la 8).
 11. **Lansarea**, după `lansare.md`, părțile D–F.

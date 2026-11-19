@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Apare } from "@/components/Apare";
 import { ButoaneContact } from "@/components/ButoaneContact";
 import { FIRMA } from "@/lib/config";
 import { CONTINUT } from "@/lib/continut";
+
+// aceeași pagină se vede și pe …vercel.app / …netlify.app: Google o ține pe domeniul firmei
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /** Pagina de exemplu: arată doar că totul e legat. Aspectul fiecărui client vine din varianta aleasă. */
 export default function Acasa() {

@@ -20,7 +20,7 @@ Totul în **română, cu diacritice cu virgulă** (ș, ț), niciodată cu sedil�
 - Totul se proiectează **întâi la ~390px** (telefonul), apoi pentru ecrane mari. Testele verifică 360 și 390.
 - **Fără recenzii, cifre sau rezultate inventate.** Doar ce a dat firma.
 - Pozele: ale firmei sau gratuite (Unsplash), cu sursa notată. Fiecare poză are `alt`.
-- Indexarea în Google: doar producția (`lib/indexare.ts`). Pe Vercel și Netlify merge singură; pe altă găzduire, variabila `INDEXARE=da`.
+- Indexarea în Google: doar producția, pe domeniul firmei (`lib/indexare.ts`). Pe Vercel merge după ce domeniul e adăugat și site-ul publicat încă o dată; pe Netlify merge singură; pe altă găzduire, variabila `INDEXARE=da`, pusă înainte de build (robots.txt se face la build).
 - Fără bannere de cookie-uri cât site-ul nu pune cookie-uri. Dacă apare un formular, pagina de confidențialitate se reface.
 - Animațiile la scroll: GSAP, cu tiparul din `components/Apare.tsx`; scroll-ul lin: Lenis (`components/Lenis.tsx`). Amândouă se opresc la „mai puțină mișcare”.
 

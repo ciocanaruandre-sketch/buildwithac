@@ -11,6 +11,10 @@ for (const latime of [360, 390]) {
       expect(raspuns?.status()).toBe(200);
       await page.waitForLoadState("networkidle");
 
+      // adresa canonică: aceeași pagină, pe domeniul firmei (nu pe …vercel.app)
+      const canonica = await page.locator('link[rel="canonical"]').getAttribute("href");
+      expect(new URL(canonica!).pathname).toBe(cale);
+
       const depasire = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(depasire, "pagina iese din ecran").toBeLessThanOrEqual(0);
 
