@@ -22,3 +22,7 @@ prototip/montaj/rb/
 
 # Copiile PDF ale ghidurilor, pentru Andrei (originalele sunt în site/public/pdf/)
 /PDF ghiduri/
+
+# clienții: codul fiecărui site are git-ul lui; materialele nu intră în git
+clienti/*/materiale/
+clienti/*/site/cod/

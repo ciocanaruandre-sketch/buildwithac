@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* Culorile și fontul de exemplu. Fiecare client primește ale lui, din varianta aleasă. */
+@theme inline {
+  --color-fundal: #f7f5f2;
+  --color-text: #1c1b19;
+  --color-secundar: #6b665f;
+  --color-accent: #2f5d50;
+
+  --font-inter: var(--nf-inter);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-fundal);
+  color: var(--color-text);
+  font-family: var(--font-inter);
+}
