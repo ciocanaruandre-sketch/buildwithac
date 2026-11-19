@@ -1,0 +1,13 @@
+# dependențe și build
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+# teste
+test-results/
+playwright-report/
+# mediu
+.env
+.env*.local
+.vercel

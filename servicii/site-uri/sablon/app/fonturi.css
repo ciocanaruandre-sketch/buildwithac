@@ -1,0 +1,33 @@
+/* Fonturile stau pe site (public/fonts/), nu se cer de la Google la build:
+   next/font/google a picat o dată pe build-ul de producție Vercel. Nu-l folosi.
+
+   Alt font, pe scurt:
+   1. Pe fonts.google.com alegi fontul și grosimile.
+   2. Deschizi în browser link-ul CSS (fonts.googleapis.com/css2?family=…) și iei fișierele .woff2
+      doar pentru „latin” și „latin-ext” (latin-ext are ș și ț).
+   3. Le pui în public/fonts/ și copiezi aici blocurile @font-face, cu unicode-range-ul lor.
+   4. Adaugi variabila în :root și fontul în @theme din globals.css.
+   Inter: Google Fonts, licența SIL Open Font License. */
+
+:root {
+  --nf-inter: "Inter", system-ui, sans-serif;
+}
+
+/* Inter, latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(/fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* Inter, latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(/fonts/inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
