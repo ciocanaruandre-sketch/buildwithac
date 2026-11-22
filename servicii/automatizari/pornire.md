@@ -26,7 +26,7 @@ Când intri prima dată, n8n îți arată un asistent: „What do you want to au
 
 ## Treci pe planul Starter
 
-Proba gratuită ține 14 zile și nu are tot ce ne trebuie: lipsește accesul prin care lucrează Claude, unealta mea. De aceea treci pe **Starter** de la început.
+Proba gratuită ține 14 zile, iar după aceea n8n șterge contul cu tot ce e în el. Îi lipsește și accesul API, de care am nevoie ca să lucrez. De aceea treci pe **Starter** de la început.
 
 | Plata | Cât costă | Ce primești |
 |---|---|---|
@@ -71,6 +71,8 @@ Pentru fiecare cont:
 2. Apeși butonul de conectare și intri în contul firmei, cum intri de obicei.
 3. Aprobi ce cere automatizarea și nimic în plus.
 4. Îmi dai acces la conexiune, ca s-o pot folosi în automatizare.
+
+Unele aplicații nu au buton de conectare, ci o cheie (de exemplu Twilio, pentru SMS, sau un bot Telegram). Pe aceea o copiezi din contul aplicației direct în n8n, cât mă uit eu. Nu mi-o trimiți pe chat sau pe e-mail.
 
 <!-- de confirmat la primul client: numele exacte (Create credential / Sign in with Google / tab-ul de partajare) și dacă patronul poate partaja o conexiune cu un Member pe Starter. Lista conturilor se adaptează la fiecare client. -->
 
