@@ -8,12 +8,17 @@ clienti/<slug>/
   jurnal.md      ← decizii, livrări, modificări cerute, cu data, cel mai nou sus
   materiale/     ← pozele, logo-ul, textele primite, exportul Tally
   site/cod/      ← depozitul site-ului, cu git-ul lui
+  automatizari/
+    propunere.md, pornire.md, folosire.md  ← sursele celor trei PDF-uri
+    fluxuri/     ← exporturile JSON ale fluxurilor
+    pdf/         ← PDF-urile generate
+    .chei.env    ← cheia API și tokenul MCP ale lui Andrei pentru n8n-ul clientului
 ```
 
 ## Ce intră în git
 
 - **Intră:** `fisa.md` și `jurnal.md`. Depozitul buildwithac e privat.
-- **Nu intră:** `materiale/` și `site/cod/` (regula e în `.gitignore`). Codul site-ului are depozitul lui separat pe GitHub, `site-<slug>`, ca clientul să nu vadă niciodată codul buildwithac sau al altui client.
+- **Nu intră:** `materiale/`, `site/cod/`, iar la automatizări `fluxuri/`, `pdf/` și `.chei.env` (regulile sunt în `.gitignore`). Un export de flux poate avea adresele sau ID-urile de tabele ale clientului; copia lui de rezervă e chiar n8n-ul clientului, plus Drive. Codul site-ului are depozitul lui separat pe GitHub, `site-<slug>`, ca clientul să nu vadă niciodată codul buildwithac sau al altui client.
 
 ## Unde e linia la datele personale
 
@@ -21,7 +26,7 @@ Ce va fi **public pe site** (telefonul firmei, WhatsApp-ul, adresa, programul), 
 
 ## Copia de rezervă
 
-Pozele și logo-ul folosite pe site ajung în depozitul site-ului, deci au copie pe GitHub. Restul din `materiale/` (fișierele brute, exportul Tally) stă doar pe laptop: pune o copie în Drive, în `buildwithac.ai/clienti/<slug>/`, cum faci cu clipurile.
+Pozele și logo-ul folosite pe site ajung în depozitul site-ului, deci au copie pe GitHub. Restul din `materiale/` (fișierele brute, exportul Tally) stă doar pe laptop: pune o copie în Drive, în `buildwithac.ai/clienti/<slug>/`, cum faci cu clipurile. Excepție: ce are date despre clienții firmei (exemple de comenzi, de programări, liste de pacienți) rămâne doar pe laptop.
 
 ## Legătura cu CRM-ul
 

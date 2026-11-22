@@ -1,0 +1,14 @@
+{
+  "name": "buildwithac-pdf-clienti",
+  "private": true,
+  "type": "module",
+  "description": "Generatorul local de PDF-uri pentru clienții de automatizări (propunere, pornire, folosire). PDF-urile nu ajung niciodată pe site.",
+  "scripts": {
+    "test": "node --test",
+    "pdf": "node tipareste.mjs"
+  },
+  "dependencies": {
+    "marked": "^18.2.1",
+    "playwright": "1.64.1"
+  }
+}

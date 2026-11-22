@@ -26,3 +26,14 @@ prototip/montaj/rb/
 # clienții: codul fiecărui site are git-ul lui; materialele nu intră în git
 clienti/*/materiale/
 clienti/*/site/cod/
+
+# automatizările: exporturile, PDF-urile și cheile clienților nu intră în git
+# listă albă: orice altceva (chei, exporturi, .txt de la Notepad) rămâne afară
+clienti/*/automatizari/*
+!clienti/*/automatizari/propunere.md
+!clienti/*/automatizari/pornire.md
+!clienti/*/automatizari/folosire.md
+!clienti/*/automatizari/claude/
+/.mcp.json
+servicii/automatizari/pdf/node_modules/
+servicii/automatizari/pdf/exemple/*.pdf

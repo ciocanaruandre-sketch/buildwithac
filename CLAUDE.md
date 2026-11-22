@@ -69,11 +69,12 @@ Subiectul și ideea, da. Textul și designul, cuvânt cu cuvânt, nu.
 Doar munca lui Andrei. Site-urile-concept sunt marcate clar „Concept”.
 
 ## Lucrul pentru clienți
-- Toate serviciile pentru clienți se lucrează de aici. Regulile fiecărui serviciu stau în `servicii/<serviciu>/` (gata: `site-uri/`; urmează automatizările și sesiunile).
+- Toate serviciile pentru clienți se lucrează de aici. Regulile fiecărui serviciu stau în `servicii/<serviciu>/` (gata: `site-uri/`, `automatizari/`; urmează sesiunile).
 - Fiecare client are `clienti/<slug>/`: `fisa.md` și `jurnal.md` intră în git; `materiale/` și `site/cod/` **nu** (`.gitignore`).
 - Codul fiecărui site e un depozit separat (`site-<slug>`, privat), pornit din `servicii/site-uri/sablon/` cu `porneste.mjs`. Clientul nu vede niciodată codul buildwithac.
 - Datele personale ale clienților (persoana de contact, e-mailul ei) stau doar în CRM și în `materiale/`; în fișă intră doar ce se publică.
-- Skill-urile: `client-nou` (mereu primul) → `site-client`, iar la „doar site-ul”, `predare-site`.
+- Automatizările rulează în contul n8n Cloud al clientului; Andrei intră ca Member. `node servicii/automatizari/client-activ.mjs <slug>` leagă `n8n-mcp` de **un singur** client (`.mcp.json`); înainte de orice scriere în n8n, verifică că serverul încărcat e `n8n-<slug>`. `.mcp.json`, `.chei.env`, `fluxuri/` și PDF-urile clienților **nu** intră în git.
+- Skill-urile: `client-nou` (mereu primul) → `site-client` (la „doar site-ul”, `predare-site`) sau `automatizare-client` (la „doar automatizarea”, `predare-automatizare`).
 
 ## Codul
 - Aplicația e în `site/` (Next.js 16, App Router, TypeScript, Tailwind, GSAP + Lenis). **Înainte de cod Next.js, citește `site/AGENTS.md`**: versiunea are API-uri noi.
@@ -112,4 +113,5 @@ Doar munca lui Andrei. Site-urile-concept sunt marcate clar „Concept”.
 | Planurile și specificația | `docs/superpowers/` |
 | Serviciile pentru clienți (regulile, pașii) | `servicii/` |
 | Șablonul site-urilor pentru clienți | `servicii/site-uri/sablon/` |
+| Automatizările: regulile, modelele de fluxuri, generatorul de PDF-uri, `client-activ.mjs` | `servicii/automatizari/` |
 | Clienții (fișa, jurnalul; codul site-ului e git separat) | `clienti/` |

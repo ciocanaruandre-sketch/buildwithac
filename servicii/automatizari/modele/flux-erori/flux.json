@@ -1,0 +1,90 @@
+{
+  "name": "Alertă: o automatizare a picat",
+  "nodes": [
+    {
+      "id": "fe-1",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "fe-2",
+      "name": "E-mail alertă",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "sendTo": "CONFIG_EMAIL_ALERTE",
+        "subject": "=Automatizarea „{{ $json.workflow?.name || 'fără nume' }}” a picat",
+        "emailType": "text",
+        "message": "=Fluxul: {{ $json.workflow?.name || 'necunoscut' }}\nNodul care a picat: {{ $json.execution?.lastNodeExecuted || 'declanșatorul' }}\nEroarea: {{ $json.execution?.error?.message || $json.trigger?.error?.message || 'fără mesaj' }}\nOra: {{ $now.setZone('Europe/Bucharest').toFormat('dd.MM.yyyy HH:mm') }}\nExecuția: {{ $json.execution?.url || 'fără link (a picat declanșatorul)' }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "fe-3",
+      "name": "Telegram alertă",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        200
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID_ALERTE",
+        "text": "=⚠️ CONFIG_NUMELE_FIRMEI: a picat „{{ $json.workflow?.name || 'fără nume' }}”\nNodul: {{ $json.execution?.lastNodeExecuted || 'declanșatorul' }}\nOra: {{ $now.setZone('Europe/Bucharest').toFormat('dd.MM.yyyy HH:mm') }}\n{{ $json.execution?.url || 'Fără link: a picat declanșatorul. Detaliile sunt în e-mail.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "E-mail alertă",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram alertă",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

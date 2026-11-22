@@ -1,0 +1,476 @@
+{
+  "name": "Clinica - WF2 Inbound Reply Handler",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "wf2-n1",
+      "name": "Webhook SMS Reply",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sms-reply",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf2-n2",
+      "name": "Parseaza Raspuns",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        400
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const payload = $input.first().json.body || {};\nconst bodyText = (payload.body || payload.Body || '').trim().toUpperCase();\nconst from = payload.from || payload.From || '';\nlet intent = 'UNKNOWN';\n// STOP întâi: „Nu mai trimiteți, STOP” e o dezabonare, nu o anulare\nif (/\\bSTOP|DEZABON/.test(bodyText)) intent = 'OPT_OUT';\nelse if (/\\bCONFIRM/.test(bodyText)) intent = 'CONFIRM';\nelse if (/\\bANUL|CANCEL|\\bNU\\b/.test(bodyText)) intent = 'CANCEL';\nreturn [{ json: { from, body: bodyText, intent } }];"
+      }
+    },
+    {
+      "id": "wf2-n3",
+      "name": "Citeste Appointments",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        680,
+        400
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "range": "Appointments!A:N",
+        "options": {}
+      }
+    },
+    {
+      "id": "wf2-n4",
+      "name": "Gaseste Programare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        400
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "function telefon(v) {\n  let t = String(v ?? '').replace(/^whatsapp:/, '').replace(/[\\s.()-]/g, '');\n  if (/^07\\d{8}$/.test(t)) t = '+40' + t.slice(1);\n  else if (/^00\\d+$/.test(t)) t = '+' + t.slice(2);\n  return t;\n}\nconst from = $('Parseaza Raspuns').first().json.from;\nconst intent = $('Parseaza Raspuns').first().json.intent;\nconst phone = telefon(from);\nconst rows = $input.all().map(i => i.json);\nconst now = new Date();\nconst aleLui = rows.filter(r => telefon(r.phone) === phone);\n// la dezabonare contează pacientul, nu programarea: orice rând al lui\nconst candidates = intent === 'OPT_OUT' ? aleLui : aleLui.filter(r => ['SCHEDULED', 'CONFIRMED'].includes(r.status));\ncandidates.sort((a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime));\nconst match = candidates.find(r => new Date(r.appointment_datetime) > now) || candidates[0] || null;\nreturn [{\n  json: {\n    intent,\n    from: phone,\n    appointment_id: match ? match.appointment_id : null,\n    name: match ? match.name : '',\n    patient_id: match ? match.patient_id : null\n  }\n}];"
+      }
+    },
+    {
+      "id": "wf2-n5",
+      "name": "Switch pe intentie",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        400
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "outputKey": "CONFIRM",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "s1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "CONFIRM"
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "CANCEL",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "s2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "CANCEL"
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "OPT_OUT",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "s3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "OPT_OUT"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "wf2-n6",
+      "name": "Update CONFIRMED",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1340,
+        200
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "status": "CONFIRMED",
+            "confirmed_at": "={{ $now.toISO() }}"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      }
+    },
+    {
+      "id": "wf2-n7",
+      "name": "Telegram Confirmat",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID",
+        "text": "=Pacientul {{ $json.name }} ({{ $json.from }}) a confirmat programarea {{ $json.appointment_id }}.",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf2-n8",
+      "name": "Update CANCELLED",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1340,
+        400
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "status": "CANCELLED"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      }
+    },
+    {
+      "id": "wf2-n9",
+      "name": "Telegram Slot Liber",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        400
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID",
+        "text": "=⚠️ SLOT LIBER: {{ $json.name }} ({{ $json.from }}) a anulat programarea {{ $json.appointment_id }}. Suna lista de asteptare sau reposteaza pe ads!",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf2-n10",
+      "name": "Update OPT_OUT",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1340,
+        600
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Patients",
+          "cachedResultName": "Patients"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "patient_id"
+          ],
+          "value": {
+            "patient_id": "={{ $json.patient_id }}",
+            "consent_sms": "NU",
+            "status": "OPT_OUT"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      }
+    },
+    {
+      "id": "wf2-n11",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1780,
+        400
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook SMS Reply": {
+      "main": [
+        [
+          {
+            "node": "Parseaza Raspuns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parseaza Raspuns": {
+      "main": [
+        [
+          {
+            "node": "Citeste Appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Appointments": {
+      "main": [
+        [
+          {
+            "node": "Gaseste Programare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gaseste Programare": {
+      "main": [
+        [
+          {
+            "node": "Switch pe intentie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch pe intentie": {
+      "main": [
+        [
+          {
+            "node": "Update CONFIRMED",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update CANCELLED",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update OPT_OUT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CONFIRMED": {
+      "main": [
+        [
+          {
+            "node": "Telegram Confirmat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Confirmat": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CANCELLED": {
+      "main": [
+        [
+          {
+            "node": "Telegram Slot Liber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Slot Liber": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update OPT_OUT": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "name": "Real Estate Lead Qualification & Routing",
+  "nodes": [
+    {
+      "id": "sn-1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        20
+      ],
+      "parameters": {
+        "content": "## 🏠 Real Estate Lead Qualification & Routing\n\n### Credentiale necesare:\n- **OpenAI API** → nodul OpenAI Calificare Lead\n- **Gmail OAuth2** → Gmail Lead Calificat + Gmail Lead Necalificat\n- **Google Sheets OAuth2** → Sheets Calificat + Sheets Necalificat\n- **Telegram Bot API** → Telegram Agent\n\n### Configurare:\n1. Activati workflow-ul si copiati URL-ul webhook din nodul Webhook Lead\n2. **Telegram**: inlocuiti `CONFIG_TELEGRAM_CHAT_ID` cu Chat ID-ul agentului vostru\n3. **Google Sheets**: inlocuiti `CONFIG_SHEET_ID` cu ID-ul foii Google\n4. Creati headerele in Google Sheet pe rand 1:\n   `Timestamp | Nume | Email | Telefon | Tip Proprietate | Buget RON | Sursa | Status | Score | Urgenta | Categorie Buget | Rezumat Agent | Motiv | Mesaj Original`",
+        "width": 500,
+        "height": 280,
+        "color": 5
+      }
+    },
+    {
+      "id": "wh-1",
+      "name": "Webhook Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        120,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-imobiliare",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "ai-1",
+      "name": "OpenAI Calificare Lead",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        420,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "chatModel": "gpt-4o-mini",
+        "simplifyOutput": true,
+        "prompt": "=\"Esti un asistent de calificare lead-uri imobiliare pentru Romania. Analizeaza datele si returneaza STRICT un JSON valid fara markdown si fara text suplimentar.\\n\\nFormat obligatoriu:\\n{\\\"qualified\\\":boolean,\\\"score\\\":1-10,\\\"urgency\\\":\\\"imediat|1-3 luni|6+ luni\\\",\\\"budget_category\\\":\\\"sub 50k|50k-100k|100k-200k|peste 200k\\\",\\\"summary_ro\\\":\\\"rezumat 2 propozitii in romana pentru agent\\\",\\\"reason\\\":\\\"motivul calificarii sau necalificarii\\\"}\\n\\nCriterii de calificare:\\n- Buget realist pentru tipul de proprietate solicitat\\n- Intentie clara de cumparare, vanzare sau inchiriere\\n- Informatii de contact complete (telefon si email)\\n- Urgenta relevanta (imediat sau 1-3 luni = prioritate mare)\\n\\nDATE LEAD:\\nNume: \" + $json.lead_name + \"\\nEmail: \" + $json.lead_email + \"\\nTelefon: \" + $json.lead_phone + \"\\nTip proprietate: \" + $json.property_type + \"\\nBuget (RON): \" + $json.budget_ron + \"\\nSursa: \" + $json.source + \"\\nMesaj client: \" + $json.message",
+        "options": {}
+      }
+    },
+    {
+      "id": "cd-1",
+      "name": "Parseaza Raspuns AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst webhookData = $('Webhook Lead').first().json;\n\n// Default: lead necalificat in caz de eroare OpenAI\nlet qualification = {\n  qualified: false,\n  score: 0,\n  urgency: '6+ luni',\n  budget_category: 'sub 50k',\n  summary_ro: 'Eroare la procesarea automata. Review manual necesar.',\n  reason: 'Eroare OpenAI sau raspuns invalid'\n};\n\ntry {\n  // Extrage continutul din raspunsul OpenAI (simplifyOutput: true)\n  const content = item.json?.message?.content ||\n                  item.json?.choices?.[0]?.message?.content ||\n                  item.json?.text || '';\n\n  if (content) {\n    // Elimina eventualele blocuri markdown ```json ... ```\n    const cleaned = content.replace(/```json\\n?|\\n?```/g, '').trim();\n    const parsed = JSON.parse(cleaned);\n    qualification = { ...qualification, ...parsed };\n  }\n} catch (e) {\n  qualification.reason = 'Eroare procesare AI: ' + (e.message || 'JSON invalid');\n}\n\nreturn [{\n  json: {\n    // Date originale lead\n    lead_name: webhookData.lead_name || '',\n    lead_email: webhookData.lead_email || '',\n    lead_phone: webhookData.lead_phone || '',\n    property_type: webhookData.property_type || '',\n    budget_ron: webhookData.budget_ron || 0,\n    message: webhookData.message || '',\n    source: webhookData.source || '',\n    // Rezultate calificare AI\n    qualified: qualification.qualified || false,\n    score: qualification.score || 0,\n    urgency: qualification.urgency || '6+ luni',\n    budget_category: qualification.budget_category || 'sub 50k',\n    summary_ro: qualification.summary_ro || '',\n    reason: qualification.reason || '',\n    // Metadata\n    timestamp: new Date().toISOString(),\n    status: (qualification.qualified === true) ? 'CALIFICAT' : 'NECALIFICAT'\n  }\n}];"
+      }
+    },
+    {
+      "id": "if-1",
+      "name": "Lead Calificat?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-qualified",
+              "leftValue": "={{ $json.qualified }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      }
+    },
+    {
+      "id": "tg-1",
+      "name": "Telegram Agent",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        80
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID",
+        "text": "={{ '🏠 NOU LEAD CALIFICAT\\n\\nNume: ' + $json.lead_name + '\\nTelefon: ' + $json.lead_phone + '\\nEmail: ' + $json.lead_email + '\\nTip proprietate: ' + $json.property_type + '\\nBuget: ' + $json.budget_category + '\\nUrgenta: ' + $json.urgency + '\\nScore: ' + $json.score + '/10\\n\\nRezumat: ' + $json.summary_ro + '\\n\\nSursa lead: ' + $json.source }}",
+        "additionalFields": {}
+      }
+    },
+    {
+      "id": "gm-1",
+      "name": "Gmail Lead Calificat",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        80
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.lead_email }}",
+        "subject": "={{ 'Bun venit! Un agent va contacteaza in 2 ore - ' + $json.lead_name }}",
+        "emailType": "html",
+        "message": "=<div style=\"font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto;padding:24px\"><h2 style=\"color:#1a5276;margin-bottom:16px\">Bun&#259; ziua, {{ $json.lead_name }}!</h2><p>V&#259; mul&#539;umim c&#259; a&#539;i contactat agen&#539;ia noastr&#259; imobiliar&#259;!</p><p>Am primit cu succes cererea dumneavoastr&#259; pentru o proprietate de tip <strong>{{ $json.property_type }}</strong> &#351;i suntem preg&#259;ti&#539;i s&#259; v&#259; ajut&#259;m.</p><p>Unul dintre consultan&#539;ii no&#351;tri specializati v&#259; va contacta la num&#259;rul de telefon furnizat <strong>&#238;n cel mult 2 ore</strong>, pentru a discuta detaliile &#351;i a v&#259; prezenta cele mai potrivite oferte disponibile &#238;n portofoliul nostru.</p><p>Ne bucur&#259;m c&#259; putem fi partenerul dumneavoastr&#259; de &#238;ncredere &#238;n aceast&#259; c&#259;utare!</p><br><hr style=\"border:none;border-top:1px solid #eee;margin:20px 0\"><p style=\"color:#888;font-size:13px\">Cu stim&#259;,<br><strong>Echipa Agen&#539;iei Imobiliare</strong></p></div>",
+        "options": {}
+      }
+    },
+    {
+      "id": "gs-1",
+      "name": "Sheets Calificat",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1920,
+        80
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID"
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Nume": "={{ $json.lead_name }}",
+            "Email": "={{ $json.lead_email }}",
+            "Telefon": "={{ $json.lead_phone }}",
+            "Tip Proprietate": "={{ $json.property_type }}",
+            "Buget RON": "={{ $json.budget_ron }}",
+            "Sursa": "={{ $json.source }}",
+            "Status": "={{ $json.status }}",
+            "Score": "={{ $json.score }}",
+            "Urgenta": "={{ $json.urgency }}",
+            "Categorie Buget": "={{ $json.budget_category }}",
+            "Rezumat Agent": "={{ $json.summary_ro }}",
+            "Motiv": "={{ $json.reason }}",
+            "Mesaj Original": "={{ $json.message }}"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      }
+    },
+    {
+      "id": "gm-2",
+      "name": "Gmail Lead Necalificat",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        520
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.lead_email }}",
+        "subject": "={{ 'Multumim pentru interesul acordat - ' + $json.lead_name }}",
+        "emailType": "html",
+        "message": "=<div style=\"font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto;padding:24px\"><h2 style=\"color:#1a5276;margin-bottom:16px\">Bun&#259; ziua, {{ $json.lead_name }}!</h2><p>V&#259; mul&#539;umim pentru interesul acordat agen&#539;iei noastre imobiliare!</p><p>Am &#238;nregistrat cererea dumneavoastr&#259; &#351;i un consultant o va analiza &#238;n cur&#226;nd pentru a identifica cele mai potrivite solu&#539;ii disponibile.</p><p>&#206;ntre timp, v&#259; invit&#259;m s&#259; v&#259; <strong>abona&#539;i la newsletter-ul nostru</strong> pentru a fi primii care afl&#259; despre:</p><ul><li>Noi propriet&#259;&#539;i disponibile</li><li>Tendin&#539;e ale pie&#539;ei imobiliare</li><li>Oferte speciale &#351;i promo&#539;ii</li><li>Sfaturi utile pentru cump&#259;r&#259;tori &#351;i v&#226;nz&#259;tori</li></ul><p><a href=\"#\" style=\"display:inline-block;background:#1a5276;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold\">Abona&#539;i-v&#259; la newsletter &#8594;</a></p><p>Suntem la dispozi&#539;ia dumneavoastr&#259; pentru orice &#238;ntrebare!</p><br><hr style=\"border:none;border-top:1px solid #eee;margin:20px 0\"><p style=\"color:#888;font-size:13px\">Cu stim&#259;,<br><strong>Echipa Agen&#539;iei Imobiliare</strong></p></div>",
+        "options": {}
+      }
+    },
+    {
+      "id": "gs-2",
+      "name": "Sheets Necalificat",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1620,
+        520
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID"
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Nume": "={{ $json.lead_name }}",
+            "Email": "={{ $json.lead_email }}",
+            "Telefon": "={{ $json.lead_phone }}",
+            "Tip Proprietate": "={{ $json.property_type }}",
+            "Buget RON": "={{ $json.budget_ron }}",
+            "Sursa": "={{ $json.source }}",
+            "Status": "={{ $json.status }}",
+            "Score": "={{ $json.score }}",
+            "Urgenta": "={{ $json.urgency }}",
+            "Categorie Buget": "={{ $json.budget_category }}",
+            "Rezumat Agent": "={{ $json.summary_ro }}",
+            "Motiv": "={{ $json.reason }}",
+            "Mesaj Original": "={{ $json.message }}"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Lead": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Calificare Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Calificare Lead": {
+      "main": [
+        [
+          {
+            "node": "Parseaza Raspuns AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parseaza Raspuns AI": {
+      "main": [
+        [
+          {
+            "node": "Lead Calificat?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Calificat?": {
+      "main": [
+        [
+          {
+            "node": "Telegram Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail Lead Calificat",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets Calificat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail Lead Necalificat",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets Necalificat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Bucharest",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "active": false
+}
