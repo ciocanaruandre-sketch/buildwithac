@@ -59,7 +59,7 @@ Restul îl fac eu, din contul meu de Member: îmi iau singur accesul, legat de c
 
 > **Atenție:** Nu opri **MCP status** cât lucrez la automatizare sau cât avem mentenanță. Fără el, Claude nu mai ajunge în contul tău.
 
-<!-- Andrei, după pasul ăsta: F5 pe Settings → Instance-level MCP (din contul de Member) → Connect → tokenul; apoi Settings → n8n API → cheia lui (de confirmat la primul client: că Member-ul are „n8n API” pe Starter). Cheile intră în clienti/<slug>/automatizari/.chei.env, scrise de Andrei, niciodată în chat. -->
+<!-- Andrei, după pasul ăsta: F5 pe Settings → Instance-level MCP (din contul de Member) → Connect → fereastra „Connect a client” → tab-ul „API key” → tokenul; apoi Settings → n8n API → cheia lui (de confirmat la primul client: că Member-ul are „n8n API” pe Starter). Cheile intră în clienti/<slug>/automatizari/.chei.env, scrise de Andrei, niciodată în chat. -->
 
 ## Conectezi conturile firmei
 
