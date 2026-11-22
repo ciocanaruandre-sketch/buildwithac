@@ -718,7 +718,7 @@
       ],
       "parameters": {
         "chatId": "CONFIG_TELEGRAM_CHAT_ID",
-        "text": "=✅ Pipeline complet!\n\nPost ID: {{ $json.post_id }}\nImagini: {{ $json.slides_count }} slides generate\nDrive: {{ $json.folder_link }}\n\nDescrierea e gata in <code>descriere.txt</code>\nDeschide folderul, verifică, şi postează manual pe Instagram.",
+        "text": "=✅ Pipeline complet!\n\nPost ID: {{ $json.post_id }}\nImagini: {{ $json.slides_count }} slides generate\nDrive: {{ $json.folder_link }}\n\nDescrierea e gata in <code>descriere.txt</code>\nDeschide folderul, verifică și postează manual pe Instagram.",
         "additionalFields": {
           "parse_mode": "HTML"
         }

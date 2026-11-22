@@ -30,6 +30,8 @@ for (const m of modele) {
       for (const c of Object.values(n.credentials || {})) assert.deepEqual(c, { id: "", name: "DE_CONECTAT" }, n.name);
     }
     assert.deepEqual(gasesteDateReale(flux), []);
+    const text = readFileSync(join(MODELE, m, "flux.json"), "utf8") + readFileSync(join(MODELE, m, "README.md"), "utf8");
+    assert.doesNotMatch(text, /[ŞşŢţ]/, "sedilă: folosește ș și ț cu virgulă");
   });
 }
 
