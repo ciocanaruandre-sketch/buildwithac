@@ -5,7 +5,7 @@ Tot ce fac pentru clienți se lucrează din acest proiect. Fiecare serviciu are 
 | Serviciul | Stadiul | Unde |
 |---|---|---|
 | Site-uri | gata | `site-uri/` |
-| Automatizări | urmează (proiectul 2, cu brainstormingul lui) | — |
+| Automatizări | gata | `automatizari/` |
 | Sesiuni 1 la 1 și ghiduri personalizate | urmează (proiectul 3, cu brainstormingul lui) | — |
 
 ## Scheletul comun
@@ -17,4 +17,4 @@ Regulile dosarului de clienți (ce intră în git, ce nu, datele personale) sunt
 
 ## De unde pornești
 
-Un client nou începe **mereu** cu skill-ul `client-nou`. El face dosarul și fișa, apoi te trimite mai departe la skill-ul serviciului (la site-uri: `site-client`; la predarea unui site: `predare-site`).
+Un client nou începe **mereu** cu skill-ul `client-nou`. El face dosarul și fișa, apoi te trimite mai departe la skill-ul serviciului (la site-uri: `site-client`; la predarea unui site: `predare-site`; la automatizări: `automatizare-client`; la predarea unei automatizări: `predare-automatizare`).

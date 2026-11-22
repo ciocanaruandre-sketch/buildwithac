@@ -8,12 +8,17 @@ clienti/<slug>/
   jurnal.md      ← decizii, livrări, modificări cerute, cu data, cel mai nou sus
   materiale/     ← pozele, logo-ul, textele primite, exportul Tally
   site/cod/      ← depozitul site-ului, cu git-ul lui
+  automatizari/
+    propunere.md, pornire.md, folosire.md  ← sursele celor trei PDF-uri
+    fluxuri/     ← exporturile JSON ale fluxurilor
+    pdf/         ← PDF-urile generate
+    .chei.env    ← cheia API și tokenul MCP ale lui Andrei pentru n8n-ul clientului
 ```
 
 ## Ce intră în git
 
 - **Intră:** `fisa.md` și `jurnal.md`. Depozitul buildwithac e privat.
-- **Nu intră:** `materiale/` și `site/cod/` (regula e în `.gitignore`). Codul site-ului are depozitul lui separat pe GitHub, `site-<slug>`, ca clientul să nu vadă niciodată codul buildwithac sau al altui client.
+- **Nu intră:** `materiale/`, `site/cod/`, iar la automatizări `fluxuri/`, `pdf/` și `.chei.env` (regulile sunt în `.gitignore`). Un export de flux poate avea adresele sau ID-urile de tabele ale clientului; copia lui de rezervă e chiar n8n-ul clientului, plus Drive. Codul site-ului are depozitul lui separat pe GitHub, `site-<slug>`, ca clientul să nu vadă niciodată codul buildwithac sau al altui client.
 
 ## Unde e linia la datele personale
 
