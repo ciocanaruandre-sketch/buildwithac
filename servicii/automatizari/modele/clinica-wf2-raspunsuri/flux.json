@@ -34,7 +34,7 @@
       "parameters": {
         "language": "javaScript",
         "mode": "runOnceForAllItems",
-        "jsCode": "const payload = $input.first().json.body || {};\nconst bodyText = (payload.body || payload.Body || '').trim().toUpperCase();\nconst from = payload.from || payload.From || '';\nlet intent = 'UNKNOWN';\nif (/\\bCONFIRM/.test(bodyText)) intent = 'CONFIRM';\nelse if (/\\bANUL|CANCEL|NU\\b/.test(bodyText)) intent = 'CANCEL';\nelse if (/\\bSTOP|DEZABON/.test(bodyText)) intent = 'OPT_OUT';\nreturn [{ json: { from, body: bodyText, intent } }];"
+        "jsCode": "const payload = $input.first().json.body || {};\nconst bodyText = (payload.body || payload.Body || '').trim().toUpperCase();\nconst from = payload.from || payload.From || '';\nlet intent = 'UNKNOWN';\n// STOP întâi: „Nu mai trimiteți, STOP” e o dezabonare, nu o anulare\nif (/\\bSTOP|DEZABON/.test(bodyText)) intent = 'OPT_OUT';\nelse if (/\\bCONFIRM/.test(bodyText)) intent = 'CONFIRM';\nelse if (/\\bANUL|CANCEL|\\bNU\\b/.test(bodyText)) intent = 'CANCEL';\nreturn [{ json: { from, body: bodyText, intent } }];"
       }
     },
     {
@@ -77,7 +77,7 @@
       "parameters": {
         "language": "javaScript",
         "mode": "runOnceForAllItems",
-        "jsCode": "const from = $('Parseaza Raspuns').first().json.from;\nconst intent = $('Parseaza Raspuns').first().json.intent;\nconst phone = String(from).replace(/^whatsapp:/, '');\nconst rows = $input.all().map(i => i.json);\nconst now = new Date();\nconst candidates = rows.filter(r => r.phone === phone && ['SCHEDULED', 'CONFIRMED'].includes(r.status));\ncandidates.sort((a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime));\nconst match = candidates.find(r => new Date(r.appointment_datetime) > now) || candidates[0] || null;\nreturn [{\n  json: {\n    intent,\n    from: phone,\n    appointment_id: match ? match.appointment_id : null,\n    name: match ? match.name : '',\n    patient_id: match ? match.patient_id : null\n  }\n}];"
+        "jsCode": "function telefon(v) {\n  let t = String(v ?? '').replace(/^whatsapp:/, '').replace(/[\\s.()-]/g, '');\n  if (/^07\\d{8}$/.test(t)) t = '+40' + t.slice(1);\n  else if (/^00\\d+$/.test(t)) t = '+' + t.slice(2);\n  return t;\n}\nconst from = $('Parseaza Raspuns').first().json.from;\nconst intent = $('Parseaza Raspuns').first().json.intent;\nconst phone = telefon(from);\nconst rows = $input.all().map(i => i.json);\nconst now = new Date();\nconst aleLui = rows.filter(r => telefon(r.phone) === phone);\n// la dezabonare contează pacientul, nu programarea: orice rând al lui\nconst candidates = intent === 'OPT_OUT' ? aleLui : aleLui.filter(r => ['SCHEDULED', 'CONFIRMED'].includes(r.status));\ncandidates.sort((a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime));\nconst match = candidates.find(r => new Date(r.appointment_datetime) > now) || candidates[0] || null;\nreturn [{\n  json: {\n    intent,\n    from: phone,\n    appointment_id: match ? match.appointment_id : null,\n    name: match ? match.name : '',\n    patient_id: match ? match.patient_id : null\n  }\n}];"
       }
     },
     {
@@ -207,8 +207,7 @@
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf2-n7",
@@ -265,8 +264,7 @@
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf2-n9",
@@ -313,10 +311,10 @@
         "columns": {
           "mappingMode": "defineBelow",
           "matchingColumns": [
-            "phone"
+            "patient_id"
           ],
           "value": {
-            "phone": "={{ $json.from }}",
+            "patient_id": "={{ $json.patient_id }}",
             "consent_sms": "NU",
             "status": "OPT_OUT"
           }
@@ -324,8 +322,7 @@
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf2-n11",

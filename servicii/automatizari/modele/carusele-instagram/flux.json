@@ -268,8 +268,7 @@
           "id": "",
           "name": "DE_CONECTAT"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "code-parse-curator",
@@ -320,8 +319,7 @@
           "id": "",
           "name": "DE_CONECTAT"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "code-parse-content",
@@ -776,8 +774,7 @@
           "id": "",
           "name": "DE_CONECTAT"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "sheets-log-source",
@@ -819,8 +816,7 @@
           "id": "",
           "name": "DE_CONECTAT"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "sticky-overview",
@@ -832,7 +828,7 @@
         -900
       ],
       "parameters": {
-        "content": "## 🚀 Carusele Instagram (model)\n\n**Fluxul complet:**\n1. **Triggere** (3): Webhook POST / Telegram /post / Schedule 08:00\n2. **Colectare**: Apify IG Scraper + 3 RSS feeds AI\n3. **Selectie AI**: GPT-4o-mini alege cea mai buna sursa\n4. **Generare continut**: GPT-4o genereaza carousel complet in romana\n5. **Generare imagini**: HTML → PNG via Screenshot API (1080x1350px)\n6. **Drive**: Folder creat automat + upload slide PNG + descriere.txt + metadata.json\n7. **Telegram**: Preview thumbnail + status cu link Drive\n8. **Logging**: Google Sheets Pipeline + Sources_Log\n\n**Placeholders de inlocuit:**\n- `CONFIG_APIFY_DATASET_ID` / `CONFIG_APIFY_TOKEN`\n- `CONFIG_SCREENSHOT_API_KEY` (screenshotone.com)\n- `CONFIG_CONTENT_FOLDER_ID` (Google Drive parent folder ID)\n- `CONFIG_SHEET_ID` (Google Sheets)\n- Telegram Chat ID: `8412441191` (deja setat)\n\n**Credentials de configurat:**\n- OpenAI API → OpenAI - Content Curator + Content Generator\n- Google Drive OAuth2 → toate nodurile Drive\n- Google Sheets OAuth2 → toate nodurile Sheets\n- Telegram Bot API → toate nodurile Telegram",
+        "content": "## 🚀 Carusele Instagram (model)\n\n**Fluxul complet:**\n1. **Triggere** (3): Webhook POST / Telegram /post / Schedule 08:00\n2. **Colectare**: Apify IG Scraper + 3 RSS feeds AI\n3. **Selectie AI**: GPT-4o-mini alege cea mai buna sursa\n4. **Generare continut**: GPT-4o genereaza carousel complet in romana\n5. **Generare imagini**: HTML → PNG via Screenshot API (1080x1350px)\n6. **Drive**: Folder creat automat + upload slide PNG + descriere.txt + metadata.json\n7. **Telegram**: Preview thumbnail + status cu link Drive\n8. **Logging**: Google Sheets Pipeline + Sources_Log\n\n**Placeholders de inlocuit:**\n- `CONFIG_APIFY_DATASET_ID` / `CONFIG_APIFY_TOKEN`\n- `CONFIG_SCREENSHOT_API_KEY` (screenshotone.com)\n- `CONFIG_CONTENT_FOLDER_ID` (Google Drive parent folder ID)\n- `CONFIG_SHEET_ID` (Google Sheets)\n- Telegram Chat ID: `CONFIG_TELEGRAM_CHAT_ID` (de completat)\n\n**Credentials de configurat:**\n- OpenAI API → OpenAI - Content Curator + Content Generator\n- Google Drive OAuth2 → toate nodurile Drive\n- Google Sheets OAuth2 → toate nodurile Sheets\n- Telegram Bot API → toate nodurile Telegram",
         "height": 380,
         "width": 500
       }

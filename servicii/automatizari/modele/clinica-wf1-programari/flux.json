@@ -95,7 +95,7 @@
               "id": "a3",
               "name": "phone",
               "type": "string",
-              "value": "={{ $json.body.phone }}"
+              "value": "={{ (s => /^07\\d{8}$/.test(s) ? '+40' + s.slice(1) : s)(String($json.body.phone ?? '').replace(/[\\s.()-]/g, '')) }}"
             },
             {
               "id": "a4",
@@ -222,14 +222,14 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "appointment_id": "={{ $json.appointment_id }}",
-            "patient_id": "={{ $json.patient_id }}",
-            "name": "={{ $json.name }}",
-            "phone": "={{ $json.phone }}",
-            "appointment_datetime": "={{ $json.appointment_datetime }}",
-            "doctor_name": "={{ $json.doctor_name }}",
+            "appointment_id": "={{ $('Formatare Date').first().json.appointment_id }}",
+            "patient_id": "={{ $('Formatare Date').first().json.patient_id }}",
+            "name": "={{ $('Formatare Date').first().json.name }}",
+            "phone": "={{ $('Formatare Date').first().json.phone }}",
+            "appointment_datetime": "={{ $('Formatare Date').first().json.appointment_datetime }}",
+            "doctor_name": "={{ $('Formatare Date').first().json.doctor_name }}",
             "clinic_name": "={{ $('Config Map').first().json.clinic_name }}",
-            "treatment_type": "={{ $json.treatment_type }}",
+            "treatment_type": "={{ $('Formatare Date').first().json.treatment_type }}",
             "status": "SCHEDULED",
             "confirmed_at": "",
             "reminder_48h": "",
@@ -241,8 +241,7 @@
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf1-n8",
@@ -272,21 +271,20 @@
           "mappingMode": "defineBelow",
           "value": {
             "timestamp": "={{ $now.toISO() }}",
-            "appointment_id": "={{ $json.appointment_id }}",
-            "patient_id": "={{ $json.patient_id }}",
-            "phone": "={{ $json.phone }}",
+            "appointment_id": "={{ $('Formatare Date').first().json.appointment_id }}",
+            "patient_id": "={{ $('Formatare Date').first().json.patient_id }}",
+            "phone": "={{ $('Formatare Date').first().json.phone }}",
             "channel": "SMS",
             "message_type": "CONFIRMARE",
-            "status": "sent",
-            "provider_id": "",
-            "error": ""
+            "status": "={{ $json.sid ? 'sent' : 'error' }}",
+            "provider_id": "={{ $json.sid ?? '' }}",
+            "error": "={{ $json.error ? String($json.error.message ?? $json.error) : '' }}"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf1-n9",
@@ -426,15 +424,14 @@
             "appointment_id"
           ],
           "value": {
-            "appointment_id": "={{ $json.appointment_id }}",
+            "appointment_id": "={{ $('Extrage Rand 48h').first().json.appointment_id }}",
             "reminder_48h": "sent"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf1-n15",
@@ -464,21 +461,20 @@
           "mappingMode": "defineBelow",
           "value": {
             "timestamp": "={{ $now.toISO() }}",
-            "appointment_id": "={{ $json.appointment_id }}",
-            "patient_id": "={{ $json.patient_id }}",
-            "phone": "={{ $json.phone }}",
+            "appointment_id": "={{ $('Extrage Rand 48h').first().json.appointment_id }}",
+            "patient_id": "={{ $('Extrage Rand 48h').first().json.patient_id }}",
+            "phone": "={{ $('Extrage Rand 48h').first().json.phone }}",
             "channel": "SMS",
             "message_type": "REMINDER_48H",
-            "status": "sent",
-            "provider_id": "",
-            "error": ""
+            "status": "={{ $json.sid ? 'sent' : 'error' }}",
+            "provider_id": "={{ $json.sid ?? '' }}",
+            "error": "={{ $json.error ? String($json.error.message ?? $json.error) : '' }}"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf1-n16",
@@ -618,15 +614,14 @@
             "appointment_id"
           ],
           "value": {
-            "appointment_id": "={{ $json.appointment_id }}",
+            "appointment_id": "={{ $('Extrage Rand 3h').first().json.appointment_id }}",
             "reminder_3h": "sent"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf1-n22",
@@ -656,21 +651,20 @@
           "mappingMode": "defineBelow",
           "value": {
             "timestamp": "={{ $now.toISO() }}",
-            "appointment_id": "={{ $json.appointment_id }}",
-            "patient_id": "={{ $json.patient_id }}",
-            "phone": "={{ $json.phone }}",
+            "appointment_id": "={{ $('Extrage Rand 3h').first().json.appointment_id }}",
+            "patient_id": "={{ $('Extrage Rand 3h').first().json.patient_id }}",
+            "phone": "={{ $('Extrage Rand 3h').first().json.phone }}",
             "channel": "SMS",
             "message_type": "REMINDER_3H",
-            "status": "sent",
-            "provider_id": "",
-            "error": ""
+            "status": "={{ $json.sid ? 'sent' : 'error' }}",
+            "provider_id": "={{ $json.sid ?? '' }}",
+            "error": "={{ $json.error ? String($json.error.message ?? $json.error) : '' }}"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf1-n23",
@@ -746,17 +740,8 @@
             "caseSensitive": true,
             "typeValidation": "strict"
           },
-          "combinator": "or",
+          "combinator": "and",
           "conditions": [
-            {
-              "id": "c1",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              },
-              "leftValue": "={{ $json.status }}",
-              "rightValue": "CONFIRMED"
-            },
             {
               "id": "c2",
               "operator": {
@@ -819,15 +804,14 @@
             "appointment_id"
           ],
           "value": {
-            "appointment_id": "={{ $json.appointment_id }}",
+            "appointment_id": "={{ $('Extrage Rand Review').first().json.appointment_id }}",
             "review_sent": "sent"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf1-n29",
@@ -857,21 +841,20 @@
           "mappingMode": "defineBelow",
           "value": {
             "timestamp": "={{ $now.toISO() }}",
-            "appointment_id": "={{ $json.appointment_id }}",
-            "patient_id": "={{ $json.patient_id }}",
-            "phone": "={{ $json.phone }}",
+            "appointment_id": "={{ $('Extrage Rand Review').first().json.appointment_id }}",
+            "patient_id": "={{ $('Extrage Rand Review').first().json.patient_id }}",
+            "phone": "={{ $('Extrage Rand Review').first().json.phone }}",
             "channel": "SMS",
             "message_type": "REVIEW",
-            "status": "sent",
-            "provider_id": "",
-            "error": ""
+            "status": "={{ $json.sid ? 'sent' : 'error' }}",
+            "provider_id": "={{ $json.sid ?? '' }}",
+            "error": "={{ $json.error ? String($json.error.message ?? $json.error) : '' }}"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     }
   ],
   "connections": {

@@ -48,3 +48,8 @@ test("găsește chei și tokenuri", () => {
 test("example.com e permis", () => assert.deepEqual(gasesteDateReale({ nodes: [{ parameters: { to: "client@example.com" } }] }), []));
 test("CONFIG_ și expresiile sunt permise", () =>
   assert.deepEqual(gasesteDateReale({ nodes: [{ parameters: { documentId: "CONFIG_SHEET_ID", chatId: "={{ $json.chat_id }}", to: "CONFIG_EMAIL_ALERTE" } }] }), []));
+
+test("gasesteDateReale prinde un ID numeric lung scris liber, într-o notiță", () => {
+  const gasite = gasesteDateReale({ nodes: [{ parameters: { content: "Telegram Chat ID: `8412441191` (deja setat)" } }] });
+  assert.ok(gasite.some((g) => g.includes("8412441191")), JSON.stringify(gasite));
+});

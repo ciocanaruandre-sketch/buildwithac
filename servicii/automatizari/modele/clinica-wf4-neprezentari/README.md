@@ -15,3 +15,5 @@
 **Erorile:** citirile și scrierile din Sheets opresc fluxul (ajunge la fluxul de erori); doar SMS-ul merge mai departe la eroare, iar rândul din jurnal primește `error`.
 
 **Verificat la proba din 2026-11-22** (cont de probă n8n Cloud, date fixate): o seară obișnuită (2 neprezentări, una dintre ele `CONFIRMED`) și 11 neprezentări (ramura cu SMS nu pornește). Nu s-au verificat la probă textele SMS-ului și ale raportului: nodurile fixate nu-și calculează parametrii.
+
+**De făcut la primul client:** fluxul nu verifică `consent_sms` / `OPT_OUT` (foaia `Appointments` nu le are): un pacient dezabonat primește totuși SMS-ul de neprezentare. Citește și `Patients` și sari peste cei cu `consent_sms` ≠ `DA`.

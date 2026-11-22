@@ -37,6 +37,7 @@ export function gasesteDateReale(flux) {
   const gasite = [];
   const vezi = (valoare, cheie, cale) => {
     if (typeof valoare === "string") {
+      const inainte = gasite.length;
       for (const m of valoare.match(EMAIL) || []) if (!PERMISE.test(m)) gasite.push(`${cale}: e-mail ${m}`);
       for (const m of valoare.match(TELEFON) || []) gasite.push(`${cale}: telefon ${m}`);
       for (const m of valoare.match(NGROK) || []) gasite.push(`${cale}: adresă ngrok ${m}`);
@@ -46,6 +47,8 @@ export function gasesteDateReale(flux) {
         gasite.push(`${cale}: ID Google ${valoare}`);
       }
       if (/^chatId$/i.test(cheie) && /^-?\d{5,}$/.test(valoare.trim())) gasite.push(`${cale}: chat Telegram ${valoare}`);
+      // un ID numeric lung scris liber (o notiță, un text): chat Telegram, cont, telefon fără prefix
+      if (gasite.length === inainte) for (const m of valoare.match(/(?<![\w.$-])-?\d{9,}(?![\w.-])/g) || []) gasite.push(`${cale}: număr lung ${m}`);
     } else if (Array.isArray(valoare)) {
       valoare.forEach((v, i) => vezi(v, cheie, `${cale}[${i}]`));
     } else if (valoare && typeof valoare === "object") {

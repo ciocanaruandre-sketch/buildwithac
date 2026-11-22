@@ -52,8 +52,7 @@
         "simplifyOutput": true,
         "prompt": "=\"Esti un asistent de calificare lead-uri imobiliare pentru Romania. Analizeaza datele si returneaza STRICT un JSON valid fara markdown si fara text suplimentar.\\n\\nFormat obligatoriu:\\n{\\\"qualified\\\":boolean,\\\"score\\\":1-10,\\\"urgency\\\":\\\"imediat|1-3 luni|6+ luni\\\",\\\"budget_category\\\":\\\"sub 50k|50k-100k|100k-200k|peste 200k\\\",\\\"summary_ro\\\":\\\"rezumat 2 propozitii in romana pentru agent\\\",\\\"reason\\\":\\\"motivul calificarii sau necalificarii\\\"}\\n\\nCriterii de calificare:\\n- Buget realist pentru tipul de proprietate solicitat\\n- Intentie clara de cumparare, vanzare sau inchiriere\\n- Informatii de contact complete (telefon si email)\\n- Urgenta relevanta (imediat sau 1-3 luni = prioritate mare)\\n\\nDATE LEAD:\\nNume: \" + $json.lead_name + \"\\nEmail: \" + $json.lead_email + \"\\nTelefon: \" + $json.lead_phone + \"\\nTip proprietate: \" + $json.property_type + \"\\nBuget (RON): \" + $json.budget_ron + \"\\nSursa: \" + $json.source + \"\\nMesaj client: \" + $json.message",
         "options": {}
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "cd-1",

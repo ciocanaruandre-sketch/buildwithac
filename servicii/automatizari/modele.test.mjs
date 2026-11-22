@@ -59,3 +59,49 @@ test("modelul clinicii WF4: confirmații prinși, limita de 10, ora României", 
   assert.match(cod, /Europe\/Bucharest/, "ziua de azi, după ora României");
   assert.ok(flux.nodes.some((n) => n.type === "n8n-nodes-base.if"), "protecția stă într-un nod IF, vizibil pe pânză");
 });
+
+const urmasiTwilio = (flux) => {
+  const nume = new Set(flux.nodes.filter((n) => n.type === "n8n-nodes-base.twilio").map((n) => n.name));
+  const urmasi = new Set();
+  for (const [sursa, c] of Object.entries(flux.connections)) {
+    if (nume.has(sursa)) for (const l of c.main.flat()) if (l) urmasi.add(l.node);
+  }
+  return flux.nodes.filter((n) => urmasi.has(n.name));
+};
+
+for (const m of modele) {
+  test(`modelul ${m}: după SMS, datele pacientului nu se citesc din $json, scrierile nu ascund erorile`, () => {
+    const flux = JSON.parse(readFileSync(join(MODELE, m, "flux.json"), "utf8"));
+    for (const n of urmasiTwilio(flux)) {
+      // Twilio dă mai departe doar răspunsul lui (sid, status, error), nu rândul pacientului
+      assert.doesNotMatch(JSON.stringify(n.parameters), /\$json\.(?!(sid|status|error)\b)/, `${n.name} citește $json după Twilio`);
+    }
+    for (const n of flux.nodes) {
+      const scriere = n.type === "n8n-nodes-base.googleSheets" && ["append", "update", "appendOrUpdate"].includes(n.parameters.operation);
+      const ai = /openAi|langchain/i.test(n.type);
+      if (scriere || ai) assert.notEqual(n.onError, "continueRegularOutput", `${n.name}: eroarea trebuie să ajungă la fluxul de erori`);
+      const jurnal = n.type === "n8n-nodes-base.googleSheets" && n.parameters.sheetName?.value === "Message_Log" && n.parameters.operation === "append";
+      if (jurnal) assert.notEqual(n.parameters.columns?.value?.status, "sent", `${n.name}: starea din jurnal vine din răspunsul Twilio`);
+    }
+  });
+}
+
+test("modelul clinicii WF1: cererea de recenzie doar după COMPLETED (CONFIRMED nu înseamnă că a venit)", () => {
+  const flux = JSON.parse(readFileSync(join(MODELE, "clinica-wf1-programari", "flux.json"), "utf8"));
+  const iff = flux.nodes.find((n) => n.name === "IF A Venit");
+  assert.doesNotMatch(JSON.stringify(iff.parameters), /CONFIRMED/);
+});
+
+const ruleaza = (cod, input, noduri = {}) =>
+  new Function("$input", "$", cod)({ first: () => input[0], all: () => input }, (n) => ({ first: () => noduri[n][0], all: () => noduri[n] }));
+
+test("modelul clinicii WF2: STOP câștigă în fața lui NU, iar 07… se potrivește cu +407…", () => {
+  const flux = JSON.parse(readFileSync(join(MODELE, "clinica-wf2-raspunsuri", "flux.json"), "utf8"));
+  const cod = (nume) => flux.nodes.find((n) => n.name === nume).parameters.jsCode;
+  const parsat = ruleaza(cod("Parseaza Raspuns"), [{ json: { body: { Body: "Nu mai trimiteti, STOP", From: "+40712345678" } } }]);
+  assert.equal(parsat[0].json.intent, "OPT_OUT");
+  const gasit = ruleaza(cod("Gaseste Programare"),
+    [{ json: { appointment_id: "A1", patient_id: "P1", name: "Ana", phone: "0712 345 678", status: "SCHEDULED", appointment_datetime: "2999-01-01T10:00:00" } }],
+    { "Parseaza Raspuns": [{ json: { from: "+40712345678", intent: "CONFIRM" } }] });
+  assert.equal(gasit[0].json.appointment_id, "A1");
+});

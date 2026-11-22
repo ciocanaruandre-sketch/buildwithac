@@ -163,7 +163,7 @@
         "resource": "sms",
         "operation": "send",
         "from": "CONFIG_TWILIO_NUMAR",
-        "to": "={{ $json.phone }}",
+        "to": "={{ (s => /^07\\d{8}$/.test(s) ? '+40' + s.slice(1) : s)(String($json.phone ?? '').replace(/[\\s.()-]/g, '')) }}",
         "message": "={{ $json.sms_text }}"
       },
       "onError": "continueRegularOutput"
@@ -198,15 +198,14 @@
             "patient_id"
           ],
           "value": {
-            "patient_id": "={{ $json.patient_id }}",
+            "patient_id": "={{ $('Mesaj fix').item.json.patient_id }}",
             "last_recall_sent": "={{ $now.toISO() }}"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf3-n11",
@@ -237,20 +236,19 @@
           "value": {
             "timestamp": "={{ $now.toISO() }}",
             "appointment_id": "",
-            "patient_id": "={{ $json.patient_id }}",
-            "phone": "={{ $json.phone }}",
+            "patient_id": "={{ $('Mesaj fix').item.json.patient_id }}",
+            "phone": "={{ $('Mesaj fix').item.json.phone }}",
             "channel": "SMS",
             "message_type": "RECALL",
-            "status": "sent",
-            "provider_id": "",
-            "error": ""
+            "status": "={{ $('SMS Recall').item.json.sid ? 'sent' : 'error' }}",
+            "provider_id": "={{ $('SMS Recall').item.json.sid ?? '' }}",
+            "error": "={{ $('SMS Recall').item.json.error ? String($('SMS Recall').item.json.error.message ?? $('SMS Recall').item.json.error) : '' }}"
           }
         },
         "options": {
           "valueInputMode": "USER_ENTERED"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf3-n12",

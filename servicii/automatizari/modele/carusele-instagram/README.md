@@ -9,3 +9,5 @@
 **Date sensibile:** nu. Prompturile și aspectul slide-urilor sunt cele de la buildwithac: la client se rescriu pe vocea și culorile lui.
 
 **Față de fluxul original (validat cu `n8n-mcp` 2.96.1, 2026-11-22):** bucla de slide-uri avea ieșirile inversate (acum: „loop” → captura slide-ului, „done” → descrierea); nodurile OpenAI aveau o versiune care nu există (acum v1.1); dosarul din Drive folosea o operație greșită; o expresie din promptul curatorului nu se evalua; alerta Telegram fără legături a ieșit (o înlocuiește `flux-erori`). Avertismentul rămas („Code - Generate Description” pe ieșirea „done”) e greșit: descrierea se face o singură dată, după toate slide-urile.
+
+**Reparat la verificarea finală (2026-11-22):** ID-ul real de chat Telegram din notița „Overview” înlocuit cu `CONFIG_TELEGRAM_CHAT_ID`; OpenAI nu mai continuă la eroare. **De făcut:** webhook-ul și `/post` pornesc rulări plătite (OpenAI, Apify) de la oricine: verifică ID-ul chat-ului în IF.
