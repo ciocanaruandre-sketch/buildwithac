@@ -8,6 +8,8 @@
 - cu mentenanță: `contact@buildwithac.ro` (din `site/lib/config.ts`);
 - „doar automatizarea”: e-mailul clientului.
 
-**Cum se leagă:** în fiecare flux al clientului, *Workflow settings → Error workflow* → acest flux. Fluxul de erori nu trebuie pornit (Active): îl pornește n8n singur.
+**Cum se leagă:** fluxul de erori trebuie **publicat**, altfel nu pornește. Apoi, în fiecare flux al clientului: meniul fluxului (`...`) → **Settings** → **Error workflow** → acest flux → **Save**. Pornește doar la execuțiile automate care pică, nu la cele de probă pornite de mână.
+
+**Când pică chiar declanșatorul** (de exemplu, conectarea la Gmail a expirat), n8n nu dă link de execuție: e-mailul spune „a picat declanșatorul” și mesajul erorii.
 
 **Date sensibile:** nu trec prin el.

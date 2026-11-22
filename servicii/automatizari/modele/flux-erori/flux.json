@@ -23,9 +23,9 @@
       ],
       "parameters": {
         "sendTo": "CONFIG_EMAIL_ALERTE",
-        "subject": "=Automatizarea „{{ $json.workflow.name }}” a picat",
+        "subject": "=Automatizarea „{{ $json.workflow?.name || 'fără nume' }}” a picat",
         "emailType": "text",
-        "message": "=Fluxul: {{ $json.workflow.name }}\nNodul care a picat: {{ $json.execution.lastNodeExecuted }}\nEroarea: {{ $json.execution.error.message }}\nOra: {{ $now.setZone('Europe/Bucharest').toFormat('dd.MM.yyyy HH:mm') }}\nExecuția: {{ $json.execution.url }}",
+        "message": "=Fluxul: {{ $json.workflow?.name || 'necunoscut' }}\nNodul care a picat: {{ $json.execution?.lastNodeExecuted || 'declanșatorul' }}\nEroarea: {{ $json.execution?.error?.message || $json.trigger?.error?.message || 'fără mesaj' }}\nOra: {{ $now.setZone('Europe/Bucharest').toFormat('dd.MM.yyyy HH:mm') }}\nExecuția: {{ $json.execution?.url || 'fără link (a picat declanșatorul)' }}",
         "options": {
           "appendAttribution": false
         }

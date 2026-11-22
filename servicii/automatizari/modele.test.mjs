@@ -39,3 +39,11 @@ test("modelul clinicii WF3 nu trimite date ale pacienților la AI", () => {
   const flux = JSON.parse(readFileSync(join(MODELE, "clinica-wf3-rechemari", "flux.json"), "utf8"));
   assert.ok(!flux.nodes.some((n) => /langchain|openAi/i.test(n.type)), "un nod AI a rămas în WF3");
 });
+
+test("fluxul de erori merge și când pică declanșatorul (fără execution, cu trigger.error)", () => {
+  const flux = JSON.parse(readFileSync(join(MODELE, "flux-erori", "flux.json"), "utf8"));
+  const mail = flux.nodes.find((n) => n.type === "n8n-nodes-base.gmail");
+  const text = mail.parameters.message + mail.parameters.subject;
+  assert.match(text, /\$json\.trigger\?\.error/);
+  assert.doesNotMatch(text, /\$json\.execution\.(?!\?)/, "folosește $json.execution?.… (lipsește când pică declanșatorul)");
+});
