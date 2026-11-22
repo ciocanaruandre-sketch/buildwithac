@@ -92,3 +92,18 @@ test("fără .mcp.json: îl creează", () => {
   assert.deepEqual(Object.keys(m.mcpServers), ["n8n-docs"]);
   assert.deepEqual(m.mcpServers["n8n-docs"].args, ["-y", "n8n-mcp"]);
 });
+
+test("doar tokenul MCP, fără cheie API: îl acceptă (planul B)", () => {
+  const c = citesteChei("N8N_API_URL=https://a.app.n8n.cloud\nN8N_API_KEY=\nN8N_MCP_ACCESS_TOKEN=tok\n");
+  assert.deepEqual(c, { N8N_API_URL: "https://a.app.n8n.cloud", N8N_MCP_ACCESS_TOKEN: "tok" });
+});
+
+test("planul B: serverul e MCP-ul oficial, prin HTTP, cu tokenul", () => {
+  const r = radacinaNoua();
+  puneChei(r, "cafe", "N8N_API_URL=https://cafe.app.n8n.cloud\nN8N_MCP_ACCESS_TOKEN=tok\n");
+  assert.equal(activeaza({ radacina: r, slug: "cafe" }), "n8n-cafe");
+  const s = citesteMcp(r).mcpServers["n8n-cafe"];
+  assert.deepEqual(s, { type: "http", url: "https://cafe.app.n8n.cloud/mcp-server/http", headers: { Authorization: "Bearer tok" } });
+  dezactiveaza({ radacina: r });
+  assert.doesNotMatch(readFileSync(join(r, ".mcp.json"), "utf8"), /tok/);
+});

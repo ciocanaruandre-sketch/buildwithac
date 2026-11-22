@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Leagă serverul `n8n-mcp` de n8n-ul unui singur client, prin `.mcp.json` (ignorat de git).
+// Fără N8N_API_KEY (planul B), leagă direct MCP-ul oficial al clientului, cu tokenul Member-ului.
 //   node servicii/automatizari/client-activ.mjs <slug>      → serverul n8n-<slug>, cu cheile clientului
 //   node servicii/automatizari/client-activ.mjs --niciunul  → doar n8n-docs (documentația nodurilor, fără chei)
 // Cheile stau în clienti/<slug>/automatizari/.chei.env (ignorat de git), scrise de Andrei.
@@ -21,14 +22,16 @@ export function citesteChei(text) {
     const cheie = r.slice(0, egal).trim();
     if (CHEI_PERMISE.includes(cheie)) chei[cheie] = r.slice(egal + 1).trim();
   }
-  for (const obligatorie of ["N8N_API_URL", "N8N_API_KEY"]) {
-    if (!chei[obligatorie]) throw new Error(`Lipsește ${obligatorie} (sau e goală) în fișierul de chei.`);
+  if (!chei.N8N_API_URL) throw new Error("Lipsește N8N_API_URL (sau e goală) în fișierul de chei.");
+  // planul B: fără cheie API, doar tokenul MCP-ului oficial
+  if (!chei.N8N_API_KEY && !chei.N8N_MCP_ACCESS_TOKEN) {
+    throw new Error("Lipsește N8N_API_KEY (sau e goală) în fișierul de chei. Fără ea, pune măcar N8N_MCP_ACCESS_TOKEN (planul B).");
   }
   if (!chei.N8N_API_URL.startsWith("https://")) {
     throw new Error(`N8N_API_URL trebuie să înceapă cu https:// (acum: „${chei.N8N_API_URL}”).`);
   }
   chei.N8N_API_URL = chei.N8N_API_URL.replace(/\/+$/, "");
-  if (chei.N8N_MCP_ACCESS_TOKEN === "") delete chei.N8N_MCP_ACCESS_TOKEN;
+  for (const k of ["N8N_API_KEY", "N8N_MCP_ACCESS_TOKEN"]) if (chei[k] === "") delete chei[k];
   return chei;
 }
 
@@ -39,8 +42,11 @@ export function serverDocumentatie() {
   return { command: "npx", args: ["-y", "n8n-mcp"], env: { ...ENV_COMUN } };
 }
 
-/** Serverul legat de n8n-ul unui client. */
+/** Serverul legat de n8n-ul unui client. Fără cheie API (planul B): direct MCP-ul oficial al instanței, prin HTTP. */
 export function serverClient(chei) {
+  if (!chei.N8N_API_KEY) {
+    return { type: "http", url: `${chei.N8N_API_URL}/mcp-server/http`, headers: { Authorization: `Bearer ${chei.N8N_MCP_ACCESS_TOKEN}` } };
+  }
   const env = { ...ENV_COMUN, N8N_API_URL: chei.N8N_API_URL, N8N_API_KEY: chei.N8N_API_KEY };
   if (chei.N8N_MCP_ACCESS_TOKEN) env.N8N_MCP_ACCESS_TOKEN = chei.N8N_MCP_ACCESS_TOKEN;
   return { command: "npx", args: ["-y", "n8n-mcp"], env };

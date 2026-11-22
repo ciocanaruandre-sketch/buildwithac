@@ -66,7 +66,7 @@ Când Andrei lucrează în contul clientului, devine „persoana împuternicită
 - **Fără** serviciul găzduit `api.n8n-mcp.com` (datele clienților ar trece printr-o firmă în plus) și **fără** pachetul oficial `n8n-io/skills` (ar dubla skill-urile).
 - **Clientul activ:** `node servicii/automatizari/client-activ.mjs <slug>` scrie `.mcp.json` (ignorat de git) cu un singur server n8n, `n8n-<slug>`. `--niciunul` lasă doar `n8n-docs` (documentația nodurilor, fără chei). După schimbare: repornești sesiunea Claude sau `/mcp` → Reconnect.
 - **O singură instanță țintă pe sesiune.** Înainte de orice scriere, verifici că serverul încărcat se numește `n8n-<slug>` al clientului din lucru.
-- **Plan B, verificat pe contul de probă:** dacă un Member nu poate face cheie API pe Starter, Claude poate lucra în contul clientului și doar prin MCP-ul oficial (`https://<cont>.app.n8n.cloud/mcp-server/http`, tokenul Member-ului): tokenul a mers și a dat 70 de unelte, între care crearea, validarea, testarea și publicarea fluxurilor.
+- **Planul B, verificat pe contul de probă:** dacă un Member nu poate face cheie API pe Starter, Claude lucrează în contul clientului doar prin MCP-ul oficial (`https://<cont>.app.n8n.cloud/mcp-server/http`, tokenul Member-ului): 70 de unelte, între care crearea, validarea, testarea cu date fixate și publicarea fluxurilor. Lași `N8N_API_KEY=` gol în `.chei.env`, iar `client-activ.mjs` scrie atunci un server HTTP spre MCP-ul oficial, tot cu numele `n8n-<slug>`. Uneltele au alte nume decât în `n8n-mcp` (de exemplu `search_workflows`, `create_workflow_from_code`, `validate_workflow`, `test_workflow`).
 
 ## Unde stau cheile
 
