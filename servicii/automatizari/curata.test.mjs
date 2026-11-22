@@ -1,5 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { curataFlux, gasesteDateReale } from "./curata.mjs";
 
 test("scoate ID-urile și conturile", () => {
@@ -52,4 +54,19 @@ test("CONFIG_ și expresiile sunt permise", () =>
 test("gasesteDateReale prinde un ID numeric lung scris liber, într-o notiță", () => {
   const gasite = gasesteDateReale({ nodes: [{ parameters: { content: "Telegram Chat ID: `8412441191` (deja setat)" } }] });
   assert.ok(gasite.some((g) => g.includes("8412441191")), JSON.stringify(gasite));
+});
+
+test("--catre scrie o copie curată a exportului (pentru Drive), fără date fixate", async () => {
+  const { mkdtempSync, writeFileSync: scrie, readFileSync: citeste } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { execFileSync } = await import("node:child_process");
+  const dir = mkdtempSync(join(tmpdir(), "curata-"));
+  const sursa = join(dir, "wf.json");
+  const tinta = join(dir, "wf.curat.json");
+  scrie(sursa, JSON.stringify({ id: "x", nodes: [], connections: {}, pinData: { A: [{ json: { phone: "+40712345678" } }] }, staticData: { s: 1 } }));
+  execFileSync(process.execPath, [join(dirname(fileURLToPath(import.meta.url)), "curata.mjs"), sursa, "--catre", tinta]);
+  const curat = JSON.parse(citeste(tinta, "utf8"));
+  assert.equal(curat.pinData, undefined);
+  assert.equal(curat.staticData, undefined);
+  assert.equal(curat.id, undefined);
 });

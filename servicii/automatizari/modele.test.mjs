@@ -105,3 +105,16 @@ test("modelul clinicii WF2: STOP câștigă în fața lui NU, iar 07… se potri
     { "Parseaza Raspuns": [{ json: { from: "+40712345678", intent: "CONFIRM" } }] });
   assert.equal(gasit[0].json.appointment_id, "A1");
 });
+
+test("fluxul de erori alertează și pe Telegram, fără să depindă de Google-ul clientului", () => {
+  const flux = JSON.parse(readFileSync(join(MODELE, "flux-erori", "flux.json"), "utf8"));
+  const tg = flux.nodes.find((n) => n.type === "n8n-nodes-base.telegram");
+  assert.ok(tg, "lipsește nodul Telegram");
+  assert.equal(tg.parameters.chatId, "CONFIG_TELEGRAM_CHAT_ID_ALERTE");
+  assert.doesNotMatch(tg.parameters.text, /error/, "pe Telegram, fără mesajul erorii (poate conține date ale pacienților)");
+  const dinTrigger = flux.connections["Error Trigger"].main[0].map((l) => l.node);
+  for (const n of flux.nodes.filter((n) => n.type !== "n8n-nodes-base.errorTrigger")) {
+    assert.ok(dinTrigger.includes(n.name), `${n.name} pornește direct din Error Trigger`);
+    assert.equal(n.onError, "continueRegularOutput", `${n.name}: dacă un canal pică, celălalt pleacă oricum`);
+  }
+});

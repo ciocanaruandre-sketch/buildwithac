@@ -26,7 +26,7 @@ Ce va fi **public pe site** (telefonul firmei, WhatsApp-ul, adresa, programul), 
 
 ## Copia de rezervă
 
-Pozele și logo-ul folosite pe site ajung în depozitul site-ului, deci au copie pe GitHub. Restul din `materiale/` (fișierele brute, exportul Tally) stă doar pe laptop: pune o copie în Drive, în `buildwithac.ai/clienti/<slug>/`, cum faci cu clipurile.
+Pozele și logo-ul folosite pe site ajung în depozitul site-ului, deci au copie pe GitHub. Restul din `materiale/` (fișierele brute, exportul Tally) stă doar pe laptop: pune o copie în Drive, în `buildwithac.ai/clienti/<slug>/`, cum faci cu clipurile. Excepție: ce are date despre clienții firmei (exemple de comenzi, de programări, liste de pacienți) rămâne doar pe laptop.
 
 ## Legătura cu CRM-ul
 

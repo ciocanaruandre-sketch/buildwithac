@@ -61,9 +61,16 @@ export function gasesteDateReale(flux) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const [sursa, model] = process.argv.slice(2);
+  const [sursa, model, tinta] = process.argv.slice(2);
   try {
-    if (!sursa || !model) throw new Error("Folosire: node servicii/automatizari/curata.mjs <sursă.json> <model>");
+    // copia pentru Drive: exportul unui client, fără date fixate, ID-uri și conturi (clauza GDPR, X.6)
+    if (model === "--catre") {
+      if (!sursa || !tinta) throw new Error("Folosire: node servicii/automatizari/curata.mjs <export.json> --catre <copie.json>");
+      writeFileSync(tinta, JSON.stringify(curataFlux(JSON.parse(readFileSync(sursa, "utf8"))), null, 2) + "\n");
+      console.log(`Scris: ${tinta} (fără date fixate; ID-urile de tabele și adresele clientului rămân)`);
+      process.exit(0);
+    }
+    if (!sursa || !model) throw new Error("Folosire: node servicii/automatizari/curata.mjs <sursă.json> <model>  |  <export.json> --catre <copie.json>");
     const greseala = valideazaSlug(model);
     if (greseala) throw new Error(greseala.replace("Slug-ul", "Numele modelului"));
     const curat = curataFlux(JSON.parse(readFileSync(sursa, "utf8")));

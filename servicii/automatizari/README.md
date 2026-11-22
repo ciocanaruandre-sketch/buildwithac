@@ -78,7 +78,7 @@ N8N_API_KEY=<cheia API a lui Andrei, din contul lui de Member>
 N8N_MCP_ACCESS_TOKEN=<tokenul MCP al lui Andrei>
 ```
 
-Exporturile fluxurilor (`fluxuri/`) și PDF-urile (`pdf/`) nu intră nici ele în git. Copia de rezervă e chiar n8n-ul clientului, plus Drive.
+Exporturile fluxurilor (`fluxuri/`) și PDF-urile (`pdf/`) nu intră nici ele în git. Copia de rezervă e chiar n8n-ul clientului, plus Drive, unde ajunge doar copia curățată a exportului (`curata.mjs <export.json> --catre <copie.json>`: fără date fixate, ID-uri de cont și conturi conectate).
 
 ## Testarea
 

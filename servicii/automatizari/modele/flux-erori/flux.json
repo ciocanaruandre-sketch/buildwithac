@@ -35,6 +35,33 @@
           "id": "",
           "name": "DE_CONECTAT"
         }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "fe-3",
+      "name": "Telegram alertă",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        200
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID_ALERTE",
+        "text": "=⚠️ CONFIG_NUMELE_FIRMEI: a picat „{{ $json.workflow?.name || 'fără nume' }}”\nNodul: {{ $json.execution?.lastNodeExecuted || 'declanșatorul' }}\nOra: {{ $now.setZone('Europe/Bucharest').toFormat('dd.MM.yyyy HH:mm') }}\n{{ $json.execution?.url || 'Fără link: a picat declanșatorul. Detaliile sunt în e-mail.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
       }
     }
   ],
@@ -44,6 +71,11 @@
         [
           {
             "node": "E-mail alertă",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram alertă",
             "type": "main",
             "index": 0
           }

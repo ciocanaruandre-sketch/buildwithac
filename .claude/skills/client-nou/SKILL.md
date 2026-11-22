@@ -19,7 +19,7 @@ Citește înainte: `clienti/README.md` (ce intră în git, linia la datele perso
 4. **Materialele.** Cere-i lui Andrei exportul din Tally (sau răspunsurile copiate) și notițele de la telefon. Pune-le în `materiale/` (nu intră în git).
 5. **Fișa.** Complet-o din materiale. **Fără datele care nu se publică**: numele persoanei de contact, e-mailul ei, alte numere, ce a spus la telefon despre sine. Acelea rămân în CRM și în `materiale/`. În fișă intră doar ce va fi public (telefonul firmei, WhatsApp, adresa, programul). Ce lipsește scrii la „Întrebări deschise”, nu inventezi.
 6. **Ce a cumpărat.** Întreabă: site, automatizări sau sesiune / ghid personalizat? La site, și: cu mentenanță sau doar site-ul; simplu sau cu panou. La automatizări, și: cu mentenanță (preferată) sau doar automatizarea; apoi completează „Ce trebuie automatizat” din răspunsurile Tally 10–19. Notează în fișă și pune primul rând în `jurnal.md`.
-7. **Copia din Drive.** Amintește-i lui Andrei să pună o copie a lui `materiale/` în Drive, în `buildwithac.ai/clienti/<slug>/`.
+7. **Copia din Drive.** Amintește-i lui Andrei să pună o copie a lui `materiale/` în Drive, în `buildwithac.ai/clienti/<slug>/`, **fără** ce are date despre clienții firmei (exemple de comenzi, de programări, liste de pacienți): acelea rămân doar pe laptop (clauza GDPR din `servicii/automatizari/gdpr.md`).
 8. **Mai departe:**
    - **Site** → skill-ul `site-client`.
    - **Automatizări** → skill-ul `automatizare-client`.

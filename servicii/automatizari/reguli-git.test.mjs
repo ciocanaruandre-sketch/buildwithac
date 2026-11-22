@@ -1,10 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const RADACINA = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: dirname(fileURLToPath(import.meta.url)) }).toString().trim();
 
 // git check-ignore: cod 0 = ignorat, cod 1 = intră în git
 const ignorat = (cale) => {
-  try { execFileSync("git", ["check-ignore", "-q", "--no-index", cale]); return true; } catch { return false; }
+  try { execFileSync("git", ["check-ignore", "-q", "--no-index", cale], { cwd: RADACINA }); return true; } catch { return false; }
 };
 
 test("din automatizari/ ale unui client intră în git doar cele trei documente (și instrucțiunile variantei Claude)", () => {
