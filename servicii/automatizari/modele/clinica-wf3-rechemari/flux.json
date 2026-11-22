@@ -1,0 +1,389 @@
+{
+  "name": "Clinica - WF3 Recall Engine",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "wf3-n1",
+      "name": "Schedule 10:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "wf3-n2",
+      "name": "Citeste Patients",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        460,
+        400
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Patients",
+          "cachedResultName": "Patients"
+        },
+        "range": "Patients!A:K",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf3-n3",
+      "name": "Citeste Config",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        460,
+        200
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Config",
+          "cachedResultName": "Config"
+        },
+        "range": "Config!A:B",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf3-n4",
+      "name": "Config Map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        200
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.all().map(i => i.json);\nconst cfg = {};\nfor (const r of rows) {\n  cfg[r.key] = r.value;\n}\nreturn [{ json: cfg }];"
+      }
+    },
+    {
+      "id": "wf3-n5",
+      "name": "Filtreaza pt recall",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        400
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const cfg = $('Config Map').first().json;\nconst cooldown = Number(cfg.recall_cooldown_days || 30);\nconst now = new Date();\nconst out = [];\nfor (const p of $input.all().map(i => i.json)) {\n  if (p.status !== 'ACTIV' || p.consent_sms !== 'DA') continue;\n  const last = new Date(p.last_visit);\n  const monthsSince = (now - last) / (1000 * 60 * 60 * 24 * 30);\n  if (monthsSince < Number(p.recall_months || 6)) continue;\n  if (p.last_recall_sent) {\n    const daysSinceRecall = (now - new Date(p.last_recall_sent)) / (1000 * 60 * 60 * 24);\n    if (daysSinceRecall < cooldown) continue;\n  }\n  out.push({ json: { ...p, months_since: Math.floor(monthsSince) } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "wf3-n6",
+      "name": "Loop batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        900,
+        400
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "wf3-n7",
+      "name": "Mesaj fix",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        460
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m1",
+              "name": "sms_text",
+              "type": "string",
+              "value": "=Buna, {{ ($json.name || '').trim().split(' ')[0] }}! E timpul pentru controlul periodic. Programeaza-te aici: {{ $('Config Map').first().json.booking_link }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "wf3-n9",
+      "name": "SMS Recall",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        460
+      ],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "CONFIG_TWILIO_NUMAR",
+        "to": "={{ $json.phone }}",
+        "message": "={{ $json.sms_text }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf3-n10",
+      "name": "Update last_recall_sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1780,
+        460
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Patients",
+          "cachedResultName": "Patients"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "patient_id"
+          ],
+          "value": {
+            "patient_id": "={{ $json.patient_id }}",
+            "last_recall_sent": "={{ $now.toISO() }}"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf3-n11",
+      "name": "Log Recall",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2000,
+        460
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Message_Log",
+          "cachedResultName": "Message_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "appointment_id": "",
+            "patient_id": "={{ $json.patient_id }}",
+            "phone": "={{ $json.phone }}",
+            "channel": "SMS",
+            "message_type": "RECALL",
+            "status": "sent",
+            "provider_id": "",
+            "error": ""
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf3-n12",
+      "name": "Telegram Sumar",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID",
+        "text": "=Azi: {{ $('Filtreaza pt recall').all().length }} recall-uri trimise",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Schedule 10:00": {
+      "main": [
+        [
+          {
+            "node": "Citeste Patients",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Citeste Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Config": {
+      "main": [
+        [
+          {
+            "node": "Config Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Patients": {
+      "main": [
+        [
+          {
+            "node": "Filtreaza pt recall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtreaza pt recall": {
+      "main": [
+        [
+          {
+            "node": "Loop batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop batches": {
+      "main": [
+        [
+          {
+            "node": "Telegram Sumar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mesaj fix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS Recall": {
+      "main": [
+        [
+          {
+            "node": "Update last_recall_sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update last_recall_sent": {
+      "main": [
+        [
+          {
+            "node": "Log Recall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Recall": {
+      "main": [
+        [
+          {
+            "node": "Loop batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesaj fix": {
+      "main": [
+        [
+          {
+            "node": "SMS Recall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

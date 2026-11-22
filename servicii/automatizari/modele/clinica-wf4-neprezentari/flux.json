@@ -1,0 +1,375 @@
+{
+  "name": "Clinica - WF4 No-Show Detection & Daily Report",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "wf4-n1",
+      "name": "Schedule 21:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "wf4-n2",
+      "name": "Citeste Appointments",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        460,
+        400
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "range": "Appointments!A:N",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf4-n3",
+      "name": "Citeste Message_Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        460,
+        600
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Message_Log",
+          "cachedResultName": "Message_Log"
+        },
+        "range": "Message_Log!A:I",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf4-n4",
+      "name": "Citeste Config",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        460,
+        200
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Config",
+          "cachedResultName": "Config"
+        },
+        "range": "Config!A:B",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf4-n5",
+      "name": "Config Map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        200
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.all().map(i => i.json);\nconst cfg = {};\nfor (const r of rows) {\n  cfg[r.key] = r.value;\n}\nreturn [{ json: cfg }];"
+      }
+    },
+    {
+      "id": "wf4-n6",
+      "name": "Detecteaza no-show",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        460
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const now = new Date();\nconst rows = $input.all().map(i => i.json);\nconst out = [];\nfor (const r of rows) {\n  if (r.status === 'SCHEDULED' && new Date(r.appointment_datetime) < now) {\n    out.push({ json: r });\n  }\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "wf4-n7",
+      "name": "Update NO_SHOW",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        900,
+        460
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "status": "NO_SHOW"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf4-n8",
+      "name": "SMS Reactivare",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        460
+      ],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "CONFIG_TWILIO_NUMAR",
+        "to": "={{ $json.phone }}",
+        "message": "=Ne pare rau ca nu ai ajuns, {{ $json.name }}! Reprogramam? {{ $('Config Map').first().json.booking_link }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf4-n9",
+      "name": "Log Msg Reactivare",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1340,
+        460
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Message_Log",
+          "cachedResultName": "Message_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "appointment_id": "={{ $json.appointment_id }}",
+            "patient_id": "={{ $json.patient_id }}",
+            "phone": "={{ $json.phone }}",
+            "channel": "SMS",
+            "message_type": "REACTIVARE",
+            "status": "sent",
+            "provider_id": "",
+            "error": ""
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf4-n10",
+      "name": "Calcul Metrici",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        700
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const now = new Date();\nconst todayStr = now.toISOString().slice(0, 10);\nconst appts = $input.all().map(i => i.json);\nconst todays = appts.filter(a => String(a.appointment_datetime || '').slice(0, 10) === todayStr);\nconst confirmed = todays.filter(a => a.status === 'CONFIRMED' || a.status === 'COMPLETED').length;\nconst cancelled = todays.filter(a => a.status === 'CANCELLED').length;\nconst noShow = todays.filter(a => a.status === 'NO_SHOW').length;\nconst reviewsSent = todays.filter(a => a.review_sent === 'sent').length;\n\nconst logs = $('Citeste Message_Log').all().map(i => i.json);\nconst recallToday = logs.filter(l => l.message_type === 'RECALL' && String(l.timestamp || '').slice(0, 10) === todayStr).length;\n\nreturn [{\n  json: {\n    total: todays.length,\n    confirmed,\n    cancelled,\n    no_show: noShow,\n    recall_sent: recallToday,\n    reviews_sent: reviewsSent\n  }\n}];"
+      }
+    },
+    {
+      "id": "wf4-n11",
+      "name": "Telegram Raport",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        700
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID",
+        "text": "=📊 RAPORT ZILNIC — {{ $('Config Map').first().json.clinic_name }} — {{ $now.toFormat('dd.MM.yyyy') }}\nProgramari azi: {{ $json.total }}\n✅ Confirmate: {{ $json.confirmed }}   ❌ Anulate: {{ $json.cancelled }}   👻 No-show: {{ $json.no_show }}\n🔁 Recall trimise: {{ $json.recall_sent }}\n⭐ Cereri recenzie: {{ $json.reviews_sent }}",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Schedule 21:00": {
+      "main": [
+        [
+          {
+            "node": "Citeste Appointments",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Citeste Message_Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Citeste Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Config": {
+      "main": [
+        [
+          {
+            "node": "Config Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Appointments": {
+      "main": [
+        [
+          {
+            "node": "Detecteaza no-show",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Calcul Metrici",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detecteaza no-show": {
+      "main": [
+        [
+          {
+            "node": "Update NO_SHOW",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update NO_SHOW": {
+      "main": [
+        [
+          {
+            "node": "SMS Reactivare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS Reactivare": {
+      "main": [
+        [
+          {
+            "node": "Log Msg Reactivare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcul Metrici": {
+      "main": [
+        [
+          {
+            "node": "Telegram Raport",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

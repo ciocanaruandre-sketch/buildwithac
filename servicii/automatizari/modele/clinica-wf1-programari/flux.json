@@ -1,0 +1,1164 @@
+{
+  "name": "Clinica - WF1 Intake & Reminder Sequence",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "wf1-n1",
+      "name": "Webhook Programare",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "programare-clinica",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n2",
+      "name": "Citeste Config",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        460,
+        200
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Config",
+          "cachedResultName": "Config"
+        },
+        "range": "Config!A:B",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n3",
+      "name": "Config Map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        200
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.all().map(i => i.json);\nconst cfg = {};\nfor (const r of rows) {\n  cfg[r.key] = r.value;\n}\nreturn [{ json: cfg }];"
+      }
+    },
+    {
+      "id": "wf1-n4",
+      "name": "Formatare Date",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        400
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "patient_id",
+              "type": "string",
+              "value": "={{ $json.body.patient_id }}"
+            },
+            {
+              "id": "a2",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "id": "a3",
+              "name": "phone",
+              "type": "string",
+              "value": "={{ $json.body.phone }}"
+            },
+            {
+              "id": "a4",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "id": "a5",
+              "name": "appointment_datetime",
+              "type": "string",
+              "value": "={{ $json.body.appointment_datetime }}"
+            },
+            {
+              "id": "a6",
+              "name": "doctor_name",
+              "type": "string",
+              "value": "={{ $json.body.doctor_name }}"
+            },
+            {
+              "id": "a7",
+              "name": "treatment_type",
+              "type": "string",
+              "value": "={{ $json.body.treatment_type }}"
+            },
+            {
+              "id": "a8",
+              "name": "appointment_id",
+              "type": "string",
+              "value": "={{ 'AP-' + $now.toFormat('yyyyMMddHHmmss') }}"
+            },
+            {
+              "id": "a9",
+              "name": "data_ro",
+              "type": "string",
+              "value": "={{ DateTime.fromISO($json.body.appointment_datetime).setLocale('ro').toFormat('d MMMM yyyy, HH:mm') }}"
+            },
+            {
+              "id": "a10",
+              "name": "ora",
+              "type": "string",
+              "value": "={{ DateTime.fromISO($json.body.appointment_datetime).toFormat('HH:mm') }}"
+            },
+            {
+              "id": "a11",
+              "name": "reminder_48h",
+              "type": "string",
+              "value": "={{ DateTime.fromISO($json.body.appointment_datetime).minus({ hours: 48 }).toISO() }}"
+            },
+            {
+              "id": "a12",
+              "name": "reminder_3h",
+              "type": "string",
+              "value": "={{ DateTime.fromISO($json.body.appointment_datetime).minus({ hours: 3 }).toISO() }}"
+            },
+            {
+              "id": "a13",
+              "name": "review_time",
+              "type": "string",
+              "value": "={{ DateTime.fromISO($json.body.appointment_datetime).plus({ hours: 2 }).toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "wf1-n5",
+      "name": "Raspuns Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        680,
+        400
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"ok\",\n  \"appointment_id\": \"{{ $json.appointment_id }}\"\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "wf1-n6",
+      "name": "SMS Confirmare",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        900,
+        400
+      ],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "CONFIG_TWILIO_NUMAR",
+        "to": "={{ $json.phone }}",
+        "message": "=Buna, {{ $json.name }}! Programarea la {{ $('Config Map').first().json.clinic_name }} pe {{ $json.data_ro }} e confirmata.\nRaspunde CONFIRM sau ANULEZ. Info: {{ $('Config Map').first().json.clinic_phone }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n7",
+      "name": "Log Appointment",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        400
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "patient_id": "={{ $json.patient_id }}",
+            "name": "={{ $json.name }}",
+            "phone": "={{ $json.phone }}",
+            "appointment_datetime": "={{ $json.appointment_datetime }}",
+            "doctor_name": "={{ $json.doctor_name }}",
+            "clinic_name": "={{ $('Config Map').first().json.clinic_name }}",
+            "treatment_type": "={{ $json.treatment_type }}",
+            "status": "SCHEDULED",
+            "confirmed_at": "",
+            "reminder_48h": "",
+            "reminder_3h": "",
+            "review_sent": "",
+            "created_at": "={{ $now.toISO() }}"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n8",
+      "name": "Log Msg Confirmare",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        560
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Message_Log",
+          "cachedResultName": "Message_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "appointment_id": "={{ $json.appointment_id }}",
+            "patient_id": "={{ $json.patient_id }}",
+            "phone": "={{ $json.phone }}",
+            "channel": "SMS",
+            "message_type": "CONFIRMARE",
+            "status": "sent",
+            "provider_id": "",
+            "error": ""
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n9",
+      "name": "Wait 48h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        400
+      ],
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $json.reminder_48h }}"
+      }
+    },
+    {
+      "id": "wf1-n10",
+      "name": "Citeste Appointments 48h",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1560,
+        400
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "range": "Appointments!A:N",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n11",
+      "name": "Extrage Rand 48h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        400
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const apptId = $('Formatare Date').first().json.appointment_id;\nconst rows = $input.all().map(i => i.json);\nconst row = rows.find(r => r.appointment_id === apptId);\nif (!row) throw new Error('Appointment not found: ' + apptId);\nreturn [{ json: { ...$('Formatare Date').first().json, status: row.status } }];"
+      }
+    },
+    {
+      "id": "wf1-n12",
+      "name": "IF Activa 48h",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2000,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "CANCELLED"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "wf1-n13",
+      "name": "SMS Reminder 48h",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        2220,
+        340
+      ],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "CONFIG_TWILIO_NUMAR",
+        "to": "={{ $json.phone }}",
+        "message": "={{ $json.name }}, iti reamintim programarea la {{ $('Config Map').first().json.clinic_name }} pe {{ $json.data_ro }}.\nConfirmi? Raspunde CONFIRM. Nu poti veni? ANULEZ."
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n14",
+      "name": "Update Reminder48h",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2440,
+        340
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "reminder_48h": "sent"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n15",
+      "name": "Log Msg Reminder48h",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2440,
+        500
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Message_Log",
+          "cachedResultName": "Message_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "appointment_id": "={{ $json.appointment_id }}",
+            "patient_id": "={{ $json.patient_id }}",
+            "phone": "={{ $json.phone }}",
+            "channel": "SMS",
+            "message_type": "REMINDER_48H",
+            "status": "sent",
+            "provider_id": "",
+            "error": ""
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n16",
+      "name": "Wait 3h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2660,
+        340
+      ],
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $json.reminder_3h }}"
+      }
+    },
+    {
+      "id": "wf1-n17",
+      "name": "Citeste Appointments 3h",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2880,
+        340
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "range": "Appointments!A:N",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n18",
+      "name": "Extrage Rand 3h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        340
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const apptId = $('Formatare Date').first().json.appointment_id;\nconst rows = $input.all().map(i => i.json);\nconst row = rows.find(r => r.appointment_id === apptId);\nif (!row) throw new Error('Appointment not found: ' + apptId);\nreturn [{ json: { ...$('Formatare Date').first().json, status: row.status } }];"
+      }
+    },
+    {
+      "id": "wf1-n19",
+      "name": "IF Activa 3h",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3320,
+        340
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "CANCELLED"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "wf1-n20",
+      "name": "SMS Reminder 3h",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        3540,
+        280
+      ],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "CONFIG_TWILIO_NUMAR",
+        "to": "={{ $json.phone }}",
+        "message": "={{ $json.name }}, te asteptam azi la {{ $json.ora }} la {{ $('Config Map').first().json.clinic_name }}. Pe curand!"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n21",
+      "name": "Update Reminder3h",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3760,
+        280
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "reminder_3h": "sent"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n22",
+      "name": "Log Msg Reminder3h",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3760,
+        440
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Message_Log",
+          "cachedResultName": "Message_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "appointment_id": "={{ $json.appointment_id }}",
+            "patient_id": "={{ $json.patient_id }}",
+            "phone": "={{ $json.phone }}",
+            "channel": "SMS",
+            "message_type": "REMINDER_3H",
+            "status": "sent",
+            "provider_id": "",
+            "error": ""
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n23",
+      "name": "Wait Review",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3980,
+        280
+      ],
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $json.review_time }}"
+      }
+    },
+    {
+      "id": "wf1-n24",
+      "name": "Citeste Appointments Review",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4200,
+        280
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "range": "Appointments!A:N",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n25",
+      "name": "Extrage Rand Review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4420,
+        280
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const apptId = $('Formatare Date').first().json.appointment_id;\nconst rows = $input.all().map(i => i.json);\nconst row = rows.find(r => r.appointment_id === apptId);\nif (!row) throw new Error('Appointment not found: ' + apptId);\nreturn [{ json: { ...$('Formatare Date').first().json, status: row.status } }];"
+      }
+    },
+    {
+      "id": "wf1-n26",
+      "name": "IF A Venit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4640,
+        280
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "CONFIRMED"
+            },
+            {
+              "id": "c2",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "COMPLETED"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "wf1-n27",
+      "name": "SMS Cerere Recenzie",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        4860,
+        220
+      ],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "CONFIG_TWILIO_NUMAR",
+        "to": "={{ $json.phone }}",
+        "message": "=Multumim ca ne-ai vizitat, {{ $json.name }}! Ne ajuti cu o recenzie? {{ $('Config Map').first().json.google_review_link }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n28",
+      "name": "Update Review",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5080,
+        160
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments",
+          "cachedResultName": "Appointments"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "review_sent": "sent"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wf1-n29",
+      "name": "Log Msg Review",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5080,
+        320
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_SHEET_ID",
+          "cachedResultName": "Clinica - Baza de Date"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Message_Log",
+          "cachedResultName": "Message_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "appointment_id": "={{ $json.appointment_id }}",
+            "patient_id": "={{ $json.patient_id }}",
+            "phone": "={{ $json.phone }}",
+            "channel": "SMS",
+            "message_type": "REVIEW",
+            "status": "sent",
+            "provider_id": "",
+            "error": ""
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Webhook Programare": {
+      "main": [
+        [
+          {
+            "node": "Citeste Config",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Formatare Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Config": {
+      "main": [
+        [
+          {
+            "node": "Config Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatare Date": {
+      "main": [
+        [
+          {
+            "node": "Raspuns Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Raspuns Webhook": {
+      "main": [
+        [
+          {
+            "node": "SMS Confirmare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS Confirmare": {
+      "main": [
+        [
+          {
+            "node": "Log Appointment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Msg Confirmare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Appointment": {
+      "main": [
+        [
+          {
+            "node": "Wait 48h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 48h": {
+      "main": [
+        [
+          {
+            "node": "Citeste Appointments 48h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Appointments 48h": {
+      "main": [
+        [
+          {
+            "node": "Extrage Rand 48h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrage Rand 48h": {
+      "main": [
+        [
+          {
+            "node": "IF Activa 48h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Activa 48h": {
+      "main": [
+        [
+          {
+            "node": "SMS Reminder 48h",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "SMS Reminder 48h": {
+      "main": [
+        [
+          {
+            "node": "Update Reminder48h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Msg Reminder48h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Reminder48h": {
+      "main": [
+        [
+          {
+            "node": "Wait 3h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3h": {
+      "main": [
+        [
+          {
+            "node": "Citeste Appointments 3h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Appointments 3h": {
+      "main": [
+        [
+          {
+            "node": "Extrage Rand 3h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrage Rand 3h": {
+      "main": [
+        [
+          {
+            "node": "IF Activa 3h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Activa 3h": {
+      "main": [
+        [
+          {
+            "node": "SMS Reminder 3h",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "SMS Reminder 3h": {
+      "main": [
+        [
+          {
+            "node": "Update Reminder3h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Msg Reminder3h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Reminder3h": {
+      "main": [
+        [
+          {
+            "node": "Wait Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Review": {
+      "main": [
+        [
+          {
+            "node": "Citeste Appointments Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Citeste Appointments Review": {
+      "main": [
+        [
+          {
+            "node": "Extrage Rand Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrage Rand Review": {
+      "main": [
+        [
+          {
+            "node": "IF A Venit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF A Venit": {
+      "main": [
+        [
+          {
+            "node": "SMS Cerere Recenzie",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "SMS Cerere Recenzie": {
+      "main": [
+        [
+          {
+            "node": "Update Review",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Msg Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

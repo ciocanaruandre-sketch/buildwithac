@@ -1,0 +1,1322 @@
+{
+  "name": "Carusele Instagram (model)",
+  "nodes": [
+    {
+      "id": "trigger-webhook",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        100,
+        -600
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "carusele-genereaza",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -760
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'pipeline_started', timestamp: $now.toISO() }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "trigger-telegram",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        100,
+        -400
+      ],
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    },
+    {
+      "id": "if-check-post",
+      "name": "IF - Check /post Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.message.text || '' }}",
+              "rightValue": "/post",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "trigger-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        100,
+        -200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        },
+        "timezone": "Europe/Bucharest"
+      }
+    },
+    {
+      "id": "merge-triggers",
+      "name": "Merge Triggers",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        540,
+        -400
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "fields": {
+          "values": [
+            {
+              "name": "pipeline_started_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-apify",
+      "name": "HTTP - Apify Scrape",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        760,
+        -400
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.apify.com/v2/datasets/CONFIG_APIFY_DATASET_ID/items?format=json&limit=30",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer CONFIG_APIFY_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "http-rss-anthropic",
+      "name": "HTTP - RSS Anthropic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        980,
+        -400
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.anthropic.com/rss.xml",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "http-rss-openai",
+      "name": "HTTP - RSS OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        -400
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://openai.com/blog/rss.xml",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "http-rss-techcrunch",
+      "name": "HTTP - RSS TechCrunch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1420,
+        -400
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "code-parse-sources",
+      "name": "Code - Parse & Merge Sources",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        -400
+      ],
+      "parameters": {
+        "jsCode": "const apifyItems = [];\ntry {\n  const raw = $('HTTP - Apify Scrape').all();\n  if (raw && raw[0] && !raw[0].json.error) {\n    const data = Array.isArray(raw[0].json) ? raw[0].json : [raw[0].json];\n    for (const post of data) {\n      if (post && (post.caption || post.title)) {\n        apifyItems.push({\n          source_type: 'instagram',\n          source_account: post.ownerUsername ? '@' + post.ownerUsername : '@unknown',\n          title: (post.caption || post.title || '').substring(0, 120),\n          content: post.caption || post.description || '',\n          url: post.shortCode ? 'https://www.instagram.com/p/' + post.shortCode + '/' : (post.url || ''),\n          engagement: (post.likesCount || 0) + (post.commentsCount || 0),\n          date: post.timestamp || new Date().toISOString(),\n          language: 'en'\n        });\n      }\n    }\n  }\n} catch(e) { /* apify failed, continue */ }\n\nfunction parseRSS(nodeData, sourceName) {\n  const items = [];\n  try {\n    if (!nodeData || !nodeData[0]) return items;\n    const item = nodeData[0];\n    if (item.json && item.json.error) return items;\n    const xml = item.json.data || item.json.body || String(item.json) || '';\n    const rx = /<item[^>]*>([\\s\\S]*?)<\\/item>/g;\n    let m;\n    let count = 0;\n    while ((m = rx.exec(xml)) !== null && count < 8) {\n      const x = m[1];\n      const g = (t) => {\n        const r = x.match(new RegExp('<' + t + '[^>]*>(?:<!\\\\[CDATA\\\\[)?([\\\\s\\\\S]*?)(?:\\\\]\\\\]>)?<\\/' + t + '>', 'i'));\n        return r ? r[1].trim() : '';\n      };\n      const title = g('title');\n      if (title) {\n        items.push({\n          source_type: 'rss',\n          source_account: sourceName,\n          title: title,\n          content: g('description') || g('summary') || '',\n          url: g('link') || '',\n          engagement: 0,\n          date: g('pubDate') ? new Date(g('pubDate')).toISOString() : new Date().toISOString(),\n          language: 'en'\n        });\n        count++;\n      }\n    }\n  } catch(e) {}\n  return items;\n}\n\nconst allItems = [\n  ...apifyItems,\n  ...parseRSS($('HTTP - RSS Anthropic').all(), 'Anthropic Blog'),\n  ...parseRSS($('HTTP - RSS OpenAI').all(), 'OpenAI Blog'),\n  ...parseRSS($('HTTP - RSS TechCrunch').all(), 'TechCrunch AI')\n];\n\nallItems.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());\nconst top20 = allItems.slice(0, 20);\n\nif (top20.length === 0) {\n  top20.push({\n    source_type: 'rss', source_account: 'TechCrunch AI',\n    title: 'AI aduce schimbari majore in industrie',\n    content: 'Inteligenta artificiala continua sa transforme modul in care lucram si comunicam.',\n    url: 'https://techcrunch.com', engagement: 0,\n    date: new Date().toISOString(), language: 'en'\n  });\n}\n\nreturn [{ json: {\n  sources: top20,\n  sources_text: JSON.stringify(top20, null, 2),\n  total_sources: allItems.length,\n  collected_at: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "openai-curator",
+      "name": "OpenAI - Content Curator",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        1860,
+        -400
+      ],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "chatModel": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Esti content curator pentru contul Instagram @CONFIG_CONT_INSTAGRAM — un cont educational de AI in limba romana.\n\nPrimesti o lista de surse (postari Instagram si articole RSS despre AI).\n\nSelecteaza EXACT 1 sursa (cea mai relevanta si interesanta) si decide tipul de postare.\n\nCriterii de selectie:\n1. Relevanta pentru publicul roman (antreprenori, curiosi de AI, freelanceri)\n2. Actualitate (preferabil din ultimele 3 zile)\n3. Se poate transforma in carousel vizual educativ\n4. Aduce valoare practica (nu doar teorie abstracta)\n5. Engagement potential mare\n\nTipuri de postare posibile:\n- CAROUSEL_EDUCATIONAL: concept AI explicat pas cu pas (5-8 slides)\n- NEWS: noutate/lansare importanta din AI (5-6 slides)\n- TIPS: sfaturi practice, tools, shortcuts (6-8 slides)\n- TUTORIAL: pas cu pas cum faci ceva cu AI (7-9 slides)\n- TOOL_REVIEW: review unui tool AI (6-7 slides)\n\nReturneaza DOAR un JSON valid, fara markdown, fara backticks:\n{\"selected_source\":{\"title\":\"titlul original\",\"url\":\"url sursa\",\"source_type\":\"instagram sau rss\",\"source_account\":\"cont/blog\"},\"post_type\":\"CAROUSEL_EDUCATIONAL\",\"post_angle_ro\":\"perspectiva unica in romana\",\"why_selected\":\"de ce am selectat aceasta sursa\",\"slides_count\":6}"
+            },
+            {
+              "role": "user",
+              "content": "=Iata sursele disponibile azi:\n\n{{ $json.sources_text }}"
+            }
+          ]
+        },
+        "simplifyOutput": true,
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "code-parse-curator",
+      "name": "Code - Parse Curator Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        -400
+      ],
+      "parameters": {
+        "jsCode": "let selection = null;\ntry {\n  const raw = $input.first().json;\n  const text = raw.message?.content || raw.choices?.[0]?.message?.content || raw.text || raw.content || '';\n  const clean = text.trim().replace(/^```json\\n?/, '').replace(/```$/, '').trim();\n  selection = JSON.parse(clean);\n} catch(e) {\n  selection = {\n    selected_source: { title: 'AI si Viitorul Muncii', url: 'https://techcrunch.com', source_type: 'rss', source_account: 'TechCrunch AI' },\n    post_type: 'CAROUSEL_EDUCATIONAL',\n    post_angle_ro: 'Cum schimba AI-ul piata muncii pentru romani — ce skills sa inveti acum',\n    why_selected: 'Fallback — parser error',\n    slides_count: 6\n  };\n}\n\nconst generatorPrompt = 'Sursa selectata:\\n' + JSON.stringify(selection.selected_source, null, 2) +\n  '\\n\\nTip postare: ' + selection.post_type +\n  '\\n\\nUnghi propus (in romana): ' + selection.post_angle_ro +\n  '\\n\\nNumar slides dorit: ' + (selection.slides_count || 6);\n\nreturn [{ json: { ...selection, generator_prompt: generatorPrompt } }];"
+      }
+    },
+    {
+      "id": "openai-generator",
+      "name": "OpenAI - Content Generator",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        2300,
+        -400
+      ],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "chatModel": "gpt-4o",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Esti copywriter expert pentru contul Instagram @CONFIG_CONT_INSTAGRAM.\nScrii continut educational despre AI in limba romana — accesibil, practic, vizual.\n\nPrimesti o sursa selectata si tipul de postare dorit.\nGenereaza o postare COMPLETA de carousel Instagram.\n\nREGULI OBLIGATORII:\n- Limba: ROMANA (nu engleza)\n- Nu copia textul sursei — adapteaza, reformuleaza, adauga valoare\n- Slide 1 = thumbnail: titlu scurt (max 8 cuvinte), catchy, cu emoji\n- Slides 2-7 = continut: 1 idee per slide, max 40 cuvinte per slide, heading + body\n- Penultimul slide = rezumat cu bullet points\n- Ultimul slide = CTA: salveaza, share, follow @CONFIG_CONT_INSTAGRAM\n- Descrierea Instagram: hook in primele 125 caractere, body max 150 cuvinte, hashtags\n\nReturneaza DOAR un JSON valid, fara markdown, fara backticks:\n{\"post_id\":\"POST-TIMESTAMP\",\"title\":\"titlul postarii\",\"post_type\":\"tipul\",\"slides\":[{\"slide_number\":1,\"type\":\"thumbnail\",\"heading\":\"text mare\",\"subheading\":\"subtitlu\",\"emoji\":\"emoji\"},{\"slide_number\":2,\"type\":\"content\",\"heading\":\"heading slide\",\"body\":\"text max 40 cuvinte\",\"icon\":\"emoji\"}],\"description\":{\"hook\":\"primele 125 caractere\",\"body\":\"restul descrierii\",\"cta\":\"call to action\",\"hashtags\":\"hashtags\"},\"source_credit\":\"Inspirat de sursa\",\"suggested_post_time\":\"18:00\"}"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.generator_prompt }}"
+            }
+          ]
+        },
+        "simplifyOutput": true,
+        "options": {
+          "temperature": 0.8,
+          "maxTokens": 4000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "code-parse-content",
+      "name": "Code - Parse Content Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2520,
+        -400
+      ],
+      "parameters": {
+        "jsCode": "let content = null;\ntry {\n  const raw = $input.first().json;\n  const text = raw.message?.content || raw.choices?.[0]?.message?.content || raw.text || raw.content || '';\n  const clean = text.trim().replace(/^```json\\n?/, '').replace(/```$/, '').trim();\n  content = JSON.parse(clean);\n} catch(e) {\n  throw new Error('Content Generator JSON parse failed. Raw: ' + JSON.stringify($input.first().json).substring(0, 300));\n}\n\nif (!content.slides || !Array.isArray(content.slides) || content.slides.length < 2) {\n  throw new Error('Generated content missing slides array or too few slides');\n}\n\ncontent.post_id = content.post_id || 'POST-' + Date.now();\ncontent.created_at = new Date().toISOString();\ncontent.slides_count = content.slides.length;\n\ncontent.slides = content.slides.map((s, i) => ({\n  slide_number: s.slide_number || (i + 1),\n  type: s.type || (i === 0 ? 'thumbnail' : i === content.slides.length - 1 ? 'cta' : 'content'),\n  heading: s.heading || '',\n  body: s.body || '',\n  subheading: s.subheading || '',\n  emoji: s.emoji || '',\n  icon: s.icon || s.emoji || ''\n}));\n\nreturn [{ json: content }];"
+      }
+    },
+    {
+      "id": "code-generate-html",
+      "name": "Code - Generate HTML Slides",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2740,
+        -400
+      ],
+      "parameters": {
+        "jsCode": "const content = $input.first().json;\nconst slides = content.slides || [];\nconst total = slides.length;\n\nfunction esc(str) {\n  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');\n}\n\nconst fonts = '<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link href=\"https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=DM+Sans:wght@400;500&display=swap\" rel=\"stylesheet\">';\nconst baseCSS = '*{margin:0;padding:0;box-sizing:border-box}body{width:1080px;height:1350px;overflow:hidden;font-family:\\'Space Grotesk\\',sans-serif;display:flex;flex-direction:column;position:relative}.hdr{position:absolute;top:40px;left:50px;right:50px;display:flex;justify-content:space-between;align-items:center}.hdl{color:#94A3B8;font-size:22px}.sln{color:#4F46E5;font-size:22px}.bot{position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#4F46E5,#06B6D4);border-radius:0}';\n\nconst results = [];\n\nfor (const slide of slides) {\n  const num = String(slide.slide_number || 1).padStart(2,'0');\n  const tot = String(total).padStart(2,'0');\n  const isThumb = slide.type === 'thumbnail' || slide.slide_number === 1;\n  const isCTA = slide.type === 'cta' || slide.slide_number === total;\n  let html = '';\n\n  if (isThumb) {\n    html = `<!DOCTYPE html><html><head><meta charset=\"UTF-8\">${fonts}<style>${baseCSS}body{background:linear-gradient(135deg,#0A0A0A 0%,#1a1a2e 50%,#0d0d1a 100%);justify-content:center;align-items:center}.ej{font-size:100px;text-align:center;margin-bottom:40px;line-height:1.2}.ttl{font-size:68px;font-weight:900;color:#fff;line-height:1.15;text-align:center;padding:0 80px}.sub{font-size:34px;color:#06B6D4;text-align:center;margin-top:24px;padding:0 80px;font-family:'DM Sans',sans-serif}</style></head><body><div class=\"hdr\"><span class=\"hdl\">@CONFIG_CONT_INSTAGRAM</span><span class=\"sln\">${num}/${tot}</span></div><div class=\"ej\">${esc(slide.emoji||'🤖')}</div><h1 class=\"ttl\">${esc(slide.heading||content.title||'AI azi')}</h1>${slide.subheading?`<p class=\"sub\">${esc(slide.subheading)}</p>`:''}<div class=\"bot\"></div></body></html>`;\n  } else if (isCTA) {\n    html = `<!DOCTYPE html><html><head><meta charset=\"UTF-8\">${fonts}<style>${baseCSS}body{background:linear-gradient(135deg,#4F46E5 0%,#06B6D4 100%);justify-content:center;align-items:center;text-align:center}.cw{padding:0 80px}.ct{font-size:68px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:40px}.sb{font-size:34px;color:rgba(255,255,255,0.9);font-family:'DM Sans',sans-serif;margin-bottom:24px}.ac{font-size:40px;font-weight:700;color:#fff}</style></head><body><div class=\"hdr\"><span class=\"hdl\" style=\"color:rgba(255,255,255,0.8)\">@CONFIG_CONT_INSTAGRAM</span><span class=\"sln\" style=\"color:rgba(255,255,255,0.6)\">${num}/${tot}</span></div><div class=\"cw\"><p class=\"ct\">${esc(slide.heading||'Salveaz\\u0103 postarea! \\uD83D\\uDD16')}</p><p class=\"sb\">${esc(slide.body||'Urm\\u0103re\\u0219te pentru mai mult con\\u021Binut AI')}</p><p class=\"ac\">@CONFIG_CONT_INSTAGRAM</p></div></body></html>`;\n  } else {\n    html = `<!DOCTYPE html><html><head><meta charset=\"UTF-8\">${fonts}<style>${baseCSS}body{background:linear-gradient(135deg,#0A0A0A 0%,#1a1a2e 50%,#0d0d1a 100%);justify-content:center;align-items:flex-start;padding:120px 80px 80px 80px}.ic{font-size:72px;margin-bottom:36px}.hd{font-size:50px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:24px}.al{width:80px;height:4px;background:linear-gradient(90deg,#4F46E5,#06B6D4);margin-bottom:28px;border-radius:2px}.bd{font-size:30px;color:#E2E8F0;line-height:1.7;font-family:'DM Sans',sans-serif}</style></head><body><div class=\"hdr\"><span class=\"hdl\">@CONFIG_CONT_INSTAGRAM</span><span class=\"sln\">${num}/${tot}</span></div><div class=\"ic\">${esc(slide.icon||slide.emoji||'\\uD83D\\uDCA1')}</div><h2 class=\"hd\">${esc(slide.heading||'')}</h2><div class=\"al\"></div><p class=\"bd\">${esc(slide.body||'')}</p><div class=\"bot\"></div></body></html>`;\n  }\n\n  results.push({\n    json: {\n      slide_number: slide.slide_number,\n      is_thumbnail: isThumb,\n      is_cta: isCTA,\n      html_content: html,\n      post_id: content.post_id,\n      title: content.title,\n      post_type: content.post_type,\n      slides_count: total,\n      description: content.description,\n      source_credit: content.source_credit,\n      created_at: content.created_at\n    }\n  });\n}\n\nreturn results;"
+      }
+    },
+    {
+      "id": "gdrive-create-folder",
+      "name": "Google Drive - Create Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2960,
+        -400
+      ],
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "={{ $now.format('yyyy-MM-dd') }} — {{ $('Code - Parse Content Response').first().json.title.substring(0, 50) }}",
+        "driveId": {
+          "__rl": true,
+          "value": "MY_DRIVE",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "CONFIG_CONTENT_FOLDER_ID",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    },
+    {
+      "id": "code-prep-slides",
+      "name": "Code - Prep Slide Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3180,
+        -400
+      ],
+      "parameters": {
+        "jsCode": "const htmlSlides = $('Code - Generate HTML Slides').all();\nconst folderData = $('Google Drive - Create Folder').first().json;\nconst folderId = folderData.id;\nconst folderLink = 'https://drive.google.com/drive/folders/' + folderId;\n\nreturn htmlSlides.map(item => ({\n  json: {\n    ...item.json,\n    folder_id: folderId,\n    folder_link: folderLink\n  }\n}));"
+      }
+    },
+    {
+      "id": "loop-slides",
+      "name": "Loop - Process Slides",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3400,
+        -400
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "http-screenshot",
+      "name": "HTTP - Screenshot API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3620,
+        -200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.screenshotone.com/take",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "access_key",
+              "value": "CONFIG_SCREENSHOT_API_KEY"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.html_content }}"
+            },
+            {
+              "name": "viewport_width",
+              "value": "1080"
+            },
+            {
+              "name": "viewport_height",
+              "value": "1350"
+            },
+            {
+              "name": "device_scale_factor",
+              "value": "2"
+            },
+            {
+              "name": "format",
+              "value": "png"
+            },
+            {
+              "name": "full_page",
+              "value": "false"
+            },
+            {
+              "name": "block_ads",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "screenshot"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "wait-rate-limit",
+      "name": "Wait - Rate Limit",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3840,
+        -200
+      ],
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      }
+    },
+    {
+      "id": "gdrive-upload-slide",
+      "name": "Google Drive - Upload Slide Image",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4060,
+        -200
+      ],
+      "parameters": {
+        "operation": "upload",
+        "name": "=slide-{{ $json.slide_number.toString().padStart(2,'0') }}.png",
+        "driveId": {
+          "__rl": true,
+          "value": "MY_DRIVE",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.folder_id }}",
+          "mode": "id"
+        },
+        "inputDataFieldName": "screenshot",
+        "options": {
+          "mimeType": "image/png"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    },
+    {
+      "id": "code-gen-description",
+      "name": "Code - Generate Description",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        -600
+      ],
+      "parameters": {
+        "jsCode": "const content = $('Code - Parse Content Response').first().json;\nconst folderData = $('Google Drive - Create Folder').first().json;\nconst folderId = folderData.id;\nconst folderLink = 'https://drive.google.com/drive/folders/' + folderId;\n\nconst desc = content.description || {};\nconst fullText = [\n  '=== INSTAGRAM DESCRIPTION ===',\n  '',\n  desc.hook || '',\n  '',\n  desc.body || '',\n  '',\n  desc.cta || 'Salveaz\\u0103 postarea \\uD83D\\uDD16 \\u0219i urm\\u0103re\\u0219te @CONFIG_CONT_INSTAGRAM',\n  '',\n  '\\u2022'.repeat(30),\n  '',\n  desc.hashtags || '#AI #InteligenataArtificiala #Romania #Antreprenoriat',\n  '',\n  '=== SURSA ===',\n  content.source_credit || '',\n  '',\n  '=== META ===',\n  'Post ID: ' + content.post_id,\n  'Tip: ' + content.post_type,\n  'Slides: ' + content.slides_count,\n  'Ora sugerata: ' + (content.suggested_post_time || '18:00'),\n  'Generat: ' + content.created_at\n].join('\\n');\n\nconst descBuf = Buffer.from(fullText, 'utf8');\nreturn [{\n  json: {\n    description_text: fullText,\n    folder_id: folderId,\n    folder_link: folderLink,\n    post_id: content.post_id,\n    title: content.title,\n    post_type: content.post_type,\n    slides_count: content.slides_count,\n    description: content.description,\n    source_credit: content.source_credit,\n    created_at: content.created_at,\n    suggested_post_time: content.suggested_post_time || '18:00'\n  },\n  binary: {\n    description_file: {\n      data: descBuf.toString('base64'),\n      mimeType: 'text/plain',\n      fileName: 'descriere.txt',\n      fileExtension: 'txt'\n    }\n  }\n}];"
+      }
+    },
+    {
+      "id": "gdrive-upload-desc",
+      "name": "Google Drive - Upload Description",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3620,
+        -600
+      ],
+      "parameters": {
+        "operation": "upload",
+        "name": "descriere.txt",
+        "driveId": {
+          "__rl": true,
+          "value": "MY_DRIVE",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.folder_id }}",
+          "mode": "id"
+        },
+        "inputDataFieldName": "description_file",
+        "options": {
+          "mimeType": "text/plain"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    },
+    {
+      "id": "code-gen-metadata",
+      "name": "Code - Generate Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3840,
+        -600
+      ],
+      "parameters": {
+        "jsCode": "const prev = $('Code - Generate Description').first().json;\nconst curatorData = $('Code - Parse Curator Response').first().json;\n\nconst metadata = {\n  post_id: prev.post_id,\n  title: prev.title,\n  post_type: prev.post_type,\n  slides_count: prev.slides_count,\n  source_url: curatorData.selected_source?.url || '',\n  source_account: curatorData.selected_source?.source_account || '',\n  source_type: curatorData.selected_source?.source_type || '',\n  post_angle: curatorData.post_angle_ro || '',\n  source_credit: prev.source_credit,\n  drive_folder: prev.folder_link,\n  created_at: prev.created_at,\n  description_hook: prev.description?.hook || '',\n  description_cta: prev.description?.cta || '',\n  hashtags: prev.description?.hashtags || '',\n  suggested_post_time: prev.suggested_post_time || '18:00',\n  status: 'GENERATED'\n};\n\nconst metaBuf = Buffer.from(JSON.stringify(metadata, null, 2), 'utf8');\nreturn [{\n  json: {\n    metadata_json: JSON.stringify(metadata, null, 2),\n    metadata: metadata,\n    ...prev,\n    source_url: curatorData.selected_source?.url || '',\n    source_account: curatorData.selected_source?.source_account || '',\n    source_type: curatorData.selected_source?.source_type || ''\n  },\n  binary: {\n    metadata_file: {\n      data: metaBuf.toString('base64'),\n      mimeType: 'application/json',\n      fileName: 'metadata.json',\n      fileExtension: 'json'\n    }\n  }\n}];"
+      }
+    },
+    {
+      "id": "gdrive-upload-meta",
+      "name": "Google Drive - Upload Metadata",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4060,
+        -600
+      ],
+      "parameters": {
+        "operation": "upload",
+        "name": "metadata.json",
+        "driveId": {
+          "__rl": true,
+          "value": "MY_DRIVE",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.folder_id }}",
+          "mode": "id"
+        },
+        "inputDataFieldName": "metadata_file",
+        "options": {
+          "mimeType": "application/json"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    },
+    {
+      "id": "code-assemble-final",
+      "name": "Code - Assemble Final Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4060,
+        -800
+      ],
+      "parameters": {
+        "jsCode": "const content = $('Code - Parse Content Response').first().json;\nconst descData = $('Code - Generate Description').first().json;\nconst curator = $('Code - Parse Curator Response').first().json;\n\nreturn [{\n  json: {\n    post_id: content.post_id,\n    title: content.title,\n    post_type: content.post_type,\n    slides_count: content.slides_count,\n    description: content.description,\n    source_credit: content.source_credit,\n    created_at: content.created_at,\n    suggested_post_time: content.suggested_post_time || '18:00',\n    folder_id: descData.folder_id,\n    folder_link: descData.folder_link,\n    source_url: curator.selected_source?.url || '',\n    source_account: curator.selected_source?.source_account || '',\n    source_type: curator.selected_source?.source_type || '',\n    post_angle: curator.post_angle_ro || '',\n    why_selected: curator.why_selected || ''\n  }\n}];"
+      }
+    },
+    {
+      "id": "http-screenshot-thumb",
+      "name": "HTTP - Screenshot Thumbnail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4280,
+        -600
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.screenshotone.com/take",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "access_key",
+              "value": "CONFIG_SCREENSHOT_API_KEY"
+            },
+            {
+              "name": "html",
+              "value": "={{ $('Code - Generate HTML Slides').first().json.html_content }}"
+            },
+            {
+              "name": "viewport_width",
+              "value": "1080"
+            },
+            {
+              "name": "viewport_height",
+              "value": "1350"
+            },
+            {
+              "name": "device_scale_factor",
+              "value": "2"
+            },
+            {
+              "name": "format",
+              "value": "png"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "thumbnail"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "telegram-thumbnail",
+      "name": "Telegram - Send Thumbnail",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4500,
+        -600
+      ],
+      "parameters": {
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID",
+        "operation": "sendPhoto",
+        "binaryData": true,
+        "binaryPropertyName": "thumbnail",
+        "additionalFields": {
+          "caption": "=📱 POSTARE NOUĂ GENERATĂ!\n\nTitlu: {{ $json.title }}\nTip: {{ $json.post_type }}\nSlides: {{ $json.slides_count }}\n\n{{ $json.description?.hook || '' }}\n\n📂 Drive: {{ $json.folder_link }}\n📋 Sursa: {{ $json.source_credit }}\n⏰ Ora sugerata: {{ $json.suggested_post_time }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "telegram-status",
+      "name": "Telegram - Status Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4720,
+        -600
+      ],
+      "parameters": {
+        "chatId": "CONFIG_TELEGRAM_CHAT_ID",
+        "text": "=✅ Pipeline complet!\n\nPost ID: {{ $json.post_id }}\nImagini: {{ $json.slides_count }} slides generate\nDrive: {{ $json.folder_link }}\n\nDescrierea e gata in <code>descriere.txt</code>\nDeschide folderul, verifică, şi postează manual pe Instagram.",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    },
+    {
+      "id": "sheets-log-pipeline",
+      "name": "Google Sheets - Log Pipeline",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        4940,
+        -600
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "CONFIG_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pipeline",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "post_id": "={{ $json.post_id }}",
+            "created_date": "={{ $json.created_at }}",
+            "type": "={{ $json.post_type }}",
+            "title": "={{ $json.title }}",
+            "source_url": "={{ $json.source_url }}",
+            "source_account": "={{ $json.source_account }}",
+            "source_type": "={{ $json.source_type }}",
+            "status": "GENERATED",
+            "drive_folder": "={{ $json.folder_link }}",
+            "slides_count": "={{ $json.slides_count }}",
+            "description_preview": "={{ $json.description?.hook || '' }}",
+            "suggested_time": "={{ $json.suggested_post_time }}",
+            "approved_date": ""
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "sheets-log-source",
+      "name": "Google Sheets - Log Source",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        5160,
+        -600
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "CONFIG_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sources_Log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $now.toISO() }}",
+            "post_id": "={{ $json.post_id }}",
+            "selected_source": "={{ $json.source_account }}",
+            "source_url": "={{ $json.source_url }}",
+            "source_type": "={{ $json.source_type }}",
+            "post_angle": "={{ $('Code - Parse Curator Response').first().json.post_angle_ro }}",
+            "why_selected": "={{ $('Code - Parse Curator Response').first().json.why_selected }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "sticky-overview",
+      "name": "Sticky Note — Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -900
+      ],
+      "parameters": {
+        "content": "## 🚀 Carusele Instagram (model)\n\n**Fluxul complet:**\n1. **Triggere** (3): Webhook POST / Telegram /post / Schedule 08:00\n2. **Colectare**: Apify IG Scraper + 3 RSS feeds AI\n3. **Selectie AI**: GPT-4o-mini alege cea mai buna sursa\n4. **Generare continut**: GPT-4o genereaza carousel complet in romana\n5. **Generare imagini**: HTML → PNG via Screenshot API (1080x1350px)\n6. **Drive**: Folder creat automat + upload slide PNG + descriere.txt + metadata.json\n7. **Telegram**: Preview thumbnail + status cu link Drive\n8. **Logging**: Google Sheets Pipeline + Sources_Log\n\n**Placeholders de inlocuit:**\n- `CONFIG_APIFY_DATASET_ID` / `CONFIG_APIFY_TOKEN`\n- `CONFIG_SCREENSHOT_API_KEY` (screenshotone.com)\n- `CONFIG_CONTENT_FOLDER_ID` (Google Drive parent folder ID)\n- `CONFIG_SHEET_ID` (Google Sheets)\n- Telegram Chat ID: `8412441191` (deja setat)\n\n**Credentials de configurat:**\n- OpenAI API → OpenAI - Content Curator + Content Generator\n- Google Drive OAuth2 → toate nodurile Drive\n- Google Sheets OAuth2 → toate nodurile Sheets\n- Telegram Bot API → toate nodurile Telegram",
+        "height": 380,
+        "width": 500
+      }
+    },
+    {
+      "id": "sticky-triggers",
+      "name": "Sticky Note — Triggers",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        60,
+        -900
+      ],
+      "parameters": {
+        "content": "## 🔧 TRIGGERE\n\n**Webhook**: POST /carusele-genereaza\n→ Raspunde imediat cu {status: pipeline_started}\n\n**Telegram**: mesaj cu /post\n→ IF node filtreaza comanda\n\n**Schedule**: zilnic 08:00 Europe/Bucharest\n\nToate 3 → Merge Triggers (Set node)",
+        "height": 200,
+        "width": 300,
+        "color": 4
+      }
+    },
+    {
+      "id": "sticky-collection",
+      "name": "Sticky Note — Collection",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        700,
+        -600
+      ],
+      "parameters": {
+        "content": "## 📡 ETAPA 1: COLECTARE\n\n4 surse in lant (continueOnFail pe fiecare):\n- Apify: posts IG de la conturi monitorizate\n- RSS Anthropic Blog\n- RSS OpenAI Blog\n- RSS TechCrunch AI\n\nCode node combina + sorteaza + top 20",
+        "height": 160,
+        "width": 780,
+        "color": 5
+      }
+    },
+    {
+      "id": "sticky-ai-select",
+      "name": "Sticky Note — AI Selection",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1820,
+        -600
+      ],
+      "parameters": {
+        "content": "## 🧠 ETAPA 2: SELECTIE AI\n\n**GPT-4o-mini** (rapid, ieftin)\nSelecteaza 1 sursa din 20\nDecide tipul de postare\nOutput: JSON cu selectia + unghi editorial",
+        "height": 140,
+        "width": 300,
+        "color": 6
+      }
+    },
+    {
+      "id": "sticky-generation",
+      "name": "Sticky Note — Generation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2260,
+        -600
+      ],
+      "parameters": {
+        "content": "## ✏️ ETAPA 3: GENERARE CONTINUT\n\n**GPT-4o** (calitate maxima)\nGenereaza carousel complet in romana:\n- Titlu + toate slide-urile\n- Descriere Instagram cu hashtags\n- CTA + credit sursa",
+        "height": 140,
+        "width": 300,
+        "color": 6
+      }
+    },
+    {
+      "id": "sticky-images",
+      "name": "Sticky Note — Images",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2700,
+        -600
+      ],
+      "parameters": {
+        "content": "## 🎨 ETAPA 4: GENERARE IMAGINI\n\n1. Genereaza HTML (1080x1350px) pentru fiecare slide\n2. Creeaza folder in Drive\n3. Loop: Screenshot API → Wait 2s → Upload Drive\n\n**Design**: gradient inchis + Space Grotesk\nSursa: screenshotone.com (100 free/luna)",
+        "height": 160,
+        "width": 780,
+        "color": 3
+      }
+    },
+    {
+      "id": "sticky-drive",
+      "name": "Sticky Note — Drive",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        -800
+      ],
+      "parameters": {
+        "content": "## 📂 ETAPA 5: SALVARE DRIVE\n\nDupa loop, salveaza in folderul creat:\n- `slide-01.png` ... `slide-0N.png` (din loop)\n- `descriere.txt` (copy-paste ready)\n- `metadata.json` (info postare)\n\nFolder: `yyyy-MM-dd — Titlu postare`",
+        "height": 140,
+        "width": 780,
+        "color": 7
+      }
+    },
+    {
+      "id": "sticky-telegram",
+      "name": "Sticky Note — Telegram",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4240,
+        -800
+      ],
+      "parameters": {
+        "content": "## 📱 ETAPA 6: PREVIEW TELEGRAM\n\nRe-screenshot slide 1 (thumbnail)\n→ Trimite poza + caption cu titlu, tip, link Drive\n→ Trimite mesaj status cu toate detaliile\n\nVerifica in Telegram, deschide Drive, posteaza manual.",
+        "height": 140,
+        "width": 500,
+        "color": 4
+      }
+    },
+    {
+      "id": "sticky-logging",
+      "name": "Sticky Note — Logging",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4900,
+        -800
+      ],
+      "parameters": {
+        "content": "## 📊 ETAPA 7: LOGGING\n\n**Sheet: Pipeline** — toate postarile generate\n**Sheet: Sources_Log** — sursele selectate\n\nCreeaza manual cele 2 sheet-uri in Sheets.",
+        "height": 140,
+        "width": 340,
+        "color": 5
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF - Check /post Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Check /post Command": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Triggers": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Apify Scrape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Apify Scrape": {
+      "main": [
+        [
+          {
+            "node": "HTTP - RSS Anthropic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - RSS Anthropic": {
+      "main": [
+        [
+          {
+            "node": "HTTP - RSS OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - RSS OpenAI": {
+      "main": [
+        [
+          {
+            "node": "HTTP - RSS TechCrunch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - RSS TechCrunch": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse & Merge Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse & Merge Sources": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Content Curator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Content Curator": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Curator Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Curator Response": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Content Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Content Response": {
+      "main": [
+        [
+          {
+            "node": "Code - Generate HTML Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Generate HTML Slides": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Create Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Create Folder": {
+      "main": [
+        [
+          {
+            "node": "Code - Prep Slide Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prep Slide Items": {
+      "main": [
+        [
+          {
+            "node": "Loop - Process Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop - Process Slides": {
+      "main": [
+        [
+          {
+            "node": "Code - Generate Description",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP - Screenshot API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Screenshot API": {
+      "main": [
+        [
+          {
+            "node": "Wait - Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Upload Slide Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Upload Slide Image": {
+      "main": [
+        [
+          {
+            "node": "Loop - Process Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Generate Description": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Upload Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Upload Description": {
+      "main": [
+        [
+          {
+            "node": "Code - Generate Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Generate Metadata": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Upload Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Upload Metadata": {
+      "main": [
+        [
+          {
+            "node": "Code - Assemble Final Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Assemble Final Data": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Screenshot Thumbnail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Screenshot Thumbnail": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Send Thumbnail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Send Thumbnail": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Status Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Status Message": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Log Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Log Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Log Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Bucharest",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "active": false
+}

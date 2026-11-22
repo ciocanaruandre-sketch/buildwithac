@@ -1,0 +1,58 @@
+{
+  "name": "Alertă: o automatizare a picat",
+  "nodes": [
+    {
+      "id": "fe-1",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "fe-2",
+      "name": "E-mail alertă",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "sendTo": "CONFIG_EMAIL_ALERTE",
+        "subject": "=Automatizarea „{{ $json.workflow.name }}” a picat",
+        "emailType": "text",
+        "message": "=Fluxul: {{ $json.workflow.name }}\nNodul care a picat: {{ $json.execution.lastNodeExecuted }}\nEroarea: {{ $json.execution.error.message }}\nOra: {{ $now.setZone('Europe/Bucharest').toFormat('dd.MM.yyyy HH:mm') }}\nExecuția: {{ $json.execution.url }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "E-mail alertă",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
