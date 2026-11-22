@@ -5,7 +5,7 @@ Când clientul a ales „doar automatizarea” sau renunță la mentenanță. Sk
 ## Înainte de apel
 
 1. **`flux-erori` trece pe e-mailul clientului.** În n8n-ul clientului, în nodul Gmail al fluxului de erori, `CONFIG_EMAIL_ALERTE` devine e-mailul lui (nu mai e `contact@buildwithac.ro`). Fluxul rămâne publicat.
-2. **Probă:** un flux de probă care pică intenționat (nu unul care trimite ceva clienților) → clientul confirmă că a primit alerta. Apoi fluxul de probă se șterge.
+2. **Probă:** un flux de probă care pică intenționat (nu unul care trimite ceva clienților), publicat, cu un Schedule Trigger: Error Trigger nu pornește la rulările de mână. Clientul confirmă că a primit alerta. Apoi fluxul de probă se șterge.
 3. **PDF-ul de folosire, varianta lungă.** În `clienti/<slug>/automatizari/folosire.md`, secțiunea „Când ceva nu merge” se scrie pentru client, nu pentru Andrei: ce înseamnă alerta, unde vede execuția care a picat, cele mai dese cauze (conectarea la Google a expirat, o coloană redenumită, abonamentul depășit) și ce face la fiecare. Apoi PDF-ul: `node servicii/automatizari/pdf/tipareste.mjs <slug> folosire`.
 4. **Exportul fluxurilor**, în `clienti/<slug>/automatizari/fluxuri/` (ignorat de git) și în Drive: copia de rezervă a lui Andrei pentru o eventuală reparație plătită.
 
