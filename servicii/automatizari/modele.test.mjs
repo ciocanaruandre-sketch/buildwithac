@@ -30,6 +30,9 @@ for (const m of modele) {
       for (const c of Object.values(n.credentials || {})) assert.deepEqual(c, { id: "", name: "DE_CONECTAT" }, n.name);
     }
     assert.deepEqual(gasesteDateReale(flux), []);
+    for (const n of flux.nodes.filter((n) => n.type === "n8n-nodes-base.googleSheets" && ["read", "get"].includes(n.parameters.operation))) {
+      assert.notEqual(n.onError, "continueRegularOutput", `${n.name}: o eroare la citire trebuie să ajungă la fluxul de erori`);
+    }
     const text = readFileSync(join(MODELE, m, "flux.json"), "utf8") + readFileSync(join(MODELE, m, "README.md"), "utf8");
     assert.doesNotMatch(text, /[ŞşŢţ]/, "sedilă: folosește ș și ț cu virgulă");
   });
@@ -46,4 +49,13 @@ test("fluxul de erori merge și când pică declanșatorul (fără execution, cu
   const text = mail.parameters.message + mail.parameters.subject;
   assert.match(text, /\$json\.trigger\?\.error/);
   assert.doesNotMatch(text, /\$json\.execution\.(?!\?)/, "folosește $json.execution?.… (lipsește când pică declanșatorul)");
+});
+
+test("modelul clinicii WF4: confirmații prinși, limita de 10, ora României", () => {
+  const flux = JSON.parse(readFileSync(join(MODELE, "clinica-wf4-neprezentari", "flux.json"), "utf8"));
+  const cod = flux.nodes.filter((n) => n.type === "n8n-nodes-base.code").map((n) => n.parameters.jsCode).join("\n");
+  assert.match(cod, /CONFIRMED/, "un pacient confirmat care n-a venit e tot neprezentare");
+  assert.match(cod, /LIMITA = 10/, "peste 10 neprezentări într-o seară → niciun SMS");
+  assert.match(cod, /Europe\/Bucharest/, "ziua de azi, după ora României");
+  assert.ok(flux.nodes.some((n) => n.type === "n8n-nodes-base.if"), "protecția stă într-un nod IF, vizibil pe pânză");
 });

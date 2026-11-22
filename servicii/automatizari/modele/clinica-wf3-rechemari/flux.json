@@ -51,8 +51,7 @@
         },
         "range": "Patients!A:K",
         "options": {}
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf3-n3",
@@ -80,8 +79,7 @@
         },
         "range": "Config!A:B",
         "options": {}
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf3-n4",

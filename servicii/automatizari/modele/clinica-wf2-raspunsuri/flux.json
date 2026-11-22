@@ -63,8 +63,7 @@
         },
         "range": "Appointments!A:N",
         "options": {}
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "id": "wf2-n4",
