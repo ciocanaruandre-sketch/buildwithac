@@ -1,0 +1,280 @@
+---
+titlu: "Răspuns în primul minut la fiecare cerere de pe site"
+slug: raspuns-in-primul-minut
+cuvant: MINUT
+descriere: "Cine completează formularul tău primește în sub un minut un răspuns personal, scris de Claude. Tu primești rezumatul și suni când poți."
+ceGasesti:
+  - "Fluxul din n8n, construit de Claude la cererea ta"
+  - "Mesajul personal, cu reguli care-l opresc să promită prețuri"
+  - "Tabelul cu toate cererile și rezumatul pe e-mail"
+  - "Plasa de siguranță, spamul și SMS-ul în România"
+durata: "2 ore"
+nivel: "mediu"
+unelte: ["n8n", "Claude Code", "Claude API", "Tally", "Google Sheets", "Gmail", "Twilio"]
+actualizat: 2026-11-23
+publicat: 2026-11-23
+imagine: cover.webp
+pdf: false
+---
+
+Cineva completează formularul de pe site-ul tău. În mai puțin de un minut primește pe e-mail un mesaj cu numele lui, cu ce a cerut și cu link-ul tău de programare. Cererea intră într-un tabel, iar tu primești un rezumat. Mesajul doar ține omul cald până îl suni tu. Vânzarea rămâne a ta.
+
+Totul rulează în **n8n**, o aplicație în care legi alte aplicații între ele, ca piesele unui lanț. Un astfel de lanț se numește **flux**. Fluxul nu-l construiești tu, nod cu nod: îl construiește Claude Code, după ce îl conectezi la n8n-ul tău. Tu scrii comenzi doar la instalarea lui Claude Code și la conectare. În rest îi spui lui Claude în cuvinte ce vrei, iar contul îl conectezi tu, cu parola ta.
+
+<DeCeAiNevoie>
+- Cont Claude Pro: 20 $/lună (17 $/lună cu plata pe un an). Claude Code e inclus și construiește fluxul. După aceea, fluxul merge și fără el.
+- Cont n8n Cloud: 14 zile gratuit, fără card. Apoi planul Starter, 20 €/lună cu plata pe un an sau 24 €/lună cu plata lunară, cu 2.500 de rulări pe lună. O cerere înseamnă o rulare.
+- Cheie pentru Claude API (contul separat de abonament, din care n8n îl cheamă pe Claude): conturile noi primesc credite gratuite de test. Un mesaj scris de Claude Haiku 5.5 costă sub 0,001 $.
+- Un cont Google, pentru Gmail și Google Sheets: gratuit.
+- Un cont Tally, pentru formular: gratuit, cu tot cu legătura spre n8n.
+- Un link de programare (Calendly, pagina de programări din Google Calendar) sau, dacă n-ai, numărul tău de telefon.
+- Doar pentru SMS, opțional: cont Twilio, 0,0781 $ pe SMS spre România, plus înregistrarea numelui de expeditor (cu taxă, durează până la 4 săptămâni).
+- 2 ore, fără SMS.
+</DeCeAiNevoie>
+
+<Pas titlu="Îți faci contul n8n Cloud">
+Intră pe [n8n.io](https://n8n.io) și pornește proba gratuită. Nu-ți cere card.
+
+La un moment dat îți cere numele contului. El apare în adresa ta: `numele-tau.app.n8n.cloud`. Alege ceva scurt, fără diacritice și fără spații. Numele nu se mai schimbă după aceea, iar adresa o folosești la pasul 4.
+
+Când intri prima dată, n8n te întreabă ce vrei să automatizezi. Sari peste: fluxul îl face Claude.
+
+<Atentie>Proba ține 14 zile. După aceea, contul se șterge cu tot ce e în el, dacă nu treci pe un plan plătit. Dacă fluxul îți place, treci pe Starter înainte de ziua 14, din **Cloud console**, jos în bara din stânga.</Atentie>
+</Pas>
+
+<Pas titlu="Pornești accesul pentru Claude în n8n">
+În n8n, jos în bara din stânga, apasă **Settings**, apoi **Instance-level MCP**. Apasă **Enable MCP access**.
+
+MCP e un conector prin care Claude citește și lucrează în alt program. Cu el pornit, Claude Code poate construi, testa și publica fluxuri în contul tău.
+
+<CeVezi src="pas-2-mcp-pornit.webp" alt="Pagina Instance-level MCP din n8n, cu accesul pornit și butonul Connect" />
+
+<DacaNuMerge>Dacă bara din stânga arată doar pictograme, deschide-o din pictograma de panou de sus. Dacă nu găsești **Instance-level MCP**, contul tău nu e de proprietar: doar proprietarul contului îl poate porni.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Instalezi Claude Code">
+Pe Windows, deschide **PowerShell** din meniul Start și rulează:
+
+<Prompt>irm https://claude.ai/install.ps1 | iex</Prompt>
+
+Pe Mac, deschide **Terminal** și rulează:
+
+<Prompt>curl -fsSL https://claude.ai/install.sh | bash</Prompt>
+
+Când se termină, închide terminalul și deschide altul. Scrie `claude --version`: trebuie să apară un număr.
+
+<DacaNuMerge>Dacă scrie că `claude` nu e recunoscut, terminalul încă nu vede programul nou. Repornește calculatorul și încearcă din nou.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Conectezi Claude Code la n8n">
+În același terminal, rulează comanda de mai jos, cu numele contului tău în loc de `numele-tau`:
+
+<Prompt>claude mcp add --transport http n8n https://numele-tau.app.n8n.cloud/mcp-server/http</Prompt>
+
+Apoi pornește Claude Code cu `claude`. Prima dată se deschide browserul: confirmă cu contul tău Claude Pro.
+
+În Claude Code scrie `/mcp`, alege **n8n** și autorizează. Se deschide n8n-ul tău în browser: aprobă accesul.
+
+La final, scrie-i lui Claude:
+
+<Prompt>Verifică dacă ești conectat la n8n-ul meu și spune-mi ce fluxuri vezi.</Prompt>
+
+Într-un cont nou, Claude îți spune că nu e niciun flux. E corect: conexiunea merge.
+
+<DacaNuMerge>Dacă autorizarea scrie **You do not have sufficient permissions to authorize this request**, accesul MCP e oprit: întoarce-te la pasul 2. Dacă autorizarea din browser nu se termină, folosește cheia: în n8n, **Settings → Instance-level MCP → Connect**, fila **API key**. Copiază tokenul (apare o singură dată), apoi rulează în terminal `claude mcp add --transport http n8n https://numele-tau.app.n8n.cloud/mcp-server/http --header "Authorization: Bearer TOKENUL-TAU"`.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Faci tabelul de cereri">
+În [Google Sheets](https://sheets.google.com), fă un tabel nou și numește-l, de exemplu, „Cereri de pe site”. Redenumește foaia de jos din **Sheet1** în **Cereri**.
+
+Pe primul rând, scrie coloanele, de la A la I:
+
+<Prompt>Data	Nume	Telefon	E-mail	Ce cere	Mesaj	Răspuns trimis	Varianta	SMS</Prompt>
+
+Copiază rândul de mai sus și lipește-l în celula A1: fiecare cuvânt intră în coloana lui.
+
+Copiază și adresa tabelului din bara browserului. O dai lui Claude la pasul 8.
+</Pas>
+
+<Pas titlu="Faci formularul în Tally">
+Intră pe [tally.so](https://tally.so) și fă un formular nou. Pune câmpurile acestea, cu exact numele astea:
+
+- **Nume** (Short answer), obligatoriu;
+- **Telefon** (Phone number);
+- **E-mail** (Email), obligatoriu;
+- **Ce te interesează** (Multiple choice), cu serviciile tale ca variante;
+- **Mesaj** (Long answer).
+
+E-mailul e obligatoriu pentru că pe el pleacă răspunsul. Telefonul rămâne opțional: unii nu vor să fie sunați.
+
+<CeVezi src="pas-6-formular-tally.webp" alt="Formularul din Tally, cu câmpurile Nume, Telefon, E-mail, Ce te interesează și Mesaj" />
+</Pas>
+
+<Pas titlu="Pui textul despre date sub formular">
+Omul trebuie să știe, înainte să apese „Trimite”, ce faci cu datele lui. E o obligație din GDPR, regulamentul european despre datele personale. Sub ultimul câmp, adaugă un bloc de text cu informarea, adaptată la tine:
+
+<Prompt>Folosim numele, telefonul, e-mailul și mesajul tău doar ca să-ți răspundem la cerere. Primul răspuns e scris automat, cu ajutorul unui asistent AI (Claude, de la Anthropic), apoi te contactăm personal. Păstrăm cererea cel mult 6 luni. Detalii în politica de confidențialitate: [link-ul tău].</Prompt>
+
+Apoi apasă **Publish**.
+
+<Atentie>Răspunsul la cererea omului e în regulă: el ți-a scris primul. Nu-l pune însă pe lista de reclame sau de noutăți fără un acord separat, cerut explicit. La o clinică, nu întreba în formular ce tratament vrea omul: o informație despre sănătate nu trebuie să ajungă la un AI fără un acord special. Acolo, câmpul „Ce te interesează” rămâne general („consultație”, „programare”).</Atentie>
+</Pas>
+
+<Pas titlu="Îi ceri lui Claude să construiască fluxul">
+Ăsta e pasul principal. Copiază mesajul de mai jos într-un fișier text și completează ce e între paranteze pătrate: datele firmei tale, adresa tabelului, e-mailul tău. Ce e între acolade, de exemplu `{nume}`, rămâne așa: completează fluxul, cu datele fiecărei cereri.
+
+<Prompt>Construiește în n8n-ul meu, prin MCP, un flux nou numit „Răspuns în primul minut”. Nu-l publica încă. Toate nodurile au nume clare, în română.
+
+Ce face, în ordine:
+1. Pornește de la un Webhook care primește POST, cu autentificare Header Auth. Datele vin din formularul meu Tally, cu câmpurile Nume, Telefon, E-mail, Ce te interesează și Mesaj. La câmpurile cu variante, Tally trimite ID-ul variantei: ia textul ei din options.
+2. Dacă vine un câmp „website” completat, se oprește fără să trimită nimic. E capcana pentru roboți, pentru cazul în care leg mai târziu și formularul de pe site-ul meu.
+3. Taie mesajul la 1.000 de caractere înainte de orice altceva.
+4. Caută în foaia Cereri din tabelul [adresa tabelului]. Dacă același e-mail sau același telefon a primit răspuns în ultimele 24 de ore, nu mai trimite al doilea răspuns: doar adaugă rândul în tabel, cu „nu, a doua cerere azi” la Răspuns trimis, și trimite-mi rezumatul.
+5. Claude Haiku 5.5 scrie răspunsul: în română, cu diacritice, la „tu”, cel mult 120 de cuvinte. Îl salută pe nume, spune pe scurt ce a cerut, spune că [numele tău] revine personal și îi dă link-ul de programare. Folosește doar datele firmei de mai jos. Nu promite prețuri, ore libere, reduceri sau termene care nu sunt scrise acolo. Fără ton de reclamă și fără emoji.
+6. Dacă nodul Claude dă eroare sau nu răspunde în 30 de secunde, mai încearcă o dată. Dacă nu merge nici a doua oară, folosește mesajul fix de mai jos.
+7. Trimite răspunsul pe e-mail, din Gmail-ul meu, cu subiectul „Am primit cererea ta, {nume}”.
+8. Adaugă un rând în foaia Cereri, cu coloanele: Data (data și ora), Nume, Telefon, E-mail, Ce cere, Mesaj, Răspuns trimis, Varianta (AI sau fixă), SMS (gol deocamdată).
+9. Îmi trimite un rezumat pe [e-mailul tău]: cine a scris, ce vrea, ce i s-a răspuns și ce variantă a plecat. Subiectul: „Cerere nouă: {nume}, {ce cere}”.
+
+Datele firmei:
+- Numele firmei: [numele]
+- Ce face: [serviciile, pe scurt]
+- Orașul și adresa: [adresa]
+- Programul: [zilele și orele]
+- Link-ul de programare: [link-ul]
+- Telefonul: [telefonul]
+- Cine răspunde: [numele tău]
+
+Mesajul fix:
+„Bună, {nume}! Am primit cererea ta și revin personal cât de repede pot, de obicei în aceeași zi. Dacă vrei să alegi deja o oră, o găsești aici: [link-ul de programare]. [Numele tău], [numele firmei]”
+
+Conturile (Gmail, Google Sheets, Anthropic și Header Auth) le conectez eu în noduri, după ce termini. La final, spune-mi ce noduri trebuie să conectez.</Prompt>
+
+Claude îți cere voie înainte să lucreze în n8n. Citește ce vrea să facă și aprobă. Durează câteva minute. La final, fluxul apare în n8n, la **Overview**.
+
+<CeVezi src="pas-8-fluxul.webp" alt="Fluxul „Răspuns în primul minut” în n8n, de la Webhook la rezumatul pentru patron, cu ramura mesajului fix" />
+
+<DacaNuMerge>Dacă Claude scrie că nu vede n8n-ul, ieși cu `/exit`, pornește din nou `claude` și scrie `/mcp`: n8n trebuie să apară conectat. Dacă fluxul are o greșeală, spune-i lui Claude în cuvinte ce vrei altfel. El îl modifică pe cel existent.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Conectezi Gmail-ul">
+În n8n, deschide fluxul și dă dublu clic pe nodul care trimite răspunsul pe e-mail. La **Credential to connect with**, alege **Create new credential**, apoi **Sign in with Google**. Intră în contul Google al firmei și aprobă.
+
+Nodul cu rezumatul folosește tot Gmail-ul: deschide-l și alege aceeași conexiune din listă.
+
+<DacaNuMerge>Dacă Google scrie că aplicația nu e verificată sau blochează conectarea, contul e de firmă (Google Workspace), iar administratorul a oprit aplicațiile din afară. Cere-i să permită n8n sau conectează alt cont.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Conectezi Google Sheets">
+Dă dublu clic pe nodurile cu Google Sheets (cel care caută în tabel și cel care adaugă rândul). La **Credential to connect with**, fă o conexiune nouă cu **Sign in with Google**, în același cont în care e tabelul.
+</Pas>
+
+<Pas titlu="Îți faci cheia pentru Claude API">
+Abonamentul Claude Pro nu merge în n8n: n8n îl cheamă pe Claude printr-o cheie API, plătită separat, pe consum. Intră pe [platform.claude.com/settings/keys](https://platform.claude.com/settings/keys), fă-ți cont dacă n-ai și apasă **Create key**. Dă-i un nume, de exemplu „n8n”, și copiază cheia.
+
+<Atentie>Cheia e ca o parolă: cine o are cheltuiește din creditul tău. Nu o lipi în conversația cu Claude Code și nu o pune în poze. O lipești direct în n8n, la pasul următor.</Atentie>
+</Pas>
+
+<Pas titlu="Pui cheia în n8n">
+Dă dublu clic pe nodul cu Claude. La **Credential to connect with**, alege **Create new credential**, lipește cheia în **API Key** și salvează.
+
+<DacaNuMerge>Dacă n8n scrie că nu are credit, intră în [platform.claude.com/settings/billing](https://platform.claude.com/settings/billing). Creditele gratuite s-au terminat și trebuie să încarci credit. Câțiva dolari ajung pentru mii de mesaje.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Pui parola webhook-ului">
+Webhook-ul e adresa la care Tally trimite cererile. Fără parolă, oricine o găsește îți poate trimite cereri false. Dă dublu clic pe nodul Webhook. La credențiale, fă una nouă de tip Header Auth:
+
+- **Name**: `X-Cheie-Formular`;
+- **Value**: o parolă lungă, inventată acum, de cel puțin 30 de caractere.
+
+Salvează și notează-ți parola: o pui în Tally la pasul 17.
+</Pas>
+
+<Pas titlu="Îi ceri lui Claude să testeze fluxul">
+Testul trimite un e-mail adevărat, doar către tine. Scrie-i lui Claude, cu adresa ta:
+
+<Prompt>Testează fluxul „Răspuns în primul minut” cu date fixate pe Webhook, ca și cum ar veni din Tally: numele Test Ionescu, e-mailul [e-mailul tău], telefonul 0722 000 000, interesul „programare” și mesajul „Aș vrea o programare pentru 4 persoane sâmbătă dimineață, cât costă?”. Spune-mi ce mesaj a scris Claude, dacă a plecat e-mailul și dacă a apărut rândul în tabel.</Prompt>
+
+Verifică trei lucruri: e-mailul a ajuns la tine, rândul e în foaia **Cereri**, iar mesajul **nu** spune un preț. Omul a întrebat cât costă, dar tu n-ai dat prețuri în datele firmei.
+
+<CeVezi src="pas-14-foaia-cereri.webp" alt="Foaia Cereri din Google Sheets, cu rândul cererii de test" />
+
+<DacaNuMerge>Dacă mesajul totuși promite un preț sau o oră, spune-i lui Claude: „Mesajul a promis [ce a promis]. Întărește regula din instrucțiunile nodului Claude și testează din nou.”</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Testezi plasa de siguranță">
+Mesajul fix trebuie să plece și când Claude API nu răspunde. Nu aștepta o pană adevărată ca să afli dacă merge:
+
+<Prompt>Testează ramura cu mesajul fix: rulează fluxul o dată cu nodul Claude forțat să dea eroare, de exemplu cu un nume de model care nu există. Verifică dacă pleacă mesajul fix și dacă în tabel scrie „fixă” la Varianta. Apoi pune nodul Claude la loc, exact cum era.</Prompt>
+
+La tine ajunge al doilea e-mail, cu mesajul fix. În rezumat scrie că a plecat varianta fixă.
+</Pas>
+
+<Pas titlu="Publici fluxul">
+Până acum fluxul a mers doar în test. Ca să primească cereri adevărate, trebuie publicat:
+
+<Prompt>Publică fluxul „Răspuns în primul minut” și dă-mi adresa de producție a webhook-ului.</Prompt>
+
+Adresa de producție arată ca `https://numele-tau.app.n8n.cloud/webhook/...`. Copiaz-o.
+
+<DacaNuMerge>Dacă adresa conține `/webhook-test/`, e adresa de test: merge doar cât rulezi un test. Cere-i lui Claude adresa de producție, cea cu `/webhook/`.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Legi Tally de n8n">
+În Tally, deschide formularul și intră în fila **Integrations**. La **Webhooks**, apasă **Connect** și lipește adresa de producție. Apasă **Add HTTP headers** și pune:
+
+- la nume, `X-Cheie-Formular`;
+- la valoare, parola de la pasul 13.
+
+Salvează.
+
+<CeVezi src="pas-17-tally-webhook.webp" alt="Fereastra de webhook din Tally, cu adresa n8n și antetul X-Cheie-Formular" />
+
+<DacaNuMerge>Dacă Tally arată erori în jurnalul webhook-ului (pictograma cu ceasul), cele mai dese două cauze sunt: fluxul nu e publicat, sau parola din Tally nu e identică cu cea din n8n.</DacaNuMerge>
+</Pas>
+
+<Pas titlu="Trimiți o cerere de pe telefon">
+Deschide formularul pe telefon, ca un client, și completează-l cu e-mailul tău. Apasă **Submit** și uită-te la ceas.
+
+În mai puțin de un minut primești răspunsul. Pe calculator, în același timp, primești rezumatul și vezi rândul nou în tabel.
+
+<CeVezi src="pas-18-mesajul-primit.webp" alt="E-mailul primit pe telefon, cu răspunsul personal și link-ul de programare" />
+</Pas>
+
+<Pas titlu="Verifici protecția la spam">
+Trimite încă o dată formularul, cu același e-mail. De data asta nu primești al doilea răspuns: rândul apare în tabel cu „nu, a doua cerere azi”, iar tu primești rezumatul.
+
+Așa, cineva care apasă de zece ori „Trimite” nu primește zece e-mailuri, iar tu nu plătești de zece ori.
+</Pas>
+
+<Atentie>Dacă ai deja formular pe site-ul tău, nu ai nevoie de Tally. Spune-i lui Claude, în proiectul site-ului: „Trimite formularul de contact, de pe server, cu POST, la [adresa de producție a webhook-ului], cu antetul X-Cheie-Formular. Adaugă un câmp ascuns numit website, pe care oamenii nu-l văd.” Câmpul ascuns e capcana pentru roboți de la punctul 2 din flux. Parola se pune doar pe server, niciodată în codul care ajunge în browser.</Atentie>
+
+<Pas titlu="Îți faci contul Twilio (opțional, pentru SMS)">
+De aici începe partea cu SMS, doar dacă o vrei. Twilio e serviciul prin care n8n trimite SMS-uri. Fă-ți cont pe [twilio.com](https://www.twilio.com).
+
+<Atentie>SMS-ul spre România are trei capcane, toate din regulile Twilio pentru România. Contul de probă trimite doar mesaje-șablon, nu textul tău, și doar spre numere verificate, deci pentru clienți reali trebuie să treci pe plătit. Rețelele românești blochează SMS-urile cu link-uri, așa că SMS-ul nu are link de programare. Iar expeditorul nu e un număr de telefon, ci numele firmei, pe care trebuie să-l înregistrezi. Omul nu poate răspunde la un SMS trimis de pe un nume.</Atentie>
+</Pas>
+
+<Pas titlu="Treci contul Twilio pe plătit">
+În consola Twilio, apasă **Upgrade your account**. Completezi profilul, adresa și cardul, apoi încarci un prim credit. Un SMS spre România costă 0,0781 $, dacă are cel mult 160 de caractere fără diacritice.
+</Pas>
+
+<Pas titlu="Înregistrezi numele de expeditor">
+Expeditorul e numele firmei tale, de exemplu `SalonAna`: cel mult 11 caractere, litere și cifre. Twilio îi spune **Alphanumeric Sender ID**. Pentru rețeaua Telekom, înregistrarea e obligatorie. Pentru celelalte rețele e recomandată, fiindcă altfel numele poate fi înlocuit cu un număr scurt. Cererea se face din consola Twilio, cu taxă, și durează până la 4 săptămâni.
+
+Până vine aprobarea, fluxul merge mai departe pe e-mail.
+</Pas>
+
+<Pas titlu="Conectezi Twilio în n8n">
+În consola Twilio, pe pagina principală, găsești **Account SID** și **Auth Token**. Le copiezi direct în n8n, într-o conexiune nouă de tip Twilio. Nu le lipi în conversația cu Claude.
+</Pas>
+
+<Pas titlu="Îi ceri lui Claude să adauge SMS-ul">
+SMS-ul e fix, fără AI: e scurt, nu are cum să greșească, iar fără diacritice intră într-un singur SMS. Cu diacritice, încape mai puțin text într-un SMS, deci plătești dublu.
+
+<Prompt>Adaugă în fluxul „Răspuns în primul minut” un SMS prin Twilio, trimis după e-mail, doar când omul a lăsat telefon. Folosește conexiunea Twilio pe care am făcut-o. Expeditorul e [numele înregistrat]. Transformă telefonul din 07… în +407…. Textul e fix, fără diacritice și fără link: „Buna, {nume}! Am primit cererea ta la [numele firmei]. Ti-am trimis detaliile pe e-mail si te sun cat de repede pot.” Scrie în coloana SMS din tabel dacă a plecat. Testează doar spre numărul meu, [telefonul tău], apoi publică din nou fluxul.</Prompt>
+
+<DacaNuMerge>Dacă SMS-ul nu ajunge și Twilio arată eroarea 21614, numărul e de telefon fix: pe fix nu se pot trimite SMS-uri. Dacă ajunge de la un număr scurt în loc de numele firmei, numele încă nu e înregistrat pentru rețeaua aceea.</DacaNuMerge>
+</Pas>
+
+<Atentie>Ce nu face fluxul: nu vinde în locul tău. Mesajul doar îi spune omului că l-ai auzit și îi dă link-ul de programare. Dacă nu-l suni în aceeași zi, primul minut n-a folosit la nimic. Uită-te în rezumate măcar o dată pe zi și sună întâi cererile cele mai noi.</Atentie>
