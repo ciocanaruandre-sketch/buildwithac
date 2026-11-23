@@ -123,7 +123,7 @@ Apoi apasă **Publish**.
 <Pas titlu="Îi ceri lui Claude să construiască fluxul">
 Ăsta e pasul principal. Copiază mesajul de mai jos într-un fișier text și completează ce e între paranteze pătrate: datele firmei tale, adresa tabelului, e-mailul tău. Ce e între acolade, de exemplu `{nume}`, rămâne așa: completează fluxul, cu datele fiecărei cereri.
 
-<Prompt>Construiește în n8n-ul meu, prin MCP, un flux nou numit „Răspuns în primul minut”. Nu-l publica încă. Toate nodurile au nume clare, în română.
+<Prompt>{`Construiește în n8n-ul meu, prin MCP, un flux nou numit „Răspuns în primul minut”. Nu-l publica încă. Toate nodurile au nume clare, în română.
 
 Ce face, în ordine:
 1. Pornește de la un Webhook care primește POST, cu autentificare Header Auth. Datele vin din formularul meu Tally, cu câmpurile Nume, Telefon, E-mail, Ce te interesează și Mesaj. La câmpurile cu variante, Tally trimite ID-ul variantei: ia textul ei din options.
@@ -148,7 +148,7 @@ Datele firmei:
 Mesajul fix:
 „Bună, {nume}! Am primit cererea ta și revin personal cât de repede pot, de obicei în aceeași zi. Dacă vrei să alegi deja o oră, o găsești aici: [link-ul de programare]. [Numele tău], [numele firmei]”
 
-Conturile (Gmail, Google Sheets, Anthropic și Header Auth) le conectez eu în noduri, după ce termini. La final, spune-mi ce noduri trebuie să conectez.</Prompt>
+Conturile (Gmail, Google Sheets, Anthropic și Header Auth) le conectez eu în noduri, după ce termini. La final, spune-mi ce noduri trebuie să conectez.`}</Prompt>
 
 Claude îți cere voie înainte să lucreze în n8n. Citește ce vrea să facă și aprobă. Durează câteva minute. La final, fluxul apare în n8n, la **Overview**.
 
@@ -272,7 +272,7 @@ Până vine aprobarea, fluxul merge mai departe pe e-mail.
 <Pas titlu="Îi ceri lui Claude să adauge SMS-ul">
 SMS-ul e fix, fără AI: e scurt, nu are cum să greșească, iar fără diacritice intră într-un singur SMS. Cu diacritice, încape mai puțin text într-un SMS, deci plătești dublu.
 
-<Prompt>Adaugă în fluxul „Răspuns în primul minut” un SMS prin Twilio, trimis după e-mail, doar când omul a lăsat telefon. Folosește conexiunea Twilio pe care am făcut-o. Expeditorul e [numele înregistrat]. Transformă telefonul din 07… în +407…. Textul e fix, fără diacritice și fără link: „Buna, {nume}! Am primit cererea ta la [numele firmei]. Ti-am trimis detaliile pe e-mail si te sun cat de repede pot.” Scrie în coloana SMS din tabel dacă a plecat. Testează doar spre numărul meu, [telefonul tău], apoi publică din nou fluxul.</Prompt>
+<Prompt>Adaugă în fluxul „Răspuns în primul minut” un SMS prin Twilio, trimis după e-mail, doar când omul a lăsat telefon. Folosește conexiunea Twilio pe care am făcut-o. Expeditorul e [numele înregistrat]. Transformă telefonul din 07… în +407…. Textul e fix, fără diacritice și fără link: „Buna, \{nume\}! Am primit cererea ta la [numele firmei]. Ti-am trimis detaliile pe e-mail si te sun cat de repede pot.” Scrie în coloana SMS din tabel dacă a plecat. Testează doar spre numărul meu, [telefonul tău], apoi publică din nou fluxul.</Prompt>
 
 <DacaNuMerge>Dacă SMS-ul nu ajunge și Twilio arată eroarea 21614, numărul e de telefon fix: pe fix nu se pot trimite SMS-uri. Dacă ajunge de la un număr scurt în loc de numele firmei, numele încă nu e înregistrat pentru rețeaua aceea.</DacaNuMerge>
 </Pas>
