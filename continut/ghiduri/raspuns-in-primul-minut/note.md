@@ -28,8 +28,6 @@ Postarea: carusel (scriptul lui Andrei, 2026-11-23). Automatizarea din design: `
 - Clinici: fără date despre sănătate la AI.
 
 ## Decizia lui Andrei, a doua (2026-11-23, după previzualizare)
-Ciorna de acum (Claude Code construiește tot dintr-un singur mesaj) e un ghid de **setare**, nu de construcție: cititorul nu poate face automatizarea singur. Andrei a ales: **construcția nod cu nod, de mână, în n8n**, cu setările exacte și o captură la fiecare nod (~35 de pași, ~3 ore). Fără Claude Code și fără Claude Pro; Claude rămâne doar nodul care scrie mesajul (cheie API).
-- Setările și capturile vin din **modelul 3 construit** (planul 17, `servicii/automatizari/modele/raspuns-primul-minut/`), deci ghidul se rescrie după ce modelul 3 merge. Capturile: din contul de probă n8n, cu datele „Conu' Leonida”.
-- Rămân din ciornă: contul n8n, tabelul, formularul Tally + informarea GDPR, cheia API, conexiunile, testele (inclusiv plasa de siguranță și spamul), publicarea, legarea Tally, SMS-ul cu cele trei capcane din România.
-- Ies: pașii 2–4 (MCP, Claude Code), promptul mare de la pasul 8.
+Andrei a cântărit construcția nod cu nod, de mână, apoi s-a întors la structura ciornei: **promptul pentru Claude care creează automatizarea, apoi instrucțiunile de conectare și setare.** Ciorna rămâne pe structura asta.
+- Promptul de la pasul 8 nu e rulat încă. Cel mai sigur: îl rulez o dată în contul de probă n8n (când e tokenul MCP, planul 17, Task 1) și corectez ce iese greșit, înainte de „Publică”.
 - CRM-ul nu se mai construiește în Vercel pe ramurile `ghid/*` (setarea „Ignored Build Step” a proiectului `buildwithac-crm`, pusă prin API la 2026-11-23).
