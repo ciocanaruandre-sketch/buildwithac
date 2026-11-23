@@ -1,6 +1,6 @@
 # Automatizările de vânzare: 4 modele gata de pus la client, cu clipuri
 
-Data: 2026-11-23. Stare: de aprobat de Andrei.
+Data: 2026-11-23. Stare: de aprobat de Andrei (trecut prin verificatorul-constructor).
 Marcaje: **[Andrei]** = decizia lui; **[Claude]** = apelul meu, pe care Andrei îl poate schimba; **[de verificat]** = se verifică la construire sau la primul client.
 
 ## De ce
@@ -45,8 +45,10 @@ Același flux merge la frizerie, salon, clinică, service. Diferența stă în *
 
 Programările stau în **Google Calendar-ul firmei**. Andrei îl înlocuiește la client, dacă acesta folosește altceva [Andrei].
 
+**Câte un calendar pentru fiecare om care primește programări** (frizer, cosmeticiană, medic), toate în contul Google al firmei [Andrei]. În setări stă lista: numele omului, calendarul lui, serviciile pe care le face. Modelele 1 și 2 citesc toate calendarele din listă. Asistentul (modelul 4) întreabă „la cine vrei?” și acceptă și „oricine e liber”. O firmă cu un singur om are o listă cu un singur rând; modelul e același.
+
 **Formatul programării** (îl stabilește modelul 1, îl folosesc 2 și 4) [Claude]:
-- titlul: `<Serviciul> – <Numele clientului>` (ex.: `Tuns + barbă – Mihai Ionescu`);
+- titlul: `<Serviciul> – <Numele clientului>` (ex.: `Tuns + barbă – Mihai Ionescu`); cine face serviciul reiese din calendarul în care stă programarea;
 - în descriere, câte un rând pentru fiecare câmp: `Telefon: 0722 123 456`, `Email: mihai@exemplu.ro` (cel puțin unul dintre ele);
 - ora de început și de sfârșit, din calendar.
 
@@ -67,11 +69,38 @@ Programările care nu au telefon sau e-mail sunt sărite și notate în jurnal (
 - **Modelele 1 și 2 nu folosesc AI.** Mesajele lor sunt șabloane fixe, cu numele, ora și adresa. O oră inventată de AI înseamnă un client venit degeaba, iar un șablon nu greșește [Claude, Andrei: „e bine”].
 - **Fără date sensibile la AI.** Modelele sunt generale, dar la o clinică, mesajul către AI din modelul 3 nu trebuie să conțină tratamentul cerut fără verificarea cu `legal-advisor-ro` (regula din `servicii/automatizari/README.md`). README-ul modelului 3 o spune explicit.
 
-### Setările: un singur loc de completat [Claude]
+### Setările: un singur loc de completat, pentru toată firma [Claude]
 
-Fiecare model începe cu un nod **„Setări”** (un nod Set, primul după declanșator), cu tot ce e de completat la client: numele firmei, adresa, telefonul, link-ul de programare/reprogramare, link-ul de recenzie Google, ID-ul calendarului, canalul (`email` / `sms` / `ambele`), e-mailul patronului, tonul (`prietenos` / `elegant`), întârzierile (vezi mai jos). Valorile de completat se scriu `CONFIG_…`, ca la modelele existente. Datele firmei pentru asistent (servicii, prețuri, program, întrebări frecvente) stau într-un câmp de text din același nod.
+Un flux mic și separat, **`setari-firma`**, ține tot ce e de completat la client: numele firmei, adresa, telefonul, programul, link-ul de programare/reprogramare, link-ul de recenzie Google, calendarul (sau calendarele), canalul (`email` / `sms` / `ambele`), e-mailul patronului, tonul (`prietenos` / `elegant`), întârzierile (vezi mai jos) și datele pentru asistent (servicii cu durată și preț, întrebări frecvente). Fiecare model îl cheamă la început (*Execute Workflow*) și primește setările. Un client care cumpără toate cele 4 modele completează datele **o singură dată**, nu în 5–6 locuri. Valorile de completat se scriu `CONFIG_…`, ca la modelele existente.
 
-Respins: foaia `Config` din Google Sheets, ca la clinică. E încă un loc de întreținut, iar un rând șters strică fluxul în tăcere.
+- Respins: câte un nod „Setări” în fiecare flux. La 4 modele, aceeași adresă ar sta în 6 locuri, iar una uitată la schimbare trimite adresa veche.
+- Respins: foaia `Config` din Google Sheets, ca la clinică. E încă un loc de întreținut, iar un rând șters strică fluxul în tăcere.
+- **[de verificat]** dacă rulările sub-fluxurilor se numără în limita abonamentului. Dacă da, setările trec înapoi în câte un nod Set pe flux, cu o listă de verificare în README.
+
+### Câte rulări consumă [Claude]
+
+Starter are 2.500 de rulări pe lună. Un flux programat la fiecare 15 minute, zi și noapte, ar consuma singur aproape 2.900. De aceea:
+- fluxurile programate (reamintirile, recenzia) rulează **la 30 de minute, doar în programul firmei** plus o oră înainte și după (din setări). Asta înseamnă cam 30 de rulări pe zi, adică circa 900 pe lună pentru fiecare flux;
+- declanșatoarele care verifică singure (Google Calendar) **[de verificat]** nu consumă rulări când nu găsesc nimic nou;
+- README-ul fiecărui model spune cât consumă pe lună, ca Andrei să știe din propunere dacă clientul are nevoie de Pro.
+
+Reamintirea „cu 2 ore înainte” pleacă deci între 2 ore și 2 ore și jumătate înainte. E acceptabil pentru o reamintire.
+
+### Programările mutate [Claude]
+
+Dacă o programare se mută după confirmare, clientul primește un mesaj „programarea ta s-a mutat pe …”. Altfel, ultima confirmare din telefonul lui arată ora veche. Fluxul programat compară ora din calendar cu ora din ultima confirmare din `Jurnal`. Nu e nevoie de încă un declanșator.
+
+### Dezabonarea [Claude]
+
+Un flux mic, comun, **`dezabonare`**:
+- un **SMS cu „STOP”** primit pe numărul Twilio al firmei (webhook-ul de mesaje primite) pune telefonul în `Nu trimite`. Logica e luată din modelul clinicii WF2: telefonul în orice formă, STOP înaintea oricărui alt cuvânt;
+- un **link de dezabonare** în fiecare e-mail pune adresa în `Nu trimite`.
+
+Fiecare mesaj care nu e strict despre programare (cererea de recenzie) spune cum te scoți de pe listă. Așa, promisiunea „răspunde STOP” chiar funcționează.
+
+### Formularul de pe site [Claude]
+
+Șablonul site-urilor (`servicii/site-uri/sablon/`) **nu** se schimbă în acest proiect. README-ul modelului 3 scrie **contractul câmpurilor** (nume, telefon, e-mail, ce cere, mesaj, câmpul-capcană) și cum trimite un formular spre webhook. Formularul se pune în șablon la primul client de „site + automatizare”.
 
 ### Întârzierile se pot scurta pentru demonstrație [Claude]
 
@@ -97,7 +126,7 @@ Fiecare model scrie într-un **Google Sheet al firmei**: foaia `Jurnal` (ce a pl
 
 **Cum [Claude]:**
 - **Confirmarea:** declanșatorul Google Calendar „eveniment creat”.
-- **Reamintirile:** un flux programat, la fiecare 15 minute, citește programările din următoarele ore și trimite reamintirile scadente care nu sunt deja în `Jurnal`. Respins: un nod Wait de 24 de ore după confirmare. Dacă programarea e mutată sau ștearsă între timp, Wait-ul trimite reamintirea la ora veche. Citirea la fiecare 15 minute vede mereu calendarul de acum.
+- **Reamintirile:** un flux programat (vezi „Câte rulări consumă”) citește programările din următoarele ore și trimite reamintirile scadente care nu sunt deja în `Jurnal`. Respins: un nod Wait de 24 de ore după confirmare. Dacă programarea e mutată sau ștearsă între timp, Wait-ul trimite reamintirea la ora veche. Citirea periodică vede mereu calendarul de acum.
 - O programare ștearsă nu mai primește nimic. O programare mutată primește reamintirile la ora nouă (cheia în jurnal: ID-ul evenimentului + ora de început + tipul reamintirii).
 - Programările făcute cu mai puțin de 24 de ore înainte nu primesc reamintirea de 24 de ore; cele făcute cu mai puțin de 2 ore înainte primesc doar confirmarea.
 
@@ -109,8 +138,9 @@ Fiecare model scrie într-un **Google Sheet al firmei**: foaia `Jurnal` (ce a pl
 
 **Ce face:** după ce se termină o programare (2 ore, setabil), clientul primește un mesaj de mulțumire cu link-ul de recenzie Google. Cererea merge la toți clienții, fără filtru (Google interzice cererile selective).
 
-**Cum [Claude]:** un flux programat (la fiecare 15 minute) găsește programările terminate de cel puțin „întârzierea” și de cel mult o zi, care n-au primit încă cererea (după `Jurnal`).
+**Cum [Claude]:** un flux programat (vezi „Câte rulări consumă”) găsește programările terminate de cel puțin „întârzierea” și de cel mult o zi, care n-au primit încă cererea (după `Jurnal`).
 
+- **Cine n-a venit nu primește cererea** [Andrei]. Patronul marchează neprezentarea în calendar, iar o programare nemarcată și neștearsă înseamnă că omul a venit. Marcajul acceptat [Claude]: **culoarea roșie** a evenimentului (*Tomato* în Google Calendar, se alege din telefon) **sau** titlul care începe cu `NU A VENIT`; o programare ștearsă nu primește nimic, oricum. Marcajul trebuie pus în timpul întârzierii (2 ore implicit). Pasul intră în instrucțiunile de folosire pentru patron. **[de verificat la primul client]** cum își notează ei azi neprezentările; marcajul se poate schimba din setări.
 - **O singură cerere pe programare.** O a doua reamintire după 3 zile există ca opțiune în „Setări”, **oprită** din start: nu putem ști dacă omul a lăsat deja recenzia [Claude, Andrei: „e bine”].
 - **Un client care revine des** (frizerie: la 3 săptămâni) primește cererea o singură dată la 90 de zile (setabil), după telefon sau e-mail.
 - Mesaj fix, fără AI.
@@ -123,7 +153,7 @@ Fiecare model scrie într-un **Google Sheet al firmei**: foaia `Jurnal` (ce a pl
 **Cum [Claude]:**
 - **Declanșatorul:** un webhook, ca să meargă cu orice formular (site-ul din șablonul `servicii/site-uri/sablon/`, Tally, alt site). Facebook Lead Ads e o adăugare ulterioară, la client.
 - **Claude Haiku** scrie mesajul doar din ce a trimis omul și din datele firmei. Instrucțiunile îi interzic să promită prețuri, ore libere sau reduceri care nu sunt în „Setări”.
-- **Dacă AI-ul nu răspunde** (eroare, timp depășit), pleacă un mesaj fix. Omul primește oricum răspuns, iar patronul vede în rezumat că a plecat varianta fixă.
+- **Dacă AI-ul nu răspunde, nici după o reîncercare,** (eroare, timp depășit), pleacă un mesaj fix. Omul primește oricum răspuns, iar patronul vede în rezumat că a plecat varianta fixă.
 - Cererea intră în Google Sheet-ul firmei (foaia `Cereri`), iar rezumatul ajunge la patron pe e-mail.
 - **Protecția webhook-ului:** un câmp-capcană (honeypot) pe care oamenii nu-l văd, dar roboții îl completează; cel mult un mesaj pe același telefon sau e-mail într-o zi; textele foarte lungi se taie înainte să ajungă la AI. *Header Auth* se folosește când formularul trimite de pe server (site-ul din șablon poate face asta), nu din browser.
 
@@ -132,7 +162,7 @@ Fiecare model scrie într-un **Google Sheet al firmei**: foaia `Jurnal` (ce a pl
 **Ce face:** un chat pe site. Asistentul răspunde la întrebări doar din informațiile firmei și, când clientul e gata, îi propune ore libere și face programarea în calendar, în formatul de la modelul 1 (deci primește automat confirmarea și reamintirile). Dacă nu știe un răspuns, spune că transmite întrebarea și îi trimite patronului conversația.
 
 **Cum [Claude]:**
-- Declanșatorul de chat al n8n, publicat și pus pe site (fereastra de chat a n8n, `@n8n/chat`, sau pagina găzduită de n8n). AI Agent cu Claude, memorie pe conversație, și uneltele: „ore libere” (citește calendarul, ține cont de program și de durata serviciului), „programează” (creează evenimentul), „transmite patronului”.
+- Declanșatorul de chat al n8n, publicat și pus pe site (fereastra de chat a n8n, `@n8n/chat`, sau pagina găzduită de n8n). AI Agent cu Claude, memorie pe conversație, și uneltele: „ore libere” (citește calendarul omului ales sau, la „oricine”, toate calendarele care fac serviciul cerut; ține cont de program și de durata serviciului), „programează” (creează evenimentul în calendarul omului respectiv), „transmite patronului”.
 - **Se prezintă ca asistent virtual** la primul mesaj. Nu inventează: dacă informația nu e în datele firmei, o transmite.
 - **Înainte de programare**, cere numele și telefonul sau e-mailul și repetă ziua și ora pentru confirmare. Abia după „da” creează evenimentul. Înainte de creare verifică din nou că intervalul e liber (doi clienți în același timp).
 - **Protecția:** lungimea mesajelor e limitată, conversațiile au un număr maxim de mesaje, iar originea chatului e restrânsă la domeniul site-ului firmei (*Allowed Origins*).
@@ -155,7 +185,7 @@ Se conectează pe rând, la modelul care le cere. Credentialele le pune Andrei �
 
 | Cont | Pentru | Cost |
 |---|---|---|
-| Google (Calendar „Conu' Leonida – demo”, un Sheet, Gmail) | 1–4 | gratuit |
+| Google (două calendare, câte unul pentru doi frizeri inventați ai „Conu' Leonida”, un Sheet, Gmail) | 1–4 | gratuit |
 | Anthropic API (cheie) | 3, 4 | cenți la teste |
 | Twilio de probă | SMS în 1–3 | gratuit (credit de probă) |
 | Telegram (botul lui Andrei, deja există) | anunțurile opționale | gratuit |
@@ -188,7 +218,7 @@ Se conectează pe rând, la modelul care le cere. Credentialele le pune Andrei �
 - Unul sau mai multe fluxuri pe model.
 - Textele mesajelor (aprobate de Andrei), instrucțiunile pentru Claude din modelele 3 și 4.
 - Cum se citesc telefonul și e-mailul din descriere (toleranță la spații, majuscule, diacritice).
-- Fereastra exactă a fluxurilor programate (15 minute e propunerea).
+- Fereastra exactă a fluxurilor programate, în limitele din „Câte rulări consumă”.
 - Cum arată copia locală a paginii (aspectul conceptului rămâne).
 
 ## După proiect
