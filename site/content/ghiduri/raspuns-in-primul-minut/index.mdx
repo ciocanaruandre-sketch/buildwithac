@@ -47,8 +47,6 @@ Când intri prima dată, n8n te întreabă ce vrei să automatizezi. Sari peste:
 
 MCP e un conector prin care Claude citește și lucrează în alt program. Cu el pornit, Claude Code poate construi, testa și publica fluxuri în contul tău.
 
-<CeVezi src="pas-2-mcp-pornit.webp" alt="Pagina Instance-level MCP din n8n, cu accesul pornit și butonul Connect" />
-
 <DacaNuMerge>Dacă bara din stânga arată doar pictograme, deschide-o din pictograma de panou de sus. Dacă nu găsești **Instance-level MCP**, contul tău nu e de proprietar: doar proprietarul contului îl poate porni.</DacaNuMerge>
 </Pas>
 
@@ -107,7 +105,6 @@ Intră pe [tally.so](https://tally.so) și fă un formular nou. Pune câmpurile 
 
 E-mailul e obligatoriu pentru că pe el pleacă răspunsul. Telefonul rămâne opțional: unii nu vor să fie sunați.
 
-<CeVezi src="pas-6-formular-tally.webp" alt="Formularul din Tally, cu câmpurile Nume, Telefon, E-mail, Ce te interesează și Mesaj" />
 </Pas>
 
 <Pas titlu="Pui textul despre date sub formular">
@@ -182,8 +179,6 @@ Când ai construit fluxul:
 
 Claude îți cere voie înainte să lucreze în n8n. Citește ce vrea să facă și aprobă. Durează în jur de 10 minute, cu tot cu testele. Testele lui folosesc date simulate: nu pleacă niciun e-mail și nu se scrie nimic în tabel. La final, fluxul apare în n8n, la **Overview**.
 
-<CeVezi src="pas-8-fluxul.webp" alt="Fluxul „Răspuns în primul minut” în n8n, de la Webhook la rezumatul pentru patron, cu ramura mesajului fix" />
-
 <DacaNuMerge>Dacă Claude scrie că nu vede n8n-ul, ieși cu `/exit`, pornește din nou `claude` și scrie `/mcp`: n8n trebuie să apară conectat. Dacă un caz de test n-a mers pe drumul așteptat, spune-i lui Claude: „Repară cazul acesta și testează din nou toate patru cazurile.” El modifică fluxul existent, nu face altul.</DacaNuMerge>
 </Pas>
 
@@ -227,8 +222,6 @@ Testele de la pasul 8 au folosit date simulate. Acum fluxul rulează o dată pe 
 
 Verifică trei lucruri: e-mailul a ajuns la tine, rândul e în foaia **Cereri**, iar mesajul **nu** spune un preț. Omul a întrebat cât costă, dar tu n-ai dat prețuri în datele firmei.
 
-<CeVezi src="pas-14-foaia-cereri.webp" alt="Foaia Cereri din Google Sheets, cu rândul cererii de test" />
-
 <DacaNuMerge>Dacă mesajul totuși promite un preț sau o oră, spune-i lui Claude: „Mesajul a promis [ce a promis]. Întărește regula din instrucțiunile nodului Anthropic și testează din nou.” Dacă Claude scrie că rularea a fost oprită la Webhook, din cauza parolei, sari peste testul ăsta și peste următorul: fluxul îl încerci din formular, la pasul 18, cu același mesaj.</DacaNuMerge>
 </Pas>
 
@@ -260,8 +253,6 @@ Adresa de producție arată ca `https://numele-tau.app.n8n.cloud/webhook/...`. C
 
 Salvează.
 
-<CeVezi src="pas-17-tally-webhook.webp" alt="Fereastra de webhook din Tally, cu adresa n8n și antetul X-Cheie-Formular" />
-
 <DacaNuMerge>Dacă Tally arată erori în jurnalul webhook-ului (pictograma cu ceasul), cele mai dese două cauze sunt: fluxul nu e publicat, sau parola din Tally nu e identică cu cea din n8n.</DacaNuMerge>
 </Pas>
 
@@ -270,7 +261,6 @@ Salvează.
 
 În mai puțin de un minut primești răspunsul, fără niciun preț în el. Pe calculator, în același timp, primești rezumatul și vezi rândul nou în tabel.
 
-<CeVezi src="pas-18-mesajul-primit.webp" alt="E-mailul primit pe telefon, cu răspunsul personal și link-ul de programare" />
 </Pas>
 
 <Pas titlu="Verifici protecția la spam">
