@@ -31,3 +31,15 @@ Postarea: carusel (scriptul lui Andrei, 2026-11-23). Automatizarea din design: `
 Andrei a cântărit construcția nod cu nod, de mână, apoi s-a întors la structura ciornei: **promptul pentru Claude care creează automatizarea, apoi instrucțiunile de conectare și setare.** Ciorna rămâne pe structura asta.
 - Promptul de la pasul 8 nu e rulat încă. Cel mai sigur: îl rulez o dată în contul de probă n8n (când e tokenul MCP, planul 17, Task 1) și corectez ce iese greșit, înainte de „Publică”.
 - CRM-ul nu se mai construiește în Vercel pe ramurile `ghid/*` (setarea „Ignored Build Step” a proiectului `buildwithac-crm`, pusă prin API la 2026-11-23).
+
+## Promptul mare, refăcut (2026-11-24, fără rulare, la cererea lui Andrei)
+Verificat, ca promptul să fie bun fără probă:
+- **`test_workflow` simulează** nodurile cu conturi (Gmail, Sheets, Anthropic), declanșatorul și HTTP Request; rulează doar logica (Set, If, Code). Sursa: descrierea uneltei din MCP-ul oficial (proba din 2026-11-22) și https://docs.n8n.io/connect/connect-to-n8n-mcp-server/mcp-server-tools-reference.md. Deci testul vechi de la pasul 14 n-ar fi trimis nimic. Acum: Claude testează singur logica, în 4 cazuri, cu date simulate (pasul 8); testul adevărat e cu **`execute_workflow`, modul `manual`** (rulează ciorna nepublicată; la webhook, `inputs: {type: "webhook", webhookData: {body, headers}}`).
+- **Tally** (https://tally.so/help/webhooks): răspuns 2XX în cel mult **10 secunde**, altfel retrimite (5 min, 30 min, 1 h, 6 h, 1 zi). De aceea Webhook-ul răspunde imediat, iar `data.responseId` intră în coloana nouă **ID** (retrimiterile se opresc). `value` la variante = listă de ID-uri, textul în `options`. Câmpul necompletat: nedocumentat (null, gol sau lipsă), promptul le tratează la fel.
+- Foaia goală: citirea din Sheets nu întoarce nimic → **Always Output Data** pe citire; fără „continuă la eroare” (lecția din planul 16). Data citită poate fi text „dd.MM.yyyy HH:mm” sau alt format (lecția din WF4).
+- Gmail: **Append n8n Attribution** oprit (altfel apare „sent automatically with n8n”), text simplu.
+- Plasa de siguranță deterministă: mesajul fix pleacă și la text gol / sub 20 / peste 1.200 de caractere / fără link / cu o sumă (lei, RON, euro, €, $).
+- Testele repetate cu același e-mail ar fi fost oprite de regula „24 de ore”: pașii 15 și 18 cer acum ștergerea rândurilor de test.
+- Formularul de pe site: fluxul citește și JSON simplu (`nume`, `telefon`, `email`, `interes`, `mesaj`, `website`), nu doar formatul Tally.
+
+**Neverificat:** dacă `execute_workflow` în modul manual trece de Header Auth al Webhook-ului (are `<DacaNuMerge>`: testul se face din formular, la pasul 18); dacă `create_workflow_from_code` leagă singur conexiunile existente (în cont nou nu există, deci nu contează); numele exact al operației din nodul Anthropic (promptul îi cere lui Claude să-l verifice cu `get_node_types`).
