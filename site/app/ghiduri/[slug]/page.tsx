@@ -55,7 +55,8 @@ export default async function PaginaGhid({ params }: PageProps<"/ghiduri/[slug]"
         actualizat={formatData(g.actualizat)}
         dupa={<>{g.pdf && <CasetaPdf titlu={g.titlu} cuvant={g.cuvant} />}<FinalGhid urmator={urmatorul(g)} /></>}
       >
-        <MDXRemote source={numeroteazaPasii(g.corp)} components={componente} />
+        {/* blockJS: false, ca promptul lung scris ca șir JS (<Prompt>{`…`}</Prompt>) să nu fie șters; ghidurile sunt fișierele noastre din git, iar blockDangerousJS rămâne pornit */}
+        <MDXRemote source={numeroteazaPasii(g.corp)} components={componente} options={{ blockJS: false }} />
       </Caiet>
     </main>
   );

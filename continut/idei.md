@@ -10,3 +10,4 @@ Lista o ține skill-ul `idei`. Andrei alege ce intră în „De făcut”. Când
 - Animații video din câteva cuvinte, cu Claude Opus 5.5 (carusel TikTok): ghid publicat 2026-11-04 → ghid `animatii-video-cu-claude`
 - Claude conectat la TradingView, cu MCP-ul oficial (din ghidul vechi al lui Andrei; poate urmează un clip): ghid publicat 2026-11-04 → ghid `claude-tradingview-mcp`
 - Claude face clipuri, pe vocea mea (clip TikTok/Instagram, 2026-11-16): ghid publicat 2026-11-17 → ghid `clipuri-cu-claude-pe-vocea-ta` (cuvânt CLIPURI)
+- Răspuns în primul minut la fiecare cerere de pe site (carusel, 2026-11-23): ghid publicat 2026-11-24 → ghid `raspuns-in-primul-minut` (cuvânt MINUT; fără capturi, promptul nerulat)
