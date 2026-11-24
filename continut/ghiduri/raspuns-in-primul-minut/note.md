@@ -43,3 +43,9 @@ Verificat, ca promptul să fie bun fără probă:
 - Formularul de pe site: fluxul citește și JSON simplu (`nume`, `telefon`, `email`, `interes`, `mesaj`, `website`), nu doar formatul Tally.
 
 **Neverificat:** dacă `execute_workflow` în modul manual trece de Header Auth al Webhook-ului (are `<DacaNuMerge>`: testul se face din formular, la pasul 18); dacă `create_workflow_from_code` leagă singur conexiunile existente (în cont nou nu există, deci nu contează); numele exact al operației din nodul Anthropic (promptul îi cere lui Claude să-l verifice cu `get_node_types`).
+
+## Publicat (2026-11-24)
+- Fără capturi (decizia lui Andrei: automatizarea lui nu e încă gata). Coperta: poza lui Andrei (`Exemple/IMG_8673.jpg`), tăiată la 1080×760.
+- PDF (18 pagini): https://buildwithac.ro/pdf/raspuns-in-primul-minut-3a9a97624179.pdf ; copia pentru Andrei în `PDF ghiduri/raspuns-in-primul-minut.pdf`.
+- Promptul lung se arată pliat pe site („Vezi tot promptul”); `next-mdx-remote` are acum `blockJS: false` (altfel șirul JS din `<Prompt>` dispărea).
+- De făcut când e gata modelul 3 din planul 17: rulez promptul o dată în contul de probă și corectez ghidul unde iese altfel (plus capturile, dacă le vrea Andrei).
