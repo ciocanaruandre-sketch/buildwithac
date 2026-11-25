@@ -39,7 +39,8 @@ test.describe("cortina", () => {
     await page.goto("/");
     const manifest = page.locator(".manifest");
     await expect(manifest).toContainText("Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București.");
-    await expect(manifest).toContainText("ca tu să ai timp de clienții tăi.");
+    await expect(manifest).toContainText("ca tu să ai timp pentru gestionarea afacerii.");
+    await expect(manifest.locator(".gtxt")).toHaveCount(0);
     await expect(page.locator(".curtain")).not.toContainText("tot gratuit");
   });
 
@@ -78,6 +79,21 @@ test("ordinea secțiunilor", async ({ page }) => {
   await page.goto("/");
   const ids = await page.$$eval("main section", (s) => s.map((x) => x.id).filter(Boolean));
   expect(ids).toEqual(["hero", "portofoliu", "servicii", "calculator", "colaborare", "ghiduri", "tiktok", "email", "intrebari", "contact"]);
+});
+
+test("cuvintele în gradient nu sunt tăiate la margine", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  // litera italică iese din cutia textului; gradientul se oprește la cutie, deci are nevoie de spațiu în plus
+  const taiate = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>("h2 .serif.gtxt")].flatMap((el) => {
+    const s = getComputedStyle(el), ctx = document.createElement("canvas").getContext("2d")!;
+    ctx.font = `${s.fontStyle} ${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+    ctx.letterSpacing = s.letterSpacing === "normal" ? "0px" : s.letterSpacing;
+    const m = ctx.measureText(el.textContent!);
+    const iese = m.actualBoundingBoxRight - m.width - parseFloat(s.paddingRight);
+    return iese > 0 ? [`${el.textContent}: ${iese.toFixed(1)}px`] : [];
+  }));
+  expect(taiate).toEqual([]);
 });
 
 test("pe telefon, pagina e scurtă: portofoliul și formularul vin repede", async ({ page, isMobile }) => {

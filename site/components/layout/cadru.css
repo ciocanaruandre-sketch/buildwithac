@@ -1,6 +1,8 @@
 /* portat din prototip/index.html: bară, footer, fundal Aurora, utilitare */
 img { display: block; }
 .gtxt { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* ultima literă italică iese din cutia textului, iar gradientul se oprește la cutie: fără spațiul ăsta, „?” apare tăiat */
+.serif.gtxt { padding-right: .18em; margin-right: -.18em; }
 .eb { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #ff8a3d; }
 
 /* BARA */

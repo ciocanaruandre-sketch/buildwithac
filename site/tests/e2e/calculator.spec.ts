@@ -22,7 +22,7 @@ async function apasa(page: Page) {
 
 const rezultat = (page: Page) => calc(page).locator("output");
 const cursor = (page: Page, nume: RegExp) => calc(page).getByRole("slider", { name: nume });
-const CLIENTI = /Clienți în plus pe săptămână/, PROGRAMARI = /Programări pe săptămână/, MINUTE = /Minute pe zi/;
+const CERERI = /Cereri pe săptămână/, PROGRAMARI = /Programări pe săptămână/, MINUTE = /Minute pe zi/;
 
 async function laZero(page: Page, ...care: RegExp[]) {
   for (const c of care) { await cursor(page, c).focus(); await page.keyboard.press("Home"); }
@@ -33,21 +33,22 @@ test("arată cât poți câștiga, cu verde, pe un singur bon", async ({ page })
   await expect(calc(page).getByRole("heading", { level: 2 })).toHaveText("Cât poți câștiga dacă nu mai faci totul manual?");
   await expect(calc(page).getByRole("slider")).toHaveCount(4);
   await expect(rezultat(page)).toContainText("Poți câștiga până la");
-  await expect(rezultat(page)).toContainText("+2.600 lei");
-  await expect(rezultat(page)).toContainText("23 de zile libere pe an");
+  await expect(rezultat(page)).toContainText("+510 lei");
+  await expect(rezultat(page)).toContainText("pe lună, plus 7 zile pe an pentru tine");
   await expect(calc(page)).not.toContainText(/pierzi|pierdu/i);
   await expect(rezultat(page).locator("strong")).toHaveCSS("color", "rgb(47, 125, 58)");
-  await expect(calc(page)).toContainText("Estimare pe cifrele tale, nu o promisiune.");
+  for (const presupunere of ["1 din 10 cereri", "1 din 4 programări", "Jumătate din timp"]) await expect(calc(page).locator(".bon-r")).toContainText(presupunere);
+  await expect(calc(page)).toContainText("Estimare prudentă, nu o promisiune. Nu scade costul automatizării.");
 });
 
 test("cursoarele schimbă suma, iar la capete nu se strică nimic", async ({ page }) => {
   await deschide(page);
-  await cursor(page, CLIENTI).focus();
+  await cursor(page, CERERI).focus();
   for (let i = 0; i < 3; i++) await page.keyboard.press("ArrowRight");
-  await expect(rezultat(page)).toContainText("+5.200 lei");
+  await expect(rezultat(page)).toContainText("+710 lei");
   for (const s of await calc(page).getByRole("slider").all()) { await s.focus(); await page.keyboard.press("End"); }
-  await expect(rezultat(page)).toContainText("+758.333 lei");
-  await expect(rezultat(page)).toContainText("125 de zile");
+  await expect(rezultat(page)).toContainText("+7.570 lei");
+  await expect(rezultat(page)).toContainText("31 de zile");
   await expect(calc(page)).not.toContainText("NaN");
   const bon = await calc(page).locator(".bon").boundingBox(), suma = await rezultat(page).locator("strong").boundingBox();
   expect(suma!.x).toBeGreaterThanOrEqual(bon!.x);
@@ -56,8 +57,8 @@ test("cursoarele schimbă suma, iar la capete nu se strică nimic", async ({ pag
 
 test("fără bani de câștigat, pe bon rămân zilele; fără nimic, îi spune să mute un cursor", async ({ page }) => {
   await deschide(page);
-  await laZero(page, CLIENTI, PROGRAMARI);
-  await expect(rezultat(page).locator("strong")).toHaveText("+23 de zile");
+  await laZero(page, CERERI, PROGRAMARI);
+  await expect(rezultat(page).locator("strong")).toHaveText("+7 zile");
   await expect(rezultat(page)).not.toContainText("lei");
   await laZero(page, MINUTE);
   await expect(rezultat(page)).toContainText("Mută un cursor");
@@ -70,8 +71,8 @@ test("fără bani de câștigat, pe bon rămân zilele; fără nimic, îi spune 
 test("minutele pe zero: rămâne suma, fără „0 zile”", async ({ page }) => {
   await deschide(page);
   await laZero(page, MINUTE);
-  await expect(rezultat(page)).toContainText("+2.600 lei");
-  await expect(calc(page).locator(".bon")).not.toContainText("zile");
+  await expect(rezultat(page)).toContainText("+510 lei");
+  await expect(calc(page).locator(".bon-t")).not.toContainText("zile");
 });
 
 test("butonul duce la formular, alege Automatizări și scrie cifrele", async ({ page }) => {
@@ -79,16 +80,16 @@ test("butonul duce la formular, alege Automatizări și scrie cifrele", async ({
   await apasa(page);
   await expect(page.locator(".colab .fcard")).toBeInViewport();
   await expect(page.locator(".colab").getByRole("button", { name: "Automatizări", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(descriere(page)).toHaveValue("Din calculator: 1 client în plus pe săptămână cu răspuns la timp, 2 programări pe săptămână la care nu vine nimeni, 200 de lei pe client, 45 de minute pe zi de muncă repetată. Pot câștiga până la 2.600 lei pe lună și 23 de zile pe an.");
+  await expect(descriere(page)).toHaveValue("Din calculator: 3 cereri pe săptămână la care răspund târziu sau deloc, 2 programări pe săptămână la care nu vine nimeni, 150 de lei pe client, 30 de minute pe zi de muncă repetată. Estimare prudentă: până la 510 lei pe lună și 7 zile pe an.");
 });
 
 test("cifrele noi le înlocuiesc pe cele vechi ale calculatorului", async ({ page }) => {
   await deschide(page);
   await apasa(page);
-  await expect(descriere(page)).toHaveValue(/2\.600 lei/);
-  await laZero(page, CLIENTI, PROGRAMARI);
+  await expect(descriere(page)).toHaveValue(/510 lei/);
+  await laZero(page, CERERI, PROGRAMARI);
   await apasa(page);
-  await expect(descriere(page)).toHaveValue(/^Din calculator: 45 de minute/);
+  await expect(descriere(page)).toHaveValue(/^Din calculator: 30 de minute/);
   await laZero(page, MINUTE);
   await apasa(page);
   await expect(descriere(page)).toHaveValue("");

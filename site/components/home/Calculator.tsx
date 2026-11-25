@@ -9,7 +9,7 @@ import "./calculator.css";
 type Camp = keyof Intrari;
 
 const CURSOARE: { camp: Camp; eticheta: string; arata: (n: number) => string }[] = [
-  { camp: "clienti", eticheta: "Clienți în plus pe săptămână, dacă ai răspunde la timp", arata: String },
+  { camp: "cereri", eticheta: "Cereri pe săptămână la care răspunzi târziu sau deloc", arata: String },
   { camp: "programari", eticheta: "Programări pe săptămână la care nu vine nimeni", arata: String },
   { camp: "leiPeClient", eticheta: "Cât aduce un client", arata: (n) => `${mii(n)} lei` },
   { camp: "minute", eticheta: "Minute pe zi cu munca repetată", arata: (n) => `${n} min` },
@@ -20,7 +20,7 @@ const LA_INCEPUT = Object.fromEntries(Object.entries(LIMITE).map(([k, l]) => [k,
 /** „Cât poți câștiga dacă nu mai faci totul manual?”: rezultatul iese pe un bon de casă și pleacă cu omul în formular. */
 export function Calculator() {
   const [v, setV] = useState(LA_INCEPUT);
-  const { dinRaspuns, dinProgramari, leiPeLuna, zile } = calcul(v);
+  const { dinCereri, dinProgramari, leiPeLuna, zile } = calcul(v);
   const zileText = cuDe(zile, "zi", "zile");
 
   const trimite = () => {
@@ -49,23 +49,23 @@ export function Calculator() {
         </div>
         <div className="bon">
           <div className="bon-h">buildwithac</div>
-          <div className="bon-r" aria-hidden>
-            {dinRaspuns > 0 && <p><span>Răspuns la timp</span><span>+{mii(dinRaspuns)} lei</span></p>}
-            {dinProgramari > 0 && <p><span>Programări ținute</span><span>+{mii(dinProgramari)} lei</span></p>}
-            {zile > 0 && <p><span>Timpul tău</span><span>{zileText} pe an</span></p>}
+          <div className="bon-r">
+            {dinCereri > 0 && <p><span>1 din 10 cereri</span><span>+{mii(dinCereri)} lei</span></p>}
+            {dinProgramari > 0 && <p><span>1 din 4 programări</span><span>+{mii(dinProgramari)} lei</span></p>}
+            {zile > 0 && <p><span>Jumătate din timp</span><span>{zileText} pe an</span></p>}
           </div>
           <output className="bon-t">
             {leiPeLuna || zile ? (
               <>
                 <small>Poți câștiga până la</small>
                 <strong>+{leiPeLuna ? `${mii(leiPeLuna)} lei` : zileText}</strong>
-                <span>{leiPeLuna ? `pe lună${zile ? `, plus ${zileText} libere pe an` : ""}` : "libere pe an"}</span>
+                <span>{leiPeLuna ? `pe lună${zile ? `, plus ${zileText} pe an pentru tine` : ""}` : "pe an pentru tine"}</span>
               </>
             ) : (
               <span>Mută un cursor ca să vezi cât poți câștiga.</span>
             )}
           </output>
-          <p className="bon-nota">Estimare pe cifrele tale, nu o promisiune.</p>
+          <p className="bon-nota">Estimare prudentă, nu o promisiune. Nu scade costul automatizării.</p>
           <a className="bon-but" href="#formular" onClick={trimite}>Vreau analiza gratuită <span aria-hidden>→</span></a>
         </div>
       </div>

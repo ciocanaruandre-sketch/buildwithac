@@ -32,7 +32,7 @@ Locul calculatorului (între servicii și formular) e propunerea mea.
 ## Secțiunile și textele
 Textele marcate (A) sunt ale lui Andrei; restul sunt propuneri, se corectează pe previzualizare.
 
-**Descrierea** (A): „Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp *de clienții tăi.*” Dispare „tot gratuit ↓” (A). Sub text, **două butoane unul lângă altul** (A), de lățime egală, pe tot rândul, și la 390px: „Analiză gratuită” (plin, gradientul logo-ului, → `#formular`) și „Ghiduri gratuite” (contur, → `/ghiduri`). Textele sunt scurte ca să încapă pe un rând pe telefon.
+**Descrierea** (A): „Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp pentru gestionarea afacerii.” (tot textul alb, schimbat de Andrei pe previzualizare) Dispare „tot gratuit ↓” (A). Sub text, **două butoane unul lângă altul** (A), de lățime egală, pe tot rândul, și la 390px: „Analiză gratuită” (plin, gradientul logo-ului, → `#formular`) și „Ghiduri gratuite” (contur, → `/ghiduri`). Textele sunt scurte ca să încapă pe un rând pe telefon.
 
 **Banda** rămâne (A), fără „tot gratuit” (A). Fâșia mare: site-uri de la zero · automatizări · sesiuni 1 la 1 · ghiduri gratuite · AI pe înțeles. Fâșia mică: vorbești direct cu mine · analiză gratuită · știi prețul dinainte · construit pe nevoile tale.
 
@@ -47,9 +47,9 @@ Textele marcate (A) sunt ale lui Andrei; restul sunt propuneri, se corectează p
 - Automatizări: „Răspunsurile la clienți, programările, mesajele de revenire, tot ce faci la fel în fiecare zi. Le pun să meargă singure, în aplicațiile pe care le ai deja.”
 - Sesiune sau ghid: „Vrei să înveți să le faci singur? Îți arăt live, pe ecran, cum folosești AI-ul în munca ta, sau îți scriu un ghid doar pentru tine.”
 
-**Calculatorul.** (Schimbat de Andrei pe previzualizare, 2026-11-25: o singură socoteală, pe câștig, nu pe pierdere; suma cu verde.) Titlu „Cât poți câștiga dacă nu mai faci totul *manual?*” Patru cursoare, fără file:
-- „Clienți în plus pe săptămână, dacă ai răspunde la timp” (0–15, la început 1) și „Programări pe săptămână la care nu vine nimeni” (0–20, la început 2), fiecare × 52/12 × „Cât aduce un client” (50–5.000 lei, la început 200); „Minute pe zi cu munca repetată” (0–240, la început 45) × 250 de zile, împărțit la zile de 8 ore.
-- Bonul de casă: „Răspuns la timp”, „Programări ținute”, „Timpul tău”, apoi „Poți câștiga până la **+2.600 lei** pe lună, plus 23 de zile libere pe an” și „Estimare pe cifrele tale, nu o promisiune.” Ce e pe zero nu apare; cu toate pe zero: „Mută un cursor ca să vezi cât poți câștiga.”
+**Calculatorul.** (Schimbat de Andrei pe previzualizare, 2026-11-25: o singură socoteală, pe câștig, nu pe pierdere; suma cu verde.) Titlu „Cât poți câștiga dacă nu mai faci totul *manual?*” Patru cursoare, fără file. **Sumele sunt prudente** (Andrei: „mult mai mici, să pară realizabil”; dacă nu se ating, omul i le reproșează):
+- „Cereri pe săptămână la care răspunzi târziu sau deloc” (0–10, la început 3), din care se câștigă **1 din 10**; „Programări pe săptămână la care nu vine nimeni” (0–10, la început 2), din care se salvează **1 din 4** (reamintirile scad absențele cu cam un sfert, BMJ Open 2016, studii medicale); „Cât aduce un client” (50–500 lei, la început 150); „Minute pe zi cu munca repetată” (0–120, la început 30), din care se câștigă **jumătate**. „1 din 10” și „jumătate” sunt alegeri prudente, nu studii.
+- Bonul arată presupunerile: „1 din 10 cereri”, „1 din 4 programări”, „Jumătate din timp”. Sumele se rotunjesc în jos la 10 lei. La început: „Poți câștiga până la **+510 lei** pe lună, plus 7 zile pe an pentru tine”; maximul posibil e 7.570 lei. Sub el: „Estimare prudentă, nu o promisiune. Nu scade costul automatizării.” Ce e pe zero nu apare; cu toate pe zero: „Mută un cursor ca să vezi cât poți câștiga.”
 - Butonul „Vreau analiza gratuită →” duce la formular, alege „Automatizări” și scrie cifrele în „Descriere”. Nu suprascrie niciodată ce a scris omul de mână.
 - Merge cu tastatura și cititorul de ecran; nu se trimite nimic până la formular.
 

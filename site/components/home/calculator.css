@@ -34,4 +34,5 @@
 }
 @media (max-width: 700px) {
   .calc { padding-top: 56px; padding-bottom: 40px; }
+  .calc-cursoare { gap: 14px; }
 }

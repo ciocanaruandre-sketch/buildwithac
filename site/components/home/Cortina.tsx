@@ -25,8 +25,7 @@ export function Cortina() {
     <section className="curtain bgs" ref={radacina}>
       <Aurora />
       <p className="manifest">
-        <Cuvinte text="Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp" />
-        <span className="serif gtxt w">de clienții tăi.</span>
+        <Cuvinte text="Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp pentru gestionarea afacerii." />
       </p>
       <div className="who">
         {/* eslint-disable-next-line @next/next/no-img-element */}
