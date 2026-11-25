@@ -61,7 +61,7 @@ Textele marcate (A) sunt ale lui Andrei; restul sunt propuneri, se corectează p
 - „Ghiduri premium”, cu lacăt și „În curând” (A): „Mai lungi, pentru un singur lucru dus până la capăt. Lasă-mi e-mailul și te anunț când apar.” → `#email`.
 - **2 variante:** două foi lipite / un plic sigilat cu lacăt.
 
-**Peretele TikTok** rămâne (A). **Newsletter**: „Îți scriu când apare un ghid nou, gratuit sau premium, ori când se lansează ceva în AI care chiar contează. Doar atunci.” (verificat cu pagina de confidențialitate).
+**Peretele TikTok** rămâne (A). **Newsletter**: „Îți scriu când apare un ghid nou, gratuit sau premium, ori când se lansează ceva în AI care chiar contează. Doar atunci.” (pagina de confidențialitate spune azi „ghidurile noi și noutăți din AI”; se completează cu „gratuite sau plătite”).
 
 **Întrebările**, între newsletter și contact (A). Se adaugă „Ce primesc la analiza gratuită?”; la automatizări, „la o consultație” devine „la analiza gratuită”. „Scrie-mi direct” duce la `#contact`.
 
