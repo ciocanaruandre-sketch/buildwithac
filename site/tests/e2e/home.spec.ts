@@ -80,6 +80,21 @@ test("ordinea secțiunilor", async ({ page }) => {
   expect(ids).toEqual(["hero", "portofoliu", "servicii", "calculator", "colaborare", "ghiduri", "tiktok", "email", "intrebari", "contact"]);
 });
 
+test("pe telefon, pagina e scurtă: portofoliul și formularul vin repede", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "doar pe telefon");
+  await page.setViewportSize({ width: 390, height: 664 });
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  const ecrane = await page.evaluate(() => {
+    const sus = (id: string) => (document.getElementById(id)!.getBoundingClientRect().top + scrollY) / innerHeight;
+    return { portofoliu: sus("portofoliu"), formular: sus("formular"), total: document.body.scrollHeight / innerHeight };
+  });
+  console.log("ecrane", JSON.stringify(ecrane));
+  expect(ecrane.portofoliu).toBeLessThan(3);
+  expect(ecrane.formular).toBeLessThan(10);
+  expect(ecrane.total).toBeLessThanOrEqual(17);
+});
+
 test.describe("ghiduri și clipuri", () => {
   test("ghidurile gratuite duc în bibliotecă, cele premium la newsletter", async ({ page }) => {
     await page.goto("/");
@@ -163,6 +178,7 @@ test.describe("abonare", () => {
   test("fără ?abonat, secțiunea are formularul", async ({ page }) => {
     await page.goto("/#email");
     await expect(page.locator(".mail form")).toHaveCount(1);
+    await expect(page.locator(".mail")).toContainText("un ghid nou, gratuit sau premium");
     await expect(page.locator(".mail")).not.toContainText("Felicitări");
   });
 

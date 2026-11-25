@@ -271,3 +271,30 @@
 .intr .alegeri button:focus-visible, .intr .reia:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
 .intr .reia { font: inherit; font-size: 12px; background: none; border: 0; color: var(--color-muted); cursor: pointer; text-decoration: underline; margin-top: 10px; }
 @media (prefers-reduced-motion: reduce) { .intr .bula, .intr .puncte i { animation: none; } }
+
+/* PE TELEFON, pagina e mai strânsă: spațiile dintre secțiuni țineau mai mult de două ecrane */
+@media (max-width: 700px) {
+  .curtain { padding-top: 84px; padding-bottom: 96px; }
+  .port { padding-top: 96px; padding-bottom: 56px; }
+  .pa { margin-top: 44px; }
+  .serv { padding-top: 64px; padding-bottom: 20px; }
+  .stack { margin-top: 30px; }
+  .scard { min-height: 250px; margin-bottom: 26px; gap: 16px; }
+  .calc { padding-top: 56px; padding-bottom: 40px; }
+  .colab { padding-top: 60px; padding-bottom: 60px; }
+  .ghid-home { padding-top: 60px; padding-bottom: 76px; }
+  .ghid-foi { margin-top: 38px; gap: 34px; }
+  .foaie-in { min-height: 205px; padding: 34px 24px 24px; }
+  .wall { height: 80vh; }
+  .mail { padding-top: 110px; padding-bottom: 100px; }
+  .intr { padding-top: 70px; padding-bottom: 60px; }
+  .contact { padding-top: 56px; padding-bottom: 40px; }
+  .intr .mesaje { height: 280px; }
+  .intr-tel .b2 { top: 390px; }
+  .pa .rand .im { height: 165px; }
+  .cways { margin-top: 32px; gap: 14px; }
+  .cway { padding: 20px 22px; }
+  .cway .ic { margin-bottom: 14px; }
+  .cway .h { margin-top: 10px; }
+  .cway .arr { top: 20px; right: 22px; }
+}

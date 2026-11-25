@@ -81,7 +81,8 @@ test("în fereastra PDF, Tab rămâne în fereastră", async ({ page }) => {
 test("finalul are ghidul următor și link spre toate ghidurile", async ({ page }) => {
   await page.goto(URL);
   const final = page.locator(".end");
-  await expect(final.getByRole("link", { name: /Claude conectat la TradingView/ })).toHaveAttribute("href", "/ghiduri/claude-tradingview-mcp");
+  // după cel mai vechi (ghidul de test) vine cel mai nou; nu numele lui, ca testul să nu pice la fiecare ghid publicat
+  await expect(final.getByRole("link", { name: /Ghidul următor/ })).toHaveAttribute("href", /^/ghiduri/(?!exemplu-test)[a-z0-9-]+$/);
   await expect(final.getByRole("link", { name: /Toate ghidurile/ })).toHaveAttribute("href", "/ghiduri");
   await expect(final.getByPlaceholder("adresa ta de e-mail")).toBeVisible();
 });
@@ -105,4 +106,11 @@ test("formularul de abonare din ghid are stilurile comune, deschis direct", asyn
   expect(stil.minMesaj).not.toBe("0px");
   // sub 16px, Safari pe iPhone mărește pagina când apeși în câmp
   expect(stil.litera).toBeGreaterThanOrEqual(16);
+});
+
+test("la final, cardul spre colaborare duce la formular", async ({ page }) => {
+  await page.goto("/ghiduri/exemplu-test");
+  const card = page.locator(".end").getByRole("link", { name: /Vrei să-l fac eu pentru tine\?/ });
+  await expect(card).toHaveAttribute("href", "/#formular");
+  await expect(page.locator(".end")).toHaveAttribute("data-fara-tipar", /.*/);
 });

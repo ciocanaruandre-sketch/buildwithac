@@ -33,6 +33,7 @@ img { display: block; }
 .foot .big span { font-family: var(--nf-unbounded); font-weight: 800; letter-spacing: -.05em; font-size: clamp(44px, 7vw, 110px); display: inline-block; }
 .foot .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin: 40px auto 0; color: var(--color-muted); font-size: 13px; max-width: 1200px; }
 .foot .row a { color: inherit; }
+@media (max-width: 700px) { .foot { padding-top: 76px; } }
 
 /* FUNDAL secțiuni: Aurora */
 .bgs { position: relative; isolation: isolate; }

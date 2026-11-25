@@ -25,6 +25,12 @@ export function FinalGhid({ urmator }: { urmator?: GhidCard }) {
           <h3>Află primul de ghidul nou</h3>
           <FormularAbonare varianta="card" />
         </div>
+        <Link className="ecard lucru" href="/#formular">
+          <div className="ic" aria-hidden>AC</div>
+          <h3>Vrei să-l fac eu pentru tine?</h3>
+          <p>Dacă n-ai timp de el, îmi spui ce vrei și îl fac eu.</p>
+          <span className="mai gtxt">Începem cu o analiză gratuită <span aria-hidden>→</span></span>
+        </Link>
         {urmator && (
           <Link className="ecard next" href={`/ghiduri/${urmator.slug}`}>
             <div className="im"><Image src={imagineGhid(urmator, urmator.imagine)} alt="" fill sizes="320px" /></div>
