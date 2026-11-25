@@ -4,14 +4,13 @@ import { Cortina } from "@/components/home/Cortina";
 import { Banda } from "@/components/home/Banda";
 import { Portofoliu } from "@/components/home/Portofoliu";
 import { Servicii } from "@/components/home/Servicii";
-import { Calculator } from "@/components/home/Calculator";
+import { CalculatorProba } from "@/components/home/CalculatorProba";
 import { Colaborare } from "@/components/home/Colaborare";
 import { Ghiduri } from "@/components/home/Ghiduri";
 import { PereteClipuri } from "@/components/home/PereteClipuri";
 import { SectiuneEmail } from "@/components/home/SectiuneEmail";
 import { Intrebari } from "@/components/home/Intrebari";
 import { Contact } from "@/components/home/Contact";
-import { Variante } from "@/components/home/Variante";
 import { toateGhidurile } from "@/lib/ghiduri";
 
 // ordinea e pentru vânzare: cine e, ce a făcut, ce oferă, formularul; ghidurile vin după (docs/superpowers/specs/2026-11-25-homepage-vanzari-design.md)
@@ -23,14 +22,13 @@ export default function Acasa() {
       <Banda />
       <Portofoliu />
       <Servicii />
-      <Calculator />
+      <CalculatorProba />
       <Colaborare />
       <Ghiduri numar={toateGhidurile().length} />
       <PereteClipuri />
       <SectiuneEmail />
       <Intrebari />
       <Contact />
-      <Variante />
     </main>
   );
 }

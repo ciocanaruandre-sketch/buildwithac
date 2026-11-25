@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { Aurora } from "@/components/layout/Aurora";
 import { calculClienti, calculTimp, LIMITE, textClienti, textTimp, ZILE_LUCRATOARE } from "@/lib/calculator";
 import { cuDe, mii } from "@/lib/numere";
@@ -26,6 +26,17 @@ const CURSOARE: Record<Fila, { camp: Camp; eticheta: string; arata: (n: number) 
 };
 
 const LA_INCEPUT = Object.fromEntries(Object.entries(LIMITE).map(([k, l]) => [k, l.start])) as Record<Camp, number>;
+
+export function Cursor({ eticheta, arata, l, val, pune }: { eticheta: string; arata: (n: number) => string; l: { min: number; max: number; pas: number }; val: number; pune: (n: number) => void }) {
+  return (
+    <label className="cursor">
+      <span className="cursor-sus"><span>{eticheta}</span><b aria-hidden>{arata(val)}</b></span>
+      <input type="range" min={l.min} max={l.max} step={l.pas} value={val} aria-label={eticheta} aria-valuetext={arata(val)}
+        style={{ "--p": `${((val - l.min) / (l.max - l.min)) * 100}%` } as CSSProperties}
+        onChange={(e) => pune(Number(e.target.value))} />
+    </label>
+  );
+}
 
 /** „Cât te costă să faci totul manual?”: rezultatul iese pe un bon de casă și pleacă cu omul în formular. */
 export function Calculator() {
@@ -69,12 +80,7 @@ export function Calculator() {
             {CURSOARE[fila].map(({ camp, eticheta, arata }) => {
               const l = LIMITE[camp];
               return (
-                <label key={camp} className="cursor">
-                  <span className="cursor-sus"><span>{eticheta}</span><b aria-hidden>{arata(v[camp])}</b></span>
-                  <input type="range" min={l.min} max={l.max} step={l.pas} value={v[camp]} aria-label={eticheta} aria-valuetext={arata(v[camp])}
-                    style={{ "--p": `${((v[camp] - l.min) / (l.max - l.min)) * 100}%` } as React.CSSProperties}
-                    onChange={(e) => setV((x) => ({ ...x, [camp]: Number(e.target.value) }))} />
-                </label>
+                <Cursor key={camp} eticheta={eticheta} arata={arata} l={l} val={v[camp]} pune={(n) => setV((x) => ({ ...x, [camp]: n }))} />
               );
             })}
           </div>

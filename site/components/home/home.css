@@ -61,13 +61,6 @@
 .foaie.premium .p { color: #3a2414; }
 .foaie .sigiliu { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b3271a, #7a0e0e 70%); color: #ffd9b0; box-shadow: 0 6px 14px rgba(40,5,0,.45), inset 0 0 0 3px rgba(255,255,255,.08); }
 .foaie .stampila { margin-top: auto; align-self: flex-end; font-family: var(--nf-anton); font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: #7a0e0e; border: 3px solid #7a0e0e; padding: 4px 12px; transform: rotate(-5deg); opacity: .85; }
-/* varianta „plic” */
-[data-ghid="plic"] .foaie.premium .foaie-in { overflow: hidden; padding-top: 150px; }
-[data-ghid="plic"] .foaie.premium .foaie-in::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 140px; background: linear-gradient(#c79c6b, #a97c4c); clip-path: polygon(0 0, 100% 0, 50% 100%); filter: drop-shadow(0 4px 6px rgba(40,15,0,.4)); }
-[data-ghid="plic"] .foaie.premium .sigiliu { position: absolute; top: 96px; left: 50%; width: 76px; height: 76px; margin-left: -38px; }
-[data-ghid="plic"] .foaie.premium .tp { display: none; }
-[data-ghid="plic"] .foaie.premium .h3 { margin-top: 34px; }
-
 /* TIKTOK perete */
 .wall { position: relative; height: 120vh; overflow: hidden; background: #0b0908; perspective: 1400px; }
 .wall .tilt { position: absolute; left: 50%; top: 50%; width: 1300px; display: flex; gap: 22px; transform: translate(-50%, -50%) rotateX(22deg) rotateZ(-10deg); transform-style: preserve-3d; }
@@ -142,26 +135,6 @@
   /* captura lată a CRM-ului, mărită: pe telefon altfel nu se citește nimic */
   .pa .it.big .im img { transform: scale(1.5); transform-origin: 34% 0; }
 }
-
-/* varianta „teanc”: foile se așază una peste alta la scroll */
-[data-port="teanc"] .pa .sus, [data-port="teanc"] .pa .grup, [data-port="teanc"] .pa .rand { display: contents; }
-[data-port="teanc"] .pa .grup-t { display: none; }
-[data-port="teanc"] .pa { max-width: 760px; margin-left: auto; margin-right: auto; }
-[data-port="teanc"] .pa .it { position: sticky; top: 90px; margin-bottom: 26px; }
-[data-port="teanc"] .pa .im, [data-port="teanc"] .pa .it.big .im { height: clamp(220px, 34vw, 380px); }
-
-/* varianta „listă”: proiectul mare sus, restul ca rânduri cu miniatură */
-[data-port="lista"] .pa .sus { display: block; }
-[data-port="lista"] .pa .rand { display: block; overflow: visible; margin: 0; padding: 0; }
-[data-port="lista"] .pa .grup { margin-top: 34px; }
-[data-port="lista"] .pa .grup-t { margin-bottom: 6px; }
-[data-port="lista"] .pa .it:not(.big) { transform: none; background: none; color: var(--color-cream); box-shadow: none; padding: 16px 0; border-bottom: 1px solid rgba(246,239,227,.14); }
-[data-port="lista"] .pa .it:not(.big) .tp, [data-port="lista"] .pa .it:not(.big) .ctag { display: none; }
-[data-port="lista"] .pa .it:not(.big) .im { flex: none; min-height: 0; width: 96px; height: 76px; flex-shrink: 0; border-radius: 10px; }
-[data-port="lista"] .pa .it:not(.big) .lk, [data-port="lista"] .pa .it:not(.big):not(:has(.lk)) { display: flex; flex-direction: row; align-items: center; gap: 16px; }
-[data-port="lista"] .pa .it:not(.big) h3 { font-size: 16px; margin: 0 0 4px; }
-[data-port="lista"] .pa .it:not(.big) p { color: #cfc4ba; margin: 0; }
-[data-port="lista"] .pa .it:not(.big) .vezi { margin: 6px 0 0; color: #ff8a3d; }
 
 /* COLABORARE: analiza gratuită + formularul (formular-contact.css) */
 .colab { padding: 120px clamp(20px, 6vw, 90px); background: #0b0908; }

@@ -272,19 +272,17 @@ test.describe("portofoliu", () => {
     await expect.poll(() => primul.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
   });
 
-  for (const lat of [390, 320, 1440])
-    for (const varianta of ["", "teanc", "lista"]) {
-      test(`la ${lat}px, varianta „${varianta || "randuri"}” nu lățește pagina`, async ({ page }) => {
-        await page.setViewportSize({ width: lat, height: 844 });
-        await page.goto("/");
-        await page.evaluate((v) => { document.documentElement.dataset.port = v; }, varianta);
-        await page.locator("#portofoliu").scrollIntoViewIfNeeded();
-        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
-        const primul = await page.locator("#portofoliu .it").first().boundingBox();
-        expect(primul!.x).toBeGreaterThanOrEqual(0);
-        expect(primul!.x + primul!.width).toBeLessThanOrEqual(lat);
-      });
-    }
+  for (const lat of [390, 320, 1440]) {
+    test(`la ${lat}px, portofoliul nu lățește pagina`, async ({ page }) => {
+      await page.setViewportSize({ width: lat, height: 844 });
+      await page.goto("/");
+      await page.locator("#portofoliu").scrollIntoViewIfNeeded();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+      const primul = await page.locator("#portofoliu .it").first().boundingBox();
+      expect(primul!.x).toBeGreaterThanOrEqual(0);
+      expect(primul!.x + primul!.width).toBeLessThanOrEqual(lat);
+    });
+  }
 
   test("bara de sus are link spre portofoliu", async ({ page, isMobile }) => {
     test.skip(!!isMobile, "pe telefon linkurile sunt în meniul ☰");
