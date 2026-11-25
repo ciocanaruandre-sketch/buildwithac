@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("hero", () => {
   test("titlul e buildwithac, iar subtitlul stă deasupra lui", async ({ page }) => {
     await page.goto("/");
+    await expect(page).toHaveTitle("buildwithac · site-uri și automatizări cu AI");
     await expect(page.locator("h1")).toHaveText("buildwithac");
     // intrarea titlului e o animație CSS: o terminăm, ca să măsurăm pozițiile finale
     await page.evaluate(() => document.getAnimations().forEach((a) => (a as CSSAnimation).animationName?.startsWith("intra") && a.finish()));
@@ -36,8 +37,32 @@ test.describe("hero", () => {
 test.describe("cortina", () => {
   test("are mesajul personal", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator(".manifest")).toContainText("Salut, sunt Andrei.");
+    const manifest = page.locator(".manifest");
+    await expect(manifest).toContainText("Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București.");
+    await expect(manifest).toContainText("ca tu să ai timp de clienții tăi.");
+    await expect(page.locator(".curtain")).not.toContainText("tot gratuit");
   });
+
+  test("sub text, analiza și ghidurile", async ({ page }) => {
+    await page.goto("/");
+    const butoane = page.locator(".cortina-but a");
+    await expect(butoane).toHaveText(["Analiză gratuită", "Ghiduri gratuite"]);
+    await expect(butoane.nth(0)).toHaveAttribute("href", "#formular");
+    await expect(butoane.nth(1)).toHaveAttribute("href", "/ghiduri");
+  });
+
+  for (const lat of [390, 320]) {
+    test(`la ${lat}px, butoanele stau unul lângă altul, pe câte un rând`, async ({ page }) => {
+      await page.setViewportSize({ width: lat, height: 844 });
+      await page.goto("/");
+      const [a, b] = await Promise.all([0, 1].map((i) => page.locator(".cortina-but a").nth(i).boundingBox()));
+      expect(Math.abs(a!.y - b!.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(a!.width - b!.width)).toBeLessThanOrEqual(1);
+      expect(a!.height).toBeLessThan(60);
+      expect(b!.height).toBeLessThan(60);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    });
+  }
 
   test.describe("reduce motion", () => {
     test.use({ reducedMotion: "reduce" });
@@ -203,6 +228,8 @@ test.describe("banda", () => {
     await page.goto("/");
     const banda = page.locator(".banda");
     await expect(banda).toHaveAttribute("aria-hidden", "true");
+    await expect(banda).not.toContainText("tot gratuit");
+    await expect(banda).toContainText("construit pe nevoile tale");
     await banda.scrollIntoViewIfNeeded();
     const pista = page.locator(".fasie.crem .pista");
     const inainte = await pista.evaluate((el) => getComputedStyle(el).transform);

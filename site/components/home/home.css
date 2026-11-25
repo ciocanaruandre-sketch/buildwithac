@@ -29,7 +29,11 @@
 .manifest { font-family: var(--nf-unbounded); font-weight: 600; font-size: clamp(24px, 3.6vw, 52px); line-height: 1.2; letter-spacing: -.02em; max-width: 1100px; }
 .manifest .w { opacity: .14; }
 .manifest .serif { font-family: var(--nf-serif); font-size: 1.15em; }
-.curtain .note { position: absolute; right: clamp(20px, 8vw, 140px); bottom: 60px; font-size: 30px; transform: rotate(-6deg); }
+.cortina-but { display: flex; gap: 12px; max-width: 520px; margin-top: 34px; }
+.cortina-but a { flex: 1 1 0; text-align: center; white-space: nowrap; font-weight: 700; font-size: clamp(13px, 3.9vw, 16px); padding: 16px 6px; border-radius: 999px; color: var(--color-cream); text-decoration: none; border: 1px solid rgba(246,239,227,.35); transition: transform .2s, border-color .2s; }
+.cortina-but a.plin { background: var(--grad); background-origin: border-box; border-color: transparent; color: #fff; box-shadow: 0 10px 30px -10px rgba(242,106,33,.7); }
+.cortina-but a:hover { transform: translateY(-2px); border-color: var(--color-cream); }
+.cortina-but a:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
 .curtain .who { display: flex; align-items: center; gap: 14px; margin-top: 46px; color: var(--color-muted); font-size: 14px; }
 .curtain .who img { width: 52px; height: 52px; border-radius: 50%; }
 
@@ -197,13 +201,13 @@
 .cway:hover .arr { transform: translate(4px, -4px); }
 
 /* BANDA (C3 din prototip/banda-chat.html): fâșie kraft sub fâșie crem, hârtie ruptă, scris de mână */
-/* lipită peste îmbinarea dintre cortină și ghiduri, nu pe o fâșie neagră a ei (pe site, fâșia arăta ca o gaură între două fundaluri calde).
-   Nu ocupă loc în pagină (înălțime 0): scena fixată a ghidurilor rămâne exact unde era. */
+/* lipită peste îmbinarea dintre cortină și portofoliu, nu pe o fâșie neagră a ei (pe site, fâșia arăta ca o gaură între două fundaluri calde).
+   Nu ocupă loc în pagină (înălțime 0). */
 .banda { position: relative; z-index: 60; height: 0; pointer-events: none; }
 .banda-in { position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); overflow: hidden; padding: 30px 0; }
 .fasie { position: relative; width: 118%; margin-left: -9%; white-space: nowrap; overflow: hidden;
   clip-path: polygon(0 6%,4% 0,9% 5%,15% 1%,21% 6%,27% 0,33% 4%,40% 1%,46% 6%,52% 0,58% 5%,64% 1%,70% 6%,76% 0,82% 5%,88% 1%,94% 6%,100% 2%,100% 95%,95% 100%,89% 94%,83% 99%,77% 95%,71% 100%,65% 94%,59% 99%,53% 95%,47% 100%,41% 94%,35% 99%,29% 95%,23% 100%,17% 94%,11% 99%,5% 95%,0 100%); }
-/* înălțimi fixe: altfel banda își schimbă înălțimea când vine fontul Caveat, iar ghidurile fixate de dedesubt sar */
+/* înălțimi fixe: altfel banda își schimbă înălțimea când vine fontul Caveat */
 .fasie { display: flex; align-items: center; }
 .fasie .pista { display: inline-flex; will-change: transform; }
 .fasie .grup { display: inline-flex; flex-shrink: 0; }

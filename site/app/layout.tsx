@@ -15,8 +15,8 @@ const PRIMELE = ["/fonts/unbounded-latin.woff2", "/fonts/inter-latin.woff2"];
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
-  title: "buildwithac · AI pe înțelesul tău, în română",
-  description: "Ghiduri gratuite, pas cu pas, pentru tot ce vezi pe TikTok la @buildwithac.ai.",
+  title: "buildwithac · site-uri și automatizări cu AI",
+  description: "Site-uri de la zero și automatizări cu AI pentru firme mici, plus ghiduri gratuite în română.",
   openGraph: { siteName: "buildwithac", locale: "ro_RO", type: "website", images: ["/hero/l2.webp"] },
 };
 
