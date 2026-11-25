@@ -227,6 +227,48 @@ test.describe("portofoliu", () => {
     await expect(page.locator("#portofoliu")).not.toContainText("în curând");
   });
 
+  test("CRM-ul e primul, cu „date demo”; ImobSearch se deschide în filă nouă", async ({ page }) => {
+    await page.goto("/");
+    const carduri = page.locator("#portofoliu .it");
+    await expect(carduri.nth(0)).toContainText("CRM pentru echipe de vânzări");
+    await expect(carduri.nth(0)).toContainText("date demo");
+    const imob = carduri.nth(1).getByRole("link", { name: /ImobSearch/ });
+    await expect(imob).toHaveAttribute("href", "https://www.imobsearch.ro");
+    await expect(imob).toHaveAttribute("target", "_blank");
+    await expect(imob).toHaveAttribute("rel", "noopener");
+  });
+
+  test("rândurile se pot derula din tastatură", async ({ page, isMobile }) => {
+    test.skip(!isMobile, "pe desktop rândurile încap întregi");
+    await page.goto("/");
+    const randuri = page.locator("#portofoliu .rand");
+    await expect(randuri).toHaveCount(2);
+    for (const r of await randuri.all()) {
+      await expect(r).toHaveAttribute("role", "region");
+      await expect(r).toHaveAttribute("aria-label", /.+/);
+    }
+    const primul = randuri.first();
+    await expect(primul).toHaveAttribute("tabindex", "0");
+    await primul.scrollIntoViewIfNeeded();
+    await primul.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect.poll(() => primul.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+  });
+
+  for (const lat of [390, 320, 1440])
+    for (const varianta of ["", "teanc", "lista"]) {
+      test(`la ${lat}px, varianta „${varianta || "randuri"}” nu lățește pagina`, async ({ page }) => {
+        await page.setViewportSize({ width: lat, height: 844 });
+        await page.goto("/");
+        await page.evaluate((v) => { document.documentElement.dataset.port = v; }, varianta);
+        await page.locator("#portofoliu").scrollIntoViewIfNeeded();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+        const primul = await page.locator("#portofoliu .it").first().boundingBox();
+        expect(primul!.x).toBeGreaterThanOrEqual(0);
+        expect(primul!.x + primul!.width).toBeLessThanOrEqual(lat);
+      });
+    }
+
   test("bara de sus are link spre portofoliu", async ({ page, isMobile }) => {
     test.skip(!!isMobile, "pe telefon linkurile sunt în meniul ☰");
     await page.goto("/");
