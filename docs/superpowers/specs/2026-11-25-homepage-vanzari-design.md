@@ -32,14 +32,14 @@ Locul calculatorului (între servicii și formular) e propunerea mea.
 ## Secțiunile și textele
 Textele marcate (A) sunt ale lui Andrei; restul sunt propuneri, se corectează pe previzualizare.
 
-**Descrierea** (A): „Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp *de clienții tăi.*” Dispare „tot gratuit ↓” (A). Sub text: butonul „Vreau analiza gratuită” (→ `#formular`; ideea lui Andrei, ca la stoneflow.ro) și linkul mic „Ai venit după un ghid? E aici →” (→ `/ghiduri`).
+**Descrierea** (A): „Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp *de clienții tăi.*” Dispare „tot gratuit ↓” (A). Sub text, **două butoane unul lângă altul** (A), de lățime egală, pe tot rândul, și la 390px: „Analiză gratuită” (plin, gradientul logo-ului, → `#formular`) și „Ghiduri gratuite” (contur, → `/ghiduri`). Textele sunt scurte ca să încapă pe un rând pe telefon.
 
 **Banda** rămâne (A), fără „tot gratuit” (A). Fâșia mare: site-uri de la zero · automatizări · sesiuni 1 la 1 · ghiduri gratuite · AI pe înțeles. Fâșia mică: vorbești direct cu mine · analiză gratuită · știi prețul dinainte · construit pe nevoile tale.
 
 **Portofoliul.** Titlu „Ce am construit *până acum.*”; intro „Proiecte făcute de mine și concepte pentru firme mici, ca să vezi cum ar putea arăta și al tău. Conceptele sunt marcate.”
 - Primul e CRM-ul, etichetat „Proiect”: „CRM pentru echipe de vânzări. Cererile, apelurile, programările și reclamele Meta, într-un singur loc. L-am făcut pentru mine, apoi l-am dus până unde poate lucra o echipă întreagă.”
 - Captura vine din modul demo (baza de test, date inventate), cu numele, telefoanele și sumele blurate (A); în colț scrie „date demo”. `npm run demo` golește și reumple **baza de test** a CRM-ului; producția nu e atinsă.
-- ImobSearch, cele 3 automatizări și cele 3 concepte rămân. Poza de stoc de la ImobSearch se înlocuiește cu o captură de pe imobsearch.ro, făcută de Claude (A).
+- ImobSearch, cele 3 automatizări și cele 3 concepte rămân. Poza de stoc de la ImobSearch se înlocuiește cu o captură de pe imobsearch.ro, făcută de Claude (A), iar cardul duce la https://www.imobsearch.ro.
 - **3 variante:** (a) CRM mare, apoi rânduri care se trag cu degetul (automatizări, concepte); (b) teanc de foi; (c) CRM mare + listă scurtă cu miniaturi.
 
 **Servicii**, aceleași 3 carduri. Titlu „Cu ce îți pot fi *de ajutor.*”, sub el „Alegi ce ți se potrivește, în funcție de nevoile tale.” (A, formulat de mine)
