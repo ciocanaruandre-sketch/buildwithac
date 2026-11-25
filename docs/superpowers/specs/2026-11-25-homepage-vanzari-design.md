@@ -1,6 +1,6 @@
 # Homepage-ul pentru vânzări: design
 
-Data: 2026-11-25. Ramura: `homepage-vanzari`. Stadiu: așteaptă aprobarea lui Andrei.
+Data: 2026-11-25. Ramura: `homepage-vanzari`. Stadiu: aprobat de Andrei (2026-11-25).
 
 ## De ce
 Andrei vrea ca homepage-ul să aducă în primul rând **cereri de colaborare** (lead-uri). Ghidurile rămân pe site, pe plan secund. Omul vede întâi cine e Andrei și ce a făcut, apoi serviciile, apoi formularul. Pagina e prea încărcată, iar textele trebuie să sune mai uman.
@@ -50,7 +50,7 @@ Textele marcate (A) sunt ale lui Andrei; restul sunt propuneri, se corectează p
 **Calculatorul.** Titlu „Cât te costă să faci totul *manual?*” Două file:
 - „Timpul meu”: minute pe zi cu munca repetată (10–240, la început 45) × 250 de zile lucrătoare × cât valorează o oră (20–300 lei, la început 50). La început arată 187 de ore și 9.375 lei pe an.
 - „Clienții pierduți”: cereri pe săptămână care rămân fără răspuns și nu se mai întorc (1–30, la început 5) × 52/12 × câte din 10 cumpără (1–10, la început 3) × cât aduce un client (50–5.000 lei, la început 500). La început arată 3.250 lei pe lună.
-- Sub rezultat: formula cu cifrele omului și „Estimare pe cifrele tale, nu o promisiune.” Butonul „Vreau analiza gratuită →” duce la formular, alege „Automatizări” și scrie cifrele în „Descriere”. Nu suprascrie niciodată ce a scris omul de mână.
+- Sub rezultat: formula cu cifrele omului și „Estimare pe cifrele tale, nu o promisiune.” Butonul „Vreau analiza gratuită →” duce la formular, alege „Automatizări” și scrie cifrele în „Descriere”. Nu suprascrie niciodată ce a scris omul de mână. Se deschide pe „Clienții pierduți”.
 - Merge cu tastatura și cititorul de ecran; nu se trimite nimic până la formular.
 - **2 variante:** bon de casă / foaie de caiet.
 
