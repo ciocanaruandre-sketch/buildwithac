@@ -139,6 +139,8 @@
   .pa .rand .it { flex: 0 0 min(78%, 320px); scroll-snap-align: center; box-shadow: 0 14px 26px rgba(0,0,0,.5); }
   .pa .grup { margin-top: 40px; }
   .pa .grup-t { margin-bottom: 8px; }
+  /* captura lată a CRM-ului, mărită: pe telefon altfel nu se citește nimic */
+  .pa .it.big .im img { transform: scale(1.5); transform-origin: 34% 0; }
 }
 
 /* varianta „teanc”: foile se așază una peste alta la scroll */
