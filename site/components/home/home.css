@@ -43,73 +43,30 @@
   .scrollcue i { animation: none; }
 }
 
-/* GHIDURI orizontal */
-.guides { position: relative; height: 100vh; overflow: hidden; background: #0b0908; }
-.guides .head { position: absolute; top: 110px; left: clamp(20px, 6vw, 90px); z-index: 3; max-width: 520px; padding-right: 20px; }
-.guides h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(34px, 5vw, 72px); letter-spacing: -.04em; line-height: 1; }
-.guides .head p { color: var(--color-muted); margin-top: 14px; font-size: 15px; }
-.gtrack { position: absolute; left: 0; top: 0; height: 100%; display: flex; align-items: flex-end; gap: 40px; padding: 0 10vw 70px 46vw; will-change: transform; }
-.gcard { position: relative; flex: 0 0 300px; background: var(--color-cream); color: #1b0f0a; padding: 12px 12px 18px; box-shadow: 0 30px 60px rgba(0,0,0,.55); cursor: pointer; transition: transform .35s cubic-bezier(.2,.8,.2,1); text-align: left; font: inherit; border: 0; }
-.gcard:nth-child(odd) { transform: rotate(-2.5deg); }
-.gcard:nth-child(even) { transform: rotate(2deg) translateY(-30px); }
-.gcard:hover, .gcard:focus-visible { transform: rotate(0) translateY(-14px) scale(1.03); }
-.gcard:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 4px; }
-.gcard.nou { flex-basis: 380px; }
-.gcard .tape { position: absolute; top: -12px; left: 50%; width: 84px; height: 24px; margin-left: -42px; background: rgba(255,226,170,.85); transform: rotate(-3deg); z-index: 2; }
-.gcard .ph { display: block; height: 210px; position: relative; overflow: hidden; }
-.gcard.nou .ph { height: 260px; }
-.gcard .ph img { object-fit: cover; }
-.gcard .ph b { position: absolute; left: 10px; top: 10px; z-index: 1; font-size: 10px; letter-spacing: .12em; background: #0b0908; color: var(--color-gold); padding: 4px 8px; }
-.gcard .ph .nou-et { left: auto; right: 10px; background: var(--grad); color: #fff; }
-.gcard .t { display: block; font-family: var(--nf-unbounded); font-weight: 600; font-size: 17px; line-height: 1.2; margin: 14px 4px 6px; letter-spacing: -.02em; }
-.gcard .d { display: block; font-size: 13px; color: #6b5a4d; margin: 0 4px; }
-.gcard .meta { display: flex; justify-content: space-between; margin: 14px 4px 0; font-size: 11px; color: #8a6a55; font-weight: 600; }
-.gcard .meta span:last-child { color: #c2410c; }
-.gcard.more { background: transparent; box-shadow: none; border: 2px dashed rgba(246,239,227,.3); color: var(--color-cream); display: flex; align-items: center; justify-content: center; min-height: 360px; font-family: var(--nf-unbounded); font-size: 20px; text-align: center; text-decoration: none; }
-@media (max-width: 600px) { .gcard { flex-basis: 260px; } .gcard.nou { flex-basis: 300px; } .gcard.nou .ph { height: 220px; } }
-
-/* PANOU ghid */
-.drawer-bg { position: fixed; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); z-index: 95; }
-.drawer { position: fixed; top: 0; right: 0; height: 100%; width: min(520px, 100%); background: #15100d; z-index: 96; overflow-y: auto; border-left: 1px solid rgba(255,255,255,.08); animation: intra .5s cubic-bezier(.2,.8,.2,1); }
-@keyframes intra { from { transform: translateX(100%); } }
-.drawer .cover { height: 240px; position: relative; }
-.drawer .cover img { object-fit: cover; }
-.drawer .cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 30%, #15100d); }
-.drawer .x { position: absolute; top: 16px; right: 16px; z-index: 2; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.2); color: #fff; font-size: 18px; cursor: pointer; }
-.drawer .in { padding: 0 30px 40px; margin-top: -50px; position: relative; z-index: 2; }
-.drawer h3 { font-family: var(--nf-unbounded); font-weight: 800; font-size: 28px; letter-spacing: -.03em; line-height: 1.1; margin: 10px 0 12px; }
-.drawer .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-.drawer .chips span { font-size: 11px; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,.07); color: #d8cdc2; }
-.drawer .chips span.free { background: rgba(242,106,33,.18); color: #ff9a5c; }
-.drawer h4 { font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: #ff8a3d; margin: 26px 0 12px; }
-.drawer p { color: #cfc4ba; font-size: 15px; line-height: 1.6; }
-.drawer ul { list-style: none; }
-.drawer ul li { padding: 8px 0 8px 26px; position: relative; color: #e6dcd2; font-size: 14px; }
-.drawer ul li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 8px; height: 8px; border-radius: 50%; background: var(--grad); }
-.drawer ol { list-style: none; counter-reset: c; }
-.drawer ol li { counter-increment: c; display: flex; gap: 14px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.07); font-size: 14px; color: #e6dcd2; }
-.drawer ol li::before { content: counter(c, decimal-leading-zero); font-family: var(--nf-unbounded); font-size: 12px; color: #ff8a3d; min-width: 22px; }
-.drawer .cta { display: block; text-align: center; margin-top: 28px; padding: 16px; border-radius: 999px; background: var(--grad); color: #fff; font-weight: 700; text-decoration: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  .guides { height: auto; overflow: visible; padding: 110px 0 40px; }
-  .guides .head { position: relative; top: auto; }
-  .gtrack { position: relative; height: auto; overflow-x: auto; padding: 60px 20px 70px; }
-  .drawer { animation: none; }
-}
-
-/* PENTRU CINE */
-.who2 { padding: 140px clamp(20px, 6vw, 90px); background: #0b0908; }
-.who2 h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 4.4vw, 64px); letter-spacing: -.04em; line-height: 1.05; max-width: 900px; }
-.paths { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 22px; margin-top: 56px; }
-.path { position: relative; min-height: 420px; border-radius: 28px; overflow: hidden; padding: 34px; display: flex; flex-direction: column; justify-content: flex-end; isolation: isolate; color: var(--color-cream); text-decoration: none; }
-.path .bgi { position: absolute; inset: 0; z-index: -2; transform: scale(1.1); transition: transform 1.2s cubic-bezier(.2,.8,.2,1); }
-.path .bgi img { object-fit: cover; }
-.path::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(11,9,8,.1), rgba(11,9,8,.92)); }
-.path:hover .bgi { transform: scale(1.02); }
-.path .h3 { display: block; font-family: var(--nf-unbounded); font-weight: 800; font-size: 30px; letter-spacing: -.03em; line-height: 1.05; margin: 10px 0; }
-.path .p { display: block; color: #d8cdc2; font-size: 15px; max-width: 380px; }
-.path .go { display: block; margin-top: 20px; font-weight: 600; font-size: 14px; }
+/* GHIDURI gratuite și premium: două foi lipite */
+.ghid-home { padding: 120px clamp(20px, 6vw, 90px); background: #0b0908; overflow-x: clip; }
+.ghid-home h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 4.4vw, 64px); letter-spacing: -.04em; line-height: 1.05; }
+.ghid-foi { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 40px 34px; margin-top: 56px; max-width: 980px; }
+.foaie { display: block; text-decoration: none; transition: transform .35s cubic-bezier(.2,.8,.2,1); transform: rotate(-1.4deg); }
+.foaie.premium { transform: rotate(1.2deg); }
+.foaie:hover { transform: rotate(0) translateY(-8px); }
+.foaie:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 6px; }
+.foaie-in { position: relative; display: flex; flex-direction: column; align-items: flex-start; min-height: 270px; height: 100%; padding: 40px 28px 28px; background: var(--color-cream); color: #1b0f0a; box-shadow: 0 30px 60px rgba(0,0,0,.55); }
+.foaie .tp { position: absolute; top: -12px; left: 50%; width: 90px; height: 24px; margin-left: -45px; background: rgba(255,226,170,.85); transform: rotate(-3deg); }
+.foaie .nr { font-size: 28px; line-height: 1; color: #c2410c; transform: rotate(-2deg); }
+.foaie .h3 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(22px, 2.6vw, 30px); letter-spacing: -.03em; line-height: 1.1; margin: 14px 0 10px; }
+.foaie .p { font-size: 15px; line-height: 1.5; color: #4a3a30; max-width: 360px; }
+.foaie .go { margin-top: auto; padding-top: 20px; font-weight: 700; font-size: 15px; color: #c2410c; }
+.foaie.premium .foaie-in { background-color: #b88b5b; background-image: radial-gradient(rgba(60,30,10,.12) 1px, transparent 1.4px); background-size: 4px 4px; color: #2a160a; }
+.foaie.premium .p { color: #3a2414; }
+.foaie .sigiliu { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b3271a, #7a0e0e 70%); color: #ffd9b0; box-shadow: 0 6px 14px rgba(40,5,0,.45), inset 0 0 0 3px rgba(255,255,255,.08); }
+.foaie .stampila { margin-top: auto; align-self: flex-end; font-family: var(--nf-anton); font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: #7a0e0e; border: 3px solid #7a0e0e; padding: 4px 12px; transform: rotate(-5deg); opacity: .85; }
+/* varianta „plic” */
+[data-ghid="plic"] .foaie.premium .foaie-in { overflow: hidden; padding-top: 150px; }
+[data-ghid="plic"] .foaie.premium .foaie-in::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 140px; background: linear-gradient(#c79c6b, #a97c4c); clip-path: polygon(0 0, 100% 0, 50% 100%); filter: drop-shadow(0 4px 6px rgba(40,15,0,.4)); }
+[data-ghid="plic"] .foaie.premium .sigiliu { position: absolute; top: 96px; left: 50%; width: 76px; height: 76px; margin-left: -38px; }
+[data-ghid="plic"] .foaie.premium .tp { display: none; }
+[data-ghid="plic"] .foaie.premium .h3 { margin-top: 34px; }
 
 /* TIKTOK perete */
 .wall { position: relative; height: 120vh; overflow: hidden; background: #0b0908; perspective: 1400px; }
@@ -168,9 +125,21 @@
 .pa .lk { display: block; color: inherit; text-decoration: none; }
 .pa .lk:focus-visible { outline: 2px solid #c2410c; outline-offset: 4px; }
 
+/* COLABORARE: analiza gratuită + formularul (formular-contact.css) */
+.colab { padding: 120px clamp(20px, 6vw, 90px); background: #0b0908; }
+.colab-in { scroll-margin-top: 90px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(30px, 5vw, 80px); align-items: start; max-width: 1240px; margin: 0 auto; }
+.colab h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(32px, 4.6vw, 66px); letter-spacing: -.04em; line-height: 1.02; }
+.colab .intro { color: #cfc4ba; font-size: 16px; line-height: 1.55; margin-top: 18px; max-width: 460px; }
+.colab .intro b { color: var(--color-cream); }
+.promisiuni { list-style: none; margin-top: 18px; display: grid; gap: 8px; font-size: 15px; color: var(--color-cream); }
+.promisiuni li { position: relative; padding-left: 24px; }
+.promisiuni li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--grad); }
+@media (max-width: 860px) { .colab-in { grid-template-columns: minmax(0, 1fr); gap: 26px; } }
+
 /* SERVICII stack */
 .serv { padding: 140px clamp(20px, 6vw, 90px) 60px; background: #0b0908; }
 .serv h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 4.4vw, 64px); letter-spacing: -.04em; line-height: 1.05; }
+.serv .intro { color: var(--color-muted); margin-top: 14px; font-size: 15px; }
 .stack { margin-top: 50px; }
 .scard { position: sticky; top: 110px; min-height: 340px; border-radius: 30px; padding: 40px; margin-bottom: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: end; box-shadow: 0 -20px 60px rgba(0,0,0,.5); }
 .scard:nth-child(1) { background: #1c1411; }
@@ -187,7 +156,7 @@
 @media (max-width: 700px) { .scard { grid-template-columns: 1fr; padding: 30px; min-height: 280px; } }
 
 /* CONTACT */
-.contact { padding: 140px clamp(20px, 6vw, 90px) 120px; background: #0b0908; text-align: center; }
+.contact { padding: 100px clamp(20px, 6vw, 90px) 90px; background: #0b0908; text-align: center; }
 .contact h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(34px, 5.4vw, 80px); letter-spacing: -.04em; line-height: 1; }
 .contact .intro { color: var(--color-muted); font-size: 16px; max-width: 520px; margin: 18px auto 0; line-height: 1.55; }
 .cways { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 20px; max-width: 860px; margin: 56px auto 0; text-align: left; }

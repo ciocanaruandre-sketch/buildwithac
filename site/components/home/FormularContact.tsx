@@ -16,7 +16,7 @@ const GRESELI: Record<CampContact, string> = {
   descriere: "Descrierea e prea lungă.",
 };
 
-/** Cardul „Vrei să colaborăm?” din secțiunea Contact. Cardurile de servicii aleg pastila prin evenimentul „contact:serviciu”. */
+/** Cardul din secțiunea „Vrei să colaborăm?”. Cardurile de servicii aleg pastila prin evenimentul „contact:serviciu”. */
 /** Din ce link a venit omul (ținut minte de PastreazaUtm). Fără stocare → {}. */
 function utmPastrat(): unknown {
   try {
@@ -86,7 +86,7 @@ export function FormularContact() {
     greseli.includes(c) ? <p className="greseala" id={`contact-greseala-${c}`}>{GRESELI[c]}</p> : null;
 
   return (
-    <div className={`fcard${stare === "ok" ? " sent" : ""}`} id="formular">
+    <div className={`fcard${stare === "ok" ? " sent" : ""}`} role="group" aria-labelledby="colab-titlu">
       {stare === "ok" ? (
         <div className="ok" role="status" tabIndex={-1} ref={mesajOk}>
           <div className="big">Am primit.{" "}<span className="serif gtxt">Mersi!</span></div>
@@ -94,8 +94,6 @@ export function FormularContact() {
         </div>
       ) : (
         <>
-          <h3>Vrei să <span className="serif gtxt">colaborăm?</span></h3>
-          <p className="sub">Lasă-mi numele și telefonul, iar eu revin în cel mai scurt timp posibil.</p>
           <form onSubmit={trimite} noValidate>
             <div className="fgrid">
               <div className="fld">
@@ -137,7 +135,7 @@ export function FormularContact() {
               <p className="legal">
                 Folosesc numele și telefonul doar ca să te contactez despre cererea ta. Detalii în <Link href="/confidentialitate">politica de confidențialitate</Link>.
               </p>
-              <button className="btn" type="submit" disabled={!hidratat || stare === "trimite"}>{stare === "trimite" ? "Se trimite…" : "Trimite"}</button>
+              <button className="btn" type="submit" disabled={!hidratat || stare === "trimite"}>{stare === "trimite" ? "Se trimite…" : "Vreau analiza gratuită"}</button>
             </div>
             <p className="mesaj" role="status" aria-live="polite">
               {stare === "esec" && <>Acum nu merge trimiterea. Încearcă puțin mai târziu sau <a href={SITE.instagram.url} target="_blank" rel="noopener">scrie-mi pe Instagram</a>.</>}

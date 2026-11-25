@@ -8,6 +8,7 @@ img { display: block; }
 .nav .logo img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
 .nav .links { display: flex; align-items: center; gap: 22px; font-size: 14px; font-weight: 500; background: rgba(11,9,8,.35); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,.1); }
 .nav .links a { color: var(--color-cream); text-decoration: none; opacity: .85; }
+.nav .links a.cta { opacity: 1; font-weight: 700; color: #fff; background: var(--grad); padding: 7px 14px; margin: -6px -8px -6px 0; border-radius: 999px; }
 .dd { position: relative; }
 .dd button { background: none; border: 0; color: var(--color-cream); font: inherit; opacity: .85; cursor: pointer; padding: 0; }
 .dd button i { font-style: normal; font-size: .75em; display: inline-block; transition: transform .3s; }

@@ -74,11 +74,23 @@ test.describe("cortina", () => {
   });
 });
 
-test.describe("pentru cine și clipuri", () => {
-  test("cele două drumuri", async ({ page }) => {
+test("ordinea secțiunilor", async ({ page }) => {
+  await page.goto("/");
+  const ids = await page.$$eval("main section", (s) => s.map((x) => x.id).filter(Boolean));
+  expect(ids).toEqual(["hero", "portofoliu", "servicii", "colaborare", "ghiduri", "tiktok", "email", "intrebari", "contact"]);
+});
+
+test.describe("ghiduri și clipuri", () => {
+  test("ghidurile gratuite duc în bibliotecă, cele premium la newsletter", async ({ page }) => {
     await page.goto("/");
-    const cine = page.locator("#cine");
-    await expect(cine.locator(".path .eb")).toHaveText(["Înveți AI", "Ai o firmă"]);
+    const ghiduri = page.locator("#ghiduri");
+    const gratuite = ghiduri.getByRole("link", { name: /Ghiduri gratuite/ });
+    await expect(gratuite).toHaveAttribute("href", "/ghiduri");
+    await expect(gratuite).toContainText(/[0-9]+ (de )?ghid(uri)?/);
+    const premium = ghiduri.getByRole("link", { name: /Ghiduri premium/ });
+    await expect(premium).toHaveAttribute("href", "#email");
+    await expect(premium).toContainText("În curând");
+    await expect(page.locator(".gcard, .drawer, #cine")).toHaveCount(0);
   });
 
   test("peretele are doar coperte, fără link-uri și fără playere; butonul duce la profil", async ({ page }) => {
@@ -161,9 +173,11 @@ test.describe("abonare", () => {
 });
 
 test.describe("servicii și contact", () => {
-  test("serviciile au cele trei carduri", async ({ page }) => {
+  test("serviciile au cele trei carduri și titlul nou", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("#servicii .scard")).toHaveCount(3);
+    await expect(page.locator("#servicii h2")).toHaveText("Cu ce îți pot fi de ajutor.");
+    await expect(page.locator("#servicii")).toContainText("în funcție de nevoile tale");
   });
 
   test("contactul are Instagram și e-mail", async ({ page }) => {
@@ -173,6 +187,13 @@ test.describe("servicii și contact", () => {
     await expect(contact.getByRole("link", { name: /Mesaj pe Instagram/ })).toHaveAttribute("href", SITE.instagram.url);
     await expect(contact.getByRole("link", { name: /E-mail/ })).toHaveAttribute("href", `mailto:${SITE.emailContact}`);
     await expect(contact).toContainText(SITE.emailContact);
+    await expect(contact.locator("form")).toHaveCount(0);
+  });
+
+  test("/#contact ajunge la contact", async ({ page }) => {
+    await page.goto("/#contact");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { name: "Ai o întrebare? Scrie-mi." })).toBeInViewport();
   });
 });
 
@@ -251,7 +272,7 @@ test.describe("întrebări", () => {
   test("o întrebare primește răspunsul, iese din listă, iar conversația se poate lua de la capăt", async ({ page }) => {
     await page.goto("/");
     // pagina e hidratată când butonul formularului devine activ (ca în contact.spec.ts); înainte, clicul se pierde
-    await expect(page.locator(".contact .fcard").getByRole("button", { name: "Trimite" })).toBeEnabled();
+    await expect(page.locator(".colab .fcard").getByRole("button", { name: "Vreau analiza gratuită" })).toBeEnabled();
     const sectiune = page.locator("#intrebari");
     await expect(sectiune.locator(".bula")).toHaveCount(2);
     await expect(sectiune.getByRole("button", { name: "de la capăt" })).toHaveCount(0);
@@ -264,9 +285,13 @@ test.describe("întrebări", () => {
     await expect(sectiune.getByRole("button", { name: "Cât costă un site?" })).toBeVisible();
   });
 
-  test("„Scrie-mi direct” duce la formular", async ({ page }) => {
+  test("„Scrie-mi direct” duce la contact, iar analiza gratuită are răspuns", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("#intrebari").getByRole("link", { name: /Scrie-mi direct/ })).toHaveAttribute("href", "#formular");
+    const sectiune = page.locator("#intrebari");
+    await expect(sectiune.getByRole("link", { name: /Scrie-mi direct/ })).toHaveAttribute("href", "#contact");
+    await expect(page.locator(".colab .fcard").getByRole("button", { name: "Vreau analiza gratuită" })).toBeEnabled();
+    await sectiune.getByRole("button", { name: "Ce primesc la analiza gratuită?" }).click();
+    await expect(sectiune.locator(".bula.el").last()).toContainText("ce s-ar putea automatiza");
   });
 
   test("telefonul nu lățește pagina", async ({ page }) => {

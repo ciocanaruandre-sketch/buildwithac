@@ -7,11 +7,11 @@ import { lenis } from "@/components/layout/LenisProvider";
 import { useCapcanaFocus } from "@/lib/capcana-focus";
 
 const LINKURI = [
-  { href: "/ghiduri", text: "Ghiduri" },
-  { href: "/#cine", text: "Pentru cine" },
   { href: "/#portofoliu", text: "Portofoliu" },
   { href: "/#servicii", text: "Servicii" },
+  { href: "/ghiduri", text: "Ghiduri" },
   { href: "/#contact", text: "Contact" },
+  { href: "/#formular", text: "Colaborare", cls: "cta" },
 ];
 const SOCIAL = [
   { href: SITE.instagram.url, text: "Instagram", ic: "IG" },
@@ -42,7 +42,8 @@ export function Nav() {
     return () => { document.removeEventListener("keydown", tasta); lenis.curent?.start(); declansator?.focus(); };
   }, [meniuDeschis]);
 
-  const [ghiduri, cine, ...restul] = LINKURI;
+  // Social media stă între Ghiduri și Contact
+  const [inainte, dupa] = [LINKURI.slice(0, 3), LINKURI.slice(3)];
   return (
     <nav className="nav" aria-label="Principal" data-fara-tipar>
       <Link href="/" className="logo" aria-label="buildwithac, acasă">
@@ -50,8 +51,7 @@ export function Nav() {
         <img src="/logo.webp" alt="" width={44} height={44} />
       </Link>
       <div className="links">
-        <Link href={ghiduri.href}>{ghiduri.text}</Link>
-        <Link href={cine.href}>{cine.text}</Link>
+        {inainte.map((l) => <Link key={l.href} href={l.href}>{l.text}</Link>)}
         <div className={`dd${socialDeschis ? " on" : ""}`} ref={dd}>
           <button type="button" aria-expanded={socialDeschis} onClick={() => setSocialDeschis((x) => !x)}>
             Social media <i>▾</i>
@@ -62,7 +62,7 @@ export function Nav() {
             ))}
           </div>
         </div>
-        {restul.map((l) => <Link key={l.href} href={l.href}>{l.text}</Link>)}
+        {dupa.map((l) => <Link key={l.href} href={l.href} className={l.cls}>{l.text}</Link>)}
       </div>
       <button type="button" className="burger" ref={burger} aria-label="Meniu" aria-expanded={meniuDeschis} onClick={() => setMeniuDeschis(true)}>☰</button>
       {meniuDeschis && (
