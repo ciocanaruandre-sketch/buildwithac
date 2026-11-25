@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 
 // varianta C3 din prototip/banda-chat.html (aleasă de Andrei, 2026-11-08): fâșie kraft sub fâșie crem, scris de mână
-const MARE = ["ghiduri gratuite", "site-uri de la zero", "automatizări", "sesiuni 1 la 1", "AI pe înțeles"];
+const MARE = ["site-uri de la zero", "automatizări", "sesiuni 1 la 1", "ghiduri gratuite", "AI pe înțeles"];
 const TURE = 10000;
-const MIC = ["pas cu pas", "cu prompturile mele", "tot gratuit", "testate de mine", "fără cont"];
+const MIC = ["vorbești direct cu mine", "analiză gratuită", "știi prețul dinainte", "construit pe nevoile tale"];
 
 function Fasie({ cls, cuvinte, sep, dir, viteza }: { cls: string; cuvinte: string[]; sep: string; dir: 1 | -1; viteza: number }) {
   // un grup e mai lat decât orice ecran; două grupuri una după alta fac bucla fără cusătură
@@ -23,7 +23,7 @@ function Fasie({ cls, cuvinte, sep, dir, viteza }: { cls: string; cuvinte: strin
   );
 }
 
-/** Banda care curge între cortină și ghiduri. La scroll se grăbește și ia sensul derulării. Decorativă: textul ei e spus și în restul paginii. */
+/** Banda care curge între cortină și portofoliu. La scroll se grăbește și ia sensul derulării. Decorativă: textul ei e spus și în restul paginii. */
 export function Banda() {
   const radacina = useRef<HTMLDivElement>(null);
 

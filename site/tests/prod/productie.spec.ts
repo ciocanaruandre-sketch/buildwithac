@@ -6,7 +6,7 @@ test.describe("producție", () => {
     await page.goto("/");
     await expect(page.locator("h1")).toHaveText("buildwithac");
     await expect(page.locator("#ghiduri")).toBeVisible();
-    await expect(page.locator("#ghiduri")).toContainText("Site-uri care nu arată „făcute cu AI”");
+    await expect(page.locator("#ghiduri")).toContainText("Ghiduri gratuite");
     await expect(page.locator("#ghiduri")).not.toContainText("Ghid de test");
     await expect(page.locator("#portofoliu")).toBeVisible();
   });

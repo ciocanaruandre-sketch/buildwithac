@@ -23,7 +23,7 @@ export function SectiuneEmail() {
     });
   }, { scope: radacina });
 
-  // browserul sare la #email înainte ca secțiunile fixate (pin) să-și ia spațiul, deci ajunge prea sus:
+  // browserul sare la #email înainte să se așeze pagina de deasupra (imagini, fonturi), deci ajunge prea sus:
   // derulăm noi, și din nou la fiecare refresh ScrollTrigger cât se așază pagina (imagini, fonturi)
   useEffect(() => {
     if (!abonat) return;
@@ -52,7 +52,7 @@ export function SectiuneEmail() {
         ) : (
           <>
             <h2>Noutățile din AI, <span>pe scurt</span>, în inbox.</h2>
-            <p>Îți scriu când apare un ghid nou sau când se lansează ceva în AI care chiar contează. Doar atunci.</p>
+            <p>Îți scriu când apare un ghid nou, gratuit sau premium, ori când se lansează ceva în AI care chiar contează. Doar atunci.</p>
             <FormularAbonare varianta="colaj" />
             <div className="hand">fără spam, promit</div>
           </>

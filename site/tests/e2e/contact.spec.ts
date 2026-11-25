@@ -1,9 +1,9 @@
 import { test, expect, type Page } from "@playwright/test";
 
-const card = (page: Page) => page.locator(".contact .fcard");
+const card = (page: Page) => page.locator(".colab .fcard");
 const nume = (page: Page) => card(page).getByLabel("Numele tău");
 const telefon = (page: Page) => card(page).getByLabel("Telefon");
-const trimite = (page: Page) => card(page).getByRole("button", { name: "Trimite" });
+const trimite = (page: Page) => card(page).getByRole("button", { name: "Vreau analiza gratuită" });
 
 /** Pagina e gata (hidratată) când butonul devine activ: abia atunci pastilele răspund la clic. */
 async function deschide(page: Page) {
@@ -35,7 +35,7 @@ test.describe("formularul de contact", () => {
     await page.waitForLoadState("networkidle");
     await expect(card(page).getByRole("button", { name: "Automatizări", exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect(card(page).getByRole("button", { name: "Site", exact: true })).toHaveAttribute("aria-pressed", "false");
-    await expect(card(page).getByRole("heading", { name: "Vrei să colaborăm?" })).toBeInViewport();
+    await expect(page.locator(".colab").getByRole("heading", { name: "Vrei să colaborăm?" })).toBeInViewport();
     await expect(card(page).getByRole("button", { name: "Automatizări", exact: true })).toBeInViewport();
   });
 
@@ -44,23 +44,29 @@ test.describe("formularul de contact", () => {
     await page.goto("/?serviciu=site#formular&utm_source=ig&utm_medium=reclama&utm_campaign=Cafenele&utm_content=Clip");
     await page.waitForLoadState("networkidle");
     await expect(card(page).getByRole("button", { name: "Site", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await expect(card(page).getByRole("heading", { name: "Vrei să colaborăm?" })).toBeInViewport();
+    await expect(page.locator(".colab").getByRole("heading", { name: "Vrei să colaborăm?" })).toBeInViewport();
     const tinut = await page.evaluate(() => sessionStorage.getItem("bwac_utm"));
     expect(JSON.parse(tinut ?? "{}")).toEqual({ utm_source: "ig", utm_medium: "reclama", utm_campaign: "Cafenele", utm_content: "Clip" });
   });
 
   test("are titlul, cele 4 pastile și link spre confidențialitate", async ({ page }) => {
     await deschide(page);
-    await expect(card(page).getByRole("heading", { name: "Vrei să colaborăm?" })).toBeVisible();
+    await expect(page.locator(".colab").getByRole("heading", { name: "Vrei să colaborăm?" })).toBeVisible();
     for (const p of ["Site", "Automatizări", "Sesiune 1 la 1 sau ghid personalizat", "Altceva"]) {
       await expect(card(page).getByRole("button", { name: p, exact: true })).toHaveAttribute("aria-pressed", "false");
     }
     await expect(card(page).getByRole("link", { name: "politica de confidențialitate" })).toHaveAttribute("href", "/confidentialitate");
   });
 
-  test("termenul de 1–2 zile apare doar după trimitere, nu și ca notă sub secțiune", async ({ page }) => {
+  test("analiza gratuită și promisiunile stau lângă formular", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".colab")).toContainText("Începem cu o analiză gratuită.");
+    await expect(page.locator(".colab .promisiuni li")).toHaveText(["Știi prețul înainte să încep", "Vorbești direct cu mine", "Îți răspund în 1–2 zile"]);
+  });
+
+  test("fără nota veche despre termen", async ({ page }) => {
     await deschide(page);
-    await expect(page.locator(".contact")).not.toContainText("răspund de obicei");
+    await expect(page.locator(".colab")).not.toContainText("răspund de obicei");
   });
 
   test("formularul gol arată greșelile, focusul pe nume, fără cerere", async ({ page }) => {
@@ -153,12 +159,16 @@ test.describe("linkurile de pe cardurile de servicii", () => {
     await deschide(page);
     const link = (i: number) => page.locator("#servicii .scard").nth(i).getByRole("link", { name: /Hai să vorbim/ });
     await expect(link(0)).toHaveAttribute("href", "#formular");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
     // ca un om: întâi ajunge la card, apoi apasă (un clic în aceeași clipă cu un scroll nativ se bate cu Lenis)
     await link(1).scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
     await link(1).click();
     await expect(card(page)).toBeInViewport();
     await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "true");
+    await link(2).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
     await link(2).click();
     await expect(card(page).getByRole("button", { name: "Sesiune 1 la 1 sau ghid personalizat" })).toHaveAttribute("aria-pressed", "true");
     await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "false");

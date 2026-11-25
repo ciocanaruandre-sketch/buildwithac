@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { SITE } from "../../lib/config";
 
-const ORDINE = ["Ghiduri", "Pentru cine", "Social media", "Portofoliu", "Servicii", "Contact"];
+const ORDINE = ["Portofoliu", "Servicii", "Ghiduri", "Social media", "Contact", "Colaborare"];
 
 test.describe("desktop", () => {
   test.skip(({ isMobile }) => isMobile, "doar pe desktop");
@@ -31,7 +31,7 @@ test.describe("mobil", () => {
     await page.getByRole("button", { name: "Meniu" }).click();
     const meniu = page.getByRole("dialog", { name: "Meniu" });
     await expect(meniu).toBeVisible();
-    for (const t of ["Ghiduri", "Pentru cine", "Portofoliu", "Servicii", "Contact", "Instagram", "TikTok"]) {
+    for (const t of ["Portofoliu", "Servicii", "Ghiduri", "Contact", "Colaborare", "Instagram", "TikTok"]) {
       await expect(meniu.getByRole("link", { name: t })).toBeVisible();
     }
     await page.keyboard.press("Escape");
