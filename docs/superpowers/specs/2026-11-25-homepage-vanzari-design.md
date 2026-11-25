@@ -47,12 +47,11 @@ Textele marcate (A) sunt ale lui Andrei; restul sunt propuneri, se corectează p
 - Automatizări: „Răspunsurile la clienți, programările, mesajele de revenire, tot ce faci la fel în fiecare zi. Le pun să meargă singure, în aplicațiile pe care le ai deja.”
 - Sesiune sau ghid: „Vrei să înveți să le faci singur? Îți arăt live, pe ecran, cum folosești AI-ul în munca ta, sau îți scriu un ghid doar pentru tine.”
 
-**Calculatorul.** Titlu „Cât te costă să faci totul *manual?*” Două file:
-- „Timpul meu”: minute pe zi cu munca repetată (10–240, la început 45) × 250 de zile lucrătoare × cât valorează o oră (20–300 lei, la început 50). La început arată 187 de ore și 9.375 lei pe an.
-- „Clienții pierduți”: cereri pe săptămână care rămân fără răspuns și nu se mai întorc (1–30, la început 5) × 52/12 × câte din 10 cumpără (1–10, la început 3) × cât aduce un client (50–5.000 lei, la început 500). La început arată 3.250 lei pe lună.
-- Sub rezultat: formula cu cifrele omului și „Estimare pe cifrele tale, nu o promisiune.” Butonul „Vreau analiza gratuită →” duce la formular, alege „Automatizări” și scrie cifrele în „Descriere”. Nu suprascrie niciodată ce a scris omul de mână. Se deschide pe „Clienții pierduți”.
+**Calculatorul.** (Schimbat de Andrei pe previzualizare, 2026-11-25: o singură socoteală, pe câștig, nu pe pierdere; suma cu verde.) Titlu „Cât poți câștiga dacă nu mai faci totul *manual?*” Patru cursoare, fără file:
+- „Clienți în plus pe săptămână, dacă ai răspunde la timp” (0–15, la început 1) și „Programări pe săptămână la care nu vine nimeni” (0–20, la început 2), fiecare × 52/12 × „Cât aduce un client” (50–5.000 lei, la început 200); „Minute pe zi cu munca repetată” (0–240, la început 45) × 250 de zile, împărțit la zile de 8 ore.
+- Bonul de casă: „Răspuns la timp”, „Programări ținute”, „Timpul tău”, apoi „Poți câștiga până la **+2.600 lei** pe lună, plus 23 de zile libere pe an” și „Estimare pe cifrele tale, nu o promisiune.” Ce e pe zero nu apare; cu toate pe zero: „Mută un cursor ca să vezi cât poți câștiga.”
+- Butonul „Vreau analiza gratuită →” duce la formular, alege „Automatizări” și scrie cifrele în „Descriere”. Nu suprascrie niciodată ce a scris omul de mână.
 - Merge cu tastatura și cititorul de ecran; nu se trimite nimic până la formular.
-- **2 variante:** bon de casă / foaie de caiet.
 
 **Formularul** (`#formular` rămâne, ca să meargă linkurile din reclame). Titlu „Vrei să *colaborăm?*” Text: „Începem cu o analiză gratuită. Îmi povestești cum lucrezi, iar eu îți spun ce s-ar putea automatiza și ce aș îmbunătăți la site. Dacă n-ai încă site, îmi spui cum ți-l imaginezi și pornim de acolo.” (conținutul analizei: A). Sub el: „Știi prețul înainte să încep · Vorbești direct cu mine · Îți răspund în 1–2 zile”. Butonul: „Vreau analiza gratuită”. Câmpurile rămân aceleași.
 

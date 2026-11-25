@@ -2,12 +2,7 @@
 .calc { padding: 110px clamp(20px, 6vw, 90px) 60px; background: #0b0908; overflow-x: clip; }
 .calc h2 { font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 4.4vw, 64px); letter-spacing: -.04em; line-height: 1.05; max-width: 900px; }
 .calc-in { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(30px, 6vw, 90px); align-items: center; margin-top: 44px; max-width: 1140px; }
-.calc-file { display: flex; gap: 6px; padding: 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); max-width: 440px; }
-.calc-file button { flex: 1 1 0; font: inherit; font-size: 14px; font-weight: 600; white-space: nowrap; padding: 12px 6px; border: 0; border-radius: 999px; background: none; color: #cfc4ba; cursor: pointer; transition: background .2s, color .2s; }
-.calc-file button[aria-selected="true"] { background: var(--color-cream); color: #1b0f0a; }
-.calc-file button:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
-/* înălțime fixă: fila cu două cursoare nu mută bonul de dedesubt */
-.calc-cursoare { display: flex; flex-direction: column; gap: 26px; margin-top: 30px; min-height: 270px; }
+.calc-cursoare { display: flex; flex-direction: column; gap: 22px; }
 .cursor { display: block; }
 .cursor-sus { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; font-size: 15px; line-height: 1.4; color: #e6dcd2; }
 .cursor-sus b { flex-shrink: 0; font-family: var(--nf-unbounded); font-weight: 600; font-size: 17px; color: var(--color-cream); }
@@ -21,18 +16,22 @@
 .bon { position: relative; width: min(360px, calc(100% - 12px)); justify-self: center; padding: 34px 26px 46px; background: var(--color-cream); color: #1b0f0a; transform: rotate(1.6deg); font-family: var(--nf-mono), monospace;
   /* marginea zimțată de jos, ca la bonul rupt */
   -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 18px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 18px 100%; }
-.bon .tp { display: none; }
 .bon-h { text-align: center; font-family: var(--nf-unbounded); font-weight: 800; font-size: 20px; letter-spacing: -.04em; padding-bottom: 14px; border-bottom: 2px dashed rgba(27,15,10,.3); }
-.bon-r { padding: 14px 0; border-bottom: 2px dashed rgba(27,15,10,.3); min-height: 128px; }
+.bon-r { padding: 14px 0; border-bottom: 2px dashed rgba(27,15,10,.3); min-height: 104px; }
 .bon-r p { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; line-height: 1.9; }
-.bon-t { display: block; text-align: center; padding: 18px 0 6px; }
+/* înălțime fixă: bonul nu se mută sub deget când se schimbă rândurile */
+.bon-r p span:last-child { white-space: nowrap; }
+.bon-t { display: block; text-align: center; padding: 18px 0 6px; min-height: 132px; }
 .bon-t small { display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6b5a4d; }
-.bon-t strong { display: block; font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 8.4vw, 40px); letter-spacing: -.04em; line-height: 1.15; color: #c2310f; white-space: nowrap; }
-.bon-t span { display: block; font-size: 13px; }
+.bon-t strong { display: block; font-family: var(--nf-unbounded); font-weight: 800; font-size: clamp(30px, 8.4vw, 40px); letter-spacing: -.04em; line-height: 1.15; color: #2f7d3a; white-space: nowrap; }
+.bon-t span { display: block; font-size: 13px; text-wrap: balance; }
 .bon-nota { text-align: center; font-size: 11px; line-height: 1.5; color: #6b5a4d; margin: 8px 0 18px; }
 .bon-but { display: block; text-align: center; font-family: var(--nf-inter); font-weight: 700; font-size: 15px; color: #fff; text-decoration: none; background: var(--grad); border-radius: 999px; padding: 15px 10px; }
 .bon-but:focus-visible { outline: 3px solid #1b0f0a; outline-offset: 3px; }
 
 @media (max-width: 860px) {
   .calc-in { grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 32px; }
+}
+@media (max-width: 700px) {
+  .calc { padding-top: 56px; padding-bottom: 40px; }
 }
