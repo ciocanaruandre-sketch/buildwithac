@@ -184,6 +184,7 @@ test.describe("abonare", () => {
 
   test("lângă formular e acordul cu link spre confidențialitate", async ({ page }) => {
     await page.goto("/");
+    await expect(page.locator(".mail .acord")).toContainText("ghid nou, gratuit sau plătit,");
     await expect(page.locator(".mail").getByRole("link", { name: "Confidențialitate" })).toHaveAttribute("href", "/confidentialitate");
   });
 });

@@ -11,6 +11,7 @@ import { PereteClipuri } from "@/components/home/PereteClipuri";
 import { SectiuneEmail } from "@/components/home/SectiuneEmail";
 import { Intrebari } from "@/components/home/Intrebari";
 import { Contact } from "@/components/home/Contact";
+import { Variante } from "@/components/home/Variante";
 import { toateGhidurile } from "@/lib/ghiduri";
 
 // ordinea e pentru vânzare: cine e, ce a făcut, ce oferă, formularul; ghidurile vin după (docs/superpowers/specs/2026-11-25-homepage-vanzari-design.md)
@@ -29,6 +30,7 @@ export default function Acasa() {
       <SectiuneEmail />
       <Intrebari />
       <Contact />
+      <Variante />
     </main>
   );
 }

@@ -8,8 +8,16 @@ const buton = (page: Page) => calc(page).getByRole("link", { name: /Vreau analiz
 async function deschide(page: Page) {
   await page.goto("/");
   await expect(page.locator(".colab .fcard").getByRole("button", { name: "Vreau analiza gratuită" })).toBeEnabled();
-  await calc(page).scrollIntoViewIfNeeded();
+  // după încărcare, ScrollTrigger mai măsoară o dată pagina; până atunci un scroll nativ se pierde
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(300);
+}
+
+/** Ca un om: întâi ajunge la buton, apoi apasă (un clic în aceeași clipă cu un scroll nativ se bate cu Lenis). */
+async function apasa(page: Page) {
+  await buton(page).scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
+  await buton(page).click();
 }
 
 test("pornește pe „Clienții pierduți”, iar săgețile schimbă fila", async ({ page }) => {
@@ -44,7 +52,7 @@ test("cursoarele schimbă suma, iar la capete nu se strică nimic", async ({ pag
 
 test("butonul duce la formular, alege Automatizări și scrie cifrele", async ({ page }) => {
   await deschide(page);
-  await buton(page).click();
+  await apasa(page);
   await expect(page.locator(".colab .fcard")).toBeInViewport();
   await expect(page.locator(".colab").getByRole("button", { name: "Automatizări", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(descriere(page)).toHaveValue("Din calculator: 5 cereri pe săptămână fără răspuns, 3 din 10 cumpără, 500 de lei pe client. Cam 3.250 lei pe lună.");
@@ -52,10 +60,10 @@ test("butonul duce la formular, alege Automatizări și scrie cifrele", async ({
 
 test("cifrele noi le înlocuiesc pe cele vechi ale calculatorului", async ({ page }) => {
   await deschide(page);
-  await buton(page).click();
+  await apasa(page);
   await expect(descriere(page)).toHaveValue(/3\.250 lei/);
   await calc(page).getByRole("tab", { name: "Timpul meu" }).click();
-  await buton(page).click();
+  await apasa(page);
   await expect(descriere(page)).toHaveValue(/^Din calculator: 45 de minute/);
 });
 
@@ -64,7 +72,7 @@ test("ce a scris omul în „Descriere” rămâne neatins", async ({ page }) =>
   await descriere(page).fill("Am o cafenea");
   await calc(page).scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
-  await buton(page).click();
+  await apasa(page);
   await expect(page.locator(".colab").getByRole("button", { name: "Automatizări", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(descriere(page)).toHaveValue("Am o cafenea");
 });
