@@ -1,8 +1,9 @@
 # buildwithac — regulile proiectului
 
 ## Proiectul
-Site-ul contului **@buildwithac.ai** (TikTok și Instagram), live pe `https://buildwithac.ro`. Miezul e o bibliotecă de **ghiduri gratuite**: versiunea completă a tutorialelor scurte. Caruselul spune *ce*, ghidul spune *cum*.
-Drumul omului: clip → „ghidul e pe site, link în bio” → homepage → ghidul → îl aplică → îl urmărește pe Andrei. În clipuri nu se pun link-uri (risc de ban pe TikTok).
+Site-ul contului **@buildwithac.ai** (TikTok și Instagram), live pe `https://buildwithac.ro`. **Homepage-ul vinde colaborarea cu firme** (portofoliu → servicii → calculator → formularul „analiză gratuită”); biblioteca de **ghiduri gratuite** (`/ghiduri`) e versiunea completă a tutorialelor scurte. Caruselul spune *ce*, ghidul spune *cum*.
+Două drumuri: clip → „ghidul e pe site, link în bio” → ghidul → îl aplică → îl urmărește pe Andrei; clip sau reclamă → homepage → formularul de analiză. În clipuri nu se pun link-uri (risc de ban pe TikTok).
+Pe homepage **nu se inventează** cifre, clienți sau recenzii; calculatorul e o estimare prudentă (părțile luate în calcul sunt în `site/lib/calculator.ts`). CRM-ul e în portofoliu, dar nu e încă serviciu.
 Publicul: oameni care învață AI și firme mici (cafenele, saloane, clinici, imobiliare). Vin mai ales **de pe telefon**: totul se proiectează întâi la ~390px.
 - Documentul de design (aprobat): `docs/superpowers/specs/2026-10-22-site-buildwithac-design.md`
 - **Stadiul:** `docs/progres-brainstorming.md`. La începutul sesiunii citește secțiunea „DE AICI CONTINUĂM”.
@@ -35,7 +36,7 @@ Cinematic: întunecat, fotografii de atmosferă, cuvinte-cheie în italic în gr
 | gradientul logo-ului | `linear-gradient(90deg, #ffb52e, #f26a21 45%, #e53222)` |
 
 Fonturile: **Unbounded** (titluri), **Inter** (text), **Instrument Serif** italic (cuvinte-cheie în gradient), **Caveat** (scris de mână), **Anton** (secțiunea de e-mail), **JetBrains Mono** (prompturi, cod). Fără Shrikhand. Rămân 6 fonturi (decizia lui Andrei).
-Prototipurile (referința de aspect): `prototip/index.html` (homepage), `prototip/ghid.html` (varianta 3e, „pași în caiet”), `prototip/ghiduri.html` (aranjarea B, „Colaj”).
+Homepage-ul: referința e chiar site-ul (designul: `docs/superpowers/specs/2026-11-25-homepage-vanzari-design.md`); `prototip/index.html` e depășit. Prototipurile încă valabile: `prototip/ghid.html` (varianta 3e, „pași în caiet”), `prototip/ghiduri.html` (aranjarea B, „Colaj”).
 
 ## Ghidurile
 Standardul complet, componentele și tonul sunt în `.claude/skills/ghid-nou/standard.md`. Un ghid nou se face **doar** prin skill-ul `ghid-nou`. Tonul se aplică și textelor de pe site:
