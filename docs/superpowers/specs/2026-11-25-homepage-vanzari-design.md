@@ -32,22 +32,22 @@ Locul calculatorului (între servicii și formular) e propunerea mea.
 ## Secțiunile și textele
 Textele marcate (A) sunt ale lui Andrei; restul sunt propuneri, se corectează pe previzualizare.
 
-**Descrierea** (A): „Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp *de clienții tăi.*” Dispare „tot gratuit ↓” (A). Sub text: butonul „Hai să colaborăm” (→ `#formular`) și linkul mic „Ai venit după un ghid? E aici →” (→ `/ghiduri`).
+**Descrierea** (A): „Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București. Știu că la început de drum le faci pe toate singur. Eu îți fac site-ul și automatizările, ca tu să ai timp *de clienții tăi.*” Dispare „tot gratuit ↓” (A). Sub text: butonul „Vreau analiza gratuită” (→ `#formular`; ideea lui Andrei, ca la stoneflow.ro) și linkul mic „Ai venit după un ghid? E aici →” (→ `/ghiduri`).
 
-**Banda** rămâne (A), fără „tot gratuit” (A). Fâșia mare: site-uri de la zero · automatizări · sesiuni 1 la 1 · ghiduri gratuite · AI pe înțeles. Fâșia mică: vorbești direct cu mine · analiză gratuită · știi prețul dinainte · făcut pe măsura ta.
+**Banda** rămâne (A), fără „tot gratuit” (A). Fâșia mare: site-uri de la zero · automatizări · sesiuni 1 la 1 · ghiduri gratuite · AI pe înțeles. Fâșia mică: vorbești direct cu mine · analiză gratuită · știi prețul dinainte · construit pe nevoile tale.
 
 **Portofoliul.** Titlu „Ce am construit *până acum.*”; intro „Proiecte făcute de mine și concepte pentru firme mici, ca să vezi cum ar putea arăta și al tău. Conceptele sunt marcate.”
 - Primul e CRM-ul, etichetat „Proiect”: „CRM pentru echipe de vânzări. Cererile, apelurile, programările și reclamele Meta, într-un singur loc. L-am făcut pentru mine, apoi l-am dus până unde poate lucra o echipă întreagă.”
 - Captura vine din modul demo (baza de test, date inventate), cu numele, telefoanele și sumele blurate (A); în colț scrie „date demo”. `npm run demo` golește și reumple **baza de test** a CRM-ului; producția nu e atinsă.
-- ImobSearch, cele 3 automatizări și cele 3 concepte rămân. Poza de stoc de la ImobSearch se înlocuiește dacă Andrei trimite o captură.
+- ImobSearch, cele 3 automatizări și cele 3 concepte rămân. Poza de stoc de la ImobSearch se înlocuiește cu o captură de pe imobsearch.ro, făcută de Claude (A).
 - **3 variante:** (a) CRM mare, apoi rânduri care se trag cu degetul (automatizări, concepte); (b) teanc de foi; (c) CRM mare + listă scurtă cu miniaturi.
 
-**Servicii**, aceleași 3 carduri. Titlu „Cu ce te *pot ajuta.*”
+**Servicii**, aceleași 3 carduri. Titlu „Cu ce îți pot fi *de ajutor.*”, sub el „Alegi ce ți se potrivește, în funcție de nevoile tale.” (A, formulat de mine)
 - Site: „Îl fac de la zero, după firma ta. Îmi povestești ce faci și cui vinzi, îți arăt câteva variante, iar tu alegi. Merge bine pe telefon, de unde intră cei mai mulți.”
 - Automatizări: „Răspunsurile la clienți, programările, mesajele de revenire, tot ce faci la fel în fiecare zi. Le pun să meargă singure, în aplicațiile pe care le ai deja.”
 - Sesiune sau ghid: „Vrei să înveți să le faci singur? Îți arăt live, pe ecran, cum folosești AI-ul în munca ta, sau îți scriu un ghid doar pentru tine.”
 
-**Calculatorul.** Titlu „Cât te costă să faci totul *de mână?*” Două file:
+**Calculatorul.** Titlu „Cât te costă să faci totul *manual?*” Două file:
 - „Timpul meu”: minute pe zi cu munca repetată (10–240, la început 45) × 250 de zile lucrătoare × cât valorează o oră (20–300 lei, la început 50). La început arată 187 de ore și 9.375 lei pe an.
 - „Clienții pierduți”: cereri pe săptămână care rămân fără răspuns și nu se mai întorc (1–30, la început 5) × 52/12 × câte din 10 cumpără (1–10, la început 3) × cât aduce un client (50–5.000 lei, la început 500). La început arată 3.250 lei pe lună.
 - Sub rezultat: formula cu cifrele omului și „Estimare pe cifrele tale, nu o promisiune.” Butonul „Vreau analiza gratuită →” duce la formular, alege „Automatizări” și scrie cifrele în „Descriere”. Nu suprascrie niciodată ce a scris omul de mână.
