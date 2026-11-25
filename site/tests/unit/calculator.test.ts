@@ -32,9 +32,13 @@ describe("calculatorul (prudent: 1 din 10 cereri, 1 din 4 programări, jumătate
     expect(textCalcul(start)).toBe("Din calculator: 3 cereri pe săptămână la care răspund târziu sau deloc, 2 programări pe săptămână la care nu vine nimeni, 150 de lei pe client, 30 de minute pe zi de muncă repetată. Estimare prudentă: până la 510 lei pe lună și 7 zile pe an.");
     expect(textCalcul({ ...start, minute: 0 })).toBe("Din calculator: 3 cereri pe săptămână la care răspund târziu sau deloc, 2 programări pe săptămână la care nu vine nimeni, 150 de lei pe client. Estimare prudentă: până la 510 lei pe lună.");
   });
+  it("și suma ia „de” ca restul cifrelor (230 de lei, dar 510 lei)", () => {
+    expect(textCalcul({ ...start, programari: 0, leiPeClient: 180 })).toContain("până la 230 de lei pe lună");
+    expect(textCalcul({ ...start, leiPeClient: 440 })).toContain("până la 1.520 de lei pe lună");
+  });
   it("ce e pe zero nu apare în text", () => {
     expect(textCalcul({ ...zero, minute: 30 })).toBe("Din calculator: 30 de minute pe zi de muncă repetată. Estimare prudentă: până la 7 zile pe an.");
-    expect(textCalcul({ ...zero, cereri: 1, minute: 5 })).toBe("Din calculator: 1 cerere pe săptămână la care răspund târziu sau deloc, 150 de lei pe client, 5 minute pe zi de muncă repetată. Estimare prudentă: până la 60 lei pe lună și 1 zi pe an.");
+    expect(textCalcul({ ...zero, cereri: 1, minute: 5 })).toBe("Din calculator: 1 cerere pe săptămână la care răspund târziu sau deloc, 150 de lei pe client, 5 minute pe zi de muncă repetată. Estimare prudentă: până la 60 de lei pe lună și 1 zi pe an.");
     expect(textCalcul(zero)).toBe("");
   });
   it("pornirea cade pe un pas al cursorului", () => {

@@ -38,7 +38,7 @@ test("arată cât poți câștiga, cu verde, pe un singur bon", async ({ page })
   await expect(calc(page)).not.toContainText(/pierzi|pierdu/i);
   await expect(rezultat(page).locator("strong")).toHaveCSS("color", "rgb(47, 125, 58)");
   for (const presupunere of ["1 din 10 cereri", "1 din 4 programări", "Jumătate din timp"]) await expect(calc(page).locator(".bon-r")).toContainText(presupunere);
-  await expect(calc(page)).toContainText("Estimare prudentă, nu o promisiune. Nu scade costul automatizării.");
+  await expect(calc(page)).toContainText("Estimare prudentă, nu o promisiune. Costul automatizării nu e scăzut din sumă.");
 });
 
 test("cursoarele schimbă suma, iar la capete nu se strică nimic", async ({ page }) => {
@@ -81,6 +81,33 @@ test("butonul duce la formular, alege Automatizări și scrie cifrele", async ({
   await expect(page.locator(".colab .fcard")).toBeInViewport();
   await expect(page.locator(".colab").getByRole("button", { name: "Automatizări", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(descriere(page)).toHaveValue("Din calculator: 3 cereri pe săptămână la care răspund târziu sau deloc, 2 programări pe săptămână la care nu vine nimeni, 150 de lei pe client, 30 de minute pe zi de muncă repetată. Estimare prudentă: până la 510 lei pe lună și 7 zile pe an.");
+});
+
+test("textul din calculator se vede întreg în „Descriere”, fără derulare", async ({ page }) => {
+  await deschide(page);
+  await apasa(page);
+  await expect(descriere(page)).toHaveValue(/^Din calculator/);
+  await expect.poll(() => descriere(page).evaluate((el) => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(1);
+  const inalt = (await descriere(page).boundingBox())!.height;
+  await laZero(page, CERERI, PROGRAMARI, MINUTE);
+  await apasa(page);
+  await expect(descriere(page)).toHaveValue("");
+  expect((await descriere(page).boundingBox())!.height).toBeLessThanOrEqual(inalt);
+  expect((await descriere(page).boundingBox())!.height).toBeLessThanOrEqual(112);
+});
+
+test("eroarea „Alege ce te interesează” dispare când calculatorul alege serviciul", async ({ page }) => {
+  await deschide(page);
+  const card = page.locator(".colab .fcard");
+  await card.getByLabel("Numele tău").fill("Ana");
+  await card.getByLabel("Telefon").fill("0722123456");
+  await card.locator("button[type=submit]").click();
+  await expect(card.getByText("Alege ce te interesează.")).toBeVisible();
+  await calc(page).scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  await apasa(page);
+  await expect(card.getByRole("button", { name: "Automatizări", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(card.getByText("Alege ce te interesează.")).toHaveCount(0);
 });
 
 test("cifrele noi le înlocuiesc pe cele vechi ale calculatorului", async ({ page }) => {

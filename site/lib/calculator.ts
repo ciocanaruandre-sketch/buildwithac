@@ -1,4 +1,4 @@
-import { cuDe, mii } from "@/lib/numere";
+import { cuDe } from "@/lib/numere";
 
 export type Intrari = { cereri: number; programari: number; leiPeClient: number; minute: number };
 
@@ -37,6 +37,6 @@ export function textCalcul(v: Intrari): string {
     v.minute && `${cuDe(v.minute, "minut", "minute")} pe zi de muncă repetată`,
   ].filter(Boolean);
   if (!intrari.length) return "";
-  const castig = [leiPeLuna && `${mii(leiPeLuna)} lei pe lună`, zile && `${cuDe(zile, "zi", "zile")} pe an`].filter(Boolean);
+  const castig = [leiPeLuna && `${cuDe(leiPeLuna, "leu", "lei")} pe lună`, zile && `${cuDe(zile, "zi", "zile")} pe an`].filter(Boolean);
   return `Din calculator: ${intrari.join(", ")}. Estimare prudentă: până la ${castig.join(" și ")}.`;
 }

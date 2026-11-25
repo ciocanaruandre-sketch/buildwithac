@@ -65,7 +65,7 @@ export function Calculator() {
               <span>Mută un cursor ca să vezi cât poți câștiga.</span>
             )}
           </output>
-          <p className="bon-nota">Estimare prudentă, nu o promisiune. Nu scade costul automatizării.</p>
+          <p className="bon-nota">Estimare prudentă, nu o promisiune. Costul automatizării nu e scăzut din sumă.</p>
           <a className="bon-but" href="#formular" onClick={trimite}>Vreau analiza gratuită <span aria-hidden>→</span></a>
         </div>
       </div>
