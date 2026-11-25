@@ -39,11 +39,24 @@ export function FormularContact() {
   const seTrimite = useRef(false);
   const campuri = useRef<Partial<Record<CampContact, HTMLElement | null>>>({});
   const mesajOk = useRef<HTMLDivElement>(null);
+  const ultimulCalcul = useRef("");
 
   useEffect(() => {
     const alege = (e: Event) => setServiciu((e as CustomEvent<CheieServiciu>).detail);
+    // cifrele din calculator; textul scris de om nu se atinge niciodată
+    const scrieCalcul = (e: Event) => {
+      const el = campuri.current.descriere as HTMLTextAreaElement | null | undefined;
+      const text = (e as CustomEvent<string>).detail;
+      if (!el || (el.value.trim() && el.value !== ultimulCalcul.current)) return;
+      el.value = ultimulCalcul.current = text;
+      setGreseli((g) => g.filter((x) => x !== "descriere"));
+    };
     window.addEventListener("contact:serviciu", alege);
-    return () => window.removeEventListener("contact:serviciu", alege);
+    window.addEventListener("contact:calcul", scrieCalcul);
+    return () => {
+      window.removeEventListener("contact:serviciu", alege);
+      window.removeEventListener("contact:calcul", scrieCalcul);
+    };
   }, []);
 
   useEffect(() => { if (stare === "ok") mesajOk.current?.focus(); }, [stare]);

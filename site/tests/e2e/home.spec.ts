@@ -77,7 +77,7 @@ test.describe("cortina", () => {
 test("ordinea secțiunilor", async ({ page }) => {
   await page.goto("/");
   const ids = await page.$$eval("main section", (s) => s.map((x) => x.id).filter(Boolean));
-  expect(ids).toEqual(["hero", "portofoliu", "servicii", "colaborare", "ghiduri", "tiktok", "email", "intrebari", "contact"]);
+  expect(ids).toEqual(["hero", "portofoliu", "servicii", "calculator", "colaborare", "ghiduri", "tiktok", "email", "intrebari", "contact"]);
 });
 
 test.describe("ghiduri și clipuri", () => {

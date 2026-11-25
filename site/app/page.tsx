@@ -4,6 +4,7 @@ import { Cortina } from "@/components/home/Cortina";
 import { Banda } from "@/components/home/Banda";
 import { Portofoliu } from "@/components/home/Portofoliu";
 import { Servicii } from "@/components/home/Servicii";
+import { Calculator } from "@/components/home/Calculator";
 import { Colaborare } from "@/components/home/Colaborare";
 import { Ghiduri } from "@/components/home/Ghiduri";
 import { PereteClipuri } from "@/components/home/PereteClipuri";
@@ -21,6 +22,7 @@ export default function Acasa() {
       <Banda />
       <Portofoliu />
       <Servicii />
+      <Calculator />
       <Colaborare />
       <Ghiduri numar={toateGhidurile().length} />
       <PereteClipuri />
