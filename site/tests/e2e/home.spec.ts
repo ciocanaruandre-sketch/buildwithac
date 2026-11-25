@@ -44,6 +44,43 @@ test.describe("cortina", () => {
     await expect(page.locator(".curtain")).not.toContainText("tot gratuit");
   });
 
+  for (const lat of [430, 390, 360, 320]) {
+    test(`la ${lat}px, textul e rupt pe idei: trei fraze, fiecare rând întreg`, async ({ page }) => {
+      await page.setViewportSize({ width: lat, height: 844 });
+      await page.goto("/");
+      await page.evaluate(() => document.fonts.ready);
+      await expect(page.locator(".manifest p")).toHaveCount(3);
+      const randuri = page.locator(".manifest .rd");
+      await expect(randuri).toHaveText([
+        "Salut, sunt Andrei,", "am 24 de ani și am terminat", "Mecatronica la Politehnica", "din București.",
+        "Știu că la început de drum", "le faci pe toate singur.",
+        "Eu îți fac site-ul", "și automatizările,", "ca tu să ai timp pentru", "gestionarea afacerii.",
+      ]);
+      const randuriRupte = await randuri.evaluateAll((r) => r.filter((x) => new Set([...x.querySelectorAll(".w")].map((w) => Math.round((w as HTMLElement).getBoundingClientRect().top))).size !== 1).map((x) => x.textContent));
+      expect(randuriRupte).toEqual([]);
+      const suprapuse = await randuri.evaluateAll((r) => r.filter((x, i) => i > 0 && x.getBoundingClientRect().top <= r[i - 1].getBoundingClientRect().top).length);
+      expect(suprapuse).toBe(0);
+    });
+  }
+
+  test("pe desktop, fiecare frază încape pe cel mult două rânduri", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    const randuri = await page.locator(".manifest p").evaluateAll((p) => p.map((x) => new Set([...x.querySelectorAll(".w")].map((w) => Math.round(w.getBoundingClientRect().top))).size));
+    expect(randuri).toHaveLength(3);
+    for (const n of randuri) expect(n).toBeLessThanOrEqual(2);
+  });
+
+  for (const lat of [1440, 768, 390]) {
+    test(`la ${lat}px, textul începe pe aceeași linie cu titlurile de mai jos`, async ({ page }) => {
+      await page.setViewportSize({ width: lat, height: 844 });
+      await page.goto("/");
+      const stanga = await page.evaluate(() => [".manifest", ".curtain .who", ".cortina-but", "#portofoliu h2"].map((s) => Math.round(document.querySelector(s)!.getBoundingClientRect().left)));
+      expect(new Set(stanga).size).toBe(1);
+    });
+  }
+
   test("sub text, analiza și ghidurile", async ({ page }) => {
     await page.goto("/");
     const butoane = page.locator(".cortina-but a");
