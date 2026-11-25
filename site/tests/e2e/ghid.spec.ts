@@ -82,7 +82,7 @@ test("finalul are ghidul următor și link spre toate ghidurile", async ({ page 
   await page.goto(URL);
   const final = page.locator(".end");
   // după cel mai vechi (ghidul de test) vine cel mai nou; nu numele lui, ca testul să nu pice la fiecare ghid publicat
-  await expect(final.getByRole("link", { name: /Ghidul următor/ })).toHaveAttribute("href", /^/ghiduri/(?!exemplu-test)[a-z0-9-]+$/);
+  await expect(final.getByRole("link", { name: /Ghidul următor/ })).toHaveAttribute("href", /^[/]ghiduri[/](?!exemplu-test)[a-z0-9-]+$/);
   await expect(final.getByRole("link", { name: /Toate ghidurile/ })).toHaveAttribute("href", "/ghiduri");
   await expect(final.getByPlaceholder("adresa ta de e-mail")).toBeVisible();
 });
