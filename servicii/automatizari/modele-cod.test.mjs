@@ -130,3 +130,158 @@ test("dezabonare: un link stricat nu scrie nimic", () => {
   assert.deepEqual(dezabonare({ query: { c: "%%%" } }), []);
   assert.deepEqual(dezabonare({ query: {} }), []);
 });
+
+// ---------- programari: confirmare + verificare ----------
+const ACUM = "2026-11-25T10:00:00+02:00";
+const MS = Date.parse(ACUM);
+const peste = (min) => new Date(MS + min * 60000).toISOString();
+const ev = (o = {}) => ({
+  id: "ev1", status: "confirmed", summary: "Tuns + barbă – Mihai Ionescu", description: "Telefon: 0722 123 456",
+  start: { dateTime: "2026-11-27T12:30:00Z" }, end: { dateTime: "2026-11-27T13:20:00Z" },
+  created: "2026-11-25T07:00:00Z", organizer: { email: "vlad@group.calendar.google.com" }, ...o,
+});
+const randuri = (lista) => (lista.length ? lista : [{}]).map((json) => ({ json }));
+const noduriProgramari = ({ setari = {}, jurnal = [], nuTrimite = [] } = {}) => ({
+  "Setări firmă": [{ json: { ...structuredClone(SETARI_DEMO), ...setari } }],
+  Jurnal: randuri(jurnal),
+  "Nu trimite": randuri(nuTrimite),
+});
+const confirmare = (evenimente, o = {}, acum = ACUM) =>
+  ruleaza(cod("programari", "confirmare"), evenimente.map((json) => ({ json })), noduriProgramari(o), acum).map((i) => i.json);
+const verificare = (evenimente, o = {}, acum = ACUM) =>
+  ruleaza(cod("programari", "verificare"), evenimente.map((json) => ({ json })), noduriProgramari(o), acum).map((i) => i.json);
+const DIACRITICE_SAU_SCUMPE = /[șțăîâȘȚĂÎÂşţŞŢ„”“’–—…]/;
+
+test("confirmare: SMS fără diacritice, cu prenumele, ziua și ora României, adresa și link-ul", () => {
+  const r = confirmare([ev()], { setari: { canal: "sms" } });
+  assert.equal(r.length, 1);
+  const m = r[0];
+  assert.equal(m.trimite, true);
+  assert.equal(m.tip, "confirmare");
+  assert.equal(m.canal, "sms");
+  assert.equal(m.contact, "+40722123456");
+  assert.equal(m.eveniment_id, "ev1");
+  assert.equal(m.ora_programare, "2026-11-27T12:30:00.000Z");
+  for (const bucata of ["Mihai", "vineri, 27 noiembrie", "14:30", "Str. Exemplu 12", "https://exemplu.ro/programare"]) assert.ok(m.text.includes(bucata), `lipsește „${bucata}”: ${m.text}`);
+  assert.ok(!DIACRITICE_SAU_SCUMPE.test(m.text), `SMS cu caractere care costă dublu: ${m.text}`);
+});
+
+test("confirmare: canal „ambele” → SMS și e-mail; e-mailul are subiect și nu are link de dezabonare", () => {
+  const r = confirmare([ev({ description: "Telefon: 0722 123 456\nEmail: Mihai@Exemplu.ro" })]);
+  assert.deepEqual(r.map((m) => m.canal).sort(), ["email", "sms"]);
+  const e = r.find((m) => m.canal === "email");
+  assert.equal(e.contact, "mihai@exemplu.ro");
+  assert.ok(e.subiect && e.subiect.length > 5);
+  assert.ok(e.text.includes("Mihai") && e.text.includes("14:30"));
+  assert.ok(!e.text.includes("dezabonare"), "confirmarea e despre programare: fără link de dezabonare");
+});
+
+test("confirmare: telefonul scris oricum în descriere", () => {
+  for (const descriere of ["tel: +40 722-123-456", "TELEFON:0040722123456", "Client fidel\n0722.123.456"]) {
+    assert.equal(confirmare([ev({ description: descriere })], { setari: { canal: "sms" } })[0].contact, "+40722123456", descriere);
+  }
+});
+
+test("confirmare: descrierea scrisă în Google Calendar ca HTML", () => {
+  const descriere = 'Telefon: 0722 123 456<br>Email: <a href="mailto:mihai@exemplu.ro" target="_blank">mihai@exemplu.ro</a>';
+  assert.deepEqual(confirmare([ev({ description: descriere })]).map((m) => m.contact).sort(), ["+40722123456", "mihai@exemplu.ro"]);
+});
+
+test("confirmare: după schimbarea orei (29 martie 2027), ora rămâne a României", () => {
+  const r = confirmare([ev({ start: { dateTime: "2027-03-29T07:00:00Z" } })], { setari: { canal: "sms" } }, "2027-03-28T10:00:00+02:00");
+  assert.ok(r[0].text.includes("10:00"), r[0].text);
+  assert.ok(r[0].text.includes("luni, 29 martie"), r[0].text);
+});
+
+test("confirmare: fără telefon și e-mail → sărit, cu motivul", () => {
+  const r = confirmare([ev({ description: "pauza de masa" })]);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].trimite, false);
+  assert.equal(r[0].motiv, "fara contact");
+  assert.equal(r[0].tip, "sarit");
+});
+
+test("confirmare: contactul din „Nu trimite” e sărit", () => {
+  const r = confirmare([ev()], { setari: { canal: "sms" }, nuTrimite: [{ contact: "+40722123456", data: "2026-11-01", sursa: "sms" }] });
+  assert.equal(r.length, 1);
+  assert.equal(r[0].trimite, false);
+  assert.equal(r[0].motiv, "nu trimite");
+});
+
+test("confirmare: programarea din trecut, cea de o zi întreagă și cea deja confirmată nu primesc nimic", () => {
+  assert.deepEqual(confirmare([ev({ start: { dateTime: "2026-11-20T12:30:00Z" } })]), []);
+  assert.deepEqual(confirmare([ev({ start: { date: "2026-11-27" }, end: { date: "2026-11-28" } })]), []);
+  const jurnal = [{ data: "2026-11-25 09:00", model: "programari", tip: "confirmare", eveniment_id: "ev1", ora_programare: "2026-11-27T12:30:00.000Z", contact: "+40722123456", canal: "sms", stare: "trimis" }];
+  assert.deepEqual(confirmare([ev()], { setari: { canal: "sms" }, jurnal }), []);
+});
+
+const evVerif = (startMin, createdMin, o = {}) => ev({ start: { dateTime: peste(startMin) }, end: { dateTime: peste(startMin + 50) }, created: peste(createdMin), om: "Vlad", ...o });
+const randJurnal = (tip, ora, o = {}) => ({ data: "x", model: "programari", tip, eveniment_id: "ev1", ora_programare: ora, contact: "+40722123456", canal: "sms", stare: "trimis", ...o });
+
+test("verificare: cu o zi înainte → reamintire_1, o singură dată", () => {
+  const e = evVerif(23 * 60, -3 * 1440);
+  const r = verificare([e], { setari: { canal: "sms" } });
+  assert.equal(r.length, 1);
+  assert.equal(r[0].tip, "reamintire_1");
+  assert.equal(r[0].contact, "+40722123456");
+  assert.ok(!DIACRITICE_SAU_SCUMPE.test(r[0].text), r[0].text);
+  assert.deepEqual(verificare([e], { setari: { canal: "sms" }, jurnal: [randJurnal("reamintire_1", e.start.dateTime)] }), []);
+});
+
+test("verificare: cu 90 de minute înainte → reamintire_2", () => {
+  const e = evVerif(90, -3 * 1440);
+  const r = verificare([e], { setari: { canal: "sms" }, jurnal: [randJurnal("reamintire_1", e.start.dateTime)] });
+  assert.equal(r.length, 1);
+  assert.equal(r[0].tip, "reamintire_2");
+  assert.ok(r[0].text.includes(new Date(e.start.dateTime).toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })), r[0].text);
+});
+
+test("verificare: programarea făcută cu puțin înainte nu primește reamintiri (are confirmarea)", () => {
+  assert.deepEqual(verificare([evVerif(20 * 60, -60)], { setari: { canal: "sms" } }), []);
+  assert.deepEqual(verificare([evVerif(100, -10)], { setari: { canal: "sms" } }), []);
+});
+
+test("verificare: programarea mutată → anunțul cu ora nouă, o singură dată", () => {
+  const e = evVerif(30 * 60, -3 * 1440);
+  const jurnal = [randJurnal("confirmare", "2026-11-26T09:00:00.000Z")];
+  const r = verificare([e], { setari: { canal: "sms" }, jurnal });
+  assert.equal(r.length, 1);
+  assert.equal(r[0].tip, "mutata");
+  const { zi, ora } = { zi: "joi, 26 noiembrie", ora: "16:00" };
+  assert.ok(r[0].text.includes(zi) && r[0].text.includes(ora), r[0].text);
+  assert.deepEqual(verificare([e], { setari: { canal: "sms" }, jurnal: [...jurnal, randJurnal("mutata", e.start.dateTime)] }), []);
+});
+
+test("verificare: evenimentul de o zi întreagă și cel anulat sunt ignorate, fără eroare", () => {
+  assert.deepEqual(verificare([ev({ start: { date: "2026-11-26" }, end: { date: "2026-11-27" }, summary: "Concediu" })]), []);
+  assert.deepEqual(verificare([evVerif(23 * 60, -3 * 1440, { status: "cancelled" })]), []);
+});
+
+test("verificare: „reamintiri: nu” oprește reamintirile și anunțul de mutare", () => {
+  const jurnal = [randJurnal("confirmare", "2026-11-26T09:00:00.000Z")];
+  assert.deepEqual(verificare([evVerif(23 * 60, -3 * 1440), evVerif(30 * 60, -3 * 1440, { id: "ev2" })], { setari: { reamintiri: "nu", canal: "sms" }, jurnal }), []);
+});
+
+test("verificare: fără contact → un singur rând „sarit”, nu la fiecare rulare", () => {
+  const e = evVerif(23 * 60, -3 * 1440, { description: "" });
+  const r = verificare([e], { setari: { canal: "sms" } });
+  assert.equal(r.length, 1);
+  assert.equal(r[0].trimite, false);
+  assert.equal(r[0].motiv, "fara contact");
+  assert.deepEqual(verificare([e], { setari: { canal: "sms" }, jurnal: [randJurnal("sarit", e.start.dateTime, { contact: "" })] }), []);
+});
+
+test("verificare: omul se află din calendar, când nu vine scris pe eveniment", () => {
+  const e = evVerif(23 * 60, -3 * 1440, { om: undefined, organizer: { email: "radu@group.calendar.google.com" } });
+  assert.equal(verificare([e], { setari: { canal: "sms" } })[0].om, "Radu");
+});
+
+test("funcțiile comune (telefonRo, citesteContact, faraDiacritice, oraRo) au același text în toate fișierele cod/", () => {
+  const INCEPUT = "// ---------- comune", SFARSIT = "// ---------- sfârșitul celor comune";
+  const blocuri = cuCod.flatMap((m) => readdirSync(join(MODELE, m, "cod")).filter((f) => f.endsWith(".js"))
+    .map((f) => ({ f: `${m}/cod/${f}`, t: readFileSync(join(MODELE, m, "cod", f), "utf8").replace(/\r\n/g, "\n") }))
+    .filter(({ t }) => t.includes(INCEPUT)).map(({ f, t }) => ({ f, b: t.slice(t.indexOf(INCEPUT), t.indexOf(SFARSIT)) })));
+  assert.ok(blocuri.length >= 2, "măcar două fișiere au funcțiile comune");
+  for (const nume of ["telefonRo", "citesteContact", "faraDiacritice", "oraRo"]) assert.ok(blocuri[0].b.includes(`const ${nume} =`), nume);
+  for (const { f, b } of blocuri.slice(1)) assert.equal(b, blocuri[0].b, `${f} are alt text la funcțiile comune decât ${blocuri[0].f}`);
+});
