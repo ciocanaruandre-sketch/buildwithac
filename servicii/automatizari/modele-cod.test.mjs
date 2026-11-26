@@ -304,3 +304,74 @@ test("SMS-urile de confirmare, reamintire_1 și mutare încap într-un SMS și c
     for (const m of sms) assert.ok(m.text.length <= 160, `${ton}, ${m.tip}: ${m.text.length} caractere: ${m.text}`);
   }
 });
+
+// ---------- programari, partea 2: cererea de recenzie (în verificare.js) ----------
+// o programare de 30 de minute care s-a terminat acum `minute` minute
+const evTrecut = (minute, o = {}) => ev({ start: { dateTime: peste(-minute - 30) }, end: { dateTime: peste(-minute) }, created: peste(-minute - 5 * 1440), om: "Vlad", ...o });
+const CU_EMAIL = { description: "Telefon: 0722 123 456\nEmail: Mihai@Exemplu.ro" };
+
+test("recenzie: la 2 ore după programare → cererea, pe SMS (fără diacritice, cu STOP) și pe e-mail (cu link de dezabonare)", () => {
+  const r = verificare([evTrecut(150, CU_EMAIL)]);
+  assert.deepEqual(r.map((m) => `${m.tip}/${m.canal}`).sort(), ["recenzie/email", "recenzie/sms"]);
+  const sms = r.find((m) => m.canal === "sms"), email = r.find((m) => m.canal === "email");
+  assert.equal(sms.trimite, true);
+  assert.ok(sms.text.includes("https://g.page/r/exemplu/review"), sms.text);
+  assert.ok(/STOP/.test(sms.text), sms.text);
+  assert.ok(!DIACRITICE_SAU_SCUMPE.test(sms.text), sms.text);
+  assert.ok(email.subiect && email.text.includes("https://g.page/r/exemplu/review"), email.text);
+  assert.ok(email.text.includes("https://exemplu.app.n8n.cloud/webhook/dezabonare?c=" + b64("mihai@exemplu.ro")), email.text);
+});
+
+test("recenzie: prea devreme (acum o oră) sau prea târziu (acum 26 de ore) → nimic", () => {
+  assert.deepEqual(verificare([evTrecut(60)]), []);
+  assert.deepEqual(verificare([evTrecut(26 * 60)]), []);
+});
+
+test("recenzie: cine n-a venit (marcat cu roșu sau cu „NU A VENIT” în titlu) nu primește cererea", () => {
+  assert.deepEqual(verificare([evTrecut(150, { colorId: "11" })]), []);
+  assert.deepEqual(verificare([evTrecut(150, { summary: "NU A VENIT – Tuns – Mihai" })]), []);
+  assert.deepEqual(verificare([evTrecut(150, { summary: "nu a venit tuns mihai" })]), []);
+  assert.equal(verificare([evTrecut(150, { colorId: "5" })]).length, 1, "altă culoare nu înseamnă neprezentare");
+});
+
+test("recenzie: același client o primește cel mult o dată la 90 de zile", () => {
+  const alta = (zile) => randJurnal("recenzie", peste(-zile * 1440), { eveniment_id: "ev-vechi" });
+  assert.deepEqual(verificare([evTrecut(150)], { jurnal: [alta(30)] }), []);
+  assert.deepEqual(verificare([evTrecut(150)], { jurnal: [alta(100)] }).map((m) => m.tip), ["recenzie"]);
+});
+
+test("recenzie: o singură dată pe programare", () => {
+  const e = evTrecut(150);
+  assert.deepEqual(verificare([e], { jurnal: [randJurnal("recenzie", e.start.dateTime)] }), []);
+});
+
+test("recenzie: a doua cerere, doar dacă e pornită (recenzie_a_doua_zile), la N zile după prima", () => {
+  const e = evTrecut(3 * 1440 + 120 + 60);
+  const jurnal = [randJurnal("recenzie", e.start.dateTime)];
+  assert.deepEqual(verificare([e], { setari: { recenzie_a_doua_zile: 3 }, jurnal }).map((m) => m.tip), ["recenzie_2"]);
+  assert.deepEqual(verificare([e], { setari: { recenzie_a_doua_zile: 0 }, jurnal }), []);
+  assert.deepEqual(verificare([e], { setari: { recenzie_a_doua_zile: 3 }, jurnal: [...jurnal, randJurnal("recenzie_2", e.start.dateTime)] }), []);
+  assert.deepEqual(verificare([e], { setari: { recenzie_a_doua_zile: 3 } }), [], "fără prima cerere, nici a doua");
+});
+
+test("recenzie: „recenzie: nu” o oprește; „reamintiri: nu” n-o oprește", () => {
+  assert.deepEqual(verificare([evTrecut(150)], { setari: { recenzie: "nu" } }), []);
+  assert.deepEqual(verificare([evTrecut(150)], { setari: { reamintiri: "nu" } }).map((m) => m.tip), ["recenzie"]);
+});
+
+test("recenzie: contactul din „Nu trimite” e sărit", () => {
+  const r = verificare([evTrecut(150)], { nuTrimite: [{ contact: "0722123456", data: "x", sursa: "sms" }] });
+  assert.equal(r.length, 1);
+  assert.equal(r[0].trimite, false);
+  assert.equal(r[0].motiv, "nu trimite");
+});
+
+test("recenzie: SMS-ul încape într-un SMS cu un link Google adevărat, în ambele tonuri", () => {
+  for (const ton of ["prietenos", "elegant"]) {
+    const setari = { ton, firma_nume: "Conu' Leonida", link_recenzie: "https://g.page/r/CQx7aBcDeFgHiJkLmNoPq12EAE/review", recenzie_a_doua_zile: 3 };
+    const e = evTrecut(3 * 1440 + 180, { summary: "Tuns și barbă – Mihai Ionescu" });
+    const unu = verificare([evTrecut(150, { summary: "Tuns și barbă – Mihai Ionescu" })], { setari })[0];
+    const doi = verificare([e], { setari, jurnal: [randJurnal("recenzie", e.start.dateTime)] })[0];
+    for (const m of [unu, doi]) assert.ok(m.text.length <= 160, `${ton}, ${m.tip}: ${m.text.length} caractere: ${m.text}`);
+  }
+});

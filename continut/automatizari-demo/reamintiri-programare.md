@@ -6,7 +6,7 @@ Fără text de vorbit (îl scrie Andrei, dacă vrea).
 
 ## Înainte de filmare (cam 5 minute)
 
-1. În `setari-firma` (proba n8n): `reamintire_1_min: 6`, `reamintire_2_min: 3`, `canal: email`, `ton: prietenos`. Republici `setari-firma`.
+1. În `setari-firma` (proba n8n): `reamintire_1_min: 6`, `reamintire_2_min: 3`, `canal: email`, `ton: elegant` (ales de Andrei pentru demo). Republici `setari-firma`.
 2. În `flux-verificare`: declanșatorul *La fiecare jumătate de oră* pe `* 8-21 * * *` (în fiecare minut). Republici.
 3. `flux-confirmare` și `flux-verificare` publicate (comutatorul din dreapta sus).
 4. Foaia `Jurnal` goală (rămâne doar rândul cu numele coloanelor).
@@ -18,11 +18,11 @@ Fără text de vorbit (îl scrie Andrei, dacă vrea).
 | # | Unde | Ce se întâmplă | Cât durează în realitate |
 |---|---|---|---|
 | 1 | Laptop, Calendar | Un clic pe o oră de azi, **cam 12 minute de acum**, în calendarul *Conu' Leonida – Vlad*. Titlul `Tuns – Andrei`, în descriere `Email: ` + adresa ta. Salvezi. | 20 s |
-| 2 | Telefon | Notificarea: „Programarea ta la Conu' Leonida: …”. O deschizi: ziua, ora, „cu Vlad”, adresa, link-ul. | 1–2 min (tai așteptarea) |
+| 2 | Telefon | Notificarea: „Programarea la Conu' Leonida: …”. O deschizi: ziua, ora, „cu Vlad”, adresa, link-ul. | 1–2 min (tai așteptarea) |
 | 3 | Laptop, Calendar | Tragi programarea cu **5 minute mai târziu**. | 5 s |
-| 4 | Telefon | „Programarea ta s-a mutat: …”, cu ora nouă. | până la 1 min |
-| 5 | Telefon | Cu 6 minute înainte: „Te așteptăm …” (reamintirea de o zi, în clip). | așteptare tăiată |
-| 6 | Telefon | Cu 3 minute înainte: „Te așteptăm azi la …”. | 3 min, tăiat |
+| 4 | Telefon | „Programarea s-a mutat: …”, cu ora nouă. | până la 1 min |
+| 5 | Telefon | Cu 6 minute înainte: „Vă reamintim: …” (reamintirea de o zi, în clip). | așteptare tăiată |
+| 6 | Telefon | Cu 3 minute înainte: „Vă așteptăm azi la …”. | 3 min, tăiat |
 | 7 | Laptop, tabelul | Foaia `Jurnal`: patru rânduri (`confirmare`, `mutata`, `reamintire_1`, `reamintire_2`), toate „trimis”. | 5 s |
 | 8 | Laptop, n8n (opțional) | Fluxul pe pânză, cu cele trei grupuri: citește, verifică, trimite. | 5 s |
 

@@ -1,17 +1,18 @@
-# Programările (`programari`): reamintirile
+# Programările (`programari`): reamintirile și cererea de recenzie
 
 **Ce face:** clientul unei firme cu programări (frizerie, salon, clinică) primește mesaje la momentele potrivite, fără ca patronul să scrie ceva:
 - **confirmarea**, pe loc, când apare o programare nouă în calendarul unui om;
 - **anunțul de mutare**, când patronul mută programarea (ziua și ora nouă);
-- **două reamintiri**: cu o zi înainte (`reamintire_1_min`, de obicei 1440) și cu două ore înainte (`reamintire_2_min`, de obicei 120).
+- **două reamintiri**: cu o zi înainte (`reamintire_1_min`, de obicei 1440) și cu două ore înainte (`reamintire_2_min`, de obicei 120);
+- **cererea de recenzie**, după programare (`recenzie_dupa_min`, de obicei 120): mulțumirea și link-ul de recenzie Google al firmei.
 
 Fiecare mesaj pleacă pe e-mail, pe SMS sau pe amândouă (`canal` din setări). Fiecare mesaj trimis, eșuat sau sărit intră în foaia `Jurnal`; un mesaj din `Jurnal` nu mai pleacă a doua oară. Cine e în `Nu trimite` nu primește nimic. Programările de o zi întreagă (concediu, „închis”) și cele fără telefon sau e-mail nu primesc mesaje; cele fără contact apar o singură dată în `Jurnal`, ca `sarit`, ca să vadă patronul.
 
-Cererea de recenzie (partea 2 a modelului) se adaugă tot în `flux-verificare`.
+Detaliile cererii de recenzie sunt în secțiunea „Cererea de recenzie”, mai jos.
 
 **Cum arată:** două fluxuri.
 - `flux-confirmare`: câte un declanșator *Google Calendar Trigger* („Event Created”) pe calendarul fiecărui om → *Programare nouă* → *Setări firmă* → *Jurnal* și *Nu trimite* (citiri din tabel) → *Confirmare* (Code) → *De trimis?* → *Pe ce canal?* → *Trimite SMS-ul* (Twilio) / *Trimite e-mailul* (Gmail) → *Notează în Jurnal*.
-- `flux-verificare`: *La fiecare jumătate de oră* (8–21) → *Setări firmă* → *Jurnal* și *Nu trimite* → *Oamenii* → *Câte un om* → *Programările omului* (Google Calendar, următoarele 2 zile, cu programările care se repetă desfăcute în apariții separate) → *Verificare* (Code) → aceeași coadă de trimitere.
+- `flux-verificare`: *La fiecare jumătate de oră* (8–21) → *Setări firmă* → *Jurnal* și *Nu trimite* → *Oamenii* → *Câte un om* → *Programările omului* (Google Calendar, de la cele terminate de curând până peste 2 zile, cu programările care se repetă desfăcute în apariții separate) → *Verificare* (Code) → aceeași coadă de trimitere.
 
 Codul din nodurile *Confirmare* și *Verificare* e identic cu `cod/confirmare.js` și `cod/verificare.js`, testate în `modele-cod.test.mjs`. **Nu-l edita în n8n:** schimbi fișierul, rulezi testele, apoi îl copiezi în nod.
 
@@ -24,6 +25,7 @@ Codul din nodurile *Confirmare* și *Verificare* e identic cu `cod/confirmare.js
 
 **De completat:**
 - `setari-firma`: `oameni` (cu `calendar_id`), `canal`, `reamintiri: da`, `reamintire_1_min`, `reamintire_2_min`, `link_programare`, `sheet_id`, `ton`.
+- Pentru recenzie: `recenzie: da`, `recenzie_dupa_min`, `recenzie_a_doua_zile`, `recenzie_pauza_zile`, `link_recenzie`, `link_dezabonare`, `neprezentare_culoare`, `neprezentare_titlu`.
 - În *Setări firmă* (în ambele fluxuri): fluxul `setari-firma` (`CONFIG_ID_SETARI_FIRMA`).
 - În `flux-confirmare`: câte un declanșator pe calendar, cu ID-ul calendarului (`CONFIG_CALENDAR_…`). **Un om nou = un declanșator nou** (copiezi unul, schimbi calendarul și numele); un om plecat = ștergi declanșatorul lui. Declanșatorul nu poate citi lista din setări.
 - La *Trimite SMS-ul*: numărul Twilio al firmei (`CONFIG_TWILIO_NUMAR`) și conexiunea Twilio. Dacă firma folosește doar e-mail, dezactivezi nodul (clic dreapta → *Deactivate*): n8n nu publică un flux cu un nod fără conexiune.
@@ -54,6 +56,24 @@ Codul din nodurile *Confirmare* și *Verificare* e identic cu `cod/confirmare.js
 
 **Doar recenzia, fără reamintiri:** `reamintiri: nu` și nu imporți `flux-confirmare`. `flux-verificare` rămâne (în el stă și cererea de recenzie).
 
+## Cererea de recenzie
+
+**Când pleacă:** la prima rulare de după `recenzie_dupa_min` de la sfârșitul programării (între 8 și 21, ca restul). Dacă trece mai mult de o zi (sau `recenzie_dupa_min` + 12 ore, dacă e mai mare), nu mai pleacă: e prea târziu. O singură cerere pe programare; a doua, doar dacă `recenzie_a_doua_zile` e mai mare ca 0, după atâtea zile. Același client nu mai primește o cerere timp de `recenzie_pauza_zile` (de obicei 90), oricâte programări mai are.
+
+**Cine n-a venit nu primește cererea.** Patronul marchează în calendar clientul care n-a venit, într-unul din două feluri:
+- culoarea programării: **Tomato** (roșu; `neprezentare_culoare: 11`): clic pe programare → creionul → culoarea → *Save*;
+- sau titlul începe cu `NU A VENIT` (`neprezentare_titlu`), de exemplu `NU A VENIT Tuns – Mihai Ionescu`.
+
+Marcajul trebuie pus înainte să plece cererea, adică în `recenzie_dupa_min` de la sfârșitul programării. **Pasul pentru patron** (îl spui la predare): „Cine n-a venit, îl faci roșu în calendar în aceeași zi. Altfel primește mulțumirea pentru vizită.”
+
+**Mesajul:** mulțumirea, link-ul de recenzie (`link_recenzie`), numele și telefonul firmei; pe e-mail și link-ul de dezabonare (`link_dezabonare` + adresa clientului codată). SMS-ul se termină cu „(STOP=dezabonare)”; în România răspunsul nu ajunge (vezi „SMS-ul în România”), deci firma trebuie să treacă de mână în `Nu trimite` pe cine sună sau scrie că nu mai vrea mesaje.
+
+**Regula Google: fără filtre.** Cererea pleacă la toți clienții care au venit, nu doar la cei mulțumiți. Google interzice cererea selectivă de recenzii pozitive și recenziile cu recompensă ([politica recenziilor Google](https://support.google.com/contributionpolicy/answer/7400114)). Nu adăuga o întrebare „Cum a fost?” care trimite doar notele mari spre Google.
+
+**Legea 506/2004 (art. 12):** e-mailurile și SMS-urile comerciale cer acordul clientului; excepția e clientul existent, cu dezabonare simplă în fiecare mesaj. Cererea de recenzie către un client care tocmai a fost la firmă pare să intre în excepție, dar **verifică cu skill-ul `legal-advisor-ro` la prima propunere pentru un client**, înainte de a o porni.
+
+**Probă la client:** setezi temporar `recenzie_dupa_min: 2` și cron-ul la fiecare minut (`* 8-21 * * *`); pui două programări care s-au terminat acum un minut, cu e-mailul tău, una marcată cu roșu → doar cealaltă primește cererea. Apoi pui setările înapoi, republici și ștergi rândurile de probă din `Jurnal`.
+
 ## De știut
 
 - **Mutarea se vede din `Jurnal`:** dacă ora din calendar diferă de ora din ultimul mesaj trimis despre programare, pleacă anunțul de mutare. O programare mutată mai departe de 2 zile primește anunțul când intră în fereastra de 2 zile.
@@ -64,3 +84,5 @@ Codul din nodurile *Confirmare* și *Verificare* e identic cu `cod/confirmare.js
 - **Patronul nu primește nimic** de la acest model; vede totul în `Jurnal`. Un flux căzut îi trimite e-mail prin `flux-erori`.
 
 **Verificat la proba din 2026-11-26** (cont de probă n8n Cloud, Conu' Leonida, canalul e-mail): cu date fixate, confirmarea (cu telefon și e-mail; fără contact → `sarit`; în `Nu trimite` → `sarit`) și verificarea (mutare, reamintire, fără contact, zi întreagă ignorată). **Rulare reală** cu Andrei: programare în calendarul lui Vlad → confirmarea pe e-mail în ~1 minut; mutată pe azi → anunțul de mutare; reamintirile la 6 și 3 minute (setările scurte, cron-ul pe fiecare minut). Fiecare mesaj a ajuns o singură dată, cu rândul lui în `Jurnal`. Ramura SMS e verificată doar cu date fixate (vezi „SMS-ul în România”).
+
+**Cererea de recenzie, verificată la proba din 2026-11-26** (tonul elegant): cu date fixate, din 8 programări a primit cererea doar cine a venit și s-a terminat de cel puțin 2 minute; programarea roșie, cea cu „NU A VENIT”, cea de acum 30 de ore, cea deja cerută în `Jurnal` și clientul cu o cerere de acum 10 zile au fost sărite. **Rulare reală** cu Andrei: două programări terminate în calendarul lui Vlad, una roșie → un singur e-mail „Vă mulțumim pentru vizită”, cu link-ul de dezabonare.

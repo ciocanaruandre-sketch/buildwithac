@@ -1,6 +1,7 @@
-// Fluxul programat (la 30 de minute, în programul firmei): reamintirile înainte de programare și anunțul când o programare s-a mutat.
-// Intrarea: programările din calendarele tuturor oamenilor, de acum până peste 2 zile (cu evenimentele recurente desfăcute).
-// Ieșirea: câte un mesaj de trimis (sau de sărit) pe canal. Cererea de recenzie se adaugă tot aici (programari, partea 2).
+// Fluxul programat (la 30 de minute, în programul firmei): reamintirile înainte de programare, anunțul când o programare
+// s-a mutat și, după programare, cererea de recenzie.
+// Intrarea: programările din calendarele tuturor oamenilor, din ultimele zile până peste 2 zile (cu evenimentele recurente desfăcute).
+// Ieșirea: câte un mesaj de trimis (sau de sărit) pe canal.
 const setari = $('Setări firmă').first().json;
 const acum = $now.toMillis();
 
@@ -113,6 +114,24 @@ const texte = (tip, d) => {
       subiect: `Te așteptăm ${cand} la ${d.ora}`,
       email: `${salut}\n\nTe așteptăm ${cand} la ${d.ora}${cu}, la ${d.firma} (${d.adresa}).\n\n${semn}`,
     },
+    recenzie: elegant ? {
+      sms: `${nume(d.client)}${mare('va multumim pentru vizita la', d.client)} ${d.firma}. O recenzie ne-ar ajuta: ${d.recenzie} (STOP=dezabonare)`,
+      subiect: 'Vă mulțumim pentru vizită',
+      email: `${salut}\n\nVă mulțumim că ați ales ${d.firma}. Dacă v-a plăcut, o recenzie pe Google ne ajută mult:\n${d.recenzie}\n\n${semn}\n\nNu mai doriți mesaje de la noi? ${d.dezabonare}`,
+    } : {
+      sms: `${nume(d.prenume)}${mare('multumim ca ai fost la', d.prenume)} ${d.firma}! O recenzie ne-ar ajuta mult: ${d.recenzie} (STOP=dezabonare)`,
+      subiect: `Cum a fost la ${d.firma}?`,
+      email: `${salut}\n\nMulțumim că ai trecut pe la ${d.firma}. Dacă ți-a plăcut, o recenzie pe Google ne ajută mult. Durează un minut:\n${d.recenzie}\n\n${semn}\n\nNu mai vrei mesaje de la noi? ${d.dezabonare}`,
+    },
+    recenzie_2: elegant ? {
+      sms: `${nume(d.client)}${mare('daca aveti un minut', d.client)}, o recenzie pentru ${d.firma} ne ajuta mult: ${d.recenzie} (STOP=dezabonare)`,
+      subiect: `O recenzie pentru ${d.firma}`,
+      email: `${salut}\n\nDacă aveți un minut, o recenzie pe Google pentru ${d.firma} ne ajută mult:\n${d.recenzie}\n\nVă mulțumim.\n${semn}\n\nNu mai doriți mesaje de la noi? ${d.dezabonare}`,
+    } : {
+      sms: `${nume(d.prenume)}${mare('daca ai un minut', d.prenume)}, o recenzie pentru ${d.firma} ne ajuta mult: ${d.recenzie} (STOP=dezabonare)`,
+      subiect: `Un minut pentru ${d.firma}?`,
+      email: `${salut}\n\nDacă n-ai apucat: o recenzie pe Google pentru ${d.firma} ne ajută mult.\n${d.recenzie}\n\nMulțumim!\n${semn}\n\nNu mai vrei mesaje de la noi? ${d.dezabonare}`,
+    },
     mutata: elegant ? {
       sms: `${nume(d.client)}${mare('programarea', d.client)} la ${d.firma} s-a mutat: ${d.zi}, ora ${d.ora}${cu}. Nu va convine? ${d.link}`,
       subiect: `Programarea s-a mutat: ${d.zi}, ora ${d.ora}`,
@@ -128,13 +147,49 @@ const texte = (tip, d) => {
 
 const iesire = [];
 const adauga = (m) => { if (!deja(m) && !iesire.some((x) => x.eveniment_id === m.eveniment_id && x.ora_programare === m.ora_programare && x.tip === m.tip && x.contact === m.contact)) iesire.push(m); };
-if (setari.reamintiri === 'da') {
-  for (const { json: e } of $input.all()) {
-    if (!e || e.status === 'cancelled' || !e.start || !e.start.dateTime) continue; // zi întreagă (concediu, „închis”) sau anulat
-    const ora_programare = oraIso(e.start.dateTime);
-    const start = Date.parse(ora_programare);
-    if (start <= acum) continue; // ce a trecut ține de cererea de recenzie
-    const baza = { eveniment_id: e.id, ora_programare, om: omul(e) };
+// ---------- cererea de recenzie ----------
+const MIN = 60000, ZI = 1440 * MIN;
+const dupa = Number(setari.recenzie_dupa_min) * MIN;
+const fereastra = Math.max(ZI, dupa + ZI / 2); // după atât, cererea nu mai pleacă (e prea târziu)
+const aDoua = Number(setari.recenzie_a_doua_zile) * ZI;
+const pauza = Number(setari.recenzie_pauza_zile) * ZI;
+const simplu = (t) => faraDiacritice(t).toLowerCase().replace(/\s+/g, ' ').trim();
+// Patronul marchează în calendar cine n-a venit: cu culoarea din setări sau cu titlul care începe cu „NU A VENIT”.
+const nuAVenit = (e) => (setari.neprezentare_culoare && String(e.colorId || '') === String(setari.neprezentare_culoare))
+  || (setari.neprezentare_titlu && simplu(e.summary).startsWith(simplu(setari.neprezentare_titlu)));
+const aPrimit = (eveniment_id, tip, contact) => jurnal.some((r) => r.eveniment_id === eveniment_id && r.tip === tip && (!r.contact || cheie(r.contact) === cheie(contact)));
+// A primit o cerere de recenzie pentru altă programare de curând (recenzie_pauza_zile)?
+const inPauza = (e, start, contact) => jurnal.some((r) => (r.tip === 'recenzie' || r.tip === 'recenzie_2') && r.eveniment_id !== e.id
+  && r.contact && cheie(r.contact) === cheie(contact) && Math.abs(start - Date.parse(oraIso(r.ora_programare))) < pauza);
+const linkDezabonare = (email) => `${setari.link_dezabonare}?c=${Buffer.from(email, 'utf8').toString('base64url')}`;
+const recenzieDue = (e, start, sfarsit, contact) => {
+  const trecut = acum - sfarsit;
+  if (!aPrimit(e.id, 'recenzie', contact)) return trecut >= dupa && trecut <= fereastra && !inPauza(e, start, contact) ? 'recenzie' : null;
+  const trecut2 = trecut - aDoua;
+  return aDoua > 0 && !aPrimit(e.id, 'recenzie_2', contact) && trecut2 >= dupa && trecut2 <= fereastra ? 'recenzie_2' : null;
+};
+
+for (const { json: e } of $input.all()) {
+  if (!e || e.status === 'cancelled' || !e.start || !e.start.dateTime) continue; // zi întreagă (concediu, „închis”) sau anulat
+  const ora_programare = oraIso(e.start.dateTime);
+  const start = Date.parse(ora_programare);
+  const sfarsit = e.end && e.end.dateTime ? Date.parse(e.end.dateTime) : start;
+  const baza = { eveniment_id: e.id, ora_programare, om: omul(e) };
+  if (start <= acum) {
+    // după programare: cererea de recenzie
+    if (setari.recenzie !== 'da' || sfarsit > acum || nuAVenit(e)) continue;
+    const d = { ...desparteTitlul(e.summary), firma: setari.firma_nume, telefon: setari.firma_telefon, recenzie: setari.link_recenzie };
+    for (const { canal, contact } of tinte(citesteContact(e.description))) {
+      const tip = recenzieDue(e, start, sfarsit, contact);
+      if (!tip) continue;
+      if (nuTrimite.has(cheie(contact))) { adauga({ ...baza, trimite: false, motiv: 'nu trimite', tip: 'sarit', canal, contact }); continue; }
+      const t = texte(tip, { ...d, dezabonare: canal === 'email' ? linkDezabonare(contact) : '' });
+      adauga({ ...baza, trimite: true, tip, canal, contact, ...(canal === 'email' ? { subiect: t.subiect, text: t.email } : { text: t.sms }) });
+    }
+    continue;
+  }
+  // înainte de programare: reamintirile și anunțul de mutare
+  if (setari.reamintiri === 'da') {
     const datorata = reamintireDue(start, Date.parse(e.created));
     const lista = tinte(citesteContact(e.description));
     if (!lista.length) {
