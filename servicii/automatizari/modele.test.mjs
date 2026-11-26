@@ -125,3 +125,31 @@ test("fluxul de erori alertează și pe Telegram, fără să depindă de Google-
     assert.equal(n.onError, "continueRegularOutput", `${n.name}: dacă un canal pică, celălalt pleacă oricum`);
   }
 });
+
+// ---------- programari (reamintirile, cererea de recenzie) ----------
+const programari = fluxuriDin("programari");
+const fluxProgramari = (fisier) => programari.find((f) => f.fisier === fisier)?.flux;
+test("programari: fără AI (mesajele sunt fixe, din cod/)", { skip: !programari.length && "fluxurile nu sunt exportate încă" }, () => {
+  for (const { flux } of programari) for (const n of flux.nodes) assert.doesNotMatch(n.type, /langchain|anthropic|openAi/i, n.name);
+});
+test("programari: flux-confirmare are câte un declanșator Calendar „eveniment creat”", { skip: !fluxProgramari("flux-confirmare.json") && "neexportat" }, () => {
+  const d = fluxProgramari("flux-confirmare.json").nodes.filter((n) => n.type === "n8n-nodes-base.googleCalendarTrigger");
+  assert.ok(d.length >= 1);
+  for (const n of d) assert.equal(n.parameters.triggerOn, "eventCreated", n.name);
+});
+test("programari: citirea calendarelor desface programările recurente", { skip: !programari.length && "neexportat" }, () => {
+  const citiri = programari.flatMap(({ flux }) => flux.nodes).filter((n) => n.type === "n8n-nodes-base.googleCalendar" && n.parameters.operation === "getAll");
+  assert.ok(citiri.length >= 1, "niciun Google Calendar getAll");
+  for (const n of citiri) assert.equal(n.parameters.options?.recurringEventHandling, "expand", n.name);
+});
+test("programari: Jurnal și Nu trimite se citesc o dată, iar o foaie goală nu oprește fluxul", { skip: !programari.length && "neexportat" }, () => {
+  for (const { fisier, flux } of programari) {
+    for (const nume of ["Jurnal", "Nu trimite"]) {
+      const n = flux.nodes.find((x) => x.name === nume);
+      assert.ok(n, `${fisier}: lipsește ${nume}`);
+      assert.equal(n.executeOnce, true, `${fisier}: ${nume} executeOnce`);
+      assert.equal(n.alwaysOutputData, true, `${fisier}: ${nume} alwaysOutputData (foaie goală = niciun item, codul n-ar rula)`);
+    }
+    assert.equal(flux.settings?.timezone, "Europe/Bucharest", fisier);
+  }
+});
