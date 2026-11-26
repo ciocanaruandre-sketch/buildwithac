@@ -2,6 +2,8 @@
 
 Un rând pe lucru: ce s-a decis, livrat sau cerut. Cel mai nou sus.
 
+2026-11-26 — contul de probă n8n Cloud mai are 11 zile (până pe ~2026-12-07): rămânem pe el.
+
 2026-11-23 — documentația n8n, verificată înainte de construcție ([Understand executions](https://docs.n8n.io/build/understand-workflows/understand-executions.md)):
 - **Sub-fluxurile nu consumă rulări:** „When a workflow calls another workflow with the Execute Sub-workflow node, only the parent (top-level) execution counts.” Deci `setari-firma` rămâne un sub-flux chemat din fiecare model.
 - **Declanșatoarele care verifică periodic (polling) consumă o rulare doar când găsesc ceva nou:** „Polls that return no results don't count as an execution.” Exemplul din documentație e Google Drive Trigger; regula e pentru toate, deci și pentru Google Calendar Trigger.
