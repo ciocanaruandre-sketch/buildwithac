@@ -62,3 +62,5 @@ Codul din nodurile *Confirmare* și *Verificare* e identic cu `cod/confirmare.js
 - **Telefoanele se scriu ca text** în `Jurnal` (*Cell Format: RAW*), altfel Google pierde plusul din `+407…`.
 - **`Jurnal` crește** cu câteva rânduri pe programare. Fluxurile îl citesc tot, la fiecare rulare; la câteva mii de rânduri, rândurile mai vechi de un an se pot muta într-o altă foaie.
 - **Patronul nu primește nimic** de la acest model; vede totul în `Jurnal`. Un flux căzut îi trimite e-mail prin `flux-erori`.
+
+**Verificat la proba din 2026-11-26** (cont de probă n8n Cloud, Conu' Leonida, canalul e-mail): cu date fixate, confirmarea (cu telefon și e-mail; fără contact → `sarit`; în `Nu trimite` → `sarit`) și verificarea (mutare, reamintire, fără contact, zi întreagă ignorată). **Rulare reală** cu Andrei: programare în calendarul lui Vlad → confirmarea pe e-mail în ~1 minut; mutată pe azi → anunțul de mutare; reamintirile la 6 și 3 minute (setările scurte, cron-ul pe fiecare minut). Fiecare mesaj a ajuns o singură dată, cu rândul lui în `Jurnal`. Ramura SMS e verificată doar cu date fixate (vezi „SMS-ul în România”).
