@@ -11,6 +11,7 @@ Fluxuri reale din portofoliu, curățate: fără conturi conectate, fără ID-ur
 | `clinica-wf4-neprezentari` | neprezentările, SMS de reprogramare, raportul de seară | Sheets, Twilio, Telegram | da |
 | `carusele-instagram` | carusele din știri AI, în Drive | Telegram, OpenAI, Apify, ScreenshotOne, Drive, Sheets | nu |
 | `flux-erori` | e-mail când pică un flux | Gmail | nu |
+| `setari-firma` | setările firmei, completate o dată, citite de toate modelele de vânzare | — | nu |
 
 **Un model nou:** `node servicii/automatizari/curata.mjs <export.json> <nume-model>`, apoi înlocuiești de mână ce raportează scriptul. Lângă flux scrii un `README.md`. `node --test "servicii/automatizari/*.test.mjs"` verifică toate modelele.
 

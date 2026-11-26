@@ -1,0 +1,238 @@
+{
+  "name": "setari-firma",
+  "nodes": [
+    {
+      "id": "e52f42f0-0a96-41b5-b1ab-663901834880",
+      "name": "Chemat de alt flux",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "437d147e-8ddb-4b24-b0ba-424ac83970b8",
+      "name": "Setări",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        540,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "setare-firma-nume",
+              "name": "firma_nume",
+              "value": "CONFIG_NUMELE_FIRMEI",
+              "type": "string"
+            },
+            {
+              "id": "setare-firma-adresa",
+              "name": "firma_adresa",
+              "value": "CONFIG_ADRESA_FIRMEI",
+              "type": "string"
+            },
+            {
+              "id": "setare-firma-telefon",
+              "name": "firma_telefon",
+              "value": "CONFIG_TELEFONUL_FIRMEI",
+              "type": "string"
+            },
+            {
+              "id": "setare-program",
+              "name": "program",
+              "value": "{\"0\":null,\"1\":[\"10:00\",\"20:00\"],\"2\":[\"10:00\",\"20:00\"],\"3\":[\"10:00\",\"20:00\"],\"4\":[\"10:00\",\"20:00\"],\"5\":[\"10:00\",\"20:00\"],\"6\":[\"09:00\",\"17:00\"]}",
+              "type": "string"
+            },
+            {
+              "id": "setare-oameni",
+              "name": "oameni",
+              "value": "[{\"nume\":\"Vlad\",\"calendar_id\":\"CONFIG_CALENDARUL_LUI_VLAD\",\"servicii\":[\"Tuns\",\"Barbă\",\"Tuns și barbă\",\"Tuns copii\"]},{\"nume\":\"Radu\",\"calendar_id\":\"CONFIG_CALENDARUL_LUI_RADU\",\"servicii\":[\"Tuns\",\"Barbă\",\"Tuns și barbă\"]}]",
+              "type": "string"
+            },
+            {
+              "id": "setare-servicii",
+              "name": "servicii",
+              "value": "[{\"nume\":\"Tuns\",\"durata_min\":45,\"pret\":\"100 lei\"},{\"nume\":\"Barbă\",\"durata_min\":30,\"pret\":\"50 lei\"},{\"nume\":\"Tuns și barbă\",\"durata_min\":75,\"pret\":\"125 lei\"},{\"nume\":\"Tuns copii\",\"durata_min\":30,\"pret\":\"60 lei\"}]",
+              "type": "string"
+            },
+            {
+              "id": "setare-link-programare",
+              "name": "link_programare",
+              "value": "CONFIG_LINK_PROGRAMARE",
+              "type": "string"
+            },
+            {
+              "id": "setare-link-recenzie",
+              "name": "link_recenzie",
+              "value": "CONFIG_LINK_RECENZIE_GOOGLE",
+              "type": "string"
+            },
+            {
+              "id": "setare-link-dezabonare",
+              "name": "link_dezabonare",
+              "value": "CONFIG_LINK_DEZABONARE",
+              "type": "string"
+            },
+            {
+              "id": "setare-canal",
+              "name": "canal",
+              "value": "email",
+              "type": "string"
+            },
+            {
+              "id": "setare-email-patron",
+              "name": "email_patron",
+              "value": "CONFIG_EMAIL_PATRON",
+              "type": "string"
+            },
+            {
+              "id": "setare-telegram-chat-id",
+              "name": "telegram_chat_id",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "setare-ton",
+              "name": "ton",
+              "value": "prietenos",
+              "type": "string"
+            },
+            {
+              "id": "setare-sheet-id",
+              "name": "sheet_id",
+              "value": "CONFIG_SHEET_ID",
+              "type": "string"
+            },
+            {
+              "id": "setare-reamintiri",
+              "name": "reamintiri",
+              "value": "da",
+              "type": "string"
+            },
+            {
+              "id": "setare-recenzie",
+              "name": "recenzie",
+              "value": "da",
+              "type": "string"
+            },
+            {
+              "id": "setare-reamintire-1-min",
+              "name": "reamintire_1_min",
+              "value": 1440,
+              "type": "number"
+            },
+            {
+              "id": "setare-reamintire-2-min",
+              "name": "reamintire_2_min",
+              "value": 120,
+              "type": "number"
+            },
+            {
+              "id": "setare-recenzie-dupa-min",
+              "name": "recenzie_dupa_min",
+              "value": 120,
+              "type": "number"
+            },
+            {
+              "id": "setare-recenzie-a-doua-zile",
+              "name": "recenzie_a_doua_zile",
+              "value": 0,
+              "type": "number"
+            },
+            {
+              "id": "setare-recenzie-pauza-zile",
+              "name": "recenzie_pauza_zile",
+              "value": 90,
+              "type": "number"
+            },
+            {
+              "id": "setare-neprezentare-culoare",
+              "name": "neprezentare_culoare",
+              "value": "11",
+              "type": "string"
+            },
+            {
+              "id": "setare-neprezentare-titlu",
+              "name": "neprezentare_titlu",
+              "value": "NU A VENIT",
+              "type": "string"
+            },
+            {
+              "id": "setare-informatii-asistent",
+              "name": "informatii_asistent",
+              "value": "CONFIG_INTREBARI_FRECVENTE",
+              "type": "string"
+            },
+            {
+              "id": "setare-model-ai-mesaj",
+              "name": "model_ai_mesaj",
+              "value": "claude-haiku-5-5",
+              "type": "string"
+            },
+            {
+              "id": "setare-model-ai-asistent",
+              "name": "model_ai_asistent",
+              "value": "claude-haiku-5-5",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f189361d-dbe4-46db-b74a-a2a6c81ff3a5",
+      "name": "Verifică setările",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Verifică setările firmei înainte să le folosească vreun model.\n// O greșeală aici oprește fluxul cu un mesaj clar (ajunge la fluxul de erori), în loc să trimită mesaje greșite.\nconst s = { ...$input.first().json };\nconst probleme = [];\n\n// Listele pot veni ca text JSON din nodul Set.\nfor (const camp of ['program', 'oameni', 'servicii']) {\n  if (typeof s[camp] === 'string') {\n    try { s[camp] = JSON.parse(s[camp]); } catch (e) { probleme.push(`${camp}: nu e JSON valid (${e.message})`); }\n  }\n}\n\n// Câmpurile rămase necompletate.\nconst necompletat = (v) => typeof v === 'string' && v.startsWith('CONFIG_');\nfor (const [camp, v] of Object.entries(s)) if (necompletat(v)) probleme.push(`${camp}: necompletat (${v})`);\nfor (const om of Array.isArray(s.oameni) ? s.oameni : []) {\n  if (necompletat(om.calendar_id)) probleme.push(`oameni: calendarul lui ${om.nume} e necompletat`);\n}\n\nif (!['email', 'sms', 'ambele'].includes(s.canal)) probleme.push(`canal: „${s.canal}” nu e email, sms sau ambele`);\n\n// Fiecare serviciu al unui om trebuie să existe în lista de servicii (cu durată și preț).\nif (Array.isArray(s.oameni) && Array.isArray(s.servicii)) {\n  const nume = new Set(s.servicii.map((x) => x.nume));\n  for (const om of s.oameni) {\n    for (const serv of om.servicii || []) {\n      if (!nume.has(serv)) probleme.push(`oameni: ${om.nume} face „${serv}”, dar „${serv}” nu e în servicii`);\n    }\n  }\n}\n\nif (probleme.length) throw new Error('Setările firmei au probleme:\\n- ' + probleme.join('\\n- '));\nreturn [{ json: s }];\n"
+      },
+      "notes": "Why Code: Set/IF considerate — verificarea listelor (oameni ↔ servicii) și mesajul clar de eroare ar cere 4+ noduri. Sursa: servicii/automatizari/modele/setari-firma/cod/verifica-setarile.js"
+    }
+  ],
+  "connections": {
+    "Chemat de alt flux": {
+      "main": [
+        [
+          {
+            "node": "Setări",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setări": {
+      "main": [
+        [
+          {
+            "node": "Verifică setările",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Bucharest",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
