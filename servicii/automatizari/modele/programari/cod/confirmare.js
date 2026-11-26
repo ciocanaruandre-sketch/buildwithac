@@ -72,8 +72,8 @@ const texte = (d) => {
   const elegant = setari.ton === 'elegant';
   const cu = d.om ? `, cu ${d.om}` : '';
   const sms = elegant
-    ? `${d.client ? d.client + ', p' : 'P'}rogramarea dumneavoastra la ${d.firma} este confirmata: ${d.zi}, ora ${d.ora}${cu}. Adresa: ${d.adresa}. Pentru alta ora: ${d.link}`
-    : `${d.prenume ? d.prenume + ', p' : 'P'}rogramarea ta la ${d.firma} e confirmata: ${d.zi}, ora ${d.ora}${cu}. Adresa: ${d.adresa}. Alta ora? ${d.link}`;
+    ? `${d.client ? d.client + ', p' : 'P'}rogramarea la ${d.firma} este confirmata: ${d.zi}, ora ${d.ora}${cu}. Alta ora: ${d.link}`
+    : `${d.prenume ? d.prenume + ', p' : 'P'}rogramarea ta la ${d.firma} e confirmata: ${d.zi}, ora ${d.ora}${cu}. Alta ora? ${d.link}`;
   const subiect = elegant ? `Programarea la ${d.firma}: ${d.zi}, ora ${d.ora}` : `Programarea ta la ${d.firma}: ${d.zi}, ora ${d.ora}`;
   const email = elegant
     ? `${d.client ? `Bună ziua, ${d.client},` : 'Bună ziua,'}\n\nProgramarea dumneavoastră este confirmată:\n${d.serviciu}${cu}\n${d.zi}, ora ${d.ora}\n${d.firma}, ${d.adresa}\n\nDacă doriți altă oră: ${d.link}\n\nVă așteptăm.\n${d.firma}, ${d.telefon}`

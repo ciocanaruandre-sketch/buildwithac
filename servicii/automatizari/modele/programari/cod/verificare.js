@@ -96,11 +96,11 @@ const texte = (tip, d) => {
   const mare = (t, n) => (n ? t : t.charAt(0).toUpperCase() + t.slice(1));
   const T = {
     reamintire_1: elegant ? {
-      sms: `${nume(d.client)}${mare('va reamintim de programarea', d.client)} de ${d.zi}, ora ${d.ora}${cu}, la ${d.firma}, ${d.adresa}. Daca nu mai puteti veni: ${d.link}`,
+      sms: `${nume(d.client)}${mare('aveti programare', d.client)} ${d.zi}, ora ${d.ora}${cu}, la ${d.firma}. Nu puteti veni? ${d.link}`,
       subiect: `Vă reamintim: ${d.zi}, ora ${d.ora}`,
       email: `${salut}\n\nVă reamintim de programarea de ${d.zi}, ora ${d.ora}${cu}, la ${d.firma} (${d.adresa}).\n\nDacă nu mai puteți veni, vă rugăm să o mutați aici: ${d.link}\n\n${semn}`,
     } : {
-      sms: `${nume(d.prenume)}${mare('iti amintim de programarea', d.prenume)} de ${d.zi}, ora ${d.ora}${cu}, la ${d.firma}, ${d.adresa}. Nu mai poti veni? Mut-o aici: ${d.link}`,
+      sms: `${nume(d.prenume)}${mare('ai programare', d.prenume)} ${d.zi}, ora ${d.ora}${cu}, la ${d.firma}. Nu mai poti veni? Mut-o aici: ${d.link}`,
       subiect: `Te așteptăm ${d.zi}, ora ${d.ora}`,
       email: `${salut}\n\nÎți amintim de programarea de ${d.zi}, ora ${d.ora}${cu}, la ${d.firma} (${d.adresa}).\n\nDacă nu mai poți veni, mut-o aici, ca să dăm ora altcuiva: ${d.link}\n\n${semn}`,
     },
@@ -114,7 +114,7 @@ const texte = (tip, d) => {
       email: `${salut}\n\nTe așteptăm ${cand} la ${d.ora}${cu}, la ${d.firma} (${d.adresa}).\n\n${semn}`,
     },
     mutata: elegant ? {
-      sms: `${nume(d.client)}${mare('programarea dumneavoastra', d.client)} la ${d.firma} s-a mutat: ${d.zi}, ora ${d.ora}${cu}. Daca nu va convine: ${d.link}`,
+      sms: `${nume(d.client)}${mare('programarea', d.client)} la ${d.firma} s-a mutat: ${d.zi}, ora ${d.ora}${cu}. Nu va convine? ${d.link}`,
       subiect: `Programarea s-a mutat: ${d.zi}, ora ${d.ora}`,
       email: `${salut}\n\nProgramarea dumneavoastră la ${d.firma} s-a mutat. Ora nouă:\n${d.zi}, ora ${d.ora}${cu}\n${d.adresa}\n\nDacă nu vă convine, puteți alege altă oră: ${d.link}\n\n${semn}`,
     } : {

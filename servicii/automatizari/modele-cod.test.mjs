@@ -152,7 +152,7 @@ const verificare = (evenimente, o = {}, acum = ACUM) =>
   ruleaza(cod("programari", "verificare"), evenimente.map((json) => ({ json })), noduriProgramari(o), acum).map((i) => i.json);
 const DIACRITICE_SAU_SCUMPE = /[șțăîâȘȚĂÎÂşţŞŢ„”“’–—…]/;
 
-test("confirmare: SMS fără diacritice, cu prenumele, ziua și ora României, adresa și link-ul", () => {
+test("confirmare: SMS fără diacritice, cu prenumele, ziua și ora României și link-ul, într-un singur SMS (adresa e doar pe e-mail)", () => {
   const r = confirmare([ev()], { setari: { canal: "sms" } });
   assert.equal(r.length, 1);
   const m = r[0];
@@ -162,8 +162,10 @@ test("confirmare: SMS fără diacritice, cu prenumele, ziua și ora României, a
   assert.equal(m.contact, "+40722123456");
   assert.equal(m.eveniment_id, "ev1");
   assert.equal(m.ora_programare, "2026-11-27T12:30:00.000Z");
-  for (const bucata of ["Mihai", "vineri, 27 noiembrie", "14:30", "Str. Exemplu 12", "https://exemplu.ro/programare"]) assert.ok(m.text.includes(bucata), `lipsește „${bucata}”: ${m.text}`);
+  for (const bucata of ["Mihai", "vineri, 27 noiembrie", "14:30", "https://exemplu.ro/programare"]) assert.ok(m.text.includes(bucata), `lipsește „${bucata}”: ${m.text}`);
   assert.ok(!DIACRITICE_SAU_SCUMPE.test(m.text), `SMS cu caractere care costă dublu: ${m.text}`);
+  assert.ok(!m.text.includes("Str. Exemplu"), "decizia lui Andrei (2026-11-26): fără adresă în SMS-ul de confirmare, ca să fie un singur SMS");
+  assert.ok(m.text.length <= 160, `${m.text.length} caractere: mai mult de un SMS`);
 });
 
 test("confirmare: canal „ambele” → SMS și e-mail; e-mailul are subiect și nu are link de dezabonare", () => {
@@ -173,6 +175,7 @@ test("confirmare: canal „ambele” → SMS și e-mail; e-mailul are subiect ș
   assert.equal(e.contact, "mihai@exemplu.ro");
   assert.ok(e.subiect && e.subiect.length > 5);
   assert.ok(e.text.includes("Mihai") && e.text.includes("14:30"));
+  assert.ok(e.text.includes("Str. Exemplu 12"), "adresa e pe e-mail");
   assert.ok(!e.text.includes("dezabonare"), "confirmarea e despre programare: fără link de dezabonare");
 });
 
@@ -225,6 +228,7 @@ test("verificare: cu o zi înainte → reamintire_1, o singură dată", () => {
   assert.equal(r[0].tip, "reamintire_1");
   assert.equal(r[0].contact, "+40722123456");
   assert.ok(!DIACRITICE_SAU_SCUMPE.test(r[0].text), r[0].text);
+  assert.ok(!r[0].text.includes("Str. Exemplu") && r[0].text.length <= 160, `un singur SMS, fără adresă (${r[0].text.length}): ${r[0].text}`);
   assert.deepEqual(verificare([e], { setari: { canal: "sms" }, jurnal: [randJurnal("reamintire_1", e.start.dateTime)] }), []);
 });
 
@@ -284,4 +288,19 @@ test("funcțiile comune (telefonRo, citesteContact, faraDiacritice, oraRo) au ac
   assert.ok(blocuri.length >= 2, "măcar două fișiere au funcțiile comune");
   for (const nume of ["telefonRo", "citesteContact", "faraDiacritice", "oraRo"]) assert.ok(blocuri[0].b.includes(`const ${nume} =`), nume);
   for (const { f, b } of blocuri.slice(1)) assert.equal(b, blocuri[0].b, `${f} are alt text la funcțiile comune decât ${blocuri[0].f}`);
+});
+
+test("SMS-urile de confirmare, reamintire_1 și mutare încap într-un SMS și cu datele demo (nume, link și zi lungi), în ambele tonuri", () => {
+  const lung = { firma_nume: "Conu' Leonida", link_programare: "https://buildwithac.ro/concepte/frizerie/", canal: "sms" };
+  const e = ev({ summary: "Tuns și barbă – Mihai Ionescu", start: { dateTime: "2026-11-28T08:30:00Z" }, created: "2026-11-20T08:00:00Z", om: "Vlad" });
+  for (const ton of ["prietenos", "elegant"]) {
+    const setari = { ...lung, ton };
+    const sms = [
+      ...confirmare([e], { setari }, "2026-11-20T10:00:00+02:00"),
+      ...verificare([e], { setari }, "2026-11-27T11:00:00+02:00"),
+      ...verificare([{ ...e, start: { dateTime: "2026-11-29T10:00:00Z" } }], { setari, jurnal: [randJurnal("confirmare", "2026-11-28T08:30:00.000Z")] }, "2026-11-27T10:00:00+02:00"),
+    ];
+    assert.deepEqual(sms.map((m) => m.tip), ["confirmare", "reamintire_1", "mutata"], ton);
+    for (const m of sms) assert.ok(m.text.length <= 160, `${ton}, ${m.tip}: ${m.text.length} caractere: ${m.text}`);
+  }
 });
