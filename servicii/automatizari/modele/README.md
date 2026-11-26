@@ -12,6 +12,7 @@ Fluxuri reale din portofoliu, curățate: fără conturi conectate, fără ID-ur
 | `carusele-instagram` | carusele din știri AI, în Drive | Telegram, OpenAI, Apify, ScreenshotOne, Drive, Sheets | nu |
 | `flux-erori` | e-mail când pică un flux | Gmail | nu |
 | `setari-firma` | setările firmei, completate o dată, citite de toate modelele de vânzare | — | nu |
+| `dezabonare` | STOP prin SMS sau link-ul din e-mail → foaia `Nu trimite` | Sheets (Twilio trimite SMS-urile primite) | nu |
 
 **Un model nou:** `node servicii/automatizari/curata.mjs <export.json> <nume-model>`, apoi înlocuiești de mână ce raportează scriptul. Lângă flux scrii un `README.md`. `node --test "servicii/automatizari/*.test.mjs"` verifică toate modelele.
 

@@ -42,5 +42,6 @@ Toate stau în nodul *Setări*. Ce e `CONFIG_…` trebuie completat; verificarea
 1. Importă fluxul, completează *Setări*, salvează.
 2. Rulează-l o dată de mână (*Execute workflow*): dacă *Verifică setările* e verde, setările sunt bune; dacă e roșu, mesajul spune exact ce câmp lipsește.
 3. *Settings* → *Error workflow* → `flux-erori`. Fusul orar: `Europe/Bucharest`.
+4. **Publică-l**, înaintea oricărui model: n8n nu publică un flux care cheamă un sub-flux nepublicat. După **orice** schimbare în *Setări*, îl republici: fluxurile publicate citesc versiunea publicată, nu ciorna.
 
 **Verificat la proba din 2026-11-26** (cont de probă n8n Cloud, Conu' Leonida): setările demo trec, iar listele ies ca date, nu ca text. Cazurile de eroare (`CONFIG_` rămas, JSON stricat, serviciu lipsă, canal greșit) sunt verificate de testele din `modele-cod.test.mjs`.

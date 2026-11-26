@@ -1,0 +1,361 @@
+{
+  "name": "dezabonare",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dezabonare-sms",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "33497162-5a8d-4676-9683-2dc7a67f9392",
+      "name": "SMS primit",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dezabonarea: un SMS cu STOP (Twilio, POST) sau link-ul din e-mail (GET ?c=<adresa în base64url>).\n// Întoarce { contact, sursa } pentru foaia „Nu trimite”, sau nimic dacă mesajul nu e o dezabonare.\nconst j = $input.first().json;\n\n// Fără diacritice și litere mici, ca „Dezabonați” să fie prins la fel ca „dezabonati”.\nconst simplu = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();\n\n// Telefonul în forma +407…, oricum ar fi scris (0722…, 0040722…, +40 722-123-456).\nconst telefon = (t) => {\n  let n = String(t || '').replace(/[^\\d+]/g, '');\n  if (n.startsWith('00')) n = '+' + n.slice(2);\n  else if (n.startsWith('0')) n = '+40' + n.slice(1);\n  else if (n.startsWith('40')) n = '+' + n;\n  return n;\n};\n\nif (j.body && j.body.From) {\n  const cuvinte = simplu(j.body.Body).split(/[^a-z]+/);\n  const vreaAfara = cuvinte.some((c) => c === 'stop' || c === 'dezabonare' || c === 'dezabonez');\n  return vreaAfara ? [{ json: { contact: telefon(j.body.From), sursa: 'sms' } }] : [];\n}\n\nconst c = j.query && j.query.c;\nif (!c) return [];\nlet email = '';\ntry { email = Buffer.from(String(c), 'base64url').toString('utf8').trim().toLowerCase(); } catch (e) { return []; }\nreturn /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) ? [{ json: { contact: email, sursa: 'email' } }] : [];\n"
+      },
+      "id": "b9c3c207-ec95-4978-a71a-f763d0f7c935",
+      "name": "Dezabonare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        304
+      ],
+      "alwaysOutputData": true,
+      "notes": "Why Code: IF/Set considerate — telefonul în orice formă, cuvintele fără diacritice și decodarea base64url ar cere 4+ noduri. Sursa: servicii/automatizari/modele/dezabonare/cod/dezabonare.js"
+    },
+    {
+      "parameters": {
+        "path": "dezabonare",
+        "responseMode": "responseNode",
+        "options": {
+          "ignoreBots": true
+        }
+      },
+      "id": "8d64a435-39f3-45df-b3fd-a4cde337d49b",
+      "name": "Link din e-mail",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CONFIG_ID_SETARI_FIRMA",
+          "cachedResultName": "setari-firma"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "b5c61fa3-487b-4d77-9ccc-f5acefbe0334",
+      "name": "Setări firmă",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        736,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Dezabonare').first().json.contact }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e90a4255-3bf0-4534-9814-6159d9e22376",
+      "name": "Cere dezabonarea?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Setări firmă').first().json.sheet_id }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Nu trimite"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "contact": "={{ $('Dezabonare').first().json.contact }}",
+            "data": "={{ $now.setZone('Europe/Bucharest').toFormat('yyyy-MM-dd HH:mm') }}",
+            "sursa": "={{ $('Dezabonare').first().json.sursa }}"
+          },
+          "matchingColumns": [
+            "contact"
+          ],
+          "schema": [
+            {
+              "id": "contact",
+              "displayName": "contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sursa",
+              "displayName": "sursa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "0866a531-39bf-4cd4-8e0f-7107505cdc5b",
+      "name": "Adaugă în Nu trimite",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "DE_CONECTAT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('SMS primit').isExecuted }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "70baa5f3-eb8c-45f7-9dea-988c969023c3",
+      "name": "Din SMS?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1456,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "a4effa3f-f58c-4a4a-a72a-ca99f19c09cc",
+      "name": "Răspuns pentru Twilio",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1696,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<!doctype html><html lang=\"ro\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>{{ $('Setări firmă').first().json.firma_nume }}</title></head><body style=\"font-family:system-ui,sans-serif;max-width:32rem;margin:15vh auto;padding:0 1.25rem;font-size:1.1rem;line-height:1.5\"><p>{{ $('Dezabonare').first().json.contact ? 'Gata, nu mai primești mesaje de la ' + $('Setări firmă').first().json.firma_nume + '.' : 'Link-ul nu e bun. Dacă nu mai vrei mesaje de la noi, sună-ne la ' + $('Setări firmă').first().json.firma_telefon + '.' }}</p></body></html>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "94178cbd-33fa-423c-9ea1-b24d3141b7bd",
+      "name": "Pagina de confirmare",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1696,
+        416
+      ]
+    }
+  ],
+  "connections": {
+    "SMS primit": {
+      "main": [
+        [
+          {
+            "node": "Dezabonare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dezabonare": {
+      "main": [
+        [
+          {
+            "node": "Setări firmă",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link din e-mail": {
+      "main": [
+        [
+          {
+            "node": "Dezabonare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setări firmă": {
+      "main": [
+        [
+          {
+            "node": "Cere dezabonarea?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cere dezabonarea?": {
+      "main": [
+        [
+          {
+            "node": "Adaugă în Nu trimite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Din SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adaugă în Nu trimite": {
+      "main": [
+        [
+          {
+            "node": "Din SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Din SMS?": {
+      "main": [
+        [
+          {
+            "node": "Răspuns pentru Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pagina de confirmare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timezone": "Europe/Bucharest"
+  },
+  "nodeGroups": []
+}
