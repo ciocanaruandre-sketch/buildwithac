@@ -2,6 +2,8 @@
 
 Un rând pe lucru: ce s-a decis, livrat sau cerut. Cel mai nou sus.
 
+2026-11-26 — conturile demo gata: două calendare („Conu' Leonida – Vlad”, „– Radu”) și tabelul „Conu' Leonida – demo” (foile Jurnal, Nu trimite, Cereri) pe contul Google buildwithac.ai@gmail.com (owner-ul probei). În n8n, owner-ul a făcut cele 3 conexiuni (Google Calendar, Google Sheets, Gmail) și le-a dat Member-ului din fereastra conexiunii → tab-ul **Sharing** → utilizatorul → **Save**. Member-ul le vede cu dreptul „connect” (le folosește, nu le citește). Pe probă merge; pe Starter rămâne de confirmat la primul client (proba poate avea funcții peste Starter).
+
 2026-11-26 — contul de probă n8n Cloud mai are 11 zile (până pe ~2026-12-07): rămânem pe el.
 
 2026-11-23 — documentația n8n, verificată înainte de construcție ([Understand executions](https://docs.n8n.io/build/understand-workflows/understand-executions.md)):
