@@ -1,5 +1,5 @@
 // Confirmarea pe loc: când apare o programare nouă în calendarul unui om, clientul primește confirmarea.
-// Intrarea: evenimentele din declanșatorul Google Calendar. Ieșirea: câte un mesaj de trimis (sau de sărit) pe canal.
+// Intrarea: evenimentele din nodul „Programare nouă” (după declanșatoarele Google Calendar; între ele și cod vin citirile din tabel). Ieșirea: câte un mesaj de trimis (sau de sărit) pe canal.
 const setari = $('Setări firmă').first().json;
 const acum = $now.toMillis();
 
@@ -82,7 +82,7 @@ const texte = (d) => {
 };
 
 const iesire = [];
-for (const { json: e } of $input.all()) {
+for (const { json: e } of $('Programare nouă').all()) {
   if (!e || e.status === 'cancelled' || !e.start || !e.start.dateTime) continue; // zi întreagă (concediu, „închis”) sau anulat
   const ora_programare = oraIso(e.start.dateTime);
   if (Date.parse(ora_programare) <= acum) continue;

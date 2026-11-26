@@ -147,7 +147,7 @@ const noduriProgramari = ({ setari = {}, jurnal = [], nuTrimite = [] } = {}) => 
   "Nu trimite": randuri(nuTrimite),
 });
 const confirmare = (evenimente, o = {}, acum = ACUM) =>
-  ruleaza(cod("programari", "confirmare"), evenimente.map((json) => ({ json })), noduriProgramari(o), acum).map((i) => i.json);
+  ruleaza(cod("programari", "confirmare"), [{ json: {} }], { ...noduriProgramari(o), "Programare nouă": evenimente.map((json) => ({ json })) }, acum).map((i) => i.json);
 const verificare = (evenimente, o = {}, acum = ACUM) =>
   ruleaza(cod("programari", "verificare"), evenimente.map((json) => ({ json })), noduriProgramari(o), acum).map((i) => i.json);
 const DIACRITICE_SAU_SCUMPE = /[șțăîâȘȚĂÎÂşţŞŢ„”“’–—…]/;
