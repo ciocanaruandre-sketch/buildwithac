@@ -53,7 +53,7 @@ export function FormularAbonare({ varianta }: { varianta: "colaj" | "card" }) {
         {stare && stare !== "trimite" ? MESAJE[stare] : ""}
       </p>
       <p className="acord">
-        Îți scriu când apare un ghid nou sau o noutate care contează. Te dezabonezi oricând. <Link href="/confidentialitate">Confidențialitate</Link>
+        Îți scriu când apare un ghid nou, gratuit sau plătit, ori o noutate care contează. Te dezabonezi oricând. <Link href="/confidentialitate">Confidențialitate</Link>
       </p>
     </div>
   );

@@ -28,7 +28,7 @@ export default function Confidentialitate() {
 
         <h2>Ce date și de ce</h2>
         <ul>
-          <li><b>Adresa de e-mail</b>, când te abonezi. O folosesc doar ca să-ți trimit e-mailuri despre ghidurile noi și noutăți din AI. Nu promit un ritm și nu o vând nimănui.</li>
+          <li><b>Adresa de e-mail</b>, când te abonezi. O folosesc doar ca să-ți trimit e-mailuri despre ghidurile noi, gratuite sau plătite, și noutăți din AI. Nu promit un ritm și nu o vând nimănui.</li>
           <li><b>Cererile din formularul de contact</b> de pe pagina principală: numele, telefonul, serviciul ales și descrierea, dacă scrii una. Dacă ai venit dintr-o reclamă sau dintr-o postare, se salvează și din care. Le folosesc doar ca să te sun despre cererea ta. Cererea ajunge în două locuri: în căsuța mea de e-mail și în CRM, adică aplicația în care țin evidența cererilor. Acolo notez și când am vorbit și ce am stabilit. În CRM intru doar eu, cu cont și parolă.</li>
           <li><b>Răspunsurile din formularele pentru clienți</b>, dacă lucrăm împreună la un site, o automatizare sau un ghid personalizat. Formularul e făcut în Tally și îți trimit link-ul după ce ne-am înțeles. Acolo îmi scrii numele tău și al afacerii, e-mailul, telefonul, ce face afacerea ta și de ce ai nevoie. Poți încărca și fișiere: logo, poze, exemple. Le folosesc doar ca să-ți fac proiectul și să vorbim despre el. Nu pune acolo parole sau date ale clienților tăi.</li>
           <li><b>Fișa proiectului</b>, dacă lucrăm împreună. În CRM țin evidența proiectului: ce am stabilit, ce e de făcut, ce ți-am livrat, link-urile și fișierele pe care mi le trimiți (logo, poze, texte) și ce conturi folosește proiectul. La conturi notez doar serviciul și numele contului, niciodată parole.</li>

@@ -60,3 +60,8 @@ test("confidențialitate: rezumatul de sus pomenește formularul de contact", as
   await expect(rezumat).toContainText("formularul de contact");
   await expect(rezumat).not.toContainText("o singură dată personală");
 });
+
+test("confidențialitatea spune și de ghidurile plătite", async ({ page }) => {
+  await page.goto("/confidentialitate");
+  await expect(page.locator("main")).toContainText("ghidurile noi, gratuite sau plătite, și noutăți din AI");
+});

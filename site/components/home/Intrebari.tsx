@@ -7,7 +7,8 @@ import { Aurora } from "@/components/layout/Aurora";
 export const INTREBARI: { q: string; r: string }[] = [
   { q: "Cât costă un site?", r: "Depinde de ce îți trebuie. Vorbim la telefon, îmi spui ce vrei, iar prețul îl știi înainte să încep. Nu lucrez cu prețuri din listă." },
   { q: "Îmi trebuie cunoștințe tehnice?", r: "Nu. Îmi spui ce face afacerea ta și ce vrei să facă oamenii pe site. Partea tehnică e treaba mea." },
-  { q: "Ce fel de automatizări faci?", r: "Lucrurile care se repetă: confirmări trimise clienților, comenzi trecute în tabel, aceleași mesaje în fiecare zi. Le leg de aplicațiile pe care le folosești deja. Dacă nu știi încă ce ți-ar folosi, stabilim împreună, la o consultație." },
+  { q: "Ce fel de automatizări faci?", r: "Lucrurile care se repetă: confirmări trimise clienților, comenzi trecute în tabel, aceleași mesaje în fiecare zi. Le leg de aplicațiile pe care le folosești deja. Dacă nu știi încă ce ți-ar folosi, stabilim împreună, la analiza gratuită." },
+  { q: "Ce primesc la analiza gratuită?", r: "Îmi povestești cum lucrezi, iar eu îți spun ce s-ar putea automatiza și ce aș îmbunătăți la site. Dacă n-ai încă site, îmi spui cum ți-l imaginezi." },
   { q: "Cum arată o sesiune 1 la 1?", r: "Îți arăt live, pe ecran, cum folosești AI-ul în munca ta. Dacă preferi să citești în ritmul tău, îți scriu un ghid doar pentru tine, cu pașii tăi." },
   { q: "Ghidurile chiar sunt gratuite?", r: "Da, toate cele de acum. Le citești pe site, fără cont și fără card. Mai încolo apar și ghiduri premium, plătite, și o să vezi clar care sunt." },
   { q: "În cât timp îmi răspunzi?", r: "Îți scriu în 1–2 zile de când primesc formularul." },
@@ -59,7 +60,7 @@ export function Intrebari() {
         <div className="eb">Întrebări</div>
         <h2>Ce mă întreabă <span className="serif gtxt">toată lumea.</span></h2>
         <p className="intr-lead">Apasă pe o întrebare și îți răspund pe loc. Dacă a ta nu e aici, scrie-mi.</p>
-        <a className="intr-direct" href="#formular">Scrie-mi direct <span aria-hidden>→</span></a>
+        <a className="intr-direct" href="#contact">Scrie-mi direct <span aria-hidden>→</span></a>
       </div>
       <div className="intr-tel">
         <span className="banda-ad b1" aria-hidden />

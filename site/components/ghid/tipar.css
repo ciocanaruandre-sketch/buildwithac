@@ -40,6 +40,7 @@
   .prompt, .shot, .mistake, .atentie, .daca-nu { break-inside: avoid; transform: none !important; box-shadow: none !important; }
   .prompt { margin: 4mm 0 5mm; }
   .prompt pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 9.5pt; }
+  .prompt.pliat pre { max-height: none; overflow: visible; -webkit-mask-image: none; mask-image: none; }
   .shot { margin: 4mm 0 5mm; border: 1px solid rgba(11,9,8,.2); }
   .shot .tp { display: none; }
   .mistake .tape { display: none; }

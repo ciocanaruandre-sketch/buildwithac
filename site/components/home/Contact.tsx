@@ -1,6 +1,5 @@
 import { Aurora } from "@/components/layout/Aurora";
 import { SITE } from "@/lib/config";
-import { FormularContact } from "./FormularContact";
 
 export function Contact() {
   return (
@@ -8,7 +7,7 @@ export function Contact() {
       <Aurora />
       <div className="eb">Contact</div>
       <h2>Ai o întrebare? <span className="serif gtxt">Scrie-mi.</span></h2>
-      <p className="intro">Despre un ghid, o idee de clip sau AI-ul din firma ta. Răspund eu, nu un robot.</p>
+      <p className="intro">Despre un ghid, o idee de clip sau AI-ul din firma ta. Răspund chiar eu.</p>
       <div className="cways">
         <a className="cway" href={SITE.instagram.url} target="_blank" rel="noopener">
           <span className="arr" aria-hidden>↗</span><div className="ic" aria-hidden>IG</div>
@@ -23,7 +22,6 @@ export function Contact() {
           <span className="h gtxt">{SITE.emailContact}</span>
         </a>
       </div>
-      <FormularContact />
     </section>
   );
 }
