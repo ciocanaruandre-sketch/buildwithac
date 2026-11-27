@@ -34,7 +34,7 @@ const Butoane = () => (
 
 export function Hero() {
   const radacina = useRef<HTMLElement>(null);
-  const [v, setV] = useState<Varianta>("1");
+  const [v, setV] = useState<Varianta>("4");
   const [comutator, setComutator] = useState(false);
 
   useEffect(() => {
@@ -72,6 +72,7 @@ export function Hero() {
               <div className="px__sub cv-sus">
                 <Eticheta />
                 <p className="cv-fraza">{FRAZE[v][0]} <span className="serif grad-text">{FRAZE[v][1]}</span></p>
+                <p className="cv-eti cv-claritate">Împreună construim claritate în afacerea ta</p>
               </div>
               <h1 className="px__title">buildwithac</h1>
             </div>
