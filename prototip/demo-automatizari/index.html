@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Conu' Leonida, frizerie</title>
+<!-- Pagina de demonstrație pentru automatizări (planul 17). Copie locală a conceptului din site/public/concepte/frizerie/.
+     Firmă inventată. Sursele pozelor: continut/concepte/surse-poze.md -->
+<link rel="stylesheet" href="comun/fonturi/frizerie.css">
+<script src="comun/gsap.min.js"></script>
+<script src="comun/ScrollTrigger.min.js"></script>
+<style>
+:root{--pad:24px;
+  --granulat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23g)'/%3E%3C/svg%3E");
+  --fond:#0e1c17;--sup:#132620;--accent:#cdb88e;--text:#efe9dc;--stins:#9fa89d;--linie:rgba(205,184,142,.22);--tenta:14,28,23;
+  --serv-fond:#d9d0bf;--serv-text:#14231d;--serv-stins:#5a5f53;--serv-accent:#14231d;--serv-linie:rgba(20,35,29,.22);--poza:saturate(.72) brightness(.9);
+  --titlu:'Bodoni Moda',serif;--titlu-g:500;--nume-m:1.04
+}
+
+*{box-sizing:border-box;margin:0}
+html{background:var(--fond);-webkit-text-size-adjust:100%}
+body{background:var(--fond);color:var(--text);font:400 17px/1.6 'Hanken Grotesk',system-ui,sans-serif;overflow-x:hidden}
+img{display:block;max-width:100%}
+button,a,input,textarea{font:inherit;color:inherit}
+a{text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+h1,h2{font-family:var(--titlu);font-weight:var(--titlu-g);line-height:1}
+
+.servicii :focus-visible,.grupuri :focus-visible,dialog :focus-visible{outline-color:#14231d}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 30px;border:0;border-radius:2px;background:var(--accent);color:#14160f;font-weight:500;font-size:16px;letter-spacing:.01em;cursor:pointer;text-decoration:none}
+.btn.gol{background:transparent;color:var(--text);box-shadow:inset 0 0 0 1px var(--linie)}
+
+/* primul ecran: intri pe hol */
+.erou{position:relative;height:100vh;height:100svh;min-height:600px;overflow:hidden;background:#000}
+.poza{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 50%;transform-origin:64% 47%;will-change:transform;filter:var(--poza)}
+.erou::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--tenta),.28) 30%,rgba(var(--tenta),.96) 100%);pointer-events:none}
+.in{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 var(--pad) 34px}
+h1{font-size:calc(clamp(68px,21.5vw,170px)*var(--nume-m));white-space:nowrap;color:var(--text)}
+.nume>span{display:block}
+.litera{display:inline-block}
+.deviza{margin-top:14px;font-size:18px;color:var(--text)}
+.indemn{margin-top:18px;font-size:15px;color:var(--stins)}
+.sosit{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center;padding:0 var(--pad);opacity:0;visibility:hidden;background:rgba(var(--tenta),.8)}
+.sosit p{font-family:var(--titlu);font-weight:var(--titlu-g);font-size:clamp(40px,11vw,84px);line-height:1.06;max-width:11ch}
+
+/* servicii */
+.bloc{max-width:720px;margin:0 auto;padding:88px var(--pad)}
+.servicii{background-color:var(--serv-fond);background-image:var(--granulat);color:var(--serv-text)}
+h2{font-size:clamp(40px,11vw,72px)}
+.intro{margin-top:16px;color:var(--serv-stins);max-width:34ch}
+.lista{list-style:none;padding:0;margin-top:36px;border-top:1px solid var(--serv-linie)}
+.lista li{border-bottom:1px solid var(--serv-linie)}
+.lista button{display:grid;grid-template-columns:1fr auto;gap:4px 18px;width:100%;padding:20px 0 18px;border:0;background:none;cursor:pointer;text-align:left;color:inherit}
+.lista .serv{font-size:19px;font-weight:500}
+.lista .pret{font-family:var(--titlu);font-weight:var(--titlu-g);font-size:22px;line-height:1.3;color:var(--serv-accent);white-space:nowrap}
+.lista small{grid-column:1/-1;font-size:15px;line-height:1.45;color:var(--serv-stins);max-width:36ch}
+
+/* galeria */
+.galerie{background-color:var(--fond);background-image:var(--granulat);padding:88px 0 80px}
+.galerie h2{max-width:720px;margin:0 auto 32px;padding:0 var(--pad)}
+.pista{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 var(--pad);scrollbar-width:none}
+.pista::-webkit-scrollbar{display:none}
+.pista img{flex:0 0 78vw;max-width:400px;height:108vw;max-height:540px;object-fit:cover;scroll-snap-align:center;filter:var(--poza)}
+
+/* grupuri și evenimente: formularul de cerere (modelul 3) */
+.grupuri{background-color:var(--serv-fond);background-image:var(--granulat);color:var(--serv-text)}
+.grupuri .intro{max-width:38ch}
+.cerere{margin-top:34px;display:grid;gap:22px}
+.cerere fieldset{border:0;padding:0;margin:0}
+.cerere legend,.camp>span{display:block;font-weight:500;margin-bottom:8px;padding:0}
+.camp small{font-weight:400;color:var(--serv-stins)}
+.cerere .alegeri button{border-color:rgba(20,35,29,.35);color:var(--serv-text)}
+.cerere input,.cerere textarea{display:block;width:100%;min-height:52px;padding:12px 14px;border:1px solid rgba(20,35,29,.35);border-radius:2px;background:rgba(255,255,255,.35);color:var(--serv-text);font-size:17px}
+.cerere textarea{min-height:110px;resize:vertical}
+.cerere input:focus,.cerere textarea:focus{outline:2px solid #14231d;outline-offset:0;border-color:#14231d}
+.cerere .doua{display:grid;gap:22px}
+.cerere .btn{width:100%;background:#14231d;color:#ece6d8}
+.cerere .btn[disabled]{opacity:.5;cursor:wait}
+.eroare{min-height:1.5em;font-size:15px;color:#8a1c12}
+.capcana{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.trimisa{margin-top:34px;padding:28px 24px;border:1px solid var(--serv-linie);border-radius:2px;background:rgba(255,255,255,.3)}
+.trimisa h3{font-family:var(--titlu);font-weight:var(--titlu-g);font-size:34px;line-height:1.05}
+.trimisa p{margin-top:10px;color:var(--serv-stins)}
+@media (min-width:600px){.cerere .doua{grid-template-columns:1fr 1fr}}
+
+/* vizita */
+.vizita{background-color:var(--sup);background-image:var(--granulat)}
+.vizita address{font-style:normal;font-size:19px;margin-top:20px}
+.stare{margin-top:6px;color:var(--accent)}
+.vizita dl{display:grid;grid-template-columns:1fr auto;gap:12px 18px;margin-top:30px;padding-top:24px;border-top:1px solid var(--linie)}
+.vizita dt,.vizita dd{margin:0}
+.vizita .azi{color:var(--accent)}
+.butoane{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.subsol{background:#0b0908;color:#a99d92;padding:34px var(--pad) 112px;font-size:15px;text-align:center}
+
+.bara{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:8px;padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));background:rgba(var(--tenta),.95);transform:translateY(110%);transition:transform .3s ease}
+.bara.vizibila{transform:none}
+.bara .btn:first-child{flex:1}
+
+dialog{width:100%;max-width:520px;max-height:90vh;margin:auto auto 0;padding:28px var(--pad) calc(24px + env(safe-area-inset-bottom));border:0;border-radius:8px 8px 0 0;background:#ece6d8;color:#14231d;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h2{font-size:34px}
+dialog fieldset{border:0;padding:0;margin-top:20px}
+dialog legend{font-weight:500;margin-bottom:8px;padding:0}
+.alegeri{display:flex;flex-wrap:wrap;gap:8px}
+.alegeri button{min-height:44px;padding:0 14px;border:1px solid rgba(20,35,29,.35);border-radius:2px;background:transparent;cursor:pointer}
+.alegeri button[aria-pressed=true]{background:#14231d;border-color:#14231d;color:#ece6d8}
+dialog .btn{width:100%;margin-top:24px;background:#14231d;color:#ece6d8}
+dialog .btn[disabled]{opacity:.4;cursor:not-allowed}
+.inchide{position:absolute;top:10px;right:10px;width:44px;height:44px;border:0;background:none;font-size:26px;cursor:pointer}
+
+/* chatul (modelul 4): fereastra se pune aici la Task 8 */
+#chat:empty{display:none}
+
+@media (min-width:800px){
+  .bara{justify-content:center}
+  .bara .btn:first-child{flex:0 0 280px}
+  .pista{justify-content:center}
+  .pista img{flex-basis:30vw;height:40vw}
+}
+.firma{display:none}
+@media (prefers-reduced-motion:reduce){.bara{transition:none}.firma{display:block;font:var(--titlu-g) 26px var(--titlu)}}
+</style>
+</head>
+<body>
+
+<main>
+  <section class="erou">
+    <img class="poza" fetchpriority="high" src="foto/hol.webp" alt="Hol lung de frizerie, cu scaune aliniate și lămpi">
+    <div class="in">
+      <h1 class="nume"><span>Conu'</span><span>Leonida</span></h1>
+      <p class="deviza">Frizerie pentru bărbați, în București</p>
+      <p class="indemn">Dă scroll ca să intri.</p>
+    </div>
+    <div class="sosit">
+      <span class="firma">Conu' Leonida</span>
+      <p>Scaunul tău, la ora ta.</p>
+      <button class="btn" data-programare>Programează-te</button>
+    </div>
+  </section>
+
+  <div class="servicii">
+    <section class="bloc" id="servicii">
+      <h2>Servicii</h2>
+      <p class="intro">Lucrăm doar cu programare, ca să nu aștepți. Spălatul și aranjatul sunt incluse.</p>
+      <ul class="lista">
+        <li><button data-serviciu="Tuns"><span class="serv">Tuns</span><span class="pret">100 lei</span><small>Consultație, tuns, spălat și aranjat. 45 de minute.</small></button></li>
+        <li><button data-serviciu="Barbă"><span class="serv">Barbă</span><span class="pret">50 lei</span><small>Formă, contur cu briciul și prosop cald. 30 de minute.</small></button></li>
+        <li><button data-serviciu="Tuns și barbă"><span class="serv">Tuns și barbă</span><span class="pret">125 lei</span><small>Cele două de mai sus, într-o singură vizită. 75 de minute.</small></button></li>
+        <li><button data-serviciu="Tuns copii"><span class="serv">Tuns copii</span><span class="pret">60 lei</span><small>Până la 12 ani. 30 de minute.</small></button></li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="galerie">
+    <h2>Cum lucrăm</h2>
+    <div class="pista" tabindex="0" aria-label="Fotografii din frizerie">
+      <img src="foto/foarfeca.webp" alt="Frizer care tunde cu foarfeca și pieptenele" loading="lazy">
+      <img src="foto/brici.webp" alt="Bărbierit cu briciul, în lumină caldă" loading="lazy">
+      <img src="foto/tuns.webp" alt="Tuns scurt pe laterale, cu mașina" loading="lazy">
+    </div>
+  </section>
+
+  <div class="grupuri">
+    <section class="bloc" id="grupuri">
+      <h2>Grupuri și evenimente</h2>
+      <p class="intro">Mirele și cavalerii de onoare, o echipă înainte de o gală, mai mulți prieteni deodată. Spune-ne ce pregătești și îți răspundem cu o propunere.</p>
+
+      <form class="cerere" id="cerere" novalidate>
+        <fieldset>
+          <legend>Ce pregătești?</legend>
+          <div class="alegeri" id="a-cerere"></div>
+        </fieldset>
+        <label class="camp"><span>Numele tău</span><input name="nume" autocomplete="name" maxlength="80" required></label>
+        <div class="doua">
+          <label class="camp"><span>Telefon</span><input name="telefon" type="tel" autocomplete="tel" inputmode="tel" maxlength="30"></label>
+          <label class="camp"><span>E-mail</span><input name="email" type="email" autocomplete="email" maxlength="120"></label>
+        </div>
+        <label class="camp"><span>Detalii <small>(câți sunteți, ce zi, ce servicii)</small></span><textarea name="mesaj" maxlength="1000"></textarea></label>
+        <div class="capcana" aria-hidden="true"><label>Site-ul tău <input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <p class="eroare" id="eroare" role="alert"></p>
+        <button class="btn" id="trimite-cerere">Trimite cererea</button>
+      </form>
+
+      <div class="trimisa" id="trimisa" hidden tabindex="-1">
+        <h3>Am primit cererea</h3>
+        <p id="unde"></p>
+      </div>
+    </section>
+  </div>
+
+  <div class="vizita">
+    <section class="bloc">
+      <h2>Vizită</h2>
+      <address>Strada Briciului 7, Sector 1, București</address>
+      <p class="stare" id="stare"></p>
+      <dl id="program">
+        <dt data-zile="1,2,3,4,5">Luni – vineri</dt><dd data-zile="1,2,3,4,5">10:00 – 20:00</dd>
+        <dt data-zile="6">Sâmbătă</dt><dd data-zile="6">09:00 – 17:00</dd>
+        <dt data-zile="0">Duminică</dt><dd data-zile="0">Închis</dd>
+      </dl>
+      <div class="butoane">
+        <button class="btn" data-programare>Programează-te</button>
+        <a class="btn gol" href="#grupuri">Grupuri și evenimente</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="subsol">Conu' Leonida · Strada Briciului 7, Sector 1, București</footer>
+
+<div class="bara" id="bara">
+  <button class="btn" data-programare>Programează-te</button>
+  <a class="btn gol" href="#grupuri">Grupuri</a>
+</div>
+
+<div id="chat"></div>
+
+<dialog id="programare" aria-labelledby="titlu-prog">
+  <button class="inchide" aria-label="Închide">×</button>
+  <div id="pasi">
+    <h2 id="titlu-prog">Programează-te</h2>
+    <fieldset><legend>Serviciul</legend><div class="alegeri" id="a-serv"></div></fieldset>
+    <fieldset><legend>Ziua</legend><div class="alegeri" id="a-zi"></div></fieldset>
+    <fieldset><legend>Ora</legend><div class="alegeri" id="a-ora"></div></fieldset>
+    <button class="btn" id="trimite" disabled>Programează-te</button>
+  </div>
+  <div id="gata" hidden>
+    <h2>Te așteptăm</h2>
+    <p id="rezumat" style="margin-top:12px"></p>
+  </div>
+</dialog>
+
+<script>
+// Adresele fluxurilor din n8n. Se completează la Task 7 (cererile) și Task 8 (chatul).
+// Goale = pagina doar arată mesajul de după trimitere, fără să trimită nimic.
+const WEBHOOK_CERERI = '';
+const WEBHOOK_CHAT = '';
+
+const miscare = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
+gsap.ticker.lagSmoothing(0);
+const erou = document.querySelector('.erou');
+const poza = erou.querySelector('.poza');
+
+if (miscare) {
+  const litere = [];
+  erou.querySelectorAll('.nume>span').forEach(r => {
+    const t = r.textContent; r.textContent = ''; r.setAttribute('aria-label', t);
+    [...t].forEach(c => { const l = document.createElement('span'); l.className = 'litera'; l.textContent = c; l.setAttribute('aria-hidden', 'true'); r.append(l); litere.push(l); });
+  });
+  gsap.from(litere, { yPercent: 40, opacity: 0, duration: .9, ease: 'power3.out', stagger: .035, delay: .2 });
+  gsap.from('.deviza, .indemn', { opacity: 0, duration: .8, delay: .8, stagger: .12 });
+  const t = gsap.timeline({ scrollTrigger: { trigger: erou, start: 'top top', end: '+=170%', pin: true, scrub: .6, anticipatePin: 1 } });
+  t.to(poza, { scale: 3.1, ease: 'power1.in', duration: 1 }, 0)
+   .to('.in', { opacity: 0, y: -30, duration: .25 }, .05)
+   .to('.sosit', { autoAlpha: 1, duration: .25 }, .72);
+} else {
+  gsap.set('.sosit', { autoAlpha: 1 });
+  gsap.set('.in', { opacity: 0 });
+}
+
+const bara = document.getElementById('bara');
+ScrollTrigger.create({ trigger: '#servicii', start: 'top 85%', onEnter: () => bara.classList.add('vizibila'), onLeaveBack: () => bara.classList.remove('vizibila') });
+
+const acum = new Date(), zi = acum.getDay(), ora = acum.getHours() + acum.getMinutes() / 60;
+document.querySelectorAll('#program [data-zile]').forEach(e => { if (e.dataset.zile.split(',').includes(String(zi))) e.classList.add('azi'); });
+const interval = zi === 0 ? null : zi === 6 ? [9, 17] : [10, 20];
+document.getElementById('stare').textContent = interval && ora >= interval[0] && ora < interval[1]
+  ? `Deschis azi până la ${interval[1]}:00` : 'Închis acum';
+
+// Programarea obișnuită (doar aspectul; programările adevărate le face chatul, la Task 8).
+const dlg = document.getElementById('programare');
+const alegere = { serv: null, zi: null, ora: null, cerere: null };
+const SERVICII = ['Tuns', 'Barbă', 'Tuns și barbă', 'Tuns copii'];
+const ZILE = ['duminică', 'luni', 'marți', 'miercuri', 'joi', 'vineri', 'sâmbătă'];
+const LUNI = ['ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie', 'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie'];
+const zile = [], lungi = {};
+for (let i = 1; zile.length < 5; i++) {
+  const d = new Date(); d.setDate(d.getDate() + i);
+  if (!d.getDay()) continue;
+  const scurt = `${ZILE[d.getDay()]} ${d.getDate()}`;
+  zile.push(scurt); lungi[scurt] = `${ZILE[d.getDay()]}, ${d.getDate()} ${LUNI[d.getMonth()]}`;
+}
+const ORE = ['10:00', '11:00', '12:30', '14:00', '15:30', '17:00'];
+const ORE_SAMBATA = ORE.slice(0, 5); // sâmbăta se închide la 17:00
+
+function pastile(id, valori, cheie, dupa) {
+  const loc = document.getElementById(id);
+  loc.innerHTML = '';
+  valori.forEach(val => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = val; b.setAttribute('aria-pressed', alegere[cheie] === val);
+    b.onclick = () => { alegere[cheie] = val; pastile(id, valori, cheie, dupa); if (dupa) dupa(); };
+    loc.append(b);
+  });
+}
+function ore() {
+  const lista = alegere.zi && alegere.zi.startsWith('sâmbătă') ? ORE_SAMBATA : ORE;
+  if (!lista.includes(alegere.ora)) alegere.ora = null;
+  pastile('a-ora', lista, 'ora', verifica);
+}
+function verifica() { document.getElementById('trimite').disabled = !(alegere.serv && alegere.zi && alegere.ora); }
+function deschide(serv) {
+  alegere.serv = serv || alegere.serv;
+  document.getElementById('pasi').hidden = false;
+  document.getElementById('gata').hidden = true;
+  pastile('a-serv', SERVICII, 'serv', verifica); pastile('a-zi', zile, 'zi', () => { ore(); verifica(); }); ore(); verifica();
+  dlg.showModal();
+}
+document.querySelectorAll('[data-programare]').forEach(b => b.onclick = () => deschide());
+document.querySelectorAll('[data-serviciu]').forEach(b => b.onclick = () => deschide(b.dataset.serviciu));
+document.querySelector('.inchide').onclick = () => dlg.close();
+dlg.addEventListener('click', e => {
+  const r = dlg.getBoundingClientRect();
+  if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
+});
+document.getElementById('trimite').onclick = () => {
+  document.getElementById('rezumat').textContent = `${alegere.serv}: ${lungi[alegere.zi]}, la ${alegere.ora}.`;
+  document.getElementById('pasi').hidden = true;
+  document.getElementById('gata').hidden = false;
+};
+
+// Cererea pentru grupuri: câmpurile sunt contractul modelului „răspuns în primul minut”
+// (nume, telefon, email, cerere, mesaj, website = capcana).
+const CERERI = ['Mire și cavaleri de onoare', 'Grup de prieteni', 'Echipa de la firmă', 'Altceva'];
+pastile('a-cerere', CERERI, 'cerere');
+const form = document.getElementById('cerere');
+const eroare = document.getElementById('eroare');
+const buton = document.getElementById('trimite-cerere');
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(form));
+  const date = {
+    nume: f.nume.trim(), telefon: f.telefon.trim(), email: f.email.trim(),
+    cerere: alegere.cerere || '', mesaj: f.mesaj.trim(), website: f.website,
+  };
+  const lipsa = !date.cerere ? 'Alege ce pregătești.'
+    : !date.nume ? 'Scrie-ți numele.'
+    : !date.telefon && !date.email ? 'Lasă-ne un telefon sau un e-mail, ca să-ți putem răspunde.'
+    : date.email && !form.email.checkValidity() ? 'Adresa de e-mail pare greșită.'
+    : '';
+  eroare.textContent = lipsa;
+  if (lipsa) return;
+
+  buton.disabled = true; buton.textContent = 'Se trimite…';
+  try {
+    if (WEBHOOK_CERERI) {
+      const r = await fetch(WEBHOOK_CERERI, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(date) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+    } else {
+      console.info('[demo] WEBHOOK_CERERI e gol, nu s-a trimis nimic:', date);
+    }
+    document.getElementById('unde').textContent =
+      `Ți-am trimis un mesaj. Verifică-ți ${date.email ? 'e-mailul' : 'telefonul'}.`;
+    form.hidden = true;
+    const gata = document.getElementById('trimisa');
+    gata.hidden = false; gata.focus();
+  } catch (err) {
+    console.error(err);
+    eroare.textContent = 'Nu s-a trimis. Încearcă din nou peste un minut.';
+    buton.disabled = false; buton.textContent = 'Trimite cererea';
+  }
+});
+</script>
+</body>
+</html>
