@@ -12,7 +12,7 @@ Pe scurt: automatizarea rulează în **contul n8n Cloud al clientului**, plătit
 | 2 | Telefonul; omul zice „da”. | Andrei |
 | 3 | Formularul Tally „Automatizări” (`tally.so/r/M1X8qg`, întrebările 10–19 în `continut/formulare/tally.md`). | Andrei |
 | 4 | Fișa clientului, cu „mentenanță sau doar automatizarea”. | `client-nou` |
-| 5 | Propunerea → PDF → Andrei o confirmă → clientul o aprobă. | `automatizare-client` |
+| 5 | La modelele de vânzare, întâi brief-ul cu patronul, pe apel (`brief-vanzari.md`). Apoi propunerea → PDF → Andrei o confirmă → clientul o aprobă. | `automatizare-client` |
 | 6 | Contul n8n Cloud, invitația, MCP-ul, conectarea conturilor: pe apel, după PDF-ul de pornire (`pornire.md`). | client + Andrei |
 | 7 | Construirea în contul clientului, de la `modele/` unde se potrivesc; validare, test cu date de probă. | `automatizare-client` |
 | 8 | PDF-ul de folosire. | `automatizare-client` |
@@ -87,6 +87,7 @@ Cu date de probă sau date fixate, **niciodată** cu mesaje către clienții rea
 ## Modelele și PDF-urile
 
 - `modele/README.md`: fluxurile-model, curățate, plus `flux-erori`. Un model nou se face cu `curata.mjs`.
+- `brief-vanzari.md`: întrebările pentru patron la modelele de vânzare; din răspunsuri ies setările firmei și textul asistentului.
 - `pdf/`: generatorul local. `node servicii/automatizari/pdf/tipareste.mjs <slug> <propunere|pornire|folosire>` face PDF-ul în `clienti/<slug>/automatizari/pdf/`. Exemplele, pentru „Clinica Probă”, sunt în `pdf/exemple/`. PDF-urile clienților nu ajung niciodată pe buildwithac.ro.
 
 <!--
