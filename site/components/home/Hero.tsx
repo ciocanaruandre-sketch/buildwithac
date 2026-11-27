@@ -17,14 +17,14 @@ const YP: Record<number, number> = { 2: 55, 3: 40, 4: 10 };
 // PROTOTIP (ramura `coperta`): varianta C, cu frazele de ales din ?fraza=1..4
 type Varianta = "1" | "2" | "3" | "4";
 const FRAZE: Record<Varianta, [string, string]> = {
-  "1": ["Programări uitate, mesaje fără răspuns, un site care nu aduce clienți?", "Le rezolv eu."],
-  "2": ["Clienții îți scriu când tu ești ocupat.", "Eu fac să primească răspuns pe loc."],
-  "3": ["Tu te ocupi de clienți.", "Eu, de site și de mesajele la care nu apuci să răspunzi."],
-  "4": ["Faci totul singur în firmă?", "Site-ul și automatizările ți le fac eu."],
+  "1": ["Un site care nu aduce clienți, mesaje fără răspuns, clienți notați prin caiete?", "Le rezolv eu."],
+  "2": ["Programări uitate, mesaje fără răspuns, clienți notați prin caiete?", "Le rezolv eu."],
+  "3": ["Programări uitate, mesaje fără răspuns, clienți pierduți prin Excel?", "Le rezolv eu."],
+  "4": ["Programări uitate, mesaje fără răspuns, clienți de care nu mai știi nimic?", "Le rezolv eu."],
 };
 const VARIANTE = (Object.keys(FRAZE) as Varianta[]).map((v) => ({ v, nume: `Fraza ${v}` }));
 
-const Eticheta = () => <div className="cv-eti">Site-uri · Automatizări AI · CRM</div>;
+const Eticheta = () => <div className="cv-eti">Site-uri · Automatizări · CRM</div>;
 const Butoane = () => (
   <div className="cv-but">
     <a className="plin" href="#formular">Analiză gratuită</a>

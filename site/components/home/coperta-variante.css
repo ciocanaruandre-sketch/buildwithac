@@ -1,6 +1,6 @@
 /* PROTOTIP (ramura `coperta`): variantele copertei. Se șterge după alegere. */
 
-.cv-eti { font-family: var(--nf-mono); font-size: clamp(10px, 2.7vw, 13px); letter-spacing: .22em; text-transform: uppercase; color: var(--color-gold); text-shadow: 0 2px 14px rgba(0,0,0,.6); }
+.cv-eti { font-family: var(--nf-inter); font-weight: 800; font-size: clamp(11px, 3vw, 14px); letter-spacing: .2em; text-transform: uppercase; color: var(--color-gold); text-shadow: 0 2px 14px rgba(0,0,0,.6); }
 .cv-fraza { font-family: var(--nf-unbounded); font-weight: 600; letter-spacing: -.02em; line-height: 1.2; color: var(--color-cream); text-wrap: balance; }
 .cv-fraza .serif { font-size: 1.12em; letter-spacing: 0; }
 .cv-desc { margin-top: 10px; color: rgba(246,239,227,.82); font-size: clamp(14px, 3.8vw, 17px); line-height: 1.45; text-wrap: balance; }

@@ -5,6 +5,13 @@ import { LinkServiciu } from "./LinkServiciu";
 
 const SERVICII: { cheie: CheieServiciu; eticheta: string; titlu: ReactNode; text: string }[] = [
   {
+    // PROTOTIP: până intră „crm” în formular și în CRM, linkul alege „Altceva”
+    cheie: "altceva",
+    eticheta: "CRM pentru firma ta",
+    titlu: <>CRM <span className="serif gtxt">pentru firma ta</span></>,
+    text: "Toți clienții tăi într-un singur loc: cine a sunat, ce i-ai promis, când trebuie să revii. Îl fac după cum lucrezi tu, nu după un program gata făcut, și îl folosești de pe telefon.",
+  },
+  {
     cheie: "site",
     eticheta: "Site făcut de la zero",
     titlu: <>Site făcut <span className="serif gtxt">de la zero</span></>,
