@@ -153,3 +153,38 @@ test("programari: Jurnal și Nu trimite se citesc o dată, iar o foaie goală nu
     assert.equal(flux.settings?.timezone, "Europe/Bucharest", fisier);
   }
 });
+
+// ---------- raspuns-primul-minut (răspunsul pe loc la cererile de pe site) ----------
+const raspuns = fluxuriDin("raspuns-primul-minut")[0]?.flux;
+const nod = (flux, nume) => flux.nodes.find((n) => n.name === nume);
+const urmasi = (flux, nume, iesire) => (flux.connections[nume]?.main[iesire] || []).map((l) => l.node);
+test("raspuns-primul-minut: dacă pică Claude, cererea primește tot un răspuns (Mesaj fix)", { skip: !raspuns && "neexportat" }, () => {
+  const ai = raspuns.nodes.filter((n) => /langchain|anthropic/i.test(n.type));
+  assert.equal(ai.length, 1, "un singur nod AI");
+  const [claude] = ai;
+  assert.equal(claude.retryOnFail, true, `${claude.name}: retryOnFail`);
+  assert.equal(claude.onError, "continueErrorOutput", `${claude.name}: ieșirea de eroare`);
+  assert.deepEqual(urmasi(raspuns, claude.name, 1), ["Mesaj fix"], "eroarea lui Claude duce la Mesaj fix");
+  // un răspuns stricat (JSON lipsă) aruncă în Pregătește mesajele → tot la Mesaj fix
+  assert.equal(nod(raspuns, "Pregătește mesajele").onError, "continueErrorOutput");
+  assert.deepEqual(urmasi(raspuns, "Pregătește mesajele", 1), ["Mesaj fix"]);
+  assert.deepEqual(urmasi(raspuns, "Mesaj fix", 0), ["Mesajele"], "mesajul fix intră în aceeași coadă de trimitere");
+  // Haiku 5.5 respinge temperature; gândirea intră în maxTokens (la 1024 a ieșit gol)
+  for (const k of ["temperature", "topP", "topK"]) assert.equal(claude.parameters.options?.[k], undefined, k);
+  assert.ok(claude.parameters.options?.maxTokens >= 4000, "maxTokens ≥ 4000");
+});
+test("raspuns-primul-minut: cererile proaste nu ajung la Claude, adresa și setările sunt de completat", { skip: !raspuns && "neexportat" }, () => {
+  assert.deepEqual(urmasi(raspuns, "Verifică cererea", 0), ["E bună?"]);
+  assert.deepEqual(urmasi(raspuns, "E bună?", 1), ["Notează cererea sărită"], "capcana, limita pe zi → doar Jurnal");
+  assert.deepEqual(urmasi(raspuns, "E bună?", 0), ["Prompt"]);
+  const webhook = raspuns.nodes.find((n) => n.type === "n8n-nodes-base.webhook");
+  assert.equal(webhook.parameters.httpMethod, "POST");
+  assert.equal(webhook.parameters.options?.allowedOrigins, "CONFIG_DOMENIU_SITE");
+  assert.equal(nod(raspuns, "Setări firmă").parameters.workflowId.value, "CONFIG_ID_SETARI_FIRMA");
+  assert.equal(raspuns.settings?.errorWorkflow, undefined, "errorWorkflow se pune la client");
+  assert.equal(raspuns.settings?.timezone, "Europe/Bucharest");
+  assert.notEqual(nod(raspuns, "Trimite SMS-ul").disabled, true, "în model, SMS-ul e pornit");
+  const cereri = nod(raspuns, "Cereri");
+  assert.equal(cereri.executeOnce, true);
+  assert.equal(cereri.alwaysOutputData, true, "foaie goală = niciun item, codul n-ar rula");
+});
