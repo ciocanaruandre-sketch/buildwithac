@@ -15,6 +15,7 @@ Fluxuri reale din portofoliu, curățate: fără conturi conectate, fără ID-ur
 | `dezabonare` | STOP prin SMS sau link-ul din e-mail → foaia `Nu trimite` | Sheets (Twilio trimite SMS-urile primite) | nu |
 | `programari` | confirmarea programării, anunțul de mutare, reamintirile (două fluxuri: `flux-confirmare`, `flux-verificare`) | Google Calendar, Sheets, Gmail, Twilio | da |
 | `raspuns-primul-minut` | răspuns personal în sub un minut la cererile din formularul site-ului, scris de Claude; mesaj fix dacă pică Claude; rezumat la patron | Anthropic, Sheets, Gmail, Twilio | da (la clinici, fără Claude) |
+| `asistent-site` | chatul de pe site: răspunde din datele firmei, caută ore libere și face programări în calendar; ce nu știe trimite patronului (trei fluxuri: `flux`, `flux-ore-libere`, `flux-programeaza`) | Anthropic, Google Calendar, Gmail | da (la clinici, nu se pune fără patron) |
 
 **Un model nou:** `node servicii/automatizari/curata.mjs <export.json> <nume-model>`, apoi înlocuiești de mână ce raportează scriptul. Lângă flux scrii un `README.md`. `node --test "servicii/automatizari/*.test.mjs"` verifică toate modelele.
 

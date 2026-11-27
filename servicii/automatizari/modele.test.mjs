@@ -188,3 +188,53 @@ test("raspuns-primul-minut: cererile proaste nu ajung la Claude, adresa și set�
   assert.equal(cereri.executeOnce, true);
   assert.equal(cereri.alwaysOutputData, true, "foaie goală = niciun item, codul n-ar rula");
 });
+
+// ---------- asistent-site (chatul de pe site, cu programări) ----------
+const asistent = fluxuriDin("asistent-site");
+const fluxAsistent = (fisier) => asistent.find((f) => f.fisier === fisier)?.flux;
+const chat = fluxAsistent("flux.json");
+test("asistent-site: chatul primește mesaje doar de pe site-ul clientului", { skip: !chat && "neexportat" }, () => {
+  const trigger = chat.nodes.find((n) => n.type === "@n8n/n8n-nodes-langchain.chatTrigger");
+  assert.equal(trigger.parameters.public, true);
+  assert.equal(trigger.parameters.mode, "webhook", "fereastra de pe site, nu pagina găzduită de n8n");
+  assert.equal(trigger.parameters.options?.allowedOrigins, "CONFIG_DOMENIU_SITE", "nu `*`: altfel oricine îl pune pe site-ul lui și plătește clientul");
+  assert.equal(trigger.parameters.options?.responseMode, "lastNode");
+});
+test("asistent-site: instrucțiunile au ora României, iar după 30 de mesaje răspunde fix, fără Claude", { skip: !chat && "neexportat" }, () => {
+  assert.match(nod(chat, "Pregătește conversația").parameters.jsCode, /Europe\/Bucharest/);
+  assert.equal(nod(chat, "Asistentul").parameters.options?.systemMessage, "={{ $json.system }}", "instrucțiunile vin din Pregătește conversația");
+  assert.deepEqual(urmasi(chat, "Prea multe mesaje?", 0), ["Răspuns fix"]);
+  assert.deepEqual(urmasi(chat, "Prea multe mesaje?", 1), ["Asistentul"]);
+  const claude = chat.nodes.filter((n) => /lmChat/i.test(n.type));
+  assert.equal(claude.length, 1, "un singur model");
+  assert.match(claude[0].parameters.model.value, /model_ai_asistent/, "modelul vine din setari-firma");
+  for (const k of ["temperature", "topP", "topK"]) assert.equal(claude[0].parameters.options?.[k], undefined, k);
+  assert.ok(claude[0].parameters.options?.maxTokensToSample >= 4000, "maxTokensToSample ≥ 4000 (gândirea intră în el)");
+  const memoria = chat.nodes.find((n) => /memoryBufferWindow/.test(n.type));
+  assert.equal(memoria.parameters.sessionIdType, "customKey");
+  assert.match(memoria.parameters.sessionKey, /sessionId/, "fiecare vizitator cu conversația lui");
+});
+test("asistent-site: trei unelte, sub-fluxurile și setările sunt de completat la client", { skip: !chat && "neexportat" }, () => {
+  const unelte = Object.entries(chat.connections).filter(([, c]) => c.ai_tool).map(([n]) => n).sort();
+  assert.deepEqual(unelte, ["ore_libere", "programeaza", "transmite_patronului"]);
+  assert.equal(nod(chat, "ore_libere").parameters.workflowId.value, "CONFIG_ID_ASISTENT_ORE_LIBERE");
+  assert.equal(nod(chat, "programeaza").parameters.workflowId.value, "CONFIG_ID_ASISTENT_PROGRAMEAZA");
+  assert.match(nod(chat, "transmite_patronului").parameters.sendTo, /email_patron/, "adresa patronului vine din setari-firma");
+  for (const { fisier, flux } of asistent) {
+    assert.equal(nod(flux, "Setări firmă").parameters.workflowId.value, "CONFIG_ID_SETARI_FIRMA", fisier);
+    assert.equal(flux.settings?.errorWorkflow, undefined, `${fisier}: errorWorkflow se pune la client`);
+    assert.equal(flux.settings?.timezone, "Europe/Bucharest", fisier);
+  }
+});
+test("asistent-site: uneltele citesc calendarul proaspăt, fără AI în ele", { skip: asistent.length < 3 && "neexportat" }, () => {
+  for (const fisier of ["flux-ore-libere.json", "flux-programeaza.json"]) {
+    const flux = fluxAsistent(fisier);
+    assert.ok(!flux.nodes.some((n) => /langchain|anthropic/i.test(n.type)), `${fisier}: fără AI`);
+    const citire = nod(flux, "Programările");
+    assert.equal(citire.parameters.options?.recurringEventHandling, "expand", `${fisier}: programările recurente desfăcute`);
+    assert.equal(citire.alwaysOutputData, true, `${fisier}: o zi goală nu oprește unealta`);
+  }
+  const pf = fluxAsistent("flux-programeaza.json");
+  assert.deepEqual(urmasi(pf, "Se poate?", 0), ["Pune în calendar"]);
+  assert.deepEqual(urmasi(pf, "Se poate?", 1), ["Nu se poate"], "o eroare (ocupat, lipsa contact) nu scrie în calendar");
+});
