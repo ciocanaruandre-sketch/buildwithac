@@ -17,7 +17,10 @@
 
 **Cortina:** fără vârstă („Salut, sunt Andrei, am terminat Mecatronica la Politehnica din București.”) și fără cele două butoane (s-au mutat pe copertă).
 
-**Servicii:** cardul nou „CRM *pentru echipe de vânzări*”, primul din listă: „Fiecare lead intră singur, din formular sau din reclame. Callerii văd pe cine sună azi, closerii preiau programările, iar tu vezi ce reclamă a adus clienți și cât te-a costat fiecare. Îl fac după cum lucrează echipa ta.” Restul se renumerotează (01 CRM, 02 Site, 03 Automatizări, 04 Sesiune 1 la 1).
+**Servicii (textele lui Andrei, finale):**
+- cardul nou „CRM *pentru echipe de vânzări*”, primul din listă: „Fiecare lead intră automat. Callerii preiau lead-urile, closerii închid procesul de vânzare, iar tu analizezi toate datele și performanța echipei. De asemenea, ai integrare Meta pentru a urmări corect lead-urile provenite din reclame, dar și pentru o analiză completă a acestora.” Restul se renumerotează (01 CRM, 02 Site, 03 Automatizări, 04 Sesiune 1 la 1).
+- „Site făcut de la zero”: ultima frază devine „Optimizat pentru a funcționa eficient pe telefon.”
+- „Automatizări”: „Răspunsurile pentru clienți, programările, mesajele de follow-up și orice muncă repetitivă de zi cu zi. Le integrez astfel încât să funcționeze automat, fără intervenția ta.”
 
 **Formularul:** pastila nouă „CRM” (cheia `crm`); „Hai să vorbim” de pe cardul CRM o alege. Linkurile din reclame pot aduce `?serviciu=crm`.
 

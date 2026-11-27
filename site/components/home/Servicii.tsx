@@ -9,19 +9,19 @@ const SERVICII: { cheie: CheieServiciu; eticheta: string; titlu: ReactNode; text
     cheie: "altceva",
     eticheta: "CRM pentru echipe de vânzări",
     titlu: <>CRM <span className="serif gtxt">pentru echipe de vânzări</span></>,
-    text: "Fiecare lead intră singur, din formular sau din reclame. Callerii văd pe cine sună azi, closerii preiau programările, iar tu vezi ce reclamă a adus clienți și cât te-a costat fiecare. Îl fac după cum lucrează echipa ta.",
+    text: "Fiecare lead intră automat. Callerii preiau lead-urile, closerii închid procesul de vânzare, iar tu analizezi toate datele și performanța echipei. De asemenea, ai integrare Meta pentru a urmări corect lead-urile provenite din reclame, dar și pentru o analiză completă a acestora.",
   },
   {
     cheie: "site",
     eticheta: "Site făcut de la zero",
     titlu: <>Site făcut <span className="serif gtxt">de la zero</span></>,
-    text: "Îl fac de la zero, după firma ta. Îmi povestești ce faci și cui vinzi, îți arăt câteva variante, iar tu alegi. Merge bine pe telefon, de unde intră cei mai mulți.",
+    text: "Îl fac de la zero, după firma ta. Îmi povestești ce faci și cui vinzi, îți arăt câteva variante, iar tu alegi. Optimizat pentru a funcționa eficient pe telefon.",
   },
   {
     cheie: "automatizari",
     eticheta: "Automatizări pentru firma ta",
     titlu: <>Automatizări <span className="serif gtxt">pentru firma ta</span></>,
-    text: "Răspunsurile la clienți, programările, mesajele de revenire, tot ce faci la fel în fiecare zi. Le pun să meargă singure, în aplicațiile pe care le ai deja.",
+    text: "Răspunsurile pentru clienți, programările, mesajele de follow-up și orice muncă repetitivă de zi cu zi. Le integrez astfel încât să funcționeze automat, fără intervenția ta.",
   },
   {
     cheie: "1la1",
