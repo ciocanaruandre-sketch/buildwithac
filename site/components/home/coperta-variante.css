@@ -32,7 +32,7 @@
 .px.cv-b .cv-but { margin-top: 40px; }
 
 /* C: fraza pe cer, deasupra numelui; jos doar butoanele */
-.cv-sus { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 14px; margin-bottom: 3vw; }
+.cv-sus { position: absolute; left: 0; right: 0; bottom: calc(50svh + 5.75vw + 44px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 18px; }
 .cv-sus .cv-eti { letter-spacing: .14em; }
 .cv-sus .cv-fraza .serif { background: none; color: var(--color-gold); }
 .cv-sus .cv-fraza { font-size: clamp(19px, 5.3vw, 34px); max-width: 640px; text-shadow: 0 2px 18px rgba(0,0,0,.45); }

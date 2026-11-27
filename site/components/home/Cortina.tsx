@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Fragment, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -14,7 +13,7 @@ const Cuvinte = ({ text }: { text: string }) =>
 
 // textul se rupe doar între bucățile astea: pe telefon fiecare e un rând, pe ecranele mari încap mai multe pe rând
 const FRAZE = [
-  ["Salut, sunt Andrei,", "am 24 de ani și am terminat", "Mecatronica la Politehnica", "din București."],
+  ["Salut, sunt Andrei,", "am terminat Mecatronica", "la Politehnica din București."],
   ["Știu că la început de drum", "le faci pe toate singur."],
   ["Eu îți fac site-ul", "și automatizările,", "ca tu să ai timp pentru", "gestionarea afacerii."],
 ];
@@ -42,10 +41,6 @@ export function Cortina() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.webp" alt="" width={52} height={52} />
         <span>Andrei · Build with AC</span>
-      </div>
-      <div className="cortina-but">
-        <a className="plin" href="#formular">Analiză gratuită</a>
-        <Link href="/ghiduri">Ghiduri gratuite</Link>
       </div>
     </section>
   );

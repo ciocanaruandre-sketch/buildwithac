@@ -14,16 +14,17 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 // cât urcă fiecare strat la scroll (yPercent), ca în efectul Osmo
 const YP: Record<number, number> = { 2: 55, 3: 40, 4: 10 };
 
-// PROTOTIP (ramura `coperta`): variantele copertei, alese cu ?coperta=a|b|c
-type Varianta = "a" | "b" | "c";
-const VARIANTE: { v: Varianta; nume: string }[] = [
-  { v: "a", nume: "A · Text jos" },
-  { v: "b", nume: "B · Bilet lipit" },
-  { v: "c", nume: "C · Totul pe cer" },
-];
+// PROTOTIP (ramura `coperta`): varianta C, cu frazele de ales din ?fraza=1..4
+type Varianta = "1" | "2" | "3" | "4";
+const FRAZE: Record<Varianta, [string, string]> = {
+  "1": ["Programări uitate, mesaje fără răspuns, un site care nu aduce clienți?", "Le rezolv eu."],
+  "2": ["Clienții îți scriu când tu ești ocupat.", "Eu fac să primească răspuns pe loc."],
+  "3": ["Tu te ocupi de clienți.", "Eu, de site și de mesajele la care nu apuci să răspunzi."],
+  "4": ["Faci totul singur în firmă?", "Site-ul și automatizările ți le fac eu."],
+};
+const VARIANTE = (Object.keys(FRAZE) as Varianta[]).map((v) => ({ v, nume: `Fraza ${v}` }));
 
-const Eticheta = () => <div className="cv-eti">Site-uri · Automatizări AI · Firme mici</div>;
-const Promisiuni = () => <div className="cv-prom">Îți răspund în 1–2 zile <i>·</i> Vorbești direct cu mine</div>;
+const Eticheta = () => <div className="cv-eti">Site-uri · Automatizări AI · CRM</div>;
 const Butoane = () => (
   <div className="cv-but">
     <a className="plin" href="#formular">Analiză gratuită</a>
@@ -33,20 +34,20 @@ const Butoane = () => (
 
 export function Hero() {
   const radacina = useRef<HTMLElement>(null);
-  const [v, setV] = useState<Varianta>("a");
+  const [v, setV] = useState<Varianta>("1");
   const [comutator, setComutator] = useState(false);
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
-    const ales = p.get("coperta");
-    if (ales === "a" || ales === "b" || ales === "c") setV(ales);
+    const ales = p.get("fraza");
+    if (ales && ales in FRAZE) setV(ales as Varianta);
     setComutator(!p.has("fara-comutator"));
   }, []);
 
   const alege = (x: Varianta) => {
     setV(x);
     const u = new URL(location.href);
-    u.searchParams.set("coperta", x);
+    u.searchParams.set("fraza", x);
     history.replaceState(null, "", u);
   };
 
@@ -60,7 +61,7 @@ export function Hero() {
   }, { scope: radacina });
 
   return (
-    <section className={`px cv-${v}`} id="hero" ref={radacina}>
+    <section className="px cv-c" id="hero" ref={radacina}>
       <div className="px__visuals">
         <div className="px__layers">
           <div className="px__layer" data-l="2">
@@ -68,14 +69,10 @@ export function Hero() {
           </div>
           <div className="px__layer titlu" data-l="3">
             <div className="px__titlewrap">
-              {v === "c" ? (
-                <div className="px__sub cv-sus">
-                  <Eticheta />
-                  <p className="cv-fraza">Îți fac site-ul și automatizările, <span className="serif grad-text">ca tu să ai timp de afacere.</span></p>
-                </div>
-              ) : (
-                <div className="px__sub"><Eticheta /></div>
-              )}
+              <div className="px__sub cv-sus">
+                <Eticheta />
+                <p className="cv-fraza">{FRAZE[v][0]} <span className="serif grad-text">{FRAZE[v][1]}</span></p>
+              </div>
               <h1 className="px__title">buildwithac</h1>
             </div>
           </div>
@@ -86,31 +83,10 @@ export function Hero() {
         <div className="px__fade" />
       </div>
       <div className="px__header">
-        {v === "a" && (
-          <div className="cv-jos">
-            <p className="cv-fraza">Site-uri și automatizări cu AI <span className="serif grad-text">pentru firme mici.</span></p>
-            <p className="cv-desc">Site de la zero, reamintiri pentru programări, răspuns la clienți în primul minut.</p>
-            <Butoane />
-            <Promisiuni />
-          </div>
-        )}
-        {v === "b" && (
-          <div className="cv-jos">
-            <div className="cv-bilet">
-              <span className="cv-banda" />
-              <p className="cv-fraza">Îți fac site-ul și automatizările, ca tu să ai timp de afacere.</p>
-              <p className="cv-desc">Pentru cafenele, saloane, clinici și imobiliare.</p>
-              <span className="hand cv-mana">îți răspund în 1–2 zile ↘</span>
-            </div>
-            <Butoane />
-          </div>
-        )}
-        {v === "c" && (
-          <div className="cv-jos">
-            <Butoane />
-            <Promisiuni />
-          </div>
-        )}
+        <div className="cv-jos">
+          <Butoane />
+          <div className="cv-prom">Îți răspund în 1–2 zile <i>·</i> Vorbești direct cu mine</div>
+        </div>
       </div>
       <div className="px__spacer" />
       {comutator && (
