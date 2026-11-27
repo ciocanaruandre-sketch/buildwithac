@@ -7,9 +7,9 @@ const SERVICII: { cheie: CheieServiciu; eticheta: string; titlu: ReactNode; text
   {
     // PROTOTIP: până intră „crm” în formular și în CRM, linkul alege „Altceva”
     cheie: "altceva",
-    eticheta: "CRM pentru firma ta",
-    titlu: <>CRM <span className="serif gtxt">pentru firma ta</span></>,
-    text: "Toți clienții tăi într-un singur loc: cine a sunat, ce i-ai promis, când trebuie să revii. Îl fac după cum lucrezi tu, nu după un program gata făcut, și îl folosești de pe telefon.",
+    eticheta: "CRM pentru echipe de vânzări",
+    titlu: <>CRM <span className="serif gtxt">pentru echipe de vânzări</span></>,
+    text: "Fiecare lead intră singur, din formular sau din reclame. Callerii văd pe cine sună azi, closerii preiau programările, iar tu vezi ce reclamă a adus clienți și cât te-a costat fiecare. Îl fac după cum lucrează echipa ta.",
   },
   {
     cheie: "site",
