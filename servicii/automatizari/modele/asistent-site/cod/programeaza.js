@@ -1,13 +1,13 @@
 // Asistentul de pe site, unealta „programeaza”: pregătește programarea pentru Google Calendar, după ce verifică ora.
 // Intrarea: „Ce cere asistentul” ({ om: nume | "oricine", serviciu, start: "YYYY-MM-DDTHH:MM" (ora României, cu sau fără fus), nume, telefon?, email? }),
-// „Setări firmă” și „Programările” (evenimentele oamenilor în ziua aceea, citite chiar acum).
+// „Setări firmă” și intrarea (evenimentele oamenilor în ziua aceea, citite chiar acum, cu om pus de nodul „Al cui e”).
 // Ieșirea: { ok: true, calendar_id, summary, description, start, end, om, serviciu, ziua, ora } pentru nodul care scrie în calendar
-// sau { ok: false, eroare, detalii }. Titlul și descrierea sunt în forma pe care o citesc reamintirile (programari/cod/confirmare.js).
+// sau { ok: false, eroare, detalii } (eroarea „prea multe”: deja 2 programări în ziua aceea de la același contact). Titlul și descrierea sunt în forma pe care o citesc reamintirile (programari/cod/confirmare.js).
 const setari = $('Setări firmă').first().json;
 const cerere = $('Ce cere asistentul').first().json || {};
 const acum = $now.toMillis();
-const evenimente = $('Programările').all().map((i) => i.json).filter((e) => e && e.start);
-const CEL_MAI_DEVREME_MIN = 60;
+const evenimente = $input.all().map((i) => i.json).filter((e) => e && e.start);
+const CEL_MAI_DEVREME_MIN = 60, MAX_PE_CONTACT = 2;
 
 // ---------- comune (același text în toate fișierele cod/ care le au) ----------
 // Fără diacritice și fără semnele care scumpesc SMS-ul (cu ele, un SMS costă dublu).
@@ -18,6 +18,7 @@ const faraDiacritice = (text) => String(text || '')
 // Telefonul în forma +407…, oricum ar fi scris; null dacă nu e un număr bun pentru SMS.
 const telefonRo = (text) => {
   let n = String(text || '').replace(/[^\d+]/g, '');
+  n = n.replace(/^(\+|00)400/, '$140'); // „+40 (0) 722…”: zeroul dintre paranteze
   if (n.startsWith('00')) n = '+' + n.slice(2);
   else if (n.startsWith('0')) n = '+40' + n.slice(1);
   else if (n.startsWith('40')) n = '+' + n;
@@ -61,7 +62,7 @@ const laOra = (zi, hhmm) => { const brut = Date.parse(`${zi}T${hhmm}:00Z`); retu
 const ziDin = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest' }).format(new Date(ms));
 const minute = (hhmm) => { const [h, m] = String(hhmm).split(':').map(Number); return h * 60 + m; };
 const hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
-const omul = (e) => e.om || (setari.oameni.find((o) => o.calendar_id === (e.organizer && e.organizer.email)) || {}).nume || '';
+const omul = (e) => e.om || (setari.oameni.find((o) => String(o.calendar_id || '').toLowerCase() === String((e.organizer && e.organizer.email) || '').toLowerCase()) || {}).nume || '';
 // Ce are ocupat un om: [început, sfârșit) în ms. O zi întreagă (concediu, „închis”) ocupă toată ziua.
 const ocupate = (nume) => evenimente.filter((e) => e.status !== 'cancelled' && egal(omul(e), nume)).map((e) => (e.start.dateTime
   ? [Date.parse(e.start.dateTime), Date.parse((e.end && e.end.dateTime) || e.start.dateTime)]
@@ -85,6 +86,10 @@ const telefon = telefonRo(cerere.telefon);
 const emailText = String(cerere.email || '').trim();
 const email = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(emailText) ? emailText.toLowerCase() : null;
 if (!telefon && !email) return eroare('lipsa contact', 'Cere un telefon sau un e-mail, ca firma să trimită confirmarea.');
+// Cel mult MAX_PE_CONTACT programări în ziua aceea de la același telefon sau e-mail (oprește un robot care umple calendarul).
+const alAcelui = (e) => { const c = citesteContact(e.description); return (telefon && c.telefon === telefon) || (email && c.email === email); };
+const aceleasi = evenimente.filter((e) => e.status !== 'cancelled' && alAcelui(e)).length;
+if (aceleasi >= MAX_PE_CONTACT) return eroare('prea multe', `Clientul are deja ${aceleasi} programări în ziua aceea. Pentru mai multe, sună la firmă.`);
 
 // Ora: cu fus („+02:00”, „Z”) se ia ca atare; fără fus, e ora României.
 const t = String(cerere.start || '').trim();

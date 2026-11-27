@@ -237,4 +237,47 @@ test("asistent-site: uneltele citesc calendarul proaspăt, fără AI în ele", {
   const pf = fluxAsistent("flux-programeaza.json");
   assert.deepEqual(urmasi(pf, "Se poate?", 0), ["Pune în calendar"]);
   assert.deepEqual(urmasi(pf, "Se poate?", 1), ["Nu se poate"], "o eroare (ocupat, lipsa contact) nu scrie în calendar");
+  assert.match(nod(chat, "programeaza").parameters.description, /prea multe/, "agentul știe de limita pe contact");
+});
+
+// ---------- reparațiile după verificarea finală ----------
+// I1: evenimentul e al omului din calendarul în care a fost citit (organizatorul poate fi clientul care a trimis invitația).
+const cuCititori = () => [
+  ["asistent-site/flux-ore-libere.json", fluxAsistent("flux-ore-libere.json"), "Programările", "Ore libere"],
+  ["asistent-site/flux-programeaza.json", fluxAsistent("flux-programeaza.json"), "Programările", "Programează"],
+  ["programari/flux-verificare.json", fluxProgramari("flux-verificare.json"), "Programările omului", "Verificare"],
+];
+test("„Al cui e” pune omul din calendarul citit, înaintea codului", { skip: cuCititori().some(([, f]) => !f) && "neexportat" }, () => {
+  for (const [fisier, flux, citire, cod] of cuCititori()) {
+    assert.deepEqual(urmasi(flux, citire, 0), ["Al cui e"], `${fisier}: ${citire} → Al cui e`);
+    assert.deepEqual(urmasi(flux, "Al cui e", 0), [cod], `${fisier}: Al cui e → ${cod}`);
+    const set = nod(flux, "Al cui e");
+    assert.equal(set.type, "n8n-nodes-base.set", fisier);
+    assert.equal(set.parameters.includeOtherFields, true, `${fisier}: evenimentul rămâne întreg`);
+    const om = set.parameters.assignments.assignments.find((a) => a.name === "om");
+    assert.match(om.value, /\$\('Câte un om'\)\.item\.json\.nume/, `${fisier}: om = omul calendarului`);
+    assert.match(om.value, /\$json\.start \?/, `${fisier}: o zi goală (item gol) nu cere perechea`);
+    assert.notEqual(nod(flux, cod).executeOnce, true, `${fisier}: ${cod} citește $input.all(); executeOnce i-ar da doar primul eveniment`);
+  }
+});
+
+// I2: Twilio și Gmail merg mai departe și când pică (rândul din Jurnal are stare „eroare”); după Jurnal, fluxul se oprește cu eroare → flux-erori.
+const cuTrimiteri = () => [
+  ["programari/flux-confirmare.json", fluxProgramari("flux-confirmare.json")],
+  ["programari/flux-verificare.json", fluxProgramari("flux-verificare.json")],
+  ["raspuns-primul-minut/flux.json", raspuns],
+];
+test("o trimitere picată ajunge la alertă (IF stare eroare → Stop and Error, o dată)", { skip: cuTrimiteri().some(([, f]) => !f) && "neexportat" }, () => {
+  for (const [fisier, flux] of cuTrimiteri()) {
+    assert.ok(urmasi(flux, "Notează în Jurnal", 0).includes("A picat ceva?"), `${fisier}: Jurnal → A picat ceva?`);
+    assert.match(JSON.stringify(nod(flux, "A picat ceva?").parameters.conditions), /stare === 'eroare'/, fisier);
+    assert.deepEqual(urmasi(flux, "A picat ceva?", 0), ["Alertă: n-a plecat"], fisier);
+    const stop = nod(flux, "Alertă: n-a plecat");
+    assert.equal(stop.type, "n8n-nodes-base.stopAndError", fisier);
+    assert.equal(stop.executeOnce, true, `${fisier}: o singură alertă pe rulare`);
+    for (const t of ["Trimite SMS-ul", "Trimite e-mailul"]) assert.equal(nod(flux, t).onError, "continueRegularOutput", `${fisier}: ${t} ajunge în Jurnal și când pică`);
+  }
+  // În răspunsul pe loc, alerta rulează după rezumat (n8n v1 merge pe ramuri de sus în jos): patronul află oricum de cerere.
+  assert.ok(nod(raspuns, "A picat ceva?").position[1] > nod(raspuns, "Notează cererea").position[1], "A picat ceva? sub Notează cererea");
+  assert.match(nod(raspuns, "Rezumat la patron").parameters.message, /N-A PLECAT/, "rezumatul spune când răspunsul n-a plecat");
 });

@@ -13,6 +13,7 @@ const faraDiacritice = (text) => String(text || '')
 // Telefonul în forma +407…, oricum ar fi scris; null dacă nu e un număr bun pentru SMS.
 const telefonRo = (text) => {
   let n = String(text || '').replace(/[^\d+]/g, '');
+  n = n.replace(/^(\+|00)400/, '$140'); // „+40 (0) 722…”: zeroul dintre paranteze
   if (n.startsWith('00')) n = '+' + n.slice(2);
   else if (n.startsWith('0')) n = '+40' + n.slice(1);
   else if (n.startsWith('40')) n = '+' + n;

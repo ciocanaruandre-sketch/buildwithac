@@ -1,6 +1,6 @@
 # Dezabonarea (`dezabonare`)
 
-**Ce face:** scoate un client de pe listă când o cere, ca promisiunea „Răspunde STOP” din mesaje să funcționeze. Două intrări:
+**Ce face:** scoate un client de pe listă când o cere. Două intrări: link-ul din e-mail (merge oriunde) și SMS-ul „STOP”. **În România, SMS-ul STOP nu ajunge** la un număr Twilio (vezi `programari/README.md`, „SMS-ul în România”); intrarea SMS merge doar cu un număr care primește SMS-uri de la rețelele românești.
 - **SMS primit** (`POST /webhook/dezabonare-sms`): Twilio trimite aici fiecare SMS primit pe numărul firmei. Dacă mesajul conține `stop`, `dezabonare` sau `dezabonez` (cu sau fără majuscule și diacritice, oriunde în frază), telefonul intră în `Nu trimite`, scris `+407…`. Orice alt SMS e ignorat. Twilio primește un răspuns gol, deci clientul nu primește nimic înapoi.
 - **Link din e-mail** (`GET /webhook/dezabonare?c=<adresa în base64url>`): link-ul de la finalul e-mailurilor. Adresa intră în `Nu trimite`, iar clientul vede o pagină scurtă: „Gata, nu mai primești mesaje de la <firma>.” Un link stricat nu scrie nimic și spune telefonul firmei.
 

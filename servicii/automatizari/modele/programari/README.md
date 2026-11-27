@@ -11,8 +11,8 @@ Fiecare mesaj pleacă pe e-mail, pe SMS sau pe amândouă (`canal` din setări).
 Detaliile cererii de recenzie sunt în secțiunea „Cererea de recenzie”, mai jos.
 
 **Cum arată:** două fluxuri.
-- `flux-confirmare`: câte un declanșator *Google Calendar Trigger* („Event Created”) pe calendarul fiecărui om → *Programare nouă* → *Setări firmă* → *Jurnal* și *Nu trimite* (citiri din tabel) → *Confirmare* (Code) → *De trimis?* → *Pe ce canal?* → *Trimite SMS-ul* (Twilio) / *Trimite e-mailul* (Gmail) → *Notează în Jurnal*.
-- `flux-verificare`: *La fiecare jumătate de oră* (8–21) → *Setări firmă* → *Jurnal* și *Nu trimite* → *Oamenii* → *Câte un om* → *Programările omului* (Google Calendar, de la cele terminate de curând până peste 2 zile, cu programările care se repetă desfăcute în apariții separate) → *Verificare* (Code) → aceeași coadă de trimitere.
+- `flux-confirmare`: câte un declanșator *Google Calendar Trigger* („Event Created”) pe calendarul fiecărui om → *Programare nouă* → *Setări firmă* → *Jurnal* și *Nu trimite* (citiri din tabel) → *Confirmare* (Code) → *De trimis?* → *Pe ce canal?* → *Trimite SMS-ul* (Twilio) / *Trimite e-mailul* (Gmail) → *Notează în Jurnal* → *A picat ceva?* → *Alertă: n-a plecat* (Stop and Error, doar dacă un mesaj n-a plecat).
+- `flux-verificare`: *La fiecare jumătate de oră* (8–21) → *Setări firmă* → *Jurnal* și *Nu trimite* → *Oamenii* → *Câte un om* → *Programările omului* (Google Calendar, de la cele terminate de curând până peste 2 zile, cu programările care se repetă desfăcute în apariții separate) → *Al cui e* (pune pe fiecare programare numele omului din calendarul citit: organizatorul poate fi clientul care a trimis invitația) → *Verificare* (Code) → aceeași coadă de trimitere.
 
 Codul din nodurile *Confirmare* și *Verificare* e identic cu `cod/confirmare.js` și `cod/verificare.js`, testate în `modele-cod.test.mjs`. **Nu-l edita în n8n:** schimbi fișierul, rulezi testele, apoi îl copiezi în nod.
 
@@ -81,7 +81,7 @@ Marcajul trebuie pus înainte să plece cererea, adică în `recenzie_dupa_min` 
 - **Reamintirile pleacă doar între 8 și 21** (cât rulează `flux-verificare`): la prima rulare în care a rămas mai puțin decât `reamintire_…_min`. Pentru o programare la 9:00, reamintirea de 2 ore pleacă la 8:00, nu la 7:00.
 - **Telefoanele se scriu ca text** în `Jurnal` (*Cell Format: RAW*), altfel Google pierde plusul din `+407…`.
 - **`Jurnal` crește** cu câteva rânduri pe programare. Fluxurile îl citesc tot, la fiecare rulare; la câteva mii de rânduri, rândurile mai vechi de un an se pot muta într-o altă foaie.
-- **Patronul nu primește nimic** de la acest model; vede totul în `Jurnal`. Un flux căzut îi trimite e-mail prin `flux-erori`.
+- **Patronul nu primește mesajele obișnuite**; le vede în `Jurnal`. Primește alertă prin `flux-erori` când un flux cade **și când un mesaj n-a plecat** (Twilio sau Gmail au dat eroare): trimiterea merge mai departe ca să intre în `Jurnal` cu `stare: eroare`, apoi *Alertă: n-a plecat* oprește rularea cu eroare. Celelalte mesaje din aceeași rulare au plecat deja.
 
 **Verificat la proba din 2026-11-26** (cont de probă n8n Cloud, Conu' Leonida, canalul e-mail): cu date fixate, confirmarea (cu telefon și e-mail; fără contact → `sarit`; în `Nu trimite` → `sarit`) și verificarea (mutare, reamintire, fără contact, zi întreagă ignorată). **Rulare reală** cu Andrei: programare în calendarul lui Vlad → confirmarea pe e-mail în ~1 minut; mutată pe azi → anunțul de mutare; reamintirile la 6 și 3 minute (setările scurte, cron-ul pe fiecare minut). Fiecare mesaj a ajuns o singură dată, cu rândul lui în `Jurnal`. Ramura SMS e verificată doar cu date fixate (vezi „SMS-ul în România”).
 

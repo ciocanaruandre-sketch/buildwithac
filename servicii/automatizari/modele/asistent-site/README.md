@@ -15,9 +15,9 @@ Programarea intră în calendarul omului în forma pe care o citesc reamintirile
   - `programeaza` → sub-fluxul `flux-programeaza.json`;
   - `transmite_patronului` → *Gmail Tool*, spre `email_patron`.
 
-`flux-ore-libere.json` (`asistent – ore libere`): *Ce cere asistentul* → *Setări firmă* → *Oamenii* → *Câte un om* → *Programările* (Calendar, ziua cerută, recurențele desfăcute) → *Ore libere* (Code). Întoarce cel mult 6 ore, din jumătate în jumătate de oră, fiecare cu omul liber. Azi, nicio oră mai devreme de o oră de acum. O zi întreagă în calendar (concediu) ocupă toată ziua omului.
+`flux-ore-libere.json` (`asistent – ore libere`): *Ce cere asistentul* → *Setări firmă* → *Oamenii* → *Câte un om* → *Programările* (Calendar, ziua cerută, recurențele desfăcute) → *Al cui e* (Set: pune pe fiecare eveniment omul din al cărui calendar vine, ca o invitație acceptată, creată de altcineva, să ocupe tot ora omului) → *Ore libere* (Code). Întoarce cel mult 6 ore, din jumătate în jumătate de oră, fiecare cu omul liber. Azi, nicio oră mai devreme de o oră de acum. O zi întreagă în calendar (concediu) ocupă toată ziua omului.
 
-`flux-programeaza.json` (`asistent – programează`): aceleași citiri → *Programează* (Code: verifică ora încă o dată) → *Se poate?* → *Pune în calendar* → *Programat*; altfel → *Nu se poate*, cu eroarea pentru agent (`ocupat`, `lipsa contact`, `lipsa nume`, `in trecut`, `in afara programului`, `ora greșită`, `om necunoscut`, `serviciu necunoscut`).
+`flux-programeaza.json` (`asistent – programează`): aceleași citiri, cu *Al cui e* → *Programează* (Code: verifică ora încă o dată și că același contact nu are deja 2 programări în ziua aceea) → *Se poate?* → *Pune în calendar* → *Programat*; altfel → *Nu se poate*, cu eroarea pentru agent (`ocupat`, `prea multe`, `lipsa contact`, `lipsa nume`, `in trecut`, `in afara programului`, `ora greșită`, `om necunoscut`, `serviciu necunoscut`).
 
 Codul din cele trei noduri Code e identic cu fișierele din `cod/`, testate în `modele-cod.test.mjs`. **Nu-l edita în n8n:** schimbi fișierul, rulezi testele, apoi îl copiezi în nod.
 
@@ -34,7 +34,7 @@ Le face *Pregătește conversația* (`cod/pregateste-conversatia.js`) la fiecare
 
 **Nodul Claude:** modelul vine din setări (`model_ai_asistent`, de exemplu `claude-haiku-5-5`), *Maximum Number of Tokens* 4000, **fără** *Temperature*, *Top P*, *Top K* (Haiku 5.5 respinge `temperature`; gândirea intră în limita de tokeni). *Max Iterations* 8 la agent.
 
-**Limitele:** mesajul clientului tăiat la 1.000 de caractere; după 30 de mesaje într-o conversație, răspunsul fix. Numărătoarea stă în datele statice ale fluxului și se păstrează doar la fluxul publicat; conversațiile mai vechi de 2 zile se șterg.
+**Limitele:** mesajul clientului tăiat la 1.000 de caractere; după 30 de mesaje într-o conversație sau 300 de mesaje pe zi în toate conversațiile, răspunsul fix (`MAX_MESAJE`, `MAX_MESAJE_ZI` în `cod/pregateste-conversatia.js`); cel mult 2 programări pe zi de la același telefon sau e-mail (`MAX_PE_CONTACT` în `cod/programeaza.js`). Numărătoarea stă în datele statice ale fluxului și se păstrează doar la fluxul publicat; conversațiile mai vechi de 2 zile se șterg.
 
 ## Fereastra de chat pe site
 
@@ -64,7 +64,7 @@ Pachetul `@n8n/chat`, din CDN, pus înainte de `</body>`:
 
 ## Siguranța
 
-- *Allowed Origins (CORS)* = domeniul site-ului (`CONFIG_DOMENIU_SITE`, de exemplu `https://firma.ro,https://www.firma.ro`). **Niciodată `*`**: altfel oricine pune chatul pe site-ul lui, iar Claude îl plătește firma. Nu oprește pe cineva care trimite direct la adresă; acolo ajută limita de 30 de mesaje și tăierea la 1.000 de caractere.
+- *Allowed Origins (CORS)* = domeniul site-ului (`CONFIG_DOMENIU_SITE`, de exemplu `https://firma.ro,https://www.firma.ro`). **Niciodată `*`**: altfel oricine pune chatul pe site-ul lui, iar Claude îl plătește firma. **Nu oprește pe cineva care trimite direct la adresă.** Acolo ajută doar limitele: 300 de mesaje pe zi pentru toată firma (o conversație nouă la fiecare mesaj nu le ocolește), 2 programări pe zi pe contact, mesajul tăiat la 1.000 de caractere. Un atac consumă totuși rulări n8n până la limită și poate pune câteva programări false; la un site atacat, oprești chatul (dezactivezi fluxul) și vorbești cu patronul.
 - Agentul are doar trei unelte: citește ore, pune o programare verificată, trimite un e-mail patronului. Nu poate șterge sau muta nimic.
 - `transmite_patronului` trimite doar la `email_patron` din setări, nu la o adresă aleasă de model.
 

@@ -1,12 +1,12 @@
 // Asistentul de pe site, unealta „ore_libere”: orele libere dintr-o zi, la un om sau la oricine.
 // Intrarea: „Ce cere asistentul” ({ zi: "YYYY-MM-DD", om: nume | "oricine", serviciu, de_la?: "HH:MM" }), „Setări firmă”
-// și „Programările” (evenimentele din calendarele oamenilor în ziua cerută; omul = e.om sau organizer.email = calendar_id).
+// și intrarea (evenimentele din calendarele oamenilor în ziua cerută, cu om = al cui e calendarul, pus de nodul „Al cui e”).
 // Ieșirea: { ziua, program, serviciu, durata_min, ore: [{ ora: "HH:MM", om }], mai_sunt } (cel mult 6 ore, din jumătate în jumătate de oră)
 // sau { ok: false, eroare, detalii }. Azi, nicio oră mai devreme de o oră de acum.
 const setari = $('Setări firmă').first().json;
 const cerere = $('Ce cere asistentul').first().json || {};
 const acum = $now.toMillis();
-const evenimente = $('Programările').all().map((i) => i.json).filter((e) => e && e.start);
+const evenimente = $input.all().map((i) => i.json).filter((e) => e && e.start);
 const PAS_MIN = 30, CATE = 6, CEL_MAI_DEVREME_MIN = 60;
 
 // ---------- comune (același text în toate fișierele cod/ care le au) ----------
@@ -18,6 +18,7 @@ const faraDiacritice = (text) => String(text || '')
 // Telefonul în forma +407…, oricum ar fi scris; null dacă nu e un număr bun pentru SMS.
 const telefonRo = (text) => {
   let n = String(text || '').replace(/[^\d+]/g, '');
+  n = n.replace(/^(\+|00)400/, '$140'); // „+40 (0) 722…”: zeroul dintre paranteze
   if (n.startsWith('00')) n = '+' + n.slice(2);
   else if (n.startsWith('0')) n = '+40' + n.slice(1);
   else if (n.startsWith('40')) n = '+' + n;
@@ -61,7 +62,7 @@ const laOra = (zi, hhmm) => { const brut = Date.parse(`${zi}T${hhmm}:00Z`); retu
 const ziDin = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest' }).format(new Date(ms));
 const minute = (hhmm) => { const [h, m] = String(hhmm).split(':').map(Number); return h * 60 + m; };
 const hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
-const omul = (e) => e.om || (setari.oameni.find((o) => o.calendar_id === (e.organizer && e.organizer.email)) || {}).nume || '';
+const omul = (e) => e.om || (setari.oameni.find((o) => String(o.calendar_id || '').toLowerCase() === String((e.organizer && e.organizer.email) || '').toLowerCase()) || {}).nume || '';
 // Ce are ocupat un om: [început, sfârșit) în ms. O zi întreagă (concediu, „închis”) ocupă toată ziua.
 const ocupate = (nume) => evenimente.filter((e) => e.status !== 'cancelled' && egal(omul(e), nume)).map((e) => (e.start.dateTime
   ? [Date.parse(e.start.dateTime), Date.parse((e.end && e.end.dateTime) || e.start.dateTime)]

@@ -492,6 +492,7 @@ test("prompt: instrucțiunile au firma, link-ul, serviciile cu prețuri, informa
   for (const bucata of ["Conu' Leonida", "https://exemplu.ro/programare", "Tuns", "80 lei", "Nu avem parcare proprie", "0722 000 000", "JSON", "\"subiect\"", "\"email\"", "\"sms\"", "fără diacritice"])
     assert.ok(p.system.includes(bucata), `lipsește „${bucata}” din instrucțiuni`);
   assert.match(p.system, /nu promi/i);
+  assert.match(p.system, /Singurul link din mesaj e link-ul de programare/, "alt link duce la mesajul fix (Pregătește mesajele)");
 });
 
 test("prompt: tonul din setări (tu / dumneavoastră)", () => {
@@ -554,10 +555,9 @@ const JOI = "2026-11-26T18:00:00+02:00";
 const VLAD = "vlad@group.calendar.google.com", RADU = "radu@group.calendar.google.com";
 const ocupat = (cal, de, pana, o = {}) => ({ id: `e-${de}`, status: "confirmed", summary: "Tuns – X", start: { dateTime: de }, end: { dateTime: pana }, organizer: { email: cal }, ...o });
 const ziIntreaga = (cal, zi, ziUrm) => ({ id: "concediu", status: "confirmed", summary: "Concediu", start: { date: zi }, end: { date: ziUrm }, organizer: { email: cal } });
-const unealta = (fisier, cerere, evenimente = [], acum = JOI) => ruleaza(cod("asistent-site", fisier), [{ json: {} }], {
+const unealta = (fisier, cerere, evenimente = [], acum = JOI) => ruleaza(cod("asistent-site", fisier), evenimente.length ? evenimente.map((json) => ({ json })) : [{ json: {} }], {
   "Setări firmă": [{ json: structuredClone(SETARI_DEMO) }],
   "Ce cere asistentul": [{ json: cerere }],
-  "Programările": evenimente.length ? evenimente.map((json) => ({ json })) : [{ json: {} }],
 }, acum)[0].json;
 const oreLibere = (cerere, ev, acum) => unealta("ore-libere", cerere, ev, acum);
 const programeaza = (cerere, ev, acum) => unealta("programeaza", cerere, ev, acum);
@@ -703,4 +703,79 @@ test("asistent: conversațiile mai vechi de 2 zile se șterg din datele statice"
   const dateStatice = { conversatii: { vechi: { n: 3, ultima: Date.parse(JOI) - 3 * 86400000 }, noua: { n: 2, ultima: Date.parse(JOI) - 3600000 } } };
   conversatie("x", { dateStatice });
   assert.deepEqual(Object.keys(dateStatice.conversatii).sort(), ["noua", "s1"]);
+});
+
+// ---------- reparațiile după verificarea finală (2026-11-27) ----------
+test("ore_libere/programeaza: evenimentul e al omului din calendarul citit, oricine l-a creat (invitație acceptată)", () => {
+  // nodul „Al cui e” pune om pe fiecare eveniment, după calendarul din care vine
+  const invitatie = ocupat("prieten@gmail.com", "2026-11-27T10:00:00+02:00", "2026-11-27T11:00:00+02:00", { om: "Vlad" });
+  assert.equal(oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Tuns" }, [invitatie]).ore[0].ora, "11:00");
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2026-11-27T10:00" }, [invitatie]).eroare, "ocupat");
+  // fără om pe eveniment: organizatorul, fără să conteze literele mari
+  const mari = ocupat(VLAD.toUpperCase(), "2026-11-27T10:00:00+02:00", "2026-11-27T11:00:00+02:00");
+  assert.equal(oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Tuns" }, [mari]).ore[0].ora, "11:00");
+  const e = evVerif(23 * 60, -3 * 1440, { om: undefined, organizer: { email: "RADU@group.calendar.google.com" } });
+  assert.equal(verificare([e], { setari: { canal: "sms" } })[0].om, "Radu");
+});
+
+test("programeaza: cel mult 2 programări pe zi de la același telefon sau e-mail", () => {
+  const alui = (de, pana, om) => ocupat(om === "Vlad" ? VLAD : RADU, de, pana, { om, description: "Telefon: +40722123456" });
+  const doua = [alui("2026-11-27T10:00:00+02:00", "2026-11-27T10:30:00+02:00", "Vlad"), alui("2026-11-27T11:00:00+02:00", "2026-11-27T11:30:00+02:00", "Radu")];
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2026-11-27T15:00" }, doua).eroare, "prea multe");
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2026-11-27T15:00" }, doua.slice(0, 1)).ok, true);
+  assert.equal(programeaza({ ...PROGRAMARE, telefon: "", email: "altcineva@exemplu.ro", start: "2026-11-27T15:00" }, doua).ok, true);
+});
+
+test("programeaza: ora fără fus, de o parte și de alta a schimbării orei (28 martie 2027)", () => {
+  const acum = "2027-03-25T10:00:00+02:00";
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2027-03-26T10:00" }, [], acum).start, "2027-03-26T08:00:00.000Z");
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2027-03-29T10:00" }, [], acum).start, "2027-03-29T07:00:00.000Z");
+});
+
+test("confirmare: programarea de după schimbarea orei (28 martie 2027), văzută dinainte, are ora României", () => {
+  const r = confirmare([ev({ start: { dateTime: "2027-03-29T07:00:00Z" } })], { setari: { canal: "sms" } }, "2027-03-27T10:00:00+02:00");
+  assert.ok(r[0].text.includes("10:00"), r[0].text);
+  assert.ok(r[0].text.includes("luni, 29 martie"), r[0].text);
+});
+
+test("asistent: lista de zile merge pe zile din calendar și la schimbarea orei", () => {
+  const toamna = conversatie("Bună", { acum: "2026-10-25T00:30:00+03:00" }).system;
+  assert.match(toamna, /azi: duminică, 25 octombrie = 2026-10-25/);
+  assert.match(toamna, /mâine: luni, 26 octombrie = 2026-10-26/);
+  const primavara = conversatie("Bună", { acum: "2027-03-27T23:30:00+02:00" }).system;
+  assert.match(primavara, /mâine: duminică, 28 martie = 2027-03-28/);
+  assert.match(primavara, /luni, 29 martie = 2027-03-29/);
+});
+
+test("asistent: cel mult 300 de mesaje pe zi pentru toate conversațiile (o sesiune nouă la fiecare mesaj nu ocolește limita)", () => {
+  const dateStatice = { azi: { zi: "2026-11-26", n: 300 } };
+  const r = conversatie("x", { dateStatice, sessionId: "noua" });
+  assert.equal(r.prea_multe, true);
+  assert.equal(r.output, "Te rog să ne suni la 0722 000 000.");
+  assert.equal(conversatie("x", { dateStatice: { azi: { zi: "2026-11-25", n: 300 } } }).prea_multe, false, "ieri nu se numără");
+  const numarate = {};
+  conversatie("x", { dateStatice: numarate });
+  conversatie("x", { dateStatice: numarate, sessionId: "alta" });
+  assert.deepEqual(numarate.azi, { zi: "2026-11-26", n: 2 });
+});
+
+test("cerere: cel mult 40 de cereri pe zi pentru toată firma (adrese mereu noi nu ocolesc limita)", () => {
+  const rand = (i, data = "2026-11-25T06:00:00.000Z") => ({ data, nume: "X", telefon: "", email: `om${i}@exemplu.ro`, cerere: "x", stare: "trimis" });
+  const patruzeci = Array.from({ length: 40 }, (_, i) => rand(i));
+  assert.equal(verificaCererea(CERERE, { cereri: patruzeci })[0].motiv, "limita zi");
+  assert.equal(verificaCererea(CERERE, { cereri: patruzeci.slice(1) })[0].ok, true);
+  assert.equal(verificaCererea(CERERE, { cereri: patruzeci.map((r, i) => rand(i, "2026-11-24T10:00:00.000Z")) })[0].ok, true, "ieri nu se numără");
+});
+
+test("pregătește: un link străin în textul lui Claude → eroare (pleacă mesajul fix)", () => {
+  assert.throws(() => pregateste(raspunsAi({ ...AI_BUN, email: AI_BUN.email + "\nReducere: https://alt-site.ro/oferta" })), /link/);
+  assert.throws(() => pregateste(raspunsAi({ ...AI_BUN, sms: "Mihai, vezi www.alt-site.ro" }), { setari: { canal: "ambele" } }), /link/);
+  // link-ul de programare, chiar urmat de punct, trece
+  assert.equal(pregateste(raspunsAi({ ...AI_BUN, email: "Salut!\n\nAlege ziua: https://exemplu.ro/programare.\n\nConu' Leonida" }))[0].varianta, "ai");
+});
+
+test("telefonul scris „+40 (0) 722 123 456” sau „0040 (0)722…” e recunoscut", () => {
+  const c = verificaCererea({ ...CERERE, telefon: "+40 (0) 722 123 456" })[0];
+  assert.equal(c.telefon, "+40722123456");
+  assert.equal(verificaCererea({ ...CERERE, telefon: "0040 (0)722 123 456" })[0].telefon, "+40722123456");
 });

@@ -16,6 +16,7 @@ const faraDiacritice = (text) => String(text || '')
 // Telefonul în forma +407…, oricum ar fi scris; null dacă nu e un număr bun pentru SMS.
 const telefonRo = (text) => {
   let n = String(text || '').replace(/[^\d+]/g, '');
+  n = n.replace(/^(\+|00)400/, '$140'); // „+40 (0) 722…”: zeroul dintre paranteze
   if (n.startsWith('00')) n = '+' + n.slice(2);
   else if (n.startsWith('0')) n = '+40' + n.slice(1);
   else if (n.startsWith('40')) n = '+' + n;
@@ -65,16 +66,16 @@ const are = { sms: telefon, email };
 const alese = vrea.filter((c) => are[c]);
 const canale = (alese.length ? alese : ['sms', 'email'].filter((c) => are[c])).map((canal) => ({ canal, contact: are[canal] }));
 
-// Cel mult o cerere pe zi (ora României) de pe același telefon sau e-mail.
+// Cel mult o cerere pe zi (ora României) de pe același telefon sau e-mail și cel mult MAX_CERERI_ZI pentru toată firma
+// (un robot cu adrese mereu noi nu face Gmail-ul firmei să scrie la străini toată ziua).
+const MAX_CERERI_ZI = 40;
 const azi = ziRo(acum);
-const aziDeja = $('Cereri').all().map((i) => i.json).filter((r) => r && r.data).some((r) => {
-  const t = Date.parse(r.data);
-  if (isNaN(t) || ziRo(t) !== azi) return false;
-  return (telefon && telefonRo(r.telefon) === telefon) || (email && emailBun(String(r.email || '').trim()) === email);
-});
+const cereriAzi = $('Cereri').all().map((i) => i.json).filter((r) => r && r.data && !isNaN(Date.parse(r.data)) && ziRo(Date.parse(r.data)) === azi);
+const aziDeja = cereriAzi.some((r) => (telefon && telefonRo(r.telefon) === telefon) || (email && emailBun(String(r.email || '').trim()) === email));
 
 const motiv = String(d.website || '').trim() ? 'capcana'
   : !canale.length ? 'fara contact'
   : aziDeja ? 'limita'
+  : cereriAzi.length >= MAX_CERERI_ZI ? 'limita zi'
   : null;
 return [{ json: motiv ? { ok: false, motiv, ...baza, canale } : { ok: true, ...baza, canale } }];

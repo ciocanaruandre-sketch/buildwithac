@@ -1,38 +1,43 @@
 // Asistentul de pe site, pasul 1: pregătește mesajul din chat pentru agent.
 // Intrarea: „Mesaj în chat” ({ sessionId, action, chatInput }) și „Setări firmă”.
 // Ieșirea: { sessionId, chatInput (cel mult 1.000 de caractere), system (instrucțiunile agentului), prea_multe, output? }.
-// După 30 de mesaje într-o conversație, prea_multe = true și output = răspunsul fix (fără agent, fără cost la Claude).
+// După 30 de mesaje într-o conversație sau 300 pe zi în toate conversațiile, prea_multe = true și output = răspunsul fix
+// (fără agent, fără cost la Claude). Limita pe zi oprește și un robot care începe o conversație nouă la fiecare mesaj.
 // Numărătoarea stă în datele statice ale fluxului; se păstrează doar la rulările din producție (fluxul publicat).
 const setari = $('Setări firmă').first().json;
 const mesaj = $('Mesaj în chat').first().json || {};
 const acum = $now.toMillis();
-const MAX_CARACTERE = 1000, MAX_MESAJE = 30, PASTREAZA_ZILE = 2, ZILE_IN_LISTA = 14;
+const MAX_CARACTERE = 1000, MAX_MESAJE = 30, MAX_MESAJE_ZI = 300, PASTREAZA_ZILE = 2, ZILE_IN_LISTA = 14;
 const elegant = setari.ton === 'elegant';
 
 const sessionId = String(mesaj.sessionId || 'fara-sesiune');
 const chatInput = String(mesaj.chatInput || '').trim().slice(0, MAX_CARACTERE);
 
+const iso = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest' }).format(new Date(ms));
 const date = $getWorkflowStaticData('global');
+const aziZi = iso(acum);
+date.azi = date.azi && date.azi.zi === aziZi ? { zi: aziZi, n: date.azi.n + 1 } : { zi: aziZi, n: 1 };
 date.conversatii = date.conversatii || {};
 for (const [id, c] of Object.entries(date.conversatii)) {
   if (!c || acum - c.ultima > PASTREAZA_ZILE * 86400000) delete date.conversatii[id];
 }
 const c = date.conversatii[sessionId] || { n: 0 };
 date.conversatii[sessionId] = { n: c.n + 1, ultima: acum };
-if (c.n + 1 > MAX_MESAJE) {
+if (c.n + 1 > MAX_MESAJE || date.azi.n > MAX_MESAJE_ZI) {
   const output = elegant ? `Vă rog să ne sunați la ${setari.firma_telefon}.` : `Te rog să ne suni la ${setari.firma_telefon}.`;
   return [{ json: { sessionId, chatInput, prea_multe: true, output } }];
 }
 
 // Data și zilele următoare, în ora României: modelul nu calculează singur ziua săptămânii.
 const ro = (ms, o) => new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest', ...o }).format(new Date(ms));
-const iso = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest' }).format(new Date(ms));
 const ziSapt = (ms) => new Date(`${iso(ms)}T12:00:00Z`).getUTCDay();
 const programZi = (ms) => { const p = setari.program[ziSapt(ms)]; return p ? `${p[0]}–${p[1]}` : 'închis'; };
 const ziua = (ms) => `${ro(ms, { weekday: 'long' })}, ${ro(ms, { day: 'numeric' })} ${ro(ms, { month: 'long' })}`;
 const azi = `${ziua(acum)} ${ro(acum, { year: 'numeric' })}, ora ${ro(acum, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
+// Pe zile din calendar (de la amiaza fiecărei zile), nu acum + 24 h: la schimbarea orei, o zi are 23 sau 25 de ore.
+const amiazaAzi = Date.parse(`${aziZi}T12:00:00Z`);
 const zile = Array.from({ length: ZILE_IN_LISTA }, (_, i) => {
-  const ms = acum + i * 86400000;
+  const ms = amiazaAzi + i * 86400000;
   const eticheta = i === 0 ? 'azi' : i === 1 ? 'mâine' : '';
   return `- ${eticheta ? eticheta + ': ' : ''}${ziua(ms)} = ${iso(ms)}, program ${programZi(ms)}`;
 }).join('\n');

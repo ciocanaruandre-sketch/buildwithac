@@ -1,5 +1,6 @@
 // Răspuns în primul minut, pasul 3: citește răspunsul lui Claude (JSON) și face câte un mesaj pe canal.
 // Un răspuns stricat aruncă o eroare: nodul are „On Error → ieșirea de eroare”, care duce la „Mesaj fix”.
+// Tot eroare: orice link în afară de link_programare (o cerere care îl păcălește pe Claude n-ar trebui să trimită oamenii în altă parte).
 const setari = $('Setări firmă').first().json;
 const c = $('Verifică cererea').first().json;
 const ai = $input.first().json || {};
@@ -13,6 +14,7 @@ const faraDiacritice = (text) => String(text || '')
 // Telefonul în forma +407…, oricum ar fi scris; null dacă nu e un număr bun pentru SMS.
 const telefonRo = (text) => {
   let n = String(text || '').replace(/[^\d+]/g, '');
+  n = n.replace(/^(\+|00)400/, '$140'); // „+40 (0) 722…”: zeroul dintre paranteze
   if (n.startsWith('00')) n = '+' + n.slice(2);
   else if (n.startsWith('0')) n = '+40' + n.slice(1);
   else if (n.startsWith('40')) n = '+' + n;
@@ -65,6 +67,11 @@ if (canale.includes('sms')) {
   if (!sms.includes(link)) sms += ` ${link}`;
   if (sms.length > 300) throw new Error(`SMS-ul are ${sms.length} caractere`);
 }
+// Link-urile din text (http, https, www), fără punctuația de la capăt; doar link_programare e voie.
+const faraSchema = (u) => String(u).toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+const linkuri = (text) => (text.match(/(?:https?:\/\/|www\.)[^\s<>"')\]]+/gi) || []).map((u) => u.replace(/[.,;:!?]+$/, ''));
+const strain = [...linkuri(email), ...(canale.includes('sms') ? linkuri(sms) : [])].find((u) => faraSchema(u) !== faraSchema(link));
+if (strain) throw new Error(`Claude a pus un link străin: ${strain}`);
 const subiect = String(r.subiect || '').trim().slice(0, 120)
   || (setari.ton === 'elegant' ? `Cererea dumneavoastră la ${setari.firma_nume}` : `Cererea ta la ${setari.firma_nume}`);
 

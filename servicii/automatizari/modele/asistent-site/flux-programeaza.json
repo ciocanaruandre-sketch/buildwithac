@@ -128,17 +128,17 @@
     },
     {
       "parameters": {
-        "jsCode": "// Asistentul de pe site, unealta „programeaza”: pregătește programarea pentru Google Calendar, după ce verifică ora.\n// Intrarea: „Ce cere asistentul” ({ om: nume | \"oricine\", serviciu, start: \"YYYY-MM-DDTHH:MM\" (ora României, cu sau fără fus), nume, telefon?, email? }),\n// „Setări firmă” și „Programările” (evenimentele oamenilor în ziua aceea, citite chiar acum).\n// Ieșirea: { ok: true, calendar_id, summary, description, start, end, om, serviciu, ziua, ora } pentru nodul care scrie în calendar\n// sau { ok: false, eroare, detalii }. Titlul și descrierea sunt în forma pe care o citesc reamintirile (programari/cod/confirmare.js).\nconst setari = $('Setări firmă').first().json;\nconst cerere = $('Ce cere asistentul').first().json || {};\nconst acum = $now.toMillis();\nconst evenimente = $('Programările').all().map((i) => i.json).filter((e) => e && e.start);\nconst CEL_MAI_DEVREME_MIN = 60;\n\n// ---------- comune (același text în toate fișierele cod/ care le au) ----------\n// Fără diacritice și fără semnele care scumpesc SMS-ul (cu ele, un SMS costă dublu).\nconst faraDiacritice = (text) => String(text || '')\n  .normalize('NFD').replace(/[̀-ͯ]/g, '')\n  .replace(/[„”“″]/g, '\"').replace(/[‘’‚′]/g, \"'\").replace(/[–—]/g, '-').replace(/…/g, '...').replace(/ /g, ' ');\n\n// Telefonul în forma +407…, oricum ar fi scris; null dacă nu e un număr bun pentru SMS.\nconst telefonRo = (text) => {\n  let n = String(text || '').replace(/[^\\d+]/g, '');\n  if (n.startsWith('00')) n = '+' + n.slice(2);\n  else if (n.startsWith('0')) n = '+40' + n.slice(1);\n  else if (n.startsWith('40')) n = '+' + n;\n  return /^\\+407\\d{8}$/.test(n) || /^\\+(?!40)[1-9]\\d{8,14}$/.test(n) ? n : null;\n};\n\n// Telefonul și e-mailul din descrierea programării (text simplu sau HTML, cum o salvează Google Calendar).\nconst citesteContact = (descriere) => {\n  const text = String(descriere || '')\n    .replace(/<br\\s*\\/?>/gi, '\\n').replace(/<\\/(p|div|li)>/gi, '\\n').replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');\n  const email = (text.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/) || [null])[0];\n  let telefon = null;\n  for (const rand of text.split('\\n')) {\n    const m = rand.match(/tel(?:efon)?\\s*[:.]?\\s*([+\\d][\\d\\s.()\\/-]{7,})/i);\n    if (m && (telefon = telefonRo(m[1]))) break;\n  }\n  if (!telefon) {\n    const m = text.match(/(?:\\+40|0040|\\b0)\\s?7\\d{2}[\\s.-]?\\d{3}[\\s.-]?\\d{3}/);\n    telefon = m ? telefonRo(m[0]) : null;\n  }\n  return { telefon, email: email ? email.toLowerCase() : null };\n};\n\n// Ziua și ora în ora României, oricum vin din Google (cu „Z” sau cu fus).\nconst oraRo = (iso) => {\n  const d = new Date(iso);\n  const p = (o) => new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest', ...o }).format(d);\n  return { zi: `${p({ weekday: 'long' })}, ${p({ day: 'numeric' })} ${p({ month: 'long' })}`, ora: p({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) };\n};\n// ---------- sfârșitul celor comune ----------\nconst egal = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();\n// Cu câte milisecunde e ora României înaintea UTC, la momentul dat.\nconst decalaj = (ms) => {\n  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Bucharest', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })\n    .formatToParts(new Date(ms)).map((x) => [x.type, x.value]));\n  return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - Math.floor(ms / 1000) * 1000;\n};\n// „2026-11-27” + „11:00”, în ora României → milisecunde\nconst laOra = (zi, hhmm) => { const brut = Date.parse(`${zi}T${hhmm}:00Z`); return brut - decalaj(brut - decalaj(brut)); };\nconst ziDin = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest' }).format(new Date(ms));\nconst minute = (hhmm) => { const [h, m] = String(hhmm).split(':').map(Number); return h * 60 + m; };\nconst hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;\nconst omul = (e) => e.om || (setari.oameni.find((o) => o.calendar_id === (e.organizer && e.organizer.email)) || {}).nume || '';\n// Ce are ocupat un om: [început, sfârșit) în ms. O zi întreagă (concediu, „închis”) ocupă toată ziua.\nconst ocupate = (nume) => evenimente.filter((e) => e.status !== 'cancelled' && egal(omul(e), nume)).map((e) => (e.start.dateTime\n  ? [Date.parse(e.start.dateTime), Date.parse((e.end && e.end.dateTime) || e.start.dateTime)]\n  : [laOra(e.start.date, '00:00'), laOra((e.end && e.end.date) || e.start.date, '00:00') + (e.end && e.end.date ? 0 : 86400000)]));\nconst liber = (nume, s, f) => !ocupate(nume).some(([a, b]) => s < b && a < f);\nconst eroare = (eroare, detalii) => [{ json: { ok: false, eroare, detalii } }];\nconst faceServiciul = (o, serviciu) => (o.servicii || []).some((x) => egal(x, serviciu.nume));\n\nconst serviciu = setari.servicii.find((s) => egal(s.nume, cerere.serviciu));\nif (!serviciu) return eroare('serviciu necunoscut', `Serviciile firmei: ${setari.servicii.map((s) => s.nume).join(', ')}.`);\nlet oameni = setari.oameni.filter((o) => faceServiciul(o, serviciu));\nif (cerere.om && !egal(cerere.om, 'oricine')) {\n  const o = setari.oameni.find((x) => egal(x.nume, cerere.om));\n  if (!o) return eroare('om necunoscut', `La firmă lucrează: ${setari.oameni.map((x) => x.nume).join(', ')}.`);\n  if (!faceServiciul(o, serviciu)) return eroare('serviciu necunoscut', `${o.nume} nu face ${serviciu.nume}. Îl fac: ${oameni.map((x) => x.nume).join(', ') || 'nimeni'}.`);\n  oameni = [o];\n}\nconst nume = String(cerere.nume || '').replace(/\\s+/g, ' ').replace(/\\s[–—-]\\s/g, ' ').trim().slice(0, 80);\nif (!nume) return eroare('lipsa nume', 'Cere numele clientului.');\nconst telefon = telefonRo(cerere.telefon);\nconst emailText = String(cerere.email || '').trim();\nconst email = /^[^\\s@]+@[^\\s@]+\\.[A-Za-z]{2,}$/.test(emailText) ? emailText.toLowerCase() : null;\nif (!telefon && !email) return eroare('lipsa contact', 'Cere un telefon sau un e-mail, ca firma să trimită confirmarea.');\n\n// Ora: cu fus („+02:00”, „Z”) se ia ca atare; fără fus, e ora României.\nconst t = String(cerere.start || '').trim();\nconst m = t.match(/^(\\d{4}-\\d{2}-\\d{2})[T ](\\d{2}:\\d{2})/);\nif (!m) return eroare('ora greșită', 'Ora se scrie YYYY-MM-DDTHH:MM, de exemplu 2026-11-27T12:00.');\nconst s = /(Z|[+-]\\d{2}:?\\d{2})$/.test(t) ? Date.parse(t) : laOra(m[1], m[2]);\nif (isNaN(s)) return eroare('ora greșită', 'Ora se scrie YYYY-MM-DDTHH:MM, de exemplu 2026-11-27T12:00.');\nconst f = s + serviciu.durata_min * 60000;\nif (s < acum + CEL_MAI_DEVREME_MIN * 60000) return eroare('in trecut', 'Programările se fac cu cel puțin o oră înainte. Caută alte ore cu ore_libere.');\nconst { zi: ziua, ora } = oraRo(s);\nconst p = setari.program[new Date(`${ziDin(s)}T12:00:00Z`).getUTCDay()];\nif (!p || minute(ora) < minute(p[0]) || minute(ora) + serviciu.durata_min > minute(p[1])) {\n  return eroare('in afara programului', p ? `În ${ziua}, programul e ${p[0]}–${p[1]}, iar ${serviciu.nume} durează ${serviciu.durata_min} de minute.` : `În ${ziua} e închis.`);\n}\nconst om = oameni.find((o) => liber(o.nume, s, f));\nif (!om) return eroare('ocupat', 'Ora s-a ocupat între timp. Caută alte ore cu ore_libere.');\n\nreturn [{ json: {\n  ok: true, calendar_id: om.calendar_id, om: om.nume, serviciu: serviciu.nume, ziua, ora,\n  summary: `${serviciu.nume} – ${nume}`,\n  description: [telefon && `Telefon: ${telefon}`, email && `Email: ${email}`].filter(Boolean).join('\\n'),\n  start: new Date(s).toISOString(), end: new Date(f).toISOString(),\n} }];"
+        "jsCode": "// Asistentul de pe site, unealta „programeaza”: pregătește programarea pentru Google Calendar, după ce verifică ora.\n// Intrarea: „Ce cere asistentul” ({ om: nume | \"oricine\", serviciu, start: \"YYYY-MM-DDTHH:MM\" (ora României, cu sau fără fus), nume, telefon?, email? }),\n// „Setări firmă” și intrarea (evenimentele oamenilor în ziua aceea, citite chiar acum, cu om pus de nodul „Al cui e”).\n// Ieșirea: { ok: true, calendar_id, summary, description, start, end, om, serviciu, ziua, ora } pentru nodul care scrie în calendar\n// sau { ok: false, eroare, detalii } (eroarea „prea multe”: deja 2 programări în ziua aceea de la același contact). Titlul și descrierea sunt în forma pe care o citesc reamintirile (programari/cod/confirmare.js).\nconst setari = $('Setări firmă').first().json;\nconst cerere = $('Ce cere asistentul').first().json || {};\nconst acum = $now.toMillis();\nconst evenimente = $input.all().map((i) => i.json).filter((e) => e && e.start);\nconst CEL_MAI_DEVREME_MIN = 60, MAX_PE_CONTACT = 2;\n\n// ---------- comune (același text în toate fișierele cod/ care le au) ----------\n// Fără diacritice și fără semnele care scumpesc SMS-ul (cu ele, un SMS costă dublu).\nconst faraDiacritice = (text) => String(text || '')\n  .normalize('NFD').replace(/[̀-ͯ]/g, '')\n  .replace(/[„”“″]/g, '\"').replace(/[‘’‚′]/g, \"'\").replace(/[–—]/g, '-').replace(/…/g, '...').replace(/ /g, ' ');\n\n// Telefonul în forma +407…, oricum ar fi scris; null dacă nu e un număr bun pentru SMS.\nconst telefonRo = (text) => {\n  let n = String(text || '').replace(/[^\\d+]/g, '');\n  n = n.replace(/^(\\+|00)400/, '$140'); // „+40 (0) 722…”: zeroul dintre paranteze\n  if (n.startsWith('00')) n = '+' + n.slice(2);\n  else if (n.startsWith('0')) n = '+40' + n.slice(1);\n  else if (n.startsWith('40')) n = '+' + n;\n  return /^\\+407\\d{8}$/.test(n) || /^\\+(?!40)[1-9]\\d{8,14}$/.test(n) ? n : null;\n};\n\n// Telefonul și e-mailul din descrierea programării (text simplu sau HTML, cum o salvează Google Calendar).\nconst citesteContact = (descriere) => {\n  const text = String(descriere || '')\n    .replace(/<br\\s*\\/?>/gi, '\\n').replace(/<\\/(p|div|li)>/gi, '\\n').replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');\n  const email = (text.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/) || [null])[0];\n  let telefon = null;\n  for (const rand of text.split('\\n')) {\n    const m = rand.match(/tel(?:efon)?\\s*[:.]?\\s*([+\\d][\\d\\s.()\\/-]{7,})/i);\n    if (m && (telefon = telefonRo(m[1]))) break;\n  }\n  if (!telefon) {\n    const m = text.match(/(?:\\+40|0040|\\b0)\\s?7\\d{2}[\\s.-]?\\d{3}[\\s.-]?\\d{3}/);\n    telefon = m ? telefonRo(m[0]) : null;\n  }\n  return { telefon, email: email ? email.toLowerCase() : null };\n};\n\n// Ziua și ora în ora României, oricum vin din Google (cu „Z” sau cu fus).\nconst oraRo = (iso) => {\n  const d = new Date(iso);\n  const p = (o) => new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest', ...o }).format(d);\n  return { zi: `${p({ weekday: 'long' })}, ${p({ day: 'numeric' })} ${p({ month: 'long' })}`, ora: p({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) };\n};\n// ---------- sfârșitul celor comune ----------\nconst egal = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();\n// Cu câte milisecunde e ora României înaintea UTC, la momentul dat.\nconst decalaj = (ms) => {\n  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Bucharest', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })\n    .formatToParts(new Date(ms)).map((x) => [x.type, x.value]));\n  return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - Math.floor(ms / 1000) * 1000;\n};\n// „2026-11-27” + „11:00”, în ora României → milisecunde\nconst laOra = (zi, hhmm) => { const brut = Date.parse(`${zi}T${hhmm}:00Z`); return brut - decalaj(brut - decalaj(brut)); };\nconst ziDin = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest' }).format(new Date(ms));\nconst minute = (hhmm) => { const [h, m] = String(hhmm).split(':').map(Number); return h * 60 + m; };\nconst hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;\nconst omul = (e) => e.om || (setari.oameni.find((o) => String(o.calendar_id || '').toLowerCase() === String((e.organizer && e.organizer.email) || '').toLowerCase()) || {}).nume || '';\n// Ce are ocupat un om: [început, sfârșit) în ms. O zi întreagă (concediu, „închis”) ocupă toată ziua.\nconst ocupate = (nume) => evenimente.filter((e) => e.status !== 'cancelled' && egal(omul(e), nume)).map((e) => (e.start.dateTime\n  ? [Date.parse(e.start.dateTime), Date.parse((e.end && e.end.dateTime) || e.start.dateTime)]\n  : [laOra(e.start.date, '00:00'), laOra((e.end && e.end.date) || e.start.date, '00:00') + (e.end && e.end.date ? 0 : 86400000)]));\nconst liber = (nume, s, f) => !ocupate(nume).some(([a, b]) => s < b && a < f);\nconst eroare = (eroare, detalii) => [{ json: { ok: false, eroare, detalii } }];\nconst faceServiciul = (o, serviciu) => (o.servicii || []).some((x) => egal(x, serviciu.nume));\n\nconst serviciu = setari.servicii.find((s) => egal(s.nume, cerere.serviciu));\nif (!serviciu) return eroare('serviciu necunoscut', `Serviciile firmei: ${setari.servicii.map((s) => s.nume).join(', ')}.`);\nlet oameni = setari.oameni.filter((o) => faceServiciul(o, serviciu));\nif (cerere.om && !egal(cerere.om, 'oricine')) {\n  const o = setari.oameni.find((x) => egal(x.nume, cerere.om));\n  if (!o) return eroare('om necunoscut', `La firmă lucrează: ${setari.oameni.map((x) => x.nume).join(', ')}.`);\n  if (!faceServiciul(o, serviciu)) return eroare('serviciu necunoscut', `${o.nume} nu face ${serviciu.nume}. Îl fac: ${oameni.map((x) => x.nume).join(', ') || 'nimeni'}.`);\n  oameni = [o];\n}\nconst nume = String(cerere.nume || '').replace(/\\s+/g, ' ').replace(/\\s[–—-]\\s/g, ' ').trim().slice(0, 80);\nif (!nume) return eroare('lipsa nume', 'Cere numele clientului.');\nconst telefon = telefonRo(cerere.telefon);\nconst emailText = String(cerere.email || '').trim();\nconst email = /^[^\\s@]+@[^\\s@]+\\.[A-Za-z]{2,}$/.test(emailText) ? emailText.toLowerCase() : null;\nif (!telefon && !email) return eroare('lipsa contact', 'Cere un telefon sau un e-mail, ca firma să trimită confirmarea.');\n// Cel mult MAX_PE_CONTACT programări în ziua aceea de la același telefon sau e-mail (oprește un robot care umple calendarul).\nconst alAcelui = (e) => { const c = citesteContact(e.description); return (telefon && c.telefon === telefon) || (email && c.email === email); };\nconst aceleasi = evenimente.filter((e) => e.status !== 'cancelled' && alAcelui(e)).length;\nif (aceleasi >= MAX_PE_CONTACT) return eroare('prea multe', `Clientul are deja ${aceleasi} programări în ziua aceea. Pentru mai multe, sună la firmă.`);\n\n// Ora: cu fus („+02:00”, „Z”) se ia ca atare; fără fus, e ora României.\nconst t = String(cerere.start || '').trim();\nconst m = t.match(/^(\\d{4}-\\d{2}-\\d{2})[T ](\\d{2}:\\d{2})/);\nif (!m) return eroare('ora greșită', 'Ora se scrie YYYY-MM-DDTHH:MM, de exemplu 2026-11-27T12:00.');\nconst s = /(Z|[+-]\\d{2}:?\\d{2})$/.test(t) ? Date.parse(t) : laOra(m[1], m[2]);\nif (isNaN(s)) return eroare('ora greșită', 'Ora se scrie YYYY-MM-DDTHH:MM, de exemplu 2026-11-27T12:00.');\nconst f = s + serviciu.durata_min * 60000;\nif (s < acum + CEL_MAI_DEVREME_MIN * 60000) return eroare('in trecut', 'Programările se fac cu cel puțin o oră înainte. Caută alte ore cu ore_libere.');\nconst { zi: ziua, ora } = oraRo(s);\nconst p = setari.program[new Date(`${ziDin(s)}T12:00:00Z`).getUTCDay()];\nif (!p || minute(ora) < minute(p[0]) || minute(ora) + serviciu.durata_min > minute(p[1])) {\n  return eroare('in afara programului', p ? `În ${ziua}, programul e ${p[0]}–${p[1]}, iar ${serviciu.nume} durează ${serviciu.durata_min} de minute.` : `În ${ziua} e închis.`);\n}\nconst om = oameni.find((o) => liber(o.nume, s, f));\nif (!om) return eroare('ocupat', 'Ora s-a ocupat între timp. Caută alte ore cu ore_libere.');\n\nreturn [{ json: {\n  ok: true, calendar_id: om.calendar_id, om: om.nume, serviciu: serviciu.nume, ziua, ora,\n  summary: `${serviciu.nume} – ${nume}`,\n  description: [telefon && `Telefon: ${telefon}`, email && `Email: ${email}`].filter(Boolean).join('\\n'),\n  start: new Date(s).toISOString(), end: new Date(f).toISOString(),\n} }];\n"
       },
       "id": "73d85408-4b81-4d95-a1a0-6ca36f369b93",
       "name": "Programează",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1120,
+        1344,
         96
       ],
-      "executeOnce": true
+      "executeOnce": false
     },
     {
       "parameters": {
@@ -169,7 +169,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1344,
+        1568,
         96
       ]
     },
@@ -192,7 +192,7 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1.4,
       "position": [
-        1568,
+        1792,
         0
       ],
       "credentials": {
@@ -251,7 +251,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1792,
+        2016,
         0
       ]
     },
@@ -262,9 +262,34 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1568,
+        1792,
         192
       ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "om",
+              "name": "om",
+              "value": "={{ $json.start ? $('Câte un om').item.json.nume : '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "1c248a44-c8c0-41fe-a440-0d040a168e57",
+      "name": "Al cui e",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        96
+      ],
+      "notes": "Fiecare eveniment primește numele omului din calendarul în care a fost citit (organizatorul poate fi altcineva)."
     }
   ],
   "connections": {
@@ -312,17 +337,6 @@
         ]
       ]
     },
-    "Programările": {
-      "main": [
-        [
-          {
-            "node": "Programează",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Programează": {
       "main": [
         [
@@ -357,6 +371,28 @@
         [
           {
             "node": "Programat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Programările": {
+      "main": [
+        [
+          {
+            "node": "Al cui e",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Al cui e": {
+      "main": [
+        [
+          {
+            "node": "Programează",
             "type": "main",
             "index": 0
           }
