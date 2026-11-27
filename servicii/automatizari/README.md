@@ -87,6 +87,7 @@ Cu date de probă sau date fixate, **niciodată** cu mesaje către clienții rea
 ## Modelele și PDF-urile
 
 - `modele/README.md`: fluxurile-model, curățate, plus `flux-erori`. Un model nou se face cu `curata.mjs`.
+- **Cele 4 automatizări de vânzare** (reamintiri, recenzie, răspuns în primul minut, asistentul de pe site) sunt gata făcute: la client completezi `setari-firma` și imporți modelele, nu construiești. Ce pui pentru fiecare și câte rulări consumă: `modele/README.md`, „Automatizările de vânzare”.
 - `brief-vanzari.md`: întrebările pentru patron la modelele de vânzare; din răspunsuri ies setările firmei și textul asistentului.
 - `pdf/`: generatorul local. `node servicii/automatizari/pdf/tipareste.mjs <slug> <propunere|pornire|folosire>` face PDF-ul în `clienti/<slug>/automatizari/pdf/`. Exemplele, pentru „Clinica Probă”, sunt în `pdf/exemple/`. PDF-urile clienților nu ajung niciodată pe buildwithac.ro.
 
