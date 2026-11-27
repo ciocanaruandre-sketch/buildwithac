@@ -8,14 +8,17 @@
 .px__layer.titlu { top: 0; height: 100%; }
 .px__layer img { width: 100%; height: 100%; object-fit: cover; }
 .px__titlewrap { position: absolute; top: 0; left: 0; width: 100%; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.px__title { font-family: var(--nf-unbounded); font-weight: 800; color: var(--color-cream); font-size: 11.5vw; line-height: 1; letter-spacing: -.05em; padding: 0 2vw; }
-/* numele coboară cu --cop-jos, ca eticheta să nu intre în soare; textul de pe cer stă la 20px deasupra lui (5.75vw = jumătate din titlu) */
-.px { --cop-jos: 6svh; }
+.px__title { font-family: var(--nf-unbounded); font-weight: 800; color: var(--color-cream); font-size: var(--titlu); line-height: 1; letter-spacing: -.05em; padding: 0 2vw; }
+/* numele coboară cu --cop-jos, ca eticheta să nu intre în soare; textul de pe cer stă la 20px deasupra lui.
+   --titlu ține și de înălțime: pe ecranele scunde și late (telefon întors, laptop cu fereastra joasă) textul nu mai iese sus */
+.px { --cop-jos: 6svh; --titlu: min(11.5vw, 22svh); }
 .px__titlewrap { padding-top: calc(var(--cop-jos) * 2); }
-.px__sub { position: absolute; left: 0; right: 0; bottom: calc(50svh - var(--cop-jos) + 5.75vw + 20px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 18px; }
+.px__sub { position: absolute; left: 0; right: 0; bottom: calc(50svh - var(--cop-jos) + var(--titlu) / 2 + 20px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 18px; }
 .cop-eti { font-family: var(--nf-inter); font-weight: 800; font-size: clamp(13px, 3.6vw, 17px); letter-spacing: .14em; text-transform: uppercase; color: var(--color-gold); text-shadow: 0 2px 14px rgba(0,0,0,.6); }
-.cop-fraza { font-family: var(--nf-unbounded); font-weight: 600; font-size: clamp(19px, 5.3vw, 34px); letter-spacing: -.02em; line-height: 1.2; max-width: 640px; color: var(--color-cream); text-wrap: balance; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.cop-fraza { font-family: var(--nf-unbounded); font-weight: 600; font-size: clamp(15px, min(5.3vw, 4.2svh), 34px); letter-spacing: -.02em; line-height: 1.2; max-width: 640px; color: var(--color-cream); text-wrap: balance; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
 .cop-fraza .serif { font-size: 1.12em; letter-spacing: 0; color: var(--color-gold); }
+/* telefon întors: nu încap toate trei deasupra numelui, rămân eticheta și fraza */
+@media (max-height: 500px) and (min-aspect-ratio: 4/3) { .px__sub { gap: 6px; } .cop-eti { font-size: 12px; } .cop-claritate { display: none; } }
 .cop-claritate { margin-top: 4px; font-family: var(--nf-inter); font-weight: 800; font-size: clamp(11px, 3vw, 14px); letter-spacing: .1em; text-transform: uppercase; color: var(--color-gold); text-shadow: 0 2px 14px rgba(0,0,0,.6); text-wrap: balance; }
 /* intrarea din prototip (expo.out); opacitatea pornește de la .01, nu 0, ca titlul să conteze imediat ca element principal */
 @keyframes intra-titlu { from { opacity: .01; transform: translateY(30%); } }

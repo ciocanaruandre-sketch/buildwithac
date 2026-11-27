@@ -47,6 +47,21 @@ test.describe("hero", () => {
     expect(eti.y).toBeGreaterThanOrEqual(logo.y + logo.height);
   });
 
+  // telefon ținut orizontal și laptopuri cu fereastra joasă: textul de pe cer nu iese sus și nu intră sub meniu
+  for (const [lat, inalt] of [[844, 390], [667, 375], [1280, 600], [1024, 600], [1366, 657]]) {
+    test(`la ${lat}×${inalt}, textul de pe cer stă sub meniu`, async ({ page }) => {
+      await page.setViewportSize({ width: lat, height: inalt });
+      await page.goto("/");
+      await gataIntrarea(page);
+      const jos = await page.locator(".nav").evaluate((nav) =>
+        Math.max(...[...nav.querySelectorAll<HTMLElement>(":scope > *")].filter((e) => e.offsetParent).map((e) => e.getBoundingClientRect().bottom)));
+      const sus = (await page.locator(".px__sub").boundingBox())!;
+      expect(sus.y).toBeGreaterThanOrEqual(jos);
+      const titlu = (await page.locator("h1").boundingBox())!;
+      expect(sus.y + sus.height).toBeLessThanOrEqual(titlu.y + 1);
+    });
+  }
+
   test("la 320px, textul de pe cer încape pe lățime", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto("/");
