@@ -375,3 +375,106 @@ test("recenzie: SMS-ul încape într-un SMS cu un link Google adevărat, în amb
     for (const m of [unu, doi]) assert.ok(m.text.length <= 160, `${ton}, ${m.tip}: ${m.text.length} caractere: ${m.text}`);
   }
 });
+
+// ---------- raspuns-primul-minut: verifică cererea + mesajul fix ----------
+// Intrarea e ce dă nodul Webhook: { body: { nume, telefon, email, cerere, mesaj, website } }.
+const CERERE = { nume: "Mihai Ionescu", telefon: "0722 123 456", email: "Mihai@Exemplu.ro", cerere: "Mire și cavaleri de onoare", mesaj: "Suntem 5, sâmbătă dimineață.", website: "" };
+const verificaCererea = (body, { setari = {}, cereri = [] } = {}, acum = ACUM) =>
+  ruleaza(cod("raspuns-primul-minut", "verifica-cererea"), [{ json: { headers: {}, body } }], {
+    "Setări firmă": [{ json: { ...structuredClone(SETARI_DEMO), ...setari } }],
+    Cereri: randuri(cereri),
+  }, acum).map((i) => i.json);
+
+test("cerere: completă → ok, telefonul +407…, e-mailul mic, canalele după setări, data de acum", () => {
+  const r = verificaCererea(CERERE);
+  assert.equal(r.length, 1);
+  const c = r[0];
+  assert.equal(c.ok, true);
+  assert.equal(c.telefon, "+40722123456");
+  assert.equal(c.email, "mihai@exemplu.ro");
+  assert.equal(c.nume, "Mihai Ionescu");
+  assert.equal(c.prenume, "Mihai");
+  assert.equal(c.cerere, "Mire și cavaleri de onoare");
+  assert.equal(c.data, new Date(MS).toISOString());
+  assert.deepEqual(c.canale, [{ canal: "sms", contact: "+40722123456" }, { canal: "email", contact: "mihai@exemplu.ro" }]);
+  assert.deepEqual(verificaCererea(CERERE, { setari: { canal: "email" } })[0].canale, [{ canal: "email", contact: "mihai@exemplu.ro" }]);
+  assert.deepEqual(verificaCererea({ ...CERERE, email: "" }, { setari: { canal: "email" } })[0].canale, [{ canal: "sms", contact: "+40722123456" }], "fără canalul cerut → celălalt");
+});
+
+test("cerere: merge și cu corpul direct (fără „body”)", () => {
+  const r = ruleaza(cod("raspuns-primul-minut", "verifica-cererea"), [{ json: CERERE }], { "Setări firmă": [{ json: structuredClone(SETARI_DEMO) }], Cereri: randuri([]) }, ACUM);
+  assert.equal(r[0].json.ok, true);
+});
+
+test("cerere: capcana completată → ok: false, motiv capcana", () => {
+  const c = verificaCererea({ ...CERERE, website: "https://spam.ro" })[0];
+  assert.equal(c.ok, false);
+  assert.equal(c.motiv, "capcana");
+});
+
+test("cerere: fără telefon bun și fără e-mail bun → ok: false, motiv fara contact", () => {
+  for (const body of [{ ...CERERE, telefon: "", email: "" }, { ...CERERE, telefon: "123", email: "nu-e-email" }]) {
+    const c = verificaCererea(body)[0];
+    assert.equal(c.ok, false);
+    assert.equal(c.motiv, "fara contact");
+  }
+});
+
+test("cerere: același telefon sau e-mail are deja o cerere azi (ora României) → limita; ieri → ok", () => {
+  const azi = { data: "2026-11-25T06:00:00.000Z", nume: "X", telefon: "+40722123456", email: "", cerere: "x", stare: "trimis" }; // 08:00 în România
+  assert.equal(verificaCererea(CERERE, { cereri: [azi] })[0].motiv, "limita");
+  assert.equal(verificaCererea(CERERE, { cereri: [{ ...azi, telefon: "", email: "MIHAI@exemplu.ro" }] })[0].motiv, "limita");
+  // 21:30Z pe 24 = 23:30 pe 24 în România → ieri.
+  const ieri = { ...azi, data: "2026-11-24T21:30:00.000Z" };
+  assert.equal(verificaCererea(CERERE, { cereri: [ieri] })[0].ok, true);
+  // 00:30 azi în România = 22:30Z ieri în UTC → tot „azi”.
+  const dupaMiezulNoptii = { ...azi, data: "2026-11-24T22:30:00.000Z" };
+  assert.equal(verificaCererea(CERERE, { cereri: [dupaMiezulNoptii] })[0].motiv, "limita");
+});
+
+test("cerere: textele lungi se taie (mesaj 1.000, cerere 200, nume 100)", () => {
+  const c = verificaCererea({ ...CERERE, mesaj: "a".repeat(5000), cerere: "b".repeat(500), nume: "c".repeat(300) })[0];
+  assert.equal(c.ok, true);
+  assert.equal(c.mesaj.length, 1000);
+  assert.equal(c.cerere.length, 200);
+  assert.equal(c.nume.length, 100);
+});
+
+test("cerere: contactul din „Nu trimite” primește tot răspunsul (e răspunsul la cererea lui)", () => {
+  const src = cod("raspuns-primul-minut", "verifica-cererea");
+  assert.ok(!/\$\(\s*['"]Nu trimite/.test(src), "verifica-cererea nu citește „Nu trimite”");
+  assert.equal(verificaCererea(CERERE)[0].ok, true);
+});
+
+const mesajFix = (cerere, setari = {}) =>
+  ruleaza(cod("raspuns-primul-minut", "mesaj-fix"), [{ json: { error: "AI căzut" } }], {
+    "Setări firmă": [{ json: { ...structuredClone(SETARI_DEMO), ...setari } }],
+    "Verifică cererea": [{ json: verificaCererea(cerere, { setari })[0] }],
+  }, ACUM).map((i) => i.json);
+
+test("mesaj fix: câte un mesaj pe canal, cu numele, cererea, link-ul de programare și firma, varianta fix", () => {
+  for (const ton of ["prietenos", "elegant"]) {
+    const r = mesajFix(CERERE, { ton });
+    assert.deepEqual(r.map((m) => m.canal), ["sms", "email"]);
+    for (const m of r) {
+      assert.equal(m.trimite, true);
+      assert.equal(m.varianta, "fix");
+      for (const bucata of ["Mihai", "https://exemplu.ro/programare", "Conu' Leonida"]) assert.ok(m.text.includes(bucata), `${ton}/${m.canal}: lipsește „${bucata}”: ${m.text}`);
+    }
+    const e = r.find((m) => m.canal === "email");
+    assert.ok(e.text.includes("Mire și cavaleri de onoare"), e.text);
+    assert.ok(e.subiect && e.subiect.includes("Conu' Leonida"), e.subiect);
+    assert.equal(e.contact, "mihai@exemplu.ro");
+    const s = r.find((m) => m.canal === "sms");
+    assert.ok(s.text.includes("Mire si cavaleri de onoare"), s.text);
+    assert.equal(s.contact, "+40722123456");
+  }
+});
+
+test("mesaj fix: SMS-ul fără diacritice și sub 300 de caractere, chiar cu cerere de 200 și nume lung", () => {
+  for (const ton of ["prietenos", "elegant"]) {
+    const s = mesajFix({ ...CERERE, cerere: "ș".repeat(200), nume: "Ștefan-Cătălin Țărănescu-Bălănescu" }, { ton, canal: "sms" })[0];
+    assert.ok(!DIACRITICE_SAU_SCUMPE.test(s.text), s.text);
+    assert.ok(s.text.length < 300, `${ton}: ${s.text.length} caractere`);
+  }
+});
