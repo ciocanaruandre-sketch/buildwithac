@@ -8,6 +8,10 @@ const greseli = (d: unknown) => {
 };
 
 describe("verificaCerere", () => {
+  it("acceptă serviciul CRM", () => {
+    expect(verificaCerere({ ...buna, serviciu: "crm" })).toEqual({ cerere: { ...buna, serviciu: "crm" } });
+  });
+
   it("acceptă o cerere bună și curăță spațiile", () => {
     const r = verificaCerere({ nume: "  Maria Popescu ", telefon: " +40 721 123 456 ", serviciu: "site", descriere: "  " });
     expect(r).toEqual({ cerere: { nume: "Maria Popescu", telefon: "+40 721 123 456", serviciu: "site", descriere: "" } });
@@ -70,6 +74,7 @@ describe("construiesteEmail", () => {
   it("subiectul are serviciul și numele", () => {
     expect(construiesteEmail(c, acum).subiect).toBe("Cerere nouă: Site · Maria Popescu");
     expect(construiesteEmail({ ...c, serviciu: "1la1" }, acum).subiect).toBe("Cerere nouă: Sesiune 1 la 1 sau ghid personalizat · Maria Popescu");
+    expect(construiesteEmail({ ...c, serviciu: "crm" }, acum).subiect).toBe("Cerere nouă: CRM · Maria Popescu");
   });
 
   it("subiectul rămâne pe un singur rând", () => {
@@ -158,6 +163,7 @@ describe("serviciuDinLink", () => {
   it("alege doar serviciile din formular", () => {
     expect(serviciuDinLink("?serviciu=site")).toBe("site");
     expect(serviciuDinLink("?serviciu=1la1")).toBe("1la1");
+    expect(serviciuDinLink("?serviciu=crm")).toBe("crm");
     expect(serviciuDinLink("?utm_source=ig&serviciu=automatizari")).toBe("automatizari");
     expect(serviciuDinLink("?serviciu=hack")).toBeNull();
     expect(serviciuDinLink("")).toBeNull();

@@ -5,8 +5,7 @@ import { LinkServiciu } from "./LinkServiciu";
 
 const SERVICII: { cheie: CheieServiciu; eticheta: string; titlu: ReactNode; text: string }[] = [
   {
-    // PROTOTIP: până intră „crm” în formular și în CRM, linkul alege „Altceva”
-    cheie: "altceva",
+    cheie: "crm",
     eticheta: "CRM pentru echipe de vânzări",
     titlu: <>CRM <span className="serif gtxt">pentru echipe de vânzări</span></>,
     text: "Fiecare lead intră automat. Callerii preiau lead-urile, closerii închid procesul de vânzare, iar tu analizezi toate datele și performanța echipei. De asemenea, ai integrare Meta pentru a urmări corect lead-urile provenite din reclame, dar și pentru o analiză completă a acestora.",

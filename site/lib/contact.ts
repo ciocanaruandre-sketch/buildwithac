@@ -2,6 +2,7 @@ import { SITE } from "@/lib/config";
 import { curataUtm } from "@/lib/utm";
 
 export const SERVICII_CONTACT = [
+  { cheie: "crm", eticheta: "CRM" },
   { cheie: "site", eticheta: "Site" },
   { cheie: "automatizari", eticheta: "Automatizări" },
   { cheie: "1la1", eticheta: "Sesiune 1 la 1 sau ghid personalizat" },

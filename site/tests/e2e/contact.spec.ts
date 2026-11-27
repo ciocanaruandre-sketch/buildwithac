@@ -49,10 +49,10 @@ test.describe("formularul de contact", () => {
     expect(JSON.parse(tinut ?? "{}")).toEqual({ utm_source: "ig", utm_medium: "reclama", utm_campaign: "Cafenele", utm_content: "Clip" });
   });
 
-  test("are titlul, cele 4 pastile și link spre confidențialitate", async ({ page }) => {
+  test("are titlul, cele 5 pastile și link spre confidențialitate", async ({ page }) => {
     await deschide(page);
     await expect(page.locator(".colab").getByRole("heading", { name: "Vrei să colaborăm?" })).toBeVisible();
-    for (const p of ["Site", "Automatizări", "Sesiune 1 la 1 sau ghid personalizat", "Altceva"]) {
+    for (const p of ["CRM", "Site", "Automatizări", "Sesiune 1 la 1 sau ghid personalizat", "Altceva"]) {
       await expect(card(page).getByRole("button", { name: p, exact: true })).toHaveAttribute("aria-pressed", "false");
     }
     await expect(card(page).getByRole("link", { name: "politica de confidențialitate" })).toHaveAttribute("href", "/confidentialitate");
@@ -162,14 +162,19 @@ test.describe("linkurile de pe cardurile de servicii", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(300);
     // ca un om: întâi ajunge la card, apoi apasă (un clic în aceeași clipă cu un scroll nativ se bate cu Lenis)
-    await link(1).scrollIntoViewIfNeeded();
+    await link(0).scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
-    await link(1).click();
+    await link(0).click();
     await expect(card(page)).toBeInViewport();
-    await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "true");
+    await expect(card(page).getByRole("button", { name: "CRM", exact: true })).toHaveAttribute("aria-pressed", "true");
     await link(2).scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
     await link(2).click();
+    await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "true");
+    await expect(card(page).getByRole("button", { name: "CRM", exact: true })).toHaveAttribute("aria-pressed", "false");
+    await link(3).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    await link(3).click();
     await expect(card(page).getByRole("button", { name: "Sesiune 1 la 1 sau ghid personalizat" })).toHaveAttribute("aria-pressed", "true");
     await expect(card(page).getByRole("button", { name: "Automatizări" })).toHaveAttribute("aria-pressed", "false");
   });
