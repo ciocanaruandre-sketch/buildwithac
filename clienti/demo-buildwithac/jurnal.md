@@ -2,6 +2,8 @@
 
 Un rând pe lucru: ce s-a decis, livrat sau cerut. Cel mai nou sus.
 
+2026-11-27 — **asistentul de pe site, rulat pe bune (Task 8 Step 9):** Andrei l-a încercat din pagina demo: prețul, o întrebare necunoscută (a ajuns pe e-mail), o programare la Vlad (în calendar, cu confirmarea pe e-mail), „mâine la oricine”; memoria ține minte între mesaje pe n8n Cloud. Rămâne Haiku 5.5. De urmărit: o dată a propus 6 ore, nu „cel mult patru”.
+
 2026-11-27 — **asistentul de pe site, cum se leagă (Task 8 Step 6)**, verificat cu tipurile nodurilor din probă (n8n 2.48, prin MCP):
 - **Declanșatorul:** *Chat Trigger* v1.5, `public: true`, modul **Embedded Chat** (`webhook`), *Allowed Origins* = `http://localhost:8765` în probă, `CONFIG_DOMENIU_SITE` în model. *Response Mode* = **lastNode** (nu streaming): o conversație prea lungă primește un răspuns fix dintr-un nod *Set* `{ output }`, fără agent; cu streaming, ramura fără agent n-ar avea ce trimite.
 - **Memoria:** *Simple Memory* v1.4 (în n8n, fără cont), cheia = `sessionId` din declanșator (citit cu `$('…')`, nu cu `$json`). **De confirmat la rularea reală** că își amintește între mesaje pe n8n Cloud (documentația avertizează la *queue mode*); dacă uită, trecem pe altă memorie.
