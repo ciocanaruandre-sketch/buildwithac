@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="comun/fonturi/frizerie.css">
 <script src="comun/gsap.min.js"></script>
 <script src="comun/ScrollTrigger.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet">
 <style>
 :root{--pad:24px;
   --granulat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23g)'/%3E%3C/svg%3E");
@@ -110,8 +111,25 @@ dialog .btn{width:100%;margin-top:24px;background:#14231d;color:#ece6d8}
 dialog .btn[disabled]{opacity:.4;cursor:not-allowed}
 .inchide{position:absolute;top:10px;right:10px;width:44px;height:44px;border:0;background:none;font-size:26px;cursor:pointer}
 
-/* chatul (modelul 4): fereastra se pune aici la Task 8 */
+/* chatul (modelul 4): fereastra @n8n/chat, în culorile paginii */
 #chat:empty{display:none}
+:root{
+  --chat--font-family:"Hanken Grotesk",system-ui,sans-serif;
+  --chat--color--primary:#cdb88e;--chat--color--primary-shade-50:#bfa97c;--chat--color--primary--shade-100:#b39c6e;
+  --chat--color--secondary:#14231d;--chat--color-secondary-shade-50:#1d3229;
+  --chat--color-white:#efe9dc;--chat--color-light:#efe9dc;--chat--color-light-shade-50:#d9d0bf;--chat--color-light-shade-100:#bdb39f;
+  --chat--color-medium:#d9d0bf;--chat--color-dark:#0e1c17;--chat--color-typing:#5a5f53;
+  --chat--border-radius:2px;--chat--window--border-radius:4px;--chat--window--border:1px solid rgba(205,184,142,.35);
+  --chat--window--width:min(400px,calc(100vw - 24px));--chat--window--height:min(600px,calc(100dvh - 120px));
+  --chat--window--right:12px;--chat--window--bottom:calc(84px + env(safe-area-inset-bottom));
+  --chat--header--background:#0e1c17;--chat--header--color:#efe9dc;--chat--heading--font-size:26px;
+  --chat--message--bot--background:#d9d0bf;--chat--message--bot--color:#14231d;
+  --chat--message--user--background:#14231d;--chat--message--user--color:#efe9dc;
+  --chat--message--font-size:16px;--chat--input--background:#efe9dc;--chat--input--text-color:#14231d;
+  --chat--input--send--button--background:#efe9dc;--chat--input--send--button--color:#14231d;
+  --chat--toggle--size:58px;--chat--toggle--background:#cdb88e;--chat--toggle--hover--background:#bfa97c;--chat--toggle--color:#0e1c17;
+}
+.chat-window-wrapper .chat-heading h1{font-family:var(--titlu);font-weight:var(--titlu-g)}
 
 @media (min-width:800px){
   .bara{justify-content:center}
@@ -236,7 +254,7 @@ dialog .btn[disabled]{opacity:.4;cursor:not-allowed}
 // Adresele fluxurilor din n8n. Se completează la Task 7 (cererile) și Task 8 (chatul).
 // Goale = pagina doar arată mesajul de după trimitere, fără să trimită nimic.
 const WEBHOOK_CERERI = 'https://proba-buildwithac.app.n8n.cloud/webhook/cerere-site';
-const WEBHOOK_CHAT = '';
+const WEBHOOK_CHAT = 'https://proba-buildwithac.app.n8n.cloud/webhook/fe061376-7cd6-479f-a4cb-46badffa3e23/chat';
 
 const miscare = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 gsap.registerPlugin(ScrollTrigger);
@@ -365,6 +383,23 @@ form.addEventListener('submit', async e => {
     buton.disabled = false; buton.textContent = 'Trimite cererea';
   }
 });
+</script>
+<script type="module">
+// Chatul (asistentul de pe site): pachetul @n8n/chat, legat de fluxul asistent-site din n8n.
+import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+if (WEBHOOK_CHAT) {
+  createChat({
+    webhookUrl: WEBHOOK_CHAT,
+    target: '#chat',
+    mode: 'window',
+    loadPreviousSession: false,
+    showWelcomeScreen: false,
+    enableStreaming: false,
+    defaultLanguage: 'en',
+    initialMessages: ['Bună ziua. Sunt asistentul virtual al Conu\x27 Leonida.', 'Vă pot spune prețurile și programul și vă pot programa la Vlad sau la Radu.'],
+    i18n: { en: { title: 'Conu\x27 Leonida', subtitle: 'Asistentul virtual. Răspunde imediat, la orice oră.', footer: '', getStarted: 'Conversație nouă', inputPlaceholder: 'Scrieți aici…', closeButtonTooltip: 'Închide' } },
+  });
+}
 </script>
 </body>
 </html>
