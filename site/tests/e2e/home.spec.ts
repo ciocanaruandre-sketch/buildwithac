@@ -1,16 +1,78 @@
 import { test, expect } from "@playwright/test";
 
+// intrarea de pe copertă e o animație CSS: o terminăm, ca să măsurăm pozițiile finale
+const gataIntrarea = (page: import("@playwright/test").Page) =>
+  page.evaluate(() => document.getAnimations().forEach((a) => (a as CSSAnimation).animationName?.startsWith("intra") && a.finish()));
+
 test.describe("hero", () => {
-  test("titlul e buildwithac, iar subtitlul stă deasupra lui", async ({ page }) => {
+  test("pe cer: eticheta, fraza și rândul despre claritate, deasupra numelui", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle("buildwithac · site-uri și automatizări cu AI");
     await expect(page.locator("h1")).toHaveText("buildwithac");
-    // intrarea titlului e o animație CSS: o terminăm, ca să măsurăm pozițiile finale
-    await page.evaluate(() => document.getAnimations().forEach((a) => (a as CSSAnimation).animationName?.startsWith("intra") && a.finish()));
-    const sus = await page.locator(".px__sub").boundingBox();
-    const titlu = await page.locator("h1").boundingBox();
-    expect(sus!.y + sus!.height).toBeLessThanOrEqual(titlu!.y + 1);
-    await expect(page.locator(".px__sub")).toContainText("AI pe înțelesul tău, în română.");
+    await gataIntrarea(page);
+    const sus = page.locator(".px__sub");
+    await expect(sus.locator(".cop-eti")).toHaveText("Site-uri · Automatizări · CRM");
+    await expect(sus.locator(".cop-fraza")).toHaveText("Programări uitate, mesaje fără răspuns, clienți de care nu mai știi nimic? Le rezolv eu.");
+    await expect(sus.locator(".cop-fraza .serif")).toHaveText("Le rezolv eu.");
+    await expect(sus.locator(".cop-claritate")).toHaveText("Împreună construim claritate în afacerea ta");
+    await expect(page.locator("#hero")).not.toContainText("AI pe înțelesul");
+    const b = (await sus.boundingBox())!;
+    const titlu = (await page.locator("h1").boundingBox())!;
+    expect(b.y + b.height).toBeLessThanOrEqual(titlu.y + 1);
+    expect(titlu.y - (b.y + b.height)).toBeLessThanOrEqual(40);
+  });
+
+  for (const [lat, inalt] of [[390, 844], [375, 667]]) {
+    test(`la ${lat}×${inalt}, butoanele sunt pe copertă, în primul ecran`, async ({ page }) => {
+      await page.setViewportSize({ width: lat, height: inalt });
+      await page.goto("/");
+      await gataIntrarea(page);
+      const analiza = page.locator("#hero").getByRole("link", { name: "Analiză gratuită" });
+      const ghiduri = page.locator("#hero").getByRole("link", { name: "Ghiduri gratuite" });
+      await expect(analiza).toHaveAttribute("href", "#formular");
+      await expect(ghiduri).toHaveAttribute("href", "/ghiduri");
+      await expect(analiza).toBeInViewport({ ratio: 0.99 });
+      await expect(ghiduri).toBeInViewport({ ratio: 0.99 });
+      await expect(page.locator("#hero")).toContainText("Îți răspund în 1–2 zile");
+      await expect(page.locator(".scrollcue")).toHaveCount(0);
+    });
+  }
+
+  test("pe telefon scund, eticheta nu intră sub logo", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    await gataIntrarea(page);
+    const eti = (await page.locator(".cop-eti").boundingBox())!;
+    const logo = (await page.locator(".nav .logo").boundingBox())!;
+    expect(eti.y).toBeGreaterThanOrEqual(logo.y + logo.height);
+  });
+
+  test("la 320px, textul de pe cer încape pe lățime", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto("/");
+    await gataIntrarea(page);
+    for (const s of [".cop-eti", ".cop-fraza", ".cop-claritate"]) {
+      const b = (await page.locator(s).boundingBox())!;
+      expect(b.x).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width).toBeLessThanOrEqual(320);
+    }
+  });
+
+  test("pe desktop, blocul de pe cer nu atinge numele", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await gataIntrarea(page);
+    const b = (await page.locator(".px__sub").boundingBox())!;
+    const titlu = (await page.locator("h1").boundingBox())!;
+    expect(b.y + b.height).toBeLessThanOrEqual(titlu.y + 1);
+    expect(b.y).toBeGreaterThan(0);
+  });
+
+  test("cu mișcare redusă, butoanele se văd de la început", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    await expect(page.locator(".cop-jos")).toHaveCSS("opacity", "1");
+    await expect(page.locator(".cop-jos")).toHaveCSS("animation-name", "none");
   });
 
   test("pe ecran portret, primul plan e centrat pe 38%", async ({ page, isMobile }) => {

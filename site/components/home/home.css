@@ -9,8 +9,14 @@
 .px__layer img { width: 100%; height: 100%; object-fit: cover; }
 .px__titlewrap { position: absolute; top: 0; left: 0; width: 100%; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .px__title { font-family: var(--nf-unbounded); font-weight: 800; color: var(--color-cream); font-size: 11.5vw; line-height: 1; letter-spacing: -.05em; padding: 0 2vw; }
-.px__sub { margin-bottom: .6vw; font-size: clamp(15px, 1.7vw, 24px); color: rgba(246,239,227,.95); text-shadow: 0 2px 18px rgba(0,0,0,.45); }
-.px__sub .serif { font-size: 1.25em; }
+/* numele coboară cu --cop-jos, ca eticheta să nu intre în soare; textul de pe cer stă la 20px deasupra lui (5.75vw = jumătate din titlu) */
+.px { --cop-jos: 6svh; }
+.px__titlewrap { padding-top: calc(var(--cop-jos) * 2); }
+.px__sub { position: absolute; left: 0; right: 0; bottom: calc(50svh - var(--cop-jos) + 5.75vw + 20px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 18px; }
+.cop-eti { font-family: var(--nf-inter); font-weight: 800; font-size: clamp(13px, 3.6vw, 17px); letter-spacing: .14em; text-transform: uppercase; color: var(--color-gold); text-shadow: 0 2px 14px rgba(0,0,0,.6); }
+.cop-fraza { font-family: var(--nf-unbounded); font-weight: 600; font-size: clamp(19px, 5.3vw, 34px); letter-spacing: -.02em; line-height: 1.2; max-width: 640px; color: var(--color-cream); text-wrap: balance; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.cop-fraza .serif { font-size: 1.12em; letter-spacing: 0; color: var(--color-gold); }
+.cop-claritate { margin-top: 4px; font-family: var(--nf-inter); font-weight: 800; font-size: clamp(11px, 3vw, 14px); letter-spacing: .1em; text-transform: uppercase; color: var(--color-gold); text-shadow: 0 2px 14px rgba(0,0,0,.6); text-wrap: balance; }
 /* intrarea din prototip (expo.out); opacitatea pornește de la .01, nu 0, ca titlul să conteze imediat ca element principal */
 @keyframes intra-titlu { from { opacity: .01; transform: translateY(30%); } }
 @keyframes intra-sub { from { opacity: .01; transform: translateY(20px); } }
@@ -18,10 +24,12 @@
 .px__sub { animation: intra-sub 1.2s cubic-bezier(.16,1,.3,1) .5s both; }
 @media (max-aspect-ratio: 1/1) { .px__layer img { object-position: 38% 50%; } }
 .px__fade { position: absolute; bottom: 0; left: 0; width: 100%; height: 22%; z-index: 30; background: linear-gradient(#0000, #0b090800 2%, #0b09080b 14%, #0b090831 35%, #0b090861 53%, #0b0908bc 81%, #0b0908); }
-.px__header { position: relative; z-index: 40; min-height: 100svh; display: flex; align-items: flex-end; justify-content: center; padding: 0 0 34px; }
-.scrollcue { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: rgba(246,239,227,.7); display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.scrollcue i { width: 1px; height: 40px; background: linear-gradient(var(--color-cream), transparent); animation: cue 1.8s infinite; }
-@keyframes cue { 0% { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+.px__header { position: relative; z-index: 40; min-height: 100svh; display: flex; align-items: flex-end; justify-content: center; padding: 0 0 max(28px, env(safe-area-inset-bottom)); }
+/* umbra de sub butoane: întunecă doar partea de jos, ca numele să rămână curat */
+.px__header::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background: linear-gradient(#0b090800, #0b090899 35%, #0b0908e6 70%, #0b0908); pointer-events: none; z-index: -1; }
+.cop-jos { width: 100%; max-width: 640px; padding: 0 22px; display: flex; flex-direction: column; align-items: center; text-align: center; animation: intra-sub 1.2s cubic-bezier(.16,1,.3,1) .9s both; }
+.cop-prom { margin-top: 14px; font-size: 12.5px; color: rgba(246,239,227,.7); }
+.cop-prom i { font-style: normal; margin: 0 6px; color: var(--color-gold); }
 .px__spacer { height: 40vh; }
 
 /* CORTINA + MANIFEST */
@@ -31,18 +39,17 @@
 .manifest p + p { margin-top: 1.1em; }
 .manifest .rd { display: inline-block; }
 .manifest .w { opacity: .14; }
-.cortina-but { display: flex; gap: 12px; max-width: 520px; margin-top: 34px; }
-.cortina-but a { flex: 1 1 0; text-align: center; white-space: nowrap; font-weight: 700; font-size: clamp(13px, 3.9vw, 16px); padding: 16px 6px; border-radius: 999px; color: var(--color-cream); text-decoration: none; border: 1px solid rgba(246,239,227,.35); transition: transform .2s, border-color .2s; }
-.cortina-but a.plin { background: var(--grad); background-origin: border-box; border-color: transparent; color: #fff; box-shadow: 0 10px 30px -10px rgba(242,106,33,.7); }
-.cortina-but a:hover { transform: translateY(-2px); border-color: var(--color-cream); }
-.cortina-but a:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+.cop-but { display: flex; gap: 10px; width: 100%; max-width: 460px; }
+.cop-but a { flex: 1 1 0; text-align: center; white-space: nowrap; font-weight: 700; font-size: clamp(13px, 3.7vw, 16px); padding: 15px 6px; border-radius: 999px; color: var(--color-cream); text-decoration: none; border: 1px solid rgba(246,239,227,.4); background: rgba(11,9,8,.35); backdrop-filter: blur(6px); transition: transform .2s, border-color .2s; }
+.cop-but a.plin { background: var(--grad); background-origin: border-box; border-color: transparent; color: #fff; box-shadow: 0 10px 30px -10px rgba(242,106,33,.75); }
+.cop-but a:hover { transform: translateY(-2px); border-color: var(--color-cream); }
+.cop-but a:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
 .curtain .who { display: flex; align-items: center; gap: 14px; margin-top: 46px; color: var(--color-muted); font-size: 14px; }
 .curtain .who img { width: 52px; height: 52px; border-radius: 50%; }
 
 @media (prefers-reduced-motion: reduce) {
-  .px__title, .px__sub { animation: none; }
+  .px__title, .px__sub, .cop-jos { animation: none; }
   .manifest .w { opacity: 1; }
-  .scrollcue i { animation: none; }
 }
 
 /* GHIDURI gratuite și premium: două foi lipite */
