@@ -547,3 +547,119 @@ test("pregătește: răspuns stricat → eroare (pleacă mesajul fix pe ieșirea
   assert.throws(() => pregateste(raspunsAi({ ...AI_BUN, sms: "" })), "SMS lipsă, cu canalul sms");
   assert.equal(pregateste(raspunsAi({ ...AI_BUN, sms: "" }), { setari: { canal: "email" } }).length, 1, "fără sms în canale, SMS-ul nu contează");
 });
+
+// ---------- asistent-site: uneltele ore_libere și programeaza ----------
+// joi, 26 noiembrie 2026, 18:00 (ora României); vineri = 27, duminică = 29
+const JOI = "2026-11-26T18:00:00+02:00";
+const VLAD = "vlad@group.calendar.google.com", RADU = "radu@group.calendar.google.com";
+const ocupat = (cal, de, pana, o = {}) => ({ id: `e-${de}`, status: "confirmed", summary: "Tuns – X", start: { dateTime: de }, end: { dateTime: pana }, organizer: { email: cal }, ...o });
+const ziIntreaga = (cal, zi, ziUrm) => ({ id: "concediu", status: "confirmed", summary: "Concediu", start: { date: zi }, end: { date: ziUrm }, organizer: { email: cal } });
+const unealta = (fisier, cerere, evenimente = [], acum = JOI) => ruleaza(cod("asistent-site", fisier), [{ json: {} }], {
+  "Setări firmă": [{ json: structuredClone(SETARI_DEMO) }],
+  "Ce cere asistentul": [{ json: cerere }],
+  "Programările": evenimente.length ? evenimente.map((json) => ({ json })) : [{ json: {} }],
+}, acum)[0].json;
+const oreLibere = (cerere, ev, acum) => unealta("ore-libere", cerere, ev, acum);
+const programeaza = (cerere, ev, acum) => unealta("programeaza", cerere, ev, acum);
+const laMin = (hhmm) => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+
+test("ore_libere: prima oră liberă după ce e ocupat, nicio oră peste o programare", () => {
+  const ev = [ocupat(VLAD, "2026-11-27T10:00:00+02:00", "2026-11-27T11:00:00+02:00"), ocupat(VLAD, "2026-11-27T12:00:00+02:00", "2026-11-27T12:45:00+02:00")];
+  const r = oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Tuns" }, ev);
+  assert.equal(r.ore[0].ora, "11:00");
+  assert.ok(r.ore.length > 0 && r.ore.length <= 6);
+  for (const { ora, om } of r.ore) {
+    assert.equal(om, "Vlad");
+    const s = laMin(ora), f = s + 30;
+    assert.ok(f <= 600 || s >= 660, `${ora} se suprapune cu 10:00–11:00`);
+    assert.ok(f <= 720 || s >= 765, `${ora} se suprapune cu 12:00–12:45`);
+  }
+  assert.match(r.ziua, /^vineri, 27 noiembrie/);
+});
+
+test("ore_libere: nicio oră care se termină după închidere", () => {
+  const r = oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Tuns", de_la: "18:30" });
+  assert.deepEqual(r.ore.map((o) => o.ora), ["18:30", "19:00", "19:30"]);
+  const lung = oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Tuns + barbă", de_la: "18:30" });
+  assert.deepEqual(lung.ore.map((o) => o.ora), ["18:30", "19:00"], "50 de minute de la 19:30 ar trece de 20:00");
+});
+
+test("ore_libere: azi, nicio oră mai devreme de acum + 60 de minute", () => {
+  const r = oreLibere({ zi: "2026-11-26", om: "Vlad", serviciu: "Tuns" });
+  assert.deepEqual(r.ore.map((o) => o.ora), ["19:00", "19:30"]);
+  assert.deepEqual(oreLibere({ zi: "2026-11-25", om: "Vlad", serviciu: "Tuns" }).ore, [], "ieri");
+});
+
+test("ore_libere: duminică e închis", () => {
+  const r = oreLibere({ zi: "2026-11-29", om: "oricine", serviciu: "Tuns" });
+  assert.deepEqual(r.ore, []);
+  assert.equal(r.program, "închis");
+});
+
+test("ore_libere: „oricine” dă orele tuturor, fiecare cu omul ei; cine nu face serviciul nu apare", () => {
+  const ev = [ocupat(VLAD, "2026-11-27T10:00:00+02:00", "2026-11-27T11:00:00+02:00")];
+  const r = oreLibere({ zi: "2026-11-27", om: "oricine", serviciu: "Tuns" }, ev);
+  assert.deepEqual(r.ore.slice(0, 3), [{ ora: "10:00", om: "Radu" }, { ora: "10:30", om: "Radu" }, { ora: "11:00", om: "Vlad" }]);
+  assert.equal(new Set(r.ore.map((o) => o.ora)).size, r.ore.length, "o oră o singură dată");
+  const barba = oreLibere({ zi: "2026-11-27", om: "oricine", serviciu: "Barbă" });
+  assert.ok(barba.ore.length > 0 && barba.ore.every((o) => o.om === "Radu"), "Vlad nu face barbă");
+  assert.equal(oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Barbă" }).eroare, "serviciu necunoscut");
+});
+
+test("ore_libere: o zi întreagă în calendarul omului (concediu) = fără ore la el", () => {
+  const ev = [ziIntreaga(VLAD, "2026-11-27", "2026-11-28")];
+  assert.deepEqual(oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Tuns" }, ev).ore, []);
+  assert.ok(oreLibere({ zi: "2026-11-27", om: "oricine", serviciu: "Tuns" }, ev).ore.every((o) => o.om === "Radu"));
+  assert.ok(oreLibere({ zi: "2026-11-28", om: "Vlad", serviciu: "Tuns" }, ev).ore.length > 0, "sfârșitul zilei întregi e exclusiv");
+});
+
+test("ore_libere: programările anulate nu ocupă; om, serviciu sau zi greșite → eroare", () => {
+  const ev = [ocupat(VLAD, "2026-11-27T10:00:00+02:00", "2026-11-27T11:00:00+02:00", { status: "cancelled" })];
+  assert.equal(oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Tuns" }, ev).ore[0].ora, "10:00");
+  assert.equal(oreLibere({ zi: "2026-11-27", om: "Gigel", serviciu: "Tuns" }).eroare, "om necunoscut");
+  assert.equal(oreLibere({ zi: "2026-11-27", om: "Vlad", serviciu: "Vopsit" }).eroare, "serviciu necunoscut");
+  assert.equal(oreLibere({ zi: "vineri", om: "Vlad", serviciu: "Tuns" }).eroare, "zi greșită");
+  assert.equal(oreLibere({ zi: "2026-11-27", om: "vlad", serviciu: "tuns" }).ore[0].om, "Vlad", "fără deosebire de litere mari");
+});
+
+const PROGRAMARE = { om: "Vlad", serviciu: "Tuns", start: "2026-11-27T12:00:00+02:00", nume: "Mihai Ionescu", telefon: "0722 123 456", email: "Mihai@Exemplu.ro" };
+test("programeaza: evenimentul din calendar, în forma pe care o citesc reamintirile", () => {
+  const r = programeaza(PROGRAMARE);
+  assert.equal(r.ok, true);
+  assert.equal(r.calendar_id, VLAD);
+  assert.equal(r.summary, "Tuns – Mihai Ionescu");
+  assert.equal(r.description, "Telefon: +40722123456\nEmail: mihai@exemplu.ro");
+  assert.equal(Date.parse(r.start), Date.parse("2026-11-27T10:00:00Z"));
+  assert.equal(Date.parse(r.end) - Date.parse(r.start), 30 * 60000);
+  assert.match(r.ziua, /^vineri, 27 noiembrie/);
+  assert.equal(r.ora, "12:00");
+});
+
+test("programeaza: compatibil cu confirmarea (citesteContact din programari găsește telefonul și e-mailul)", () => {
+  const r = programeaza(PROGRAMARE);
+  const msj = confirmare([ev({ id: "nou", summary: r.summary, description: r.description, start: { dateTime: r.start }, end: { dateTime: r.end }, created: new Date(Date.parse(JOI) - 60000).toISOString() })], {}, JOI);
+  assert.deepEqual(msj.filter((m) => m.trimite).map((m) => m.contact).sort(), ["+40722123456", "mihai@exemplu.ro"]);
+});
+
+test("programeaza: ocupat, fără contact, serviciu necunoscut, în afara programului, în trecut", () => {
+  assert.equal(programeaza(PROGRAMARE, [ocupat(VLAD, "2026-11-27T12:15:00+02:00", "2026-11-27T12:45:00+02:00")]).eroare, "ocupat");
+  assert.equal(programeaza(PROGRAMARE, [ocupat(RADU, "2026-11-27T12:00:00+02:00", "2026-11-27T12:30:00+02:00")]).ok, true, "Radu ocupat nu-l oprește pe Vlad");
+  assert.equal(programeaza(PROGRAMARE, [ziIntreaga(VLAD, "2026-11-27", "2026-11-28")]).eroare, "ocupat");
+  assert.equal(programeaza({ ...PROGRAMARE, telefon: "", email: "" }).eroare, "lipsa contact");
+  assert.equal(programeaza({ ...PROGRAMARE, telefon: "123", email: "nu-e-email" }).eroare, "lipsa contact");
+  assert.equal(programeaza({ ...PROGRAMARE, serviciu: "Vopsit" }).eroare, "serviciu necunoscut");
+  assert.equal(programeaza({ ...PROGRAMARE, serviciu: "Barbă" }).eroare, "serviciu necunoscut", "Vlad nu face barbă");
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2026-11-27T19:45:00+02:00" }).eroare, "in afara programului");
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2026-11-29T12:00:00+02:00" }).eroare, "in afara programului", "duminică");
+  assert.equal(programeaza({ ...PROGRAMARE, start: "2026-11-26T18:30:00+02:00" }).eroare, "in trecut", "mai puțin de o oră de acum");
+  assert.equal(programeaza({ ...PROGRAMARE, start: "mâine la 12" }).eroare, "ora greșită");
+});
+
+test("programeaza: „oricine” alege primul om liber care face serviciul; doar telefonul ajunge", () => {
+  const r = programeaza({ ...PROGRAMARE, om: "oricine" }, [ocupat(VLAD, "2026-11-27T12:00:00+02:00", "2026-11-27T12:30:00+02:00")]);
+  assert.equal(r.ok, true);
+  assert.equal(r.om, "Radu");
+  assert.equal(r.calendar_id, RADU);
+  assert.equal(programeaza({ ...PROGRAMARE, email: "" }).description, "Telefon: +40722123456");
+  assert.equal(programeaza({ ...PROGRAMARE, nume: "Ana\n– Popescu " + "x".repeat(200) }).summary.length <= 90, true, "numele tăiat, pe un rând");
+});
