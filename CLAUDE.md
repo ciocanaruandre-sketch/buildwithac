@@ -3,7 +3,7 @@
 ## Proiectul
 Site-ul contului **@buildwithac.ai** (TikTok și Instagram), live pe `https://buildwithac.ro`. **Homepage-ul vinde colaborarea cu firme** (portofoliu → servicii → calculator → formularul „analiză gratuită”); biblioteca de **ghiduri gratuite** (`/ghiduri`) e versiunea completă a tutorialelor scurte. Caruselul spune *ce*, ghidul spune *cum*.
 Două drumuri: clip → „ghidul e pe site, link în bio” → ghidul → îl aplică → îl urmărește pe Andrei; clip sau reclamă → homepage → formularul de analiză. În clipuri nu se pun link-uri (risc de ban pe TikTok).
-Pe homepage **nu se inventează** cifre, clienți sau recenzii; calculatorul e o estimare prudentă (părțile luate în calcul sunt în `site/lib/calculator.ts`). CRM-ul e în portofoliu, dar nu e încă serviciu.
+Pe homepage **nu se inventează** cifre, clienți sau recenzii; calculatorul e o estimare prudentă (părțile luate în calcul sunt în `site/lib/calculator.ts`). CRM-ul e și în portofoliu, și serviciu (primul la Servicii); regulile lui în `servicii/` vin mai târziu.
 Publicul: oameni care învață AI și firme mici (cafenele, saloane, clinici, imobiliare). Vin mai ales **de pe telefon**: totul se proiectează întâi la ~390px.
 - Documentul de design (aprobat): `docs/superpowers/specs/2026-10-22-site-buildwithac-design.md`
 - **Stadiul:** `docs/progres-brainstorming.md`. La începutul sesiunii citește secțiunea „DE AICI CONTINUĂM”.

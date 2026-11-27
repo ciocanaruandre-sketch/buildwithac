@@ -100,7 +100,8 @@ test.describe("cortina", () => {
   test("are mesajul personal", async ({ page }) => {
     await page.goto("/");
     const manifest = page.locator(".manifest");
-    await expect(manifest).toContainText("Salut, sunt Andrei, am 24 de ani și am terminat Mecatronica la Politehnica din București.");
+    await expect(manifest).toContainText("Salut, sunt Andrei, am terminat Mecatronica la Politehnica din București.");
+    await expect(manifest).not.toContainText("24 de ani");
     await expect(manifest).toContainText("ca tu să ai timp pentru gestionarea afacerii.");
     await expect(manifest.locator(".gtxt")).toHaveCount(0);
     await expect(page.locator(".curtain")).not.toContainText("tot gratuit");
@@ -114,7 +115,7 @@ test.describe("cortina", () => {
       await expect(page.locator(".manifest p")).toHaveCount(3);
       const randuri = page.locator(".manifest .rd");
       await expect(randuri).toHaveText([
-        "Salut, sunt Andrei,", "am 24 de ani și am terminat", "Mecatronica la Politehnica", "din București.",
+        "Salut, sunt Andrei,", "am terminat Mecatronica", "la Politehnica din București.",
         "Știu că la început de drum", "le faci pe toate singur.",
         "Eu îți fac site-ul", "și automatizările,", "ca tu să ai timp pentru", "gestionarea afacerii.",
       ]);
@@ -138,14 +139,15 @@ test.describe("cortina", () => {
     test(`la ${lat}px, textul începe pe aceeași linie cu titlurile de mai jos`, async ({ page }) => {
       await page.setViewportSize({ width: lat, height: 844 });
       await page.goto("/");
-      const stanga = await page.evaluate(() => [".manifest", ".curtain .who", ".cortina-but", "#portofoliu h2"].map((s) => Math.round(document.querySelector(s)!.getBoundingClientRect().left)));
+      const stanga = await page.evaluate(() => [".manifest", ".curtain .who", "#portofoliu h2"].map((s) => Math.round(document.querySelector(s)!.getBoundingClientRect().left)));
       expect(new Set(stanga).size).toBe(1);
     });
   }
 
-  test("sub text, analiza și ghidurile", async ({ page }) => {
+  test("butoanele s-au mutat pe copertă", async ({ page }) => {
     await page.goto("/");
-    const butoane = page.locator(".cortina-but a");
+    await expect(page.locator(".cortina-but")).toHaveCount(0);
+    const butoane = page.locator("#hero .cop-but a");
     await expect(butoane).toHaveText(["Analiză gratuită", "Ghiduri gratuite"]);
     await expect(butoane.nth(0)).toHaveAttribute("href", "#formular");
     await expect(butoane.nth(1)).toHaveAttribute("href", "/ghiduri");
@@ -155,7 +157,7 @@ test.describe("cortina", () => {
     test(`la ${lat}px, butoanele stau unul lângă altul, pe câte un rând`, async ({ page }) => {
       await page.setViewportSize({ width: lat, height: 844 });
       await page.goto("/");
-      const [a, b] = await Promise.all([0, 1].map((i) => page.locator(".cortina-but a").nth(i).boundingBox()));
+      const [a, b] = await Promise.all([0, 1].map((i) => page.locator("#hero .cop-but a").nth(i).boundingBox()));
       expect(Math.abs(a!.y - b!.y)).toBeLessThanOrEqual(1);
       expect(Math.abs(a!.width - b!.width)).toBeLessThanOrEqual(1);
       expect(a!.height).toBeLessThan(60);
@@ -207,7 +209,7 @@ test("pe telefon, pagina e scurtă: portofoliul și formularul vin repede", asyn
   console.log("ecrane", JSON.stringify(ecrane));
   expect(ecrane.portofoliu).toBeLessThan(3);
   expect(ecrane.formular).toBeLessThan(10);
-  expect(ecrane.total).toBeLessThanOrEqual(17);
+  expect(ecrane.total).toBeLessThanOrEqual(18); // 18, nu 17: al patrulea card de la Servicii (CRM, 2026-11-27)
 });
 
 test.describe("ghiduri și clipuri", () => {
@@ -305,9 +307,15 @@ test.describe("abonare", () => {
 });
 
 test.describe("servicii și contact", () => {
-  test("serviciile au cele trei carduri și titlul nou", async ({ page }) => {
+  test("serviciile au patru carduri, CRM primul, și titlul nou", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("#servicii .scard")).toHaveCount(3);
+    const carduri = page.locator("#servicii .scard");
+    await expect(carduri).toHaveCount(4);
+    await expect(carduri.nth(0)).toContainText("CRM pentru echipe de vânzări");
+    await expect(carduri.nth(0)).toContainText("ai integrare Meta pentru a urmări corect lead-urile provenite din reclame");
+    await expect(carduri.nth(1)).toContainText("Optimizat pentru a funcționa eficient pe telefon.");
+    await expect(carduri.nth(2)).toContainText("Le integrez astfel încât să funcționeze automat, fără intervenția ta.");
+    await expect(carduri.nth(3)).toContainText("Sesiune 1 la 1");
     await expect(page.locator("#servicii h2")).toHaveText("Cu ce îți pot fi de ajutor.");
     await expect(page.locator("#servicii")).toContainText("în funcție de nevoile tale");
   });
