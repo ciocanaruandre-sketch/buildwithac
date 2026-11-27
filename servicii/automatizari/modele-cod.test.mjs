@@ -8,15 +8,15 @@ import { fileURLToPath } from "node:url";
 
 const MODELE = join(dirname(fileURLToPath(import.meta.url)), "modele");
 
-// Rulează corpul unui nod Code (modul „Run Once for All Items”) cu $input, $(nume) și $now la ora `acum`.
-export const ruleaza = (cod, input, noduri = {}, acum = new Date().toISOString()) => {
+// Rulează corpul unui nod Code (modul „Run Once for All Items”) cu $input, $(nume), $now la ora `acum` și datele statice ale fluxului.
+export const ruleaza = (cod, input, noduri = {}, acum = new Date().toISOString(), dateStatice = {}) => {
   const ms = Date.parse(acum);
   const $now = { toMillis: () => ms, toISO: () => acum };
   const $ = (nume) => {
     if (!(nume in noduri)) throw new Error(`nodul „${nume}” lipsește din test`);
     return { first: () => noduri[nume][0], all: () => noduri[nume] };
   };
-  return new Function("$input", "$", "$now", cod)({ first: () => input[0], all: () => input }, $, $now);
+  return new Function("$input", "$", "$now", "$getWorkflowStaticData", cod)({ first: () => input[0], all: () => input }, $, $now, () => dateStatice);
 };
 
 export const cod = (model, nume) => readFileSync(join(MODELE, model, "cod", `${nume}.js`), "utf8");
@@ -662,4 +662,45 @@ test("programeaza: „oricine” alege primul om liber care face serviciul; doar
   assert.equal(r.calendar_id, RADU);
   assert.equal(programeaza({ ...PROGRAMARE, email: "" }).description, "Telefon: +40722123456");
   assert.equal(programeaza({ ...PROGRAMARE, nume: "Ana\n– Popescu " + "x".repeat(200) }).summary.length <= 90, true, "numele tăiat, pe un rând");
+});
+
+// ---------- asistent-site: mesajul din chat și instrucțiunile ----------
+const conversatie = (chatInput, { setari = {}, sessionId = "s1", dateStatice = {}, acum = JOI } = {}) => ruleaza(cod("asistent-site", "pregateste-conversatia"), [{ json: {} }], {
+  "Setări firmă": [{ json: { ...structuredClone(SETARI_DEMO), ...setari } }],
+  "Mesaj în chat": [{ json: { sessionId, action: "sendMessage", chatInput } }],
+}, acum, dateStatice)[0].json;
+
+test("asistent: instrucțiunile au data, ziua și ora României, plus zilele următoare cu data lor", () => {
+  const { system } = conversatie("Bună");
+  assert.match(system, /Europe\/Bucharest/);
+  assert.match(system, /joi, 26 noiembrie 2026, ora 18:00/);
+  assert.match(system, /mâine[^\n]*vineri, 27 noiembrie[^\n]*2026-11-27/);
+  assert.match(system, /duminică, 29 noiembrie[^\n]*2026-11-29[^\n]*închis/);
+  const iarna = conversatie("Bună", { acum: "2027-01-04T09:05:00Z" }).system;
+  assert.match(iarna, /luni, 4 ianuarie 2027, ora 11:05/, "ora României, nu UTC");
+});
+
+test("asistent: instrucțiunile au datele firmei, oamenii cu serviciile lor și uneltele", () => {
+  const { system } = conversatie("Bună");
+  for (const s of ["Conu' Leonida", "Str. Exemplu 12, București", "0722 000 000", "Tuns: 80 lei, 30 de minute", "Vlad: Tuns, Tuns + barbă", "Radu: Tuns, Barbă", "Nu avem parcare proprie", "ore_libere", "programeaza", "transmite_patronului", "asistentul virtual"]) {
+    assert.ok(system.includes(s), s);
+  }
+  assert.match(conversatie("Bună", { setari: { ton: "elegant" } }).system, /dumneavoastră/);
+});
+
+test("asistent: mesajul clientului tăiat la 1.000 de caractere; fiecare conversație numărată separat", () => {
+  assert.equal(conversatie("a".repeat(5000)).chatInput.length, 1000);
+  const dateStatice = {};
+  for (let i = 1; i <= 30; i++) assert.equal(conversatie("x", { dateStatice }).prea_multe, false, `mesajul ${i}`);
+  const r = conversatie("x", { dateStatice });
+  assert.equal(r.prea_multe, true);
+  assert.equal(r.output, "Te rog să ne suni la 0722 000 000.");
+  assert.equal(conversatie("x", { dateStatice, setari: { ton: "elegant" } }).output, "Vă rog să ne sunați la 0722 000 000.");
+  assert.equal(conversatie("x", { dateStatice, sessionId: "altul" }).prea_multe, false);
+});
+
+test("asistent: conversațiile mai vechi de 2 zile se șterg din datele statice", () => {
+  const dateStatice = { conversatii: { vechi: { n: 3, ultima: Date.parse(JOI) - 3 * 86400000 }, noua: { n: 2, ultima: Date.parse(JOI) - 3600000 } } };
+  conversatie("x", { dateStatice });
+  assert.deepEqual(Object.keys(dateStatice.conversatii).sort(), ["noua", "s1"]);
 });
