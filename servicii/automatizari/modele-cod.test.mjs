@@ -380,7 +380,8 @@ test("recenzie: SMS-ul încape într-un SMS cu un link Google adevărat, în amb
 // Intrarea e ce dă nodul Webhook: { body: { nume, telefon, email, cerere, mesaj, website } }.
 const CERERE = { nume: "Mihai Ionescu", telefon: "0722 123 456", email: "Mihai@Exemplu.ro", cerere: "Mire și cavaleri de onoare", mesaj: "Suntem 5, sâmbătă dimineață.", website: "" };
 const verificaCererea = (body, { setari = {}, cereri = [] } = {}, acum = ACUM) =>
-  ruleaza(cod("raspuns-primul-minut", "verifica-cererea"), [{ json: { headers: {}, body } }], {
+  ruleaza(cod("raspuns-primul-minut", "verifica-cererea"), randuri(cereri), {
+    "Cerere de pe site": [{ json: { headers: {}, body } }],
     "Setări firmă": [{ json: { ...structuredClone(SETARI_DEMO), ...setari } }],
     Cereri: randuri(cereri),
   }, acum).map((i) => i.json);
@@ -402,7 +403,7 @@ test("cerere: completă → ok, telefonul +407…, e-mailul mic, canalele după 
 });
 
 test("cerere: merge și cu corpul direct (fără „body”)", () => {
-  const r = ruleaza(cod("raspuns-primul-minut", "verifica-cererea"), [{ json: CERERE }], { "Setări firmă": [{ json: structuredClone(SETARI_DEMO) }], Cereri: randuri([]) }, ACUM);
+  const r = ruleaza(cod("raspuns-primul-minut", "verifica-cererea"), [{ json: {} }], { "Cerere de pe site": [{ json: CERERE }], "Setări firmă": [{ json: structuredClone(SETARI_DEMO) }], Cereri: randuri([]) }, ACUM);
   assert.equal(r[0].json.ok, true);
 });
 

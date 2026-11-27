@@ -1,10 +1,10 @@
 // Răspuns în primul minut, pasul 1: verifică cererea venită din formularul de pe site.
-// Intrarea: ce dă nodul Webhook ({ body: { nume, telefon, email, cerere, mesaj, website } }).
+// Intrarea: ce dă nodul Webhook „Cerere de pe site” ({ body: { nume, telefon, email, cerere, mesaj, website } }); între ele stă citirea foii Cereri.
 // Ieșirea: un singur item, { ok, motiv?, data, nume, prenume, telefon, email, cerere, mesaj, canale }.
 // „Nu trimite” nu se citește aici: mesajul e răspunsul la cererea omului, nu o reclamă.
 const setari = $('Setări firmă').first().json;
 const acum = $now.toMillis();
-const intrare = $input.first().json || {};
+const intrare = $('Cerere de pe site').first().json || {};
 const d = intrare.body && typeof intrare.body === 'object' ? intrare.body : intrare;
 
 // ---------- comune (același text în toate fișierele cod/ care le au) ----------
