@@ -48,7 +48,7 @@ const curat = (t) => String(t || '').replace(/<\/?\s*cerere\s*>/gi, '');
 const mesaj = `<cerere>
 Numele: ${curat(c.nume)}
 Ce pregătește: ${curat(c.cerere) || '-'}
-Mesajul lui: ${curat(c.mesaj) || '-'}
+Mesajul: ${curat(c.mesaj) || '-'}
 </cerere>`;
 
 return [{ json: { system, mesaj } }];
